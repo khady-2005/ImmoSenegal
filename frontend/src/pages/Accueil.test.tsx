@@ -1,8 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
-import { annonceTest, json, pageTest, reponseConnexion, simulerApi, utilisateurTest } from '../test/apiSimulee'
+import { annonceTest, json, pageTest, parametresDe, reponseConnexion, simulerApi, utilisateurTest } from '../test/apiSimulee'
 
 function afficher() {
   return render(
@@ -20,7 +21,7 @@ describe("Page d'accueil", () => {
     afficher()
 
     expect(screen.getByRole('heading', { level: 1, name: 'Rentrez enfin chez vous.' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Voir les logements' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByRole('link', { name: 'Voir tous les logements' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(2)
     liensInscription.forEach((l) => expect(l).toHaveAttribute('href', '/inscription'))
@@ -63,6 +64,47 @@ describe("Page d'accueil", () => {
       expect(screen.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
     }
     await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
+  it('transforme une phrase libre en filtres du catalogue et les envoie au serveur', async () => {
+    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    const user = userEvent.setup()
+    afficher()
+
+    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'studio à Ziguinchor sous 80 000 FCFA')
+    // Les critères reconnus sont montrés avant l'envoi.
+    expect(await screen.findByText('Budget max 80 000 FCFA')).toBeInTheDocument()
+    expect(screen.getByText('Studio')).toBeInTheDocument()
+    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
+
+    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
+    const p = parametresDe(api.mock.calls.at(-1)![0])
+    expect(p.get('transaction')).toBe('LOCATION')
+    expect(p.get('type')).toBe('STUDIO')
+    expect(p.get('ville')).toBe('Ziguinchor')
+    expect(p.get('prixMax')).toBe('80000')
+  })
+
+  it("n'ouvre pas le catalogue et l'explique quand la phrase ne contient aucun critère", async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    const user = userEvent.setup()
+    afficher()
+    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'bonjour')
+    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
+
+    expect(await screen.findByText(/n’avons reconnu aucun critère/i)).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Catalogue des annonces' })).not.toBeInTheDocument()
+  })
+
+  it('le choix Acheter est pris en compte quand la phrase ne dit ni louer ni acheter', async () => {
+    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    const user = userEvent.setup()
+    afficher()
+    await user.click(screen.getByRole('button', { name: 'Acheter' }))
+    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'villa à Dakar')
+    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
+    await screen.findByRole('heading', { name: 'Catalogue des annonces' })
+    expect(parametresDe(api.mock.calls.at(-1)![0]).get('transaction')).toBe('VENTE')
   })
 
   it('affiche les annonces récentes quand il y en a', async () => {

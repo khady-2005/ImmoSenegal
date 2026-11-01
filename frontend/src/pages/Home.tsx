@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Building2, BedSingle, House, LandPlot, TreePalm } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
+import RechercheLibre from '../components/RechercheLibre'
 import ListeAnnonces from '../components/ListeAnnonces'
 import QuartierCrepuscule from '../components/QuartierCrepuscule'
 import CielEtoile from '../components/CielEtoile'
@@ -34,12 +36,11 @@ const aVenir = [
 
 const boutonPlein =
   'inline-flex items-center rounded-full bg-dore-500 px-6 py-3 font-semibold text-nuit-950 transition-colors hover:bg-dore-600'
-const boutonContour =
-  'inline-flex items-center rounded-full border border-white/50 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10'
 
 export default function Home() {
   const { etat, reessayer } = useAnnonces('taille=3&tri=recent&statut=DISPONIBLE')
   const { utilisateur } = useAuth()
+  const [avancee, setAvancee] = useState(false)
   // Nombre réel d'annonces disponibles, affiché seulement s'il y en a (jamais un faux chiffre).
   const total = etat.statut === 'ok' ? etat.page.totalElements : 0
 
@@ -47,36 +48,23 @@ export default function Home() {
     <>
       <section
         aria-labelledby="titre-accueil"
-        className="ciel-crepuscule relative isolate overflow-hidden pb-[clamp(13rem,29vw,20rem)] pt-14 text-white sm:pt-20"
+        className="ciel-crepuscule relative isolate overflow-hidden pb-52 pt-10 text-white sm:pb-36 sm:pt-14"
       >
         <CielEtoile className="absolute inset-x-0 top-0 -z-[15] h-[min(100%,26rem)] w-full" />
         <QuartierCrepuscule className="absolute inset-x-0 bottom-0 -z-10 h-[clamp(18rem,34vw,28rem)] w-full" />
         <div className="mx-auto max-w-6xl px-4">
           <h1
             id="titre-accueil"
-            className="font-titre max-w-[11ch] text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl"
+            className="font-titre max-w-[11ch] text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl"
           >
             Rentrez enfin chez vous.
           </h1>
-          <p className="mt-5 max-w-md text-lg text-nuit-100 sm:text-xl">
+          <p className="mt-4 max-w-lg text-lg text-nuit-100">
             Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/catalogue" className={boutonPlein}>
-              Voir les logements
-            </Link>
-            {utilisateur ? (
-              <Link to="/tableau-de-bord" className={boutonContour}>
-                Mon espace
-              </Link>
-            ) : (
-              <Link to="/inscription" className={boutonContour}>
-                Créer mon compte
-              </Link>
-            )}
-          </div>
+          <RechercheLibre />
           {total > 0 && (
-            <p className="mt-6 flex items-center gap-2.5 text-sm text-nuit-100">
+            <p className="mt-1 flex items-center gap-2.5 text-sm text-nuit-100">
               <span
                 aria-hidden
                 className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(245,185,66,0.65)]"
@@ -84,18 +72,44 @@ export default function Home() {
               {total} logement{total > 1 ? 's' : ''} disponible{total > 1 ? 's' : ''} en ce moment
             </p>
           )}
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold">
+            <Link to="/catalogue" className="underline underline-offset-4 hover:text-dore-500">
+              Voir tous les logements
+            </Link>
+            {utilisateur ? (
+              <Link to="/tableau-de-bord" className="underline underline-offset-4 hover:text-dore-500">
+                Mon espace
+              </Link>
+            ) : (
+              <Link to="/inscription" className="underline underline-offset-4 hover:text-dore-500">
+                Créer mon compte
+              </Link>
+            )}
+          </p>
         </div>
       </section>
 
-      <div className="relative z-20 mx-auto -mt-12 max-w-6xl px-4">
-        <SearchForm />
-      </div>
-
       <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="titre-types">
-        <h2 id="titre-types" className="font-titre text-2xl font-semibold">
-          Parcourir par type de bien
-        </h2>
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h2 id="titre-types" className="font-titre text-2xl font-semibold">
+            Parcourir par type de bien
+          </h2>
+          <button
+            type="button"
+            aria-expanded={avancee}
+            aria-controls="recherche-avancee"
+            onClick={() => setAvancee((v) => !v)}
+            className="text-sm font-semibold text-emeraude-700 hover:underline"
+          >
+            {avancee ? 'Masquer la recherche avancée' : 'Recherche avancée'}
+          </button>
+        </div>
+        {avancee && (
+          <div id="recherche-avancee" className="mt-5">
+            <SearchForm />
+          </div>
+        )}
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5" aria-label="Types de bien">
           {types.map(({ type, nom, icone: Icone }, i) => (
             <li key={type} className={i === types.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
               <Link
