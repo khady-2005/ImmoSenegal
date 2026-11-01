@@ -85,7 +85,7 @@ const COULEUR_SILHOUETTE = '#07142a'
 export default function QuartierCrepuscule({ className }: { className?: string }) {
   return (
     <svg
-      className={className}
+      className={`overflow-visible ${className ?? ''}`}
       viewBox="0 0 1440 460"
       preserveAspectRatio="xMidYMax slice"
       aria-hidden="true"
@@ -110,8 +110,11 @@ export default function QuartierCrepuscule({ className }: { className?: string }
         </filter>
       </defs>
 
-      <circle cx="790" cy="330" r="300" fill="url(#qc-halo)" />
-      <circle cx="790" cy="326" r="104" fill="url(#qc-soleil)" />
+      {/* Le soleil descend derrière les immeubles au chargement (animation CSS « soleil »). */}
+      <g className="soleil">
+        <circle cx="790" cy="330" r="300" fill="url(#qc-halo)" />
+        <circle cx="790" cy="326" r="104" fill="url(#qc-soleil)" />
+      </g>
 
       <g fill="#1b355f" opacity="0.92">
         {loin.map((b) => (

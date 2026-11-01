@@ -22,17 +22,49 @@
   background: linear-gradient(180deg, #07142a 0%, #0b1f3a 26%, #12305a 50%, #4a4570 74%, #c27a4a 92%, #f5b942 100%);
 }
 
-/* Les fenêtres de l'illustration s'allument une à une ; sans animation si l'utilisateur le demande. */
+/* Séquence d'arrivée (une seule, au chargement) : le soleil descend, le ciel s'assombrit, les étoiles
+   apparaissent et les fenêtres s'allument une à une. Sans animation si l'utilisateur le demande. */
 @keyframes allumer {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes coucher {
+  from { transform: translateY(-130px); }
+  to { transform: translateY(0); }
+}
+@keyframes tombee-du-jour {
+  from { opacity: 0.65; }
+  to { opacity: 0; }
+}
+@keyframes apparaitre {
+  from { opacity: 0; }
+  to { opacity: var(--o, 0.8); }
 }
 .fenetre {
   opacity: 0;
   animation: allumer 1.2s ease-out var(--delai, 0s) forwards;
 }
+.soleil {
+  animation: coucher 6.5s cubic-bezier(0.45, 0.05, 0.35, 1) 0.3s both;
+}
+.etoile {
+  opacity: 0;
+  animation: apparaitre 2.4s ease-out var(--delai, 3s) forwards;
+}
+/* Voile chaud qui s'efface : le ciel passe de la fin de journée à la nuit. */
+.ciel-crepuscule::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+  background: linear-gradient(180deg, #4a6fa5 0%, #d68c50 66%, #f5b942 100%);
+  animation: tombee-du-jour 6.5s ease-in-out 0.3s both;
+}
 @media (prefers-reduced-motion: reduce) {
   .fenetre { opacity: 1; animation: none; }
+  .soleil { animation: none; }
+  .etoile { opacity: var(--o, 0.8); animation: none; }
+  .ciel-crepuscule::before { animation: none; opacity: 0; }
 }
 
 html { scroll-behavior: smooth; }

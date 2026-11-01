@@ -27,6 +27,44 @@ describe("Page d'accueil", () => {
     expect(await screen.findByText(/la première annonce peut être la vôtre/i)).toBeInTheDocument()
   })
 
+  it('affiche le nombre réel de logements disponibles, et rien quand il n\'y en a aucun', async () => {
+    simulerApi({
+      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
+    })
+    const { unmount } = afficher()
+    expect(await screen.findByText('1 logement disponible en ce moment')).toBeInTheDocument()
+    unmount()
+
+    simulerApi({
+      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 12 })),
+    })
+    afficher()
+    expect(await screen.findByText('12 logements disponibles en ce moment')).toBeInTheDocument()
+  })
+
+  it('n\'affiche aucun compteur quand la base est vide', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    afficher()
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+    expect(screen.queryByText(/disponible.* en ce moment/)).not.toBeInTheDocument()
+  })
+
+  it('propose un raccourci vers le catalogue pour chaque type de bien', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    afficher()
+    const attendus: Record<string, string> = {
+      Maisons: 'MAISON',
+      Appartements: 'APPARTEMENT',
+      Studios: 'STUDIO',
+      Villas: 'VILLA',
+      Terrains: 'TERRAIN',
+    }
+    for (const [nom, type] of Object.entries(attendus)) {
+      expect(screen.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
+    }
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
   it('affiche les annonces récentes quand il y en a', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa face au fleuve' })])) })
     afficher()
