@@ -6,65 +6,35 @@
   --color-nuit-900: #0b1f3a;
   --color-nuit-800: #12305a;
   --color-nuit-100: #e6ecf5;
+  --color-emeraude-900: #064e3b;
   --color-emeraude-700: #047857;
   --color-emeraude-600: #059669;
   --color-emeraude-500: #10b981;
   --color-emeraude-50: #ecfdf5;
   --color-dore-500: #f5b942;
   --color-dore-600: #d99a1b;
-  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* Titres de la page d'accueil : un serif chaleureux, hébergé avec le site (aucun appel à un service externe). */
-  --font-titre: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Titres : une grotesque expressive, hébergée avec le site (aucun appel à un service externe). */
+  --font-titre: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Ciel de la page d'accueil : nuit en haut, lueur dorée à l'horizon. */
-.ciel-crepuscule {
-  background: linear-gradient(180deg, #07142a 0%, #0b1f3a 26%, #12305a 50%, #4a4570 74%, #c27a4a 92%, #f5b942 100%);
+/* Ciel de la page d'accueil : bleu clair en haut, lueur dorée à l'horizon. */
+.ciel-jour {
+  background: linear-gradient(180deg, #86c8ef 0%, #b9e0f5 38%, #e6f3f6 68%, #fdeccb 100%);
 }
 
-/* Séquence d'arrivée (une seule, au chargement) : le soleil descend, le ciel s'assombrit, les étoiles
-   apparaissent et les fenêtres s'allument une à une. Sans animation si l'utilisateur le demande. */
+/* Séquence d'arrivée (une seule, au chargement) : les vitres des immeubles apparaissent une à une.
+   Sans animation si l'utilisateur le demande. */
 @keyframes allumer {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-@keyframes coucher {
-  from { transform: translateY(-130px); }
-  to { transform: translateY(0); }
-}
-@keyframes tombee-du-jour {
-  from { opacity: 0.65; }
-  to { opacity: 0; }
-}
-@keyframes apparaitre {
-  from { opacity: 0; }
-  to { opacity: var(--o, 0.8); }
 }
 .fenetre {
   opacity: 0;
   animation: allumer 1.2s ease-out var(--delai, 0s) forwards;
 }
-.soleil {
-  animation: coucher 6.5s cubic-bezier(0.45, 0.05, 0.35, 1) 0.3s both;
-}
-.etoile {
-  opacity: 0;
-  animation: apparaitre 2.4s ease-out var(--delai, 3s) forwards;
-}
-/* Voile chaud qui s'efface : le ciel passe de la fin de journée à la nuit. */
-.ciel-crepuscule::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -20;
-  background: linear-gradient(180deg, #4a6fa5 0%, #d68c50 66%, #f5b942 100%);
-  animation: tombee-du-jour 6.5s ease-in-out 0.3s both;
-}
 @media (prefers-reduced-motion: reduce) {
   .fenetre { opacity: 1; animation: none; }
-  .soleil { animation: none; }
-  .etoile { opacity: var(--o, 0.8); animation: none; }
-  .ciel-crepuscule::before { animation: none; opacity: 0; }
 }
 
 html { scroll-behavior: smooth; }

@@ -41,7 +41,7 @@ export default function RechercheLibre() {
       <form
         onSubmit={envoyer}
         aria-label="Recherche en une phrase"
-        className="rounded-3xl bg-white p-3 text-slate-900 shadow-2xl shadow-black/40 focus-within:ring-4 focus-within:ring-dore-500/60 sm:p-4"
+        className="rounded-3xl bg-white p-3 text-slate-900 shadow-xl shadow-nuit-900/25 focus-within:ring-4 focus-within:ring-dore-500/70 sm:p-4"
       >
         <label htmlFor={id} className="sr-only">
           Décrivez le logement que vous cherchez
@@ -100,21 +100,21 @@ export default function RechercheLibre() {
               setMessage(null)
               zone.current?.focus()
             }}
-            className="rounded-full border border-white/30 px-3.5 py-1.5 text-left text-sm text-nuit-100 transition-colors hover:bg-white/10"
+            className="rounded-full border border-nuit-900/25 bg-white/40 px-3.5 py-1.5 text-left text-sm text-nuit-900 transition-colors hover:bg-white/80"
           >
             {exemple}
           </button>
         ))}
       </div>
 
-      <div role="status" className="mt-3 min-h-6 text-sm text-nuit-100">
+      <div role="status" className="mt-3 min-h-6 text-sm text-nuit-800">
         {message ? (
           <p>{message}</p>
         ) : texte.trim() && criteres.reconnus.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
             <span>Nous cherchons :</span>
             {criteres.reconnus.map((r) => (
-              <span key={r} className="rounded-full bg-dore-500/20 px-2.5 py-0.5 font-medium text-dore-500">
+              <span key={r} className="rounded-full bg-white/80 px-2.5 py-0.5 font-medium text-emeraude-900">
                 {r}
               </span>
             ))}

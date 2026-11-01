@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
 import RechercheLibre from '../components/RechercheLibre'
 import ListeAnnonces from '../components/ListeAnnonces'
-import QuartierCrepuscule from '../components/QuartierCrepuscule'
-import CielEtoile from '../components/CielEtoile'
+import ImmeublesJour from '../components/ImmeublesJour'
 import { useAnnonces } from '../components/useAnnonces'
 import { useAuth } from '../auth'
 
@@ -48,10 +47,14 @@ export default function Home() {
     <>
       <section
         aria-labelledby="titre-accueil"
-        className="ciel-crepuscule relative isolate overflow-hidden pb-52 pt-10 text-white sm:pb-36 sm:pt-14"
+        className="ciel-jour relative isolate overflow-hidden pb-64 pt-10 text-nuit-900 sm:pb-40 sm:pt-14"
       >
-        <CielEtoile className="absolute inset-x-0 top-0 -z-[15] h-[min(100%,26rem)] w-full" />
-        <QuartierCrepuscule className="absolute inset-x-0 bottom-0 -z-10 h-[clamp(18rem,34vw,28rem)] w-full" />
+        <ImmeublesJour className="absolute inset-x-0 bottom-0 -z-10 h-[clamp(20rem,56vw,44rem)] w-full" />
+        {/* Voile clair derrière le texte : il reste lisible même devant les immeubles. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 -z-[5] w-full bg-gradient-to-r from-[#eaf5f9]/80 via-[#eaf5f9]/45 to-transparent sm:w-3/4"
+        />
         <div className="mx-auto max-w-6xl px-4">
           <h1
             id="titre-accueil"
@@ -59,12 +62,12 @@ export default function Home() {
           >
             Rentrez enfin chez vous.
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-nuit-100">
+          <p className="mt-4 max-w-lg text-lg text-nuit-800">
             Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
           </p>
           <RechercheLibre />
           {total > 0 && (
-            <p className="mt-1 flex items-center gap-2.5 text-sm text-nuit-100">
+            <p className="mt-1 flex items-center gap-2.5 text-sm text-nuit-800">
               <span
                 aria-hidden
                 className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(245,185,66,0.65)]"
@@ -73,15 +76,15 @@ export default function Home() {
             </p>
           )}
           <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold">
-            <Link to="/catalogue" className="underline underline-offset-4 hover:text-dore-500">
+            <Link to="/catalogue" className="underline underline-offset-4 hover:text-emeraude-700">
               Voir tous les logements
             </Link>
             {utilisateur ? (
-              <Link to="/tableau-de-bord" className="underline underline-offset-4 hover:text-dore-500">
+              <Link to="/tableau-de-bord" className="underline underline-offset-4 hover:text-emeraude-700">
                 Mon espace
               </Link>
             ) : (
-              <Link to="/inscription" className="underline underline-offset-4 hover:text-dore-500">
+              <Link to="/inscription" className="underline underline-offset-4 hover:text-emeraude-700">
                 Créer mon compte
               </Link>
             )}
@@ -144,7 +147,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-nuit-950 py-16 text-white" aria-labelledby="titre-portes">
+      <section className="bg-emeraude-900 py-16 text-white" aria-labelledby="titre-portes">
         <div className="mx-auto max-w-6xl px-4">
           <h2 id="titre-portes" className="font-titre max-w-[18ch] text-3xl font-semibold leading-tight sm:text-5xl">
             Chacun cherche une porte qui s’ouvre.
@@ -156,7 +159,7 @@ export default function Home() {
                   aria-hidden
                   className="mt-2 h-5 w-3 shrink-0 rounded-[3px] bg-dore-500 shadow-[0_0_14px_3px_rgba(245,185,66,0.55)]"
                 />
-                <p className="font-titre text-xl leading-snug text-nuit-100 sm:text-2xl">{texte}</p>
+                <p className="font-titre text-xl leading-snug text-emeraude-50 sm:text-2xl">{texte}</p>
               </li>
             ))}
           </ul>
@@ -226,13 +229,13 @@ export default function Home() {
       </section>
 
       {!utilisateur && (
-        <section className="bg-gradient-to-br from-nuit-950 via-nuit-900 to-nuit-800 py-16 text-white" aria-labelledby="titre-fin">
+        <section className="bg-gradient-to-br from-emeraude-900 via-emeraude-700 to-nuit-900 py-16 text-white" aria-labelledby="titre-fin">
           <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 id="titre-fin" className="font-titre text-3xl font-semibold sm:text-4xl">
                 Ouvrez la porte.
               </h2>
-              <p className="mt-2 max-w-md text-nuit-100">
+              <p className="mt-2 max-w-md text-emeraude-50">
                 Créer un compte est gratuit : c’est la première étape pour publier une annonce.
               </p>
             </div>
