@@ -125,6 +125,76 @@ describe("Page d'accueil", () => {
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
+  it('propose un raccourci vers le catalogue pour chaque ville', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    afficher()
+    const villes = within(screen.getByRole('list', { name: 'Villes' }))
+    expect(villes.getByRole('link', { name: 'Dakar' })).toHaveAttribute('href', '/catalogue?ville=Dakar')
+    expect(villes.getByRole('link', { name: 'Thiès' })).toHaveAttribute('href', '/catalogue?ville=Thi%C3%A8s')
+    expect(villes.getByRole('link', { name: 'Saint-Louis' })).toHaveAttribute('href', '/catalogue?ville=Saint-Louis')
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
+  it('« Comment ça marche » montre trois étapes, avec des critères réellement reconnus', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    afficher()
+    const section = screen.getByRole('heading', { name: 'Comment ça marche' }).closest('section')!
+    expect(within(section).getAllByRole('listitem')).toHaveLength(3)
+    for (const titre of ['Décrivez', 'Affinez', 'Ouvrez la fiche']) {
+      expect(within(section).getByRole('heading', { name: titre })).toBeInTheDocument()
+    }
+    // Les pastilles de la maquette sortent de la vraie analyse de phrase.
+    expect(section).toHaveTextContent('Thiès')
+    expect(section).toHaveTextContent('Budget max 150 000 FCFA')
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
+  it('la FAQ s’ouvre et se referme, une réponse à la fois, sans promettre ce qui n’existe pas', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    const user = userEvent.setup()
+    afficher()
+
+    const premiere = screen.getByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })
+    const paiement = screen.getByRole('button', { name: 'Puis-je réserver, payer ou écrire au propriétaire ?' })
+    expect(premiere).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByText(/Le catalogue est ouvert à tous/)).not.toBeVisible()
+
+    await user.click(premiere)
+    expect(premiere).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/Le catalogue est ouvert à tous/)).toBeVisible()
+
+    await user.click(paiement)
+    expect(premiere).toHaveAttribute('aria-expanded', 'false')
+    expect(paiement).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText(/Pas encore\. La demande de visite/)).toBeVisible()
+
+    await user.click(paiement)
+    expect(paiement).toHaveAttribute('aria-expanded', 'false')
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
+  it('le pied de page mène au catalogue et au compte, et change quand la personne est connectée', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
+    const { unmount } = afficher()
+    const pied = within(screen.getByRole('contentinfo'))
+    expect(pied.getByRole('link', { name: 'Logements à louer' })).toHaveAttribute('href', '/catalogue?transaction=LOCATION')
+    expect(pied.getByRole('link', { name: 'Logements à acheter' })).toHaveAttribute('href', '/catalogue?transaction=VENTE')
+    expect(pied.getByRole('link', { name: 'Se connecter' })).toHaveAttribute('href', '/connexion')
+    expect(pied.getByRole('link', { name: 'Créer un compte' })).toHaveAttribute('href', '/inscription')
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+    unmount()
+
+    simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),
+      'GET /api/auth/me': () => json(200, utilisateurTest),
+      'GET /api/annonces?*': () => json(200, pageTest([])),
+    })
+    afficher()
+    const piedConnecte = within(screen.getByRole('contentinfo'))
+    expect(await piedConnecte.findByRole('link', { name: 'Tableau de bord' })).toHaveAttribute('href', '/tableau-de-bord')
+    expect(piedConnecte.queryByRole('link', { name: 'Se connecter' })).not.toBeInTheDocument()
+  })
+
   it('remplace les appels à créer un compte par « Mon espace » quand la personne est connectée', async () => {
     simulerApi({
       'POST /api/auth/refresh': () => reponseConnexion(),

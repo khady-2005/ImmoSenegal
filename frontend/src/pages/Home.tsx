@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Building2, BedSingle, House, LandPlot, TreePalm } from 'lucide-react'
+import { Building2, BedSingle, House, LandPlot, MapPin, TreePalm } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
 import RechercheLibre from '../components/RechercheLibre'
+import CommentCaMarche from '../components/CommentCaMarche'
+import Faq from '../components/Faq'
 import ListeAnnonces from '../components/ListeAnnonces'
 import ImmeublesJour from '../components/ImmeublesJour'
 import { useAnnonces } from '../components/useAnnonces'
@@ -16,6 +18,9 @@ const types = [
   { type: 'VILLA', nom: 'Villas', icone: TreePalm },
   { type: 'TERRAIN', nom: 'Terrains', icone: LandPlot },
 ]
+
+/** Villes du catalogue : de simples raccourcis vers le filtre « ville » (aucun chiffre ni annonce inventés). */
+const villes = ['Dakar', 'Ziguinchor', 'Thiès', 'Saint-Louis', 'Mbour', 'Saly', 'Kaolack', 'Touba']
 
 /** Situations de vie (pas des témoignages : aucune personne réelle n'est citée). */
 const situations = [
@@ -127,6 +132,20 @@ export default function Home() {
             </li>
           ))}
         </ul>
+        <h3 className="font-titre mt-8 text-lg font-semibold">Ou choisissez une ville</h3>
+        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Villes">
+          {villes.map((ville) => (
+            <li key={ville}>
+              <Link
+                to={`/catalogue?ville=${encodeURIComponent(ville)}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium ring-1 ring-slate-200 transition-colors hover:ring-2 hover:ring-emeraude-600"
+              >
+                <MapPin aria-hidden className="h-4 w-4 text-emeraude-600" />
+                {ville}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-14" aria-labelledby="titre-annonces">
@@ -146,6 +165,8 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <CommentCaMarche />
 
       <section className="bg-emeraude-900 py-16 text-white" aria-labelledby="titre-portes">
         <div className="mx-auto max-w-6xl px-4">
@@ -212,7 +233,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200 bg-white py-10" aria-labelledby="titre-avenir">
+      <Faq />
+
+      <section className="border-t border-slate-200 bg-slate-50 py-10" aria-labelledby="titre-avenir">
         <div className="mx-auto max-w-6xl px-4">
           <h2 id="titre-avenir" className="font-titre text-2xl font-semibold">
             À venir
@@ -220,7 +243,7 @@ export default function Home() {
           <p className="mt-2 max-w-2xl text-slate-600">Ces fonctions ne sont pas encore disponibles.</p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {aVenir.map((nom) => (
-              <li key={nom} className="rounded-full bg-slate-100 px-3.5 py-1.5 text-sm text-slate-700">
+              <li key={nom} className="rounded-full bg-white px-3.5 py-1.5 text-sm text-slate-700 ring-1 ring-slate-200">
                 {nom}
               </li>
             ))}

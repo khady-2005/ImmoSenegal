@@ -67,8 +67,68 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-nuit-950 py-6 text-center text-sm text-nuit-100/80">
-        <p>© {new Date().getFullYear()} ImmoSénégal – projet de mémoire L3 Ingénierie Informatique, UASZ</p>
+      <footer className="bg-nuit-950 text-sm text-nuit-100/80">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
+          <div>
+            <p className="flex items-center gap-2 text-lg font-bold text-white">
+              <Building2 aria-hidden className="h-5 w-5 text-emeraude-500" />
+              <span>
+                Immo<span className="text-dore-500">Sénégal</span>
+              </span>
+            </p>
+            <p className="mt-3 max-w-xs">
+              Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
+            </p>
+          </div>
+          <nav aria-label="Pied de page : explorer">
+            <p className="font-semibold text-white">Explorer</p>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <Link to="/catalogue" className="hover:text-white hover:underline">
+                  Tous les logements
+                </Link>
+              </li>
+              <li>
+                <Link to="/catalogue?transaction=LOCATION" className="hover:text-white hover:underline">
+                  Logements à louer
+                </Link>
+              </li>
+              <li>
+                <Link to="/catalogue?transaction=VENTE" className="hover:text-white hover:underline">
+                  Logements à acheter
+                </Link>
+              </li>
+            </ul>
+          </nav>
+          <nav aria-label="Pied de page : compte">
+            <p className="font-semibold text-white">Compte</p>
+            <ul className="mt-3 space-y-2">
+              {utilisateur ? (
+                <li>
+                  <Link to="/tableau-de-bord" className="hover:text-white hover:underline">
+                    Tableau de bord
+                  </Link>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <Link to="/connexion" className="hover:text-white hover:underline">
+                      Se connecter
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/inscription" className="hover:text-white hover:underline">
+                      Créer un compte
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        </div>
+        <div className="border-t border-white/10 py-4 text-center text-xs">
+          <p>© {new Date().getFullYear()} ImmoSénégal – projet de mémoire L3 Ingénierie Informatique, UASZ</p>
+        </div>
       </footer>
     </div>
   )
