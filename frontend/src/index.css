@@ -18,25 +18,6 @@
   --font-titre: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Ciel de la page d'accueil : bleu clair en haut, lueur dorée à l'horizon. */
-.ciel-jour {
-  background: linear-gradient(180deg, #86c8ef 0%, #b9e0f5 38%, #e6f3f6 68%, #fdeccb 100%);
-}
-
-/* Séquence d'arrivée (une seule, au chargement) : les vitres des immeubles apparaissent une à une.
-   Sans animation si l'utilisateur le demande. */
-@keyframes allumer {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.fenetre {
-  opacity: 0;
-  animation: allumer 1.2s ease-out var(--delai, 0s) forwards;
-}
-@media (prefers-reduced-motion: reduce) {
-  .fenetre { opacity: 1; animation: none; }
-}
-
 html { scroll-behavior: smooth; }
 body { @apply bg-slate-50 text-slate-900 antialiased; overflow-x: hidden; }
 

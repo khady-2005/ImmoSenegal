@@ -100,21 +100,21 @@ export default function RechercheLibre() {
               setMessage(null)
               zone.current?.focus()
             }}
-            className="rounded-full border border-nuit-900/25 bg-white/40 px-3.5 py-1.5 text-left text-sm text-nuit-900 transition-colors hover:bg-white/80"
+            className="rounded-full border border-white/45 bg-white/10 px-3.5 py-1.5 text-left text-sm text-white backdrop-blur-sm transition-colors hover:bg-white/25"
           >
             {exemple}
           </button>
         ))}
       </div>
 
-      <div role="status" className="mt-3 min-h-6 text-sm text-nuit-800">
+      <div role="status" className="mt-3 min-h-6 text-sm text-white/90">
         {message ? (
           <p>{message}</p>
         ) : texte.trim() && criteres.reconnus.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
             <span>Nous cherchons :</span>
             {criteres.reconnus.map((r) => (
-              <span key={r} className="rounded-full bg-white/80 px-2.5 py-0.5 font-medium text-emeraude-900">
+              <span key={r} className="rounded-full bg-white/90 px-2.5 py-0.5 font-medium text-emeraude-900">
                 {r}
               </span>
             ))}

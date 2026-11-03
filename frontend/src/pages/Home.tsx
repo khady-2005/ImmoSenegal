@@ -6,9 +6,10 @@ import RechercheLibre from '../components/RechercheLibre'
 import CommentCaMarche from '../components/CommentCaMarche'
 import Faq from '../components/Faq'
 import ListeAnnonces from '../components/ListeAnnonces'
-import ImmeublesJour from '../components/ImmeublesJour'
 import { useAnnonces } from '../components/useAnnonces'
 import { useAuth } from '../auth'
+import photoAccueil from '../assets/hero-villa.webp'
+import photoFin from '../assets/bien-saly.webp'
 
 /** Raccourcis vers le catalogue filtré par type de bien (mêmes valeurs que le formulaire de recherche). */
 const types = [
@@ -50,29 +51,33 @@ export default function Home() {
 
   return (
     <>
-      <section
-        aria-labelledby="titre-accueil"
-        className="ciel-jour relative isolate overflow-hidden pb-64 pt-10 text-nuit-900 sm:pb-40 sm:pt-14"
-      >
-        <ImmeublesJour className="absolute inset-x-0 bottom-0 -z-10 h-[clamp(20rem,56vw,44rem)] w-full" />
-        {/* Voile clair derrière le texte : il reste lisible même devant les immeubles. */}
+      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden text-white">
+        {/* Photo d'ambiance (image illustrative, pas une annonce). Le voile sombre garde le texte lisible. */}
+        <img
+          src={photoAccueil}
+          alt=""
+          width={1600}
+          height={1008}
+          className="absolute inset-0 -z-20 h-full w-full object-cover"
+        />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 -z-[5] w-full bg-gradient-to-r from-[#eaf5f9]/80 via-[#eaf5f9]/45 to-transparent sm:w-3/4"
+          className="absolute inset-0 -z-10 bg-nuit-950/60 sm:bg-transparent sm:bg-gradient-to-r sm:from-nuit-950/80 sm:via-nuit-950/45 sm:to-transparent"
         />
-        <div className="mx-auto max-w-6xl px-4">
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-nuit-950/55 to-transparent" />
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <h1
             id="titre-accueil"
             className="font-titre max-w-[11ch] text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl"
           >
             Rentrez enfin chez vous.
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-nuit-800">
+          <p className="mt-4 max-w-lg text-lg text-white/90">
             Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
           </p>
           <RechercheLibre />
           {total > 0 && (
-            <p className="mt-1 flex items-center gap-2.5 text-sm text-nuit-800">
+            <p className="mt-1 flex items-center gap-2.5 text-sm text-white/90">
               <span
                 aria-hidden
                 className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(245,185,66,0.65)]"
@@ -81,20 +86,21 @@ export default function Home() {
             </p>
           )}
           <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold">
-            <Link to="/catalogue" className="underline underline-offset-4 hover:text-emeraude-700">
+            <Link to="/catalogue" className="underline underline-offset-4 hover:text-dore-500">
               Voir tous les logements
             </Link>
             {utilisateur ? (
-              <Link to="/tableau-de-bord" className="underline underline-offset-4 hover:text-emeraude-700">
+              <Link to="/tableau-de-bord" className="underline underline-offset-4 hover:text-dore-500">
                 Mon espace
               </Link>
             ) : (
-              <Link to="/inscription" className="underline underline-offset-4 hover:text-emeraude-700">
+              <Link to="/inscription" className="underline underline-offset-4 hover:text-dore-500">
                 Créer mon compte
               </Link>
             )}
           </p>
         </div>
+        <p className="absolute bottom-2 right-3 text-xs text-white/70">Image illustrative</p>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="titre-types">
@@ -252,7 +258,16 @@ export default function Home() {
       </section>
 
       {!utilisateur && (
-        <section className="bg-gradient-to-br from-emeraude-900 via-emeraude-700 to-nuit-900 py-16 text-white" aria-labelledby="titre-fin">
+        <section className="relative isolate overflow-hidden py-20 text-white" aria-labelledby="titre-fin">
+          <img
+            src={photoFin}
+            alt=""
+            width={944}
+            height={704}
+            loading="lazy"
+            className="absolute inset-0 -z-20 h-full w-full object-cover"
+          />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-emeraude-900/90 via-emeraude-900/70 to-nuit-950/55" />
           <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 id="titre-fin" className="font-titre text-3xl font-semibold sm:text-4xl">
@@ -266,6 +281,7 @@ export default function Home() {
               Créer mon compte
             </Link>
           </div>
+          <p className="absolute bottom-2 right-3 text-xs text-white/70">Image illustrative</p>
         </section>
       )}
     </>
