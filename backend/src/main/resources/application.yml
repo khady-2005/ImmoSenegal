@@ -50,6 +50,9 @@ app:
     # Création du PREMIER administrateur (voir README). À supprimer de l'environnement après usage.
     admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}
     admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+  exemples:
+    # Annonces d'EXEMPLE (démonstration), clairement marquées « Exemple ». Désactivé par défaut. Voir le README.
+    actif: ${EXEMPLES_ACTIFS:false}
   cors:
     # Liste d'origines séparées par des virgules (ex. l'URL du frontend déployé).
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}

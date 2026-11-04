@@ -113,6 +113,69 @@ describe("Page d'accueil", () => {
     expect(await screen.findByRole('link', { name: 'Villa face au fleuve' })).toBeInTheDocument()
   })
 
+  it('le compteur ne compte que les vraies annonces : il demande exemple=false au serveur', async () => {
+    const api = simulerApi({
+      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
+    })
+    afficher()
+    await screen.findByText('1 logement disponible en ce moment')
+    const urls = api.mock.calls.map((c) => String(c[0]))
+    expect(urls.some((u) => u.includes('statut=DISPONIBLE') && u.includes('exemple=false'))).toBe(true)
+    // La grille, elle, montre aussi les exemples : elle ne filtre pas sur ce critère.
+    expect(urls.some((u) => u.includes('taille=6') && !u.includes('exemple='))).toBe(true)
+  })
+
+  it('marque clairement les annonces d’exemple, avec une note, et ne les compte pas comme réelles', async () => {
+    simulerApi({
+      'GET /api/annonces?*': () =>
+        json(200, pageTest([annonceTest({ titre: 'Villa avec vue sur la mer', exemple: true, photos: ['p1'] })], { totalElements: 1 })),
+    })
+    afficher()
+    expect(await screen.findByRole('link', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
+    expect(screen.getByText('Exemple')).toBeInTheDocument()
+    expect(screen.getByText(/ces biens n’existent pas/)).toBeInTheDocument()
+    // La photo d'un exemple est décrite comme illustrative, jamais comme la photo d'un vrai bien.
+    expect(screen.getByAltText('Image illustrative : Villa avec vue sur la mer')).toBeInTheDocument()
+  })
+
+  it('n’affiche aucune mention « Exemple » pour de vraies annonces', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa face au fleuve' })])) })
+    afficher()
+    await screen.findByRole('link', { name: 'Villa face au fleuve' })
+    expect(screen.queryByText('Exemple')).not.toBeInTheDocument()
+    expect(screen.queryByText(/ces biens n’existent pas/)).not.toBeInTheDocument()
+  })
+
+  it('les onglets « À louer » et « À vendre » filtrent les annonces à la une', async () => {
+    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
+    const user = userEvent.setup()
+    afficher()
+    await screen.findByRole('link', { name: 'Appartement lumineux' })
+
+    const groupe = within(screen.getByRole('group', { name: 'Type d’annonce' }))
+    expect(groupe.getByRole('button', { name: 'Toutes' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(groupe.getByRole('button', { name: 'À louer' }))
+    expect(groupe.getByRole('button', { name: 'À louer' })).toHaveAttribute('aria-pressed', 'true')
+    await screen.findByRole('link', { name: 'Appartement lumineux' })
+    expect(api.mock.calls.some((c) => String(c[0]).includes('taille=6') && String(c[0]).includes('transaction=LOCATION'))).toBe(true)
+
+    await user.click(groupe.getByRole('button', { name: 'À vendre' }))
+    await screen.findByRole('link', { name: 'Appartement lumineux' })
+    expect(api.mock.calls.some((c) => String(c[0]).includes('transaction=VENTE'))).toBe(true)
+  })
+
+  it('la page de détail d’une annonce d’exemple le dit en toutes lettres', async () => {
+    const exemple = annonceTest({ exemple: true, titre: 'Villa avec vue sur la mer' })
+    simulerApi({ [`GET /api/annonces/${exemple.id}`]: () => json(200, exemple) })
+    render(
+      <MemoryRouter initialEntries={[`/annonces/${exemple.id}`]}>
+        <App />
+      </MemoryRouter>,
+    )
+    expect(await screen.findByRole('heading', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
+    expect(screen.getByRole('note')).toHaveTextContent('Ce bien n’existe pas')
+  })
+
   it('annonce honnêtement les fonctions pas encore disponibles', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()

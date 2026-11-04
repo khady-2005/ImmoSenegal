@@ -50,6 +50,8 @@ export interface Annonce {
   modifieLe: string
   /** Identifiants des photos, la première sert de couverture. */
   photos: string[]
+  /** Vrai pour une annonce d'exemple (démonstration) : le bien n'existe pas et doit toujours être présenté comme tel. */
+  exemple: boolean
 }
 
 export interface PagePaginee<T> {

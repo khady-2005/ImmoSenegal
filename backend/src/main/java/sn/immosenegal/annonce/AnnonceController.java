@@ -52,11 +52,12 @@ public class AnnonceController {
             @RequestParam(required = false) Integer piecesMin,
             @RequestParam(required = false) List<String> equipements,
             @RequestParam(required = false) StatutAnnonce statut,
+            @RequestParam(required = false) Boolean exemple,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer taille,
             @RequestParam(required = false) String tri) {
         CriteresRecherche criteres = new CriteresRecherche(transaction, type, prixMin, prixMax, superficieMin,
-            superficieMax, quartier, ville, piecesMin, equipements, statut);
+            superficieMax, quartier, ville, piecesMin, equipements, statut, exemple);
         return service.rechercher(criteres, page, taille, tri);
     }
 

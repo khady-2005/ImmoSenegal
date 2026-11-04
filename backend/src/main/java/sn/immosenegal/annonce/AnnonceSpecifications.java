@@ -28,6 +28,9 @@ final class AnnonceSpecifications {
             if (c.statut() != null) {
                 predicats.add(cb.equal(root.get("statut"), c.statut()));
             }
+            if (c.exemple() != null) {
+                predicats.add(cb.equal(root.<Boolean>get("exemple"), c.exemple()));
+            }
             if (c.prixMin() != null) {
                 predicats.add(cb.greaterThanOrEqualTo(root.<Long>get("prix"), c.prixMin()));
             }

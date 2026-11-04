@@ -3,6 +3,7 @@ import { Building2, BedSingle, House, LandPlot, MapPin, TreePalm } from 'lucide-
 import { Link } from 'react-router-dom'
 import SearchForm from '../components/SearchForm'
 import RechercheLibre from '../components/RechercheLibre'
+import type { Transaction } from '../rechercheLibre'
 import CommentCaMarche from '../components/CommentCaMarche'
 import Faq from '../components/Faq'
 import ListeAnnonces from '../components/ListeAnnonces'
@@ -43,11 +44,16 @@ const boutonPlein =
   'inline-flex items-center rounded-full bg-dore-500 px-6 py-3 font-semibold text-nuit-950 transition-colors hover:bg-dore-600'
 
 export default function Home() {
-  const { etat, reessayer } = useAnnonces('taille=3&tri=recent&statut=DISPONIBLE')
+  const [onglet, setOnglet] = useState<'TOUT' | Transaction>('TOUT')
+  const { etat, reessayer } = useAnnonces(
+    `taille=6&tri=recent&statut=DISPONIBLE${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`,
+  )
+  // Nombre de VRAIS logements disponibles : les annonces d'exemple ne comptent jamais. Affiché seulement s'il y en a.
+  const { etat: etatReelles } = useAnnonces('taille=1&statut=DISPONIBLE&exemple=false')
   const { utilisateur } = useAuth()
   const [avancee, setAvancee] = useState(false)
-  // Nombre réel d'annonces disponibles, affiché seulement s'il y en a (jamais un faux chiffre).
-  const total = etat.statut === 'ok' ? etat.page.totalElements : 0
+  const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0
+  const contientExemple = etat.statut === 'ok' && etat.page.contenu.some((a) => a.exemple)
 
   return (
     <>
@@ -155,21 +161,53 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-14" aria-labelledby="titre-annonces">
-        <div className="flex flex-wrap items-end justify-between gap-2">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 id="titre-annonces" className="font-titre text-3xl font-semibold">
-            Annonces récentes
+            Annonces à la une
           </h2>
-          <Link to="/catalogue" className="text-sm font-semibold text-emeraude-700 hover:underline">
-            Voir tout le catalogue
-          </Link>
+          <div role="group" aria-label="Type d’annonce" className="inline-flex rounded-full bg-slate-200/70 p-1 text-sm font-semibold">
+            {(
+              [
+                ['TOUT', 'Toutes'],
+                ['LOCATION', 'À louer'],
+                ['VENTE', 'À vendre'],
+              ] as const
+            ).map(([valeur, nom]) => (
+              <button
+                key={valeur}
+                type="button"
+                aria-pressed={onglet === valeur}
+                onClick={() => setOnglet(valeur)}
+                className={`rounded-full px-4 py-1.5 transition-colors ${
+                  onglet === valeur ? 'bg-nuit-900 text-white' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {nom}
+              </button>
+            ))}
+          </div>
         </div>
+        {contientExemple && (
+          <p className="mt-3 text-sm text-slate-600">
+            Les annonces marquées « Exemple » servent à la démonstration : ces biens n’existent pas.
+          </p>
+        )}
         <div className="mt-6">
           <ListeAnnonces
             etat={etat}
             reessayer={reessayer}
-            vide="Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre."
+            vide={
+              onglet === 'TOUT'
+                ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre."
+                : 'Aucune annonce de ce type pour le moment.'
+            }
           />
         </div>
+        <p className="mt-6">
+          <Link to="/catalogue" className="text-sm font-semibold text-emeraude-700 hover:underline">
+            Voir tout le catalogue
+          </Link>
+        </p>
       </section>
 
       <CommentCaMarche />

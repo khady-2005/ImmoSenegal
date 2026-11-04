@@ -107,6 +107,28 @@ BOOTSTRAP_ADMIN_PASSWORD=un_mot_de_passe_de_12_caracteres_minimum
 Démarrer le backend une fois, puis **supprimer ces deux lignes**. Si un ADMIN existe déjà, elles sont ignorées.
 Les propriétaires et agents s'inscrivent comme CLIENT, puis demandent leur rôle (`POST /api/auth/role-requests`) ; un ADMIN valide dans `/api/admin/role-requests`.
 
+## Annonces d'exemple (démonstration)
+
+Pour qu'un catalogue vide ne gâche pas une présentation, le serveur peut créer 8 annonces **d'exemple**
+(villas, appartements, studio, terrain à Dakar, Ziguinchor, Saly, Saint-Louis, Mbour) :
+
+```
+EXEMPLES_ACTIFS=true
+```
+
+Garde-fous : désactivé par défaut ; jamais créées par un formulaire public ; marquées `exemple = true` en base,
+affichées avec la mention « Exemple » (cartes et page de détail) ; la description précise que le bien n'existe pas ;
+les photos sont des images illustratives ; le compte « propriétaire » associé est désactivé (impossible de s'y connecter) ;
+le compteur de l'accueil ne compte que les vraies annonces (`exemple=false`).
+
+Pour les retirer (avec leurs photos), exécuter une seule requête SQL sur la base :
+
+```sql
+DELETE FROM users WHERE email = 'exemples@immosenegal.invalid';
+```
+
+Puis remettre `EXEMPLES_ACTIFS=false` (sinon elles seraient recréées au prochain démarrage).
+
 ## Tests
 
 ```bash

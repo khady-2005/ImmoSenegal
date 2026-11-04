@@ -12,6 +12,10 @@ const questions = [
     r: 'Les propriétaires. Chaque inscription crée d’abord un compte client : vous demandez ensuite le rôle de propriétaire et un administrateur examine la demande. Les rôles d’agent et d’administrateur ne se choisissent pas à l’inscription.',
   },
   {
+    q: 'Que sont les annonces marquées « Exemple » ?',
+    r: 'Des annonces de démonstration, créées par le site pour montrer son fonctionnement. Ces biens n’existent pas : elles portent la mention « Exemple », leurs photos sont illustratives, et on ne peut pas les contacter. L’équipe du site peut les retirer à tout moment.',
+  },
+  {
     q: 'Combien de photos puis-je ajouter à une annonce ?',
     r: 'Jusqu’à 8 photos par annonce, en JPEG ou PNG, de 5 Mo au maximum chacune. À l’envoi, les photos sont ré-encodées : les informations cachées qu’elles contiennent, comme la position GPS, sont supprimées.',
   },

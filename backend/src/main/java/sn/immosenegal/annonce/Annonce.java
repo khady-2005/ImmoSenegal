@@ -83,6 +83,10 @@ public class Annonce {
     @BatchSize(size = 50)
     private Set<String> equipements = new HashSet<>();
 
+    /** Vrai pour une annonce de démonstration (créée par le serveur, affichée comme « Exemple »). Jamais modifiable par l'API. */
+    @Column(nullable = false, updatable = false)
+    private boolean exemple;
+
     @Column(name = "cree_le", nullable = false, updatable = false)
     private Instant creeLe = Instant.now();
 
@@ -113,6 +117,7 @@ public class Annonce {
     public BigDecimal getLongitude() { return longitude; }
     public StatutAnnonce getStatut() { return statut; }
     public Set<String> getEquipements() { return equipements; }
+    public boolean isExemple() { return exemple; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
 
@@ -130,6 +135,11 @@ public class Annonce {
     public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
     public void setStatut(StatutAnnonce statut) { this.statut = statut; }
     public void setModifieLe(Instant modifieLe) { this.modifieLe = modifieLe; }
+
+    /** Réservé au chargement des annonces d'exemple (même paquet) : aucune requête de l'API ne peut l'appeler. */
+    void marquerCommeExemple() {
+        this.exemple = true;
+    }
 
     public void remplacerEquipements(Set<String> nouveaux) {
         this.equipements.clear();

@@ -61,6 +61,7 @@ export function annonceTest(surcharge: Partial<Annonce> = {}): Annonce {
     creeLe: '2026-10-28T10:00:00Z',
     modifieLe: '2026-10-28T10:00:00Z',
     photos: [],
+    exemple: false,
     ...surcharge,
   }
 }
