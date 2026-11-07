@@ -75,7 +75,18 @@ public class Annonce {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private StatutAnnonce statut = StatutAnnonce.DISPONIBLE;
+    private StatutAnnonce statut = StatutAnnonce.EN_ATTENTE;
+
+    /** Motif de la dernière décision de modération (refus, suspension, correction demandée). Visible du propriétaire et des administrateurs seulement. */
+    @Column(name = "motif_moderation", length = 500)
+    private String motifModeration;
+
+    /** Administrateur auteur de la dernière décision (simple identifiant : pas de dépendance vers la table des comptes). */
+    @Column(name = "modere_par")
+    private UUID moderePar;
+
+    @Column(name = "modere_le")
+    private Instant modereLe;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "annonce_equipements", joinColumns = @JoinColumn(name = "annonce_id"))
@@ -116,6 +127,9 @@ public class Annonce {
     public BigDecimal getLatitude() { return latitude; }
     public BigDecimal getLongitude() { return longitude; }
     public StatutAnnonce getStatut() { return statut; }
+    public String getMotifModeration() { return motifModeration; }
+    public UUID getModerePar() { return moderePar; }
+    public Instant getModereLe() { return modereLe; }
     public Set<String> getEquipements() { return equipements; }
     public boolean isExemple() { return exemple; }
     public Instant getCreeLe() { return creeLe; }
@@ -135,6 +149,16 @@ public class Annonce {
     public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
     public void setStatut(StatutAnnonce statut) { this.statut = statut; }
     public void setModifieLe(Instant modifieLe) { this.modifieLe = modifieLe; }
+
+    /** Enregistre une décision de modération (statut, motif, auteur, date). */
+    void moderer(StatutAnnonce vers, UUID par, String motif) {
+        Instant maintenant = Instant.now();
+        this.statut = vers;
+        this.motifModeration = motif;
+        this.moderePar = par;
+        this.modereLe = maintenant;
+        this.modifieLe = maintenant;
+    }
 
     /** Réservé au chargement des annonces d'exemple (même paquet) : aucune requête de l'API ne peut l'appeler. */
     void marquerCommeExemple() {

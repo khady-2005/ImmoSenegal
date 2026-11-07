@@ -7,7 +7,7 @@ import { urlPhoto } from './photos'
 
 export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
-  const disponible = annonce.statut === 'DISPONIBLE'
+  const disponible = annonce.statut === 'PUBLIEE'
   return (
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="relative flex h-36 items-end overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-700 p-3">

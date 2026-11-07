@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, BedDouble, MapPin, Ruler, UserRound } from 'lucide-react'
 import { useApi } from '../useApi'
+import { useAuth } from '../auth'
 import { formatFcfa } from '../format'
 import { libelleStatut, libelleTypeBien, type Annonce } from '../types'
 import { Chargement, MessageErreur } from '../components/ListeAnnonces'
@@ -8,7 +9,9 @@ import Galerie from '../components/Galerie'
 
 export default function DetailAnnonce() {
   const { id = '' } = useParams()
-  const { data: a, erreur, chargement } = useApi<Annonce>(`/api/annonces/${encodeURIComponent(id)}`)
+  const { jeton } = useAuth()
+  // Avec une session, le propriétaire et les administrateurs peuvent lire une annonce qui n'est pas encore publiée.
+  const { data: a, erreur, chargement } = useApi<Annonce>(`/api/annonces/${encodeURIComponent(id)}`, jeton)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">

@@ -7,13 +7,16 @@ interface Etat<T> {
   erreur: ApiError | null
 }
 
-/** Charge une ressource publique. `chargement` vaut true tant que la réponse correspond à un ancien chemin. */
-export function useApi<T>(chemin: string) {
+/**
+ * Charge une ressource. `chargement` vaut true tant que la réponse correspond à un ancien chemin.
+ * Un jeton facultatif est envoyé tel quel : le serveur décide de ce qu'il montre à cet utilisateur.
+ */
+export function useApi<T>(chemin: string, jeton?: string | null) {
   const [etat, setEtat] = useState<Etat<T>>({ chemin: '', data: null, erreur: null })
 
   useEffect(() => {
     let annule = false
-    appelApi<T>(chemin)
+    appelApi<T>(chemin, jeton ? { token: jeton } : {})
       .then((data) => {
         if (!annule) setEtat({ chemin, data, erreur: null })
       })
@@ -23,7 +26,7 @@ export function useApi<T>(chemin: string) {
     return () => {
       annule = true
     }
-  }, [chemin])
+  }, [chemin, jeton])
 
   const chargement = etat.chemin !== chemin
   return {

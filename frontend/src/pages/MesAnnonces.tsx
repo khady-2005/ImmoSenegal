@@ -59,6 +59,12 @@ export default function MesAnnonces() {
               </div>
               <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
             </div>
+            {a.statut === 'EN_ATTENTE' && (
+              <p className="mt-2 text-sm text-slate-600">Pas encore visible du public : un administrateur doit la valider.</p>
+            )}
+            {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
+              <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-slate-800"><strong>Motif :</strong> {a.motifModeration}</p>
+            )}
             <div className="mt-3 flex flex-wrap gap-2">
               <Link to={`/annonces/${a.id}/modifier`} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium">Modifier</Link>
               {aSupprimer === a.id ? (

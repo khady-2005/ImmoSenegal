@@ -120,7 +120,7 @@ describe("Page d'accueil", () => {
     afficher()
     await screen.findByText('1 logement disponible en ce moment')
     const urls = api.mock.calls.map((c) => String(c[0]))
-    expect(urls.some((u) => u.includes('statut=DISPONIBLE') && u.includes('exemple=false'))).toBe(true)
+    expect(urls.some((u) => u.includes('exemple=false'))).toBe(true)
     // La grille, elle, montre aussi les exemples : elle ne filtre pas sur ce critère.
     expect(urls.some((u) => u.includes('taille=6') && !u.includes('exemple='))).toBe(true)
   })

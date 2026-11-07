@@ -4,7 +4,7 @@ import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
 import GestionPhotos from '../components/GestionPhotos'
-import { libelleStatut, libelleTypeBien, type Annonce, type StatutAnnonce, type TypeBien, type TypeTransaction } from '../types'
+import { libelleStatut, libelleTypeBien, statutsCommerciaux, type Annonce, type TypeBien, type TypeTransaction } from '../types'
 
 const classeSelect = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900'
 
@@ -29,7 +29,7 @@ export default function FormulaireAnnonce() {
   useEffect(() => {
     if (!id) return
     let annule = false
-    appelApi<Annonce>(`/api/annonces/${id}`)
+    appelApi<Annonce>(`/api/annonces/${id}`, { token: jeton })
       .then((a) => {
         if (annule) return
         setInitial(a)
@@ -40,7 +40,7 @@ export default function FormulaireAnnonce() {
     return () => {
       annule = true
     }
-  }, [id])
+  }, [id, jeton])
 
   if (!peutPublier(utilisateur?.role)) {
     return (
@@ -48,7 +48,7 @@ export default function FormulaireAnnonce() {
         <h1 className="text-2xl font-bold">Publier une annonce</h1>
         <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-slate-800">
           Votre compte est un compte Client : il ne peut pas publier d'annonce. Le passage au rôle Propriétaire ou Agent
-          doit être validé par un administrateur ; l'écran pour en faire la demande n'est pas encore disponible.
+          doit être validé par un administrateur : faites la demande depuis votre tableau de bord.
         </p>
       </div>
     )
@@ -79,7 +79,8 @@ export default function FormulaireAnnonce() {
       ville: texte('ville'),
       adresse: texte('adresse') || null,
       equipements: texte('equipements') === '' ? [] : texte('equipements').split(',').map((x) => x.trim()).filter(Boolean),
-      ...(edition ? { statut: texte('statut') } : {}),
+      // Le statut n'est envoyé que s'il se choisit ici (annonce déjà validée) ; sinon il relève de la modération.
+      ...(edition && initial && statutsCommerciaux.includes(initial.statut) ? { statut: texte('statut') } : {}),
     }
     setEnvoi(true)
     setErreur(null)
@@ -108,7 +109,7 @@ export default function FormulaireAnnonce() {
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
       {nouvelle && (
         <p role="status" className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
-          Annonce publiée. Ajoutez maintenant des photos, puis cliquez sur « Terminer ».
+          Annonce enregistrée : elle sera visible dans le catalogue après validation par un administrateur. Ajoutez maintenant des photos, puis cliquez sur « Terminer ».
         </p>
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
@@ -144,19 +145,34 @@ export default function FormulaireAnnonce() {
           <Champ id="adresse" name="adresse" libelle="Adresse (facultatif)" defaultValue={a?.adresse ?? ''} erreur={champs.adresse} />
         </div>
         <Champ id="equipements" name="equipements" libelle="Équipements" aide="Séparés par des virgules : wifi, parking, climatisation" defaultValue={a?.equipements.join(', ')} erreur={champs.equipements} />
-        {edition && (
+        {edition && a && statutsCommerciaux.includes(a.statut) && (
           <div>
             <label htmlFor="statut" className="mb-1 block text-sm font-medium text-slate-700">Statut</label>
-            <select id="statut" name="statut" defaultValue={a?.statut} className={classeSelect}>
-              {(Object.keys(libelleStatut) as StatutAnnonce[]).map((s) => (
+            <select id="statut" name="statut" defaultValue={a.statut} className={classeSelect}>
+              {statutsCommerciaux.map((s) => (
                 <option key={s} value={s}>{libelleStatut[s]}</option>
               ))}
             </select>
+            <p className="mt-1 text-sm text-slate-600">
+              Seule une annonce « Publiée » apparaît dans le catalogue. Si vous modifiez le contenu ou ajoutez une photo,
+              l'annonce repasse en attente de validation. Changez le statut et le contenu en deux enregistrements séparés.
+            </p>
+          </div>
+        )}
+        {edition && a && !statutsCommerciaux.includes(a.statut) && (
+          <div role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-slate-800">
+            <p><strong>Statut : {libelleStatut[a.statut]}.</strong>{' '}
+              {a.statut === 'EN_ATTENTE' && "Elle n'est pas visible du public tant qu'un administrateur ne l'a pas validée."}
+              {a.statut === 'A_CORRIGER' && "Corrigez ce qui est demandé : en enregistrant, elle repart en attente de validation."}
+              {a.statut === 'REFUSEE' && "Elle ne peut plus être modifiée : créez une nouvelle annonce."}
+              {a.statut === 'SUSPENDUE' && "Elle est retirée du catalogue : contactez l'administration."}
+            </p>
+            {a.motifModeration && <p className="mt-1"><strong>Motif :</strong> {a.motifModeration}</p>}
           </div>
         )}
         <div className="flex flex-wrap gap-3">
           <button type="submit" disabled={envoi} className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60">
-            {envoi ? 'Envoi…' : edition ? 'Enregistrer' : "Publier l'annonce"}
+            {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Envoyer pour validation'}
           </button>
           <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
             {nouvelle ? 'Terminer' : 'Annuler'}
