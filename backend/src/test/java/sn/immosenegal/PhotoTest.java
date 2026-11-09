@@ -118,7 +118,8 @@ class PhotoTest extends AbstractApiTest {
         String annonce = annonceDe(jeton);
         String photo = ajouterPhoto(annonce, jeton);
 
-        mvc.perform(get("/api/annonces/{id}", annonce))
+        // L'annonce est EN_ATTENTE : seul son propriétaire peut la lire ; la photo, elle, se lit par son adresse secrète.
+        mvc.perform(get("/api/annonces/{id}", annonce).header(HttpHeaders.AUTHORIZATION, bearer(jeton)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.photos[0]").value(photo));
 
@@ -192,7 +193,8 @@ class PhotoTest extends AbstractApiTest {
         // Un en-tête JPEG suivi de n'importe quoi n'est pas une image lisible.
         byte[] faux = new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 1, 2, 3, 4, 5, 6, 7, 8};
         envoyer(annonce, jeton, "faux.jpg", "image/jpeg", faux).andExpect(status().isBadRequest());
-        mvc.perform(get("/api/annonces/{id}", annonce)).andExpect(jsonPath("$.photos").isEmpty());
+        mvc.perform(get("/api/annonces/{id}", annonce).header(HttpHeaders.AUTHORIZATION, bearer(jeton)))
+            .andExpect(jsonPath("$.photos").isEmpty());
     }
 
     @Test
@@ -237,7 +239,8 @@ class PhotoTest extends AbstractApiTest {
         mvc.perform(delete("/api/annonces/{a}/photos/{p}", annonce, photo1).header(HttpHeaders.AUTHORIZATION, bearer(jeton)))
             .andExpect(status().isNoContent());
         mvc.perform(get("/api/annonces/{a}/photos/{p}", annonce, photo1)).andExpect(status().isNotFound());
-        mvc.perform(get("/api/annonces/{id}", annonce)).andExpect(jsonPath("$.photos.length()").value(1));
+        mvc.perform(get("/api/annonces/{id}", annonce).header(HttpHeaders.AUTHORIZATION, bearer(jeton)))
+            .andExpect(jsonPath("$.photos.length()").value(1));
 
         mvc.perform(delete("/api/annonces/{id}", annonce).header(HttpHeaders.AUTHORIZATION, bearer(jeton)))
             .andExpect(status().isNoContent());

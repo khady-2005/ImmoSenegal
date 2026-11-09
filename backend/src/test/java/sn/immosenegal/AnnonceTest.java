@@ -57,6 +57,27 @@ class AnnonceTest extends AbstractApiTest {
         return JsonPath.read(r.getResponse().getContentAsString(), "$.id");
     }
 
+    /** Un administrateur valide l'annonce : elle devient PUBLIEE et entre dans le catalogue public. */
+    private void valider(String jetonAdmin, String id) throws Exception {
+        mvc.perform(post("/api/admin/annonces/{id}/valider", id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statut").value("PUBLIEE"));
+    }
+
+    private String publierEtValider(String jeton, String jetonAdmin, Map<String, Object> corps) throws Exception {
+        String id = publierEtRecupererId(jeton, corps);
+        valider(jetonAdmin, id);
+        return id;
+    }
+
+    private ResultActions lire(String id, String jeton) throws Exception {
+        var requete = get("/api/annonces/" + id);
+        if (jeton != null) {
+            requete.header(HttpHeaders.AUTHORIZATION, bearer(jeton));
+        }
+        return mvc.perform(requete);
+    }
+
     private String quartierUnique() {
         return "Quartier" + UUID.randomUUID().toString().substring(0, 8);
     }
@@ -80,13 +101,13 @@ class AnnonceTest extends AbstractApiTest {
     void unProprietairePublie_etLeProprietaireNEstJamaisCeluiDeLaRequete() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
         Map<String, Object> corps = annonce("Ma villa", quartierUnique());
-        corps.put("statut", "VENDU");                                   // ignoré à la création
+        corps.put("statut", "PUBLIEE");                                 // ignoré à la création : toute annonce commence EN_ATTENTE
         corps.put("proprietaireId", UUID.randomUUID().toString());       // champ inconnu : ignoré
         corps.put("proprietaire", Map.of("id", UUID.randomUUID().toString()));
 
         MvcResult r = publier(jeton, corps)
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.statut").value("DISPONIBLE"))
+            .andExpect(jsonPath("$.statut").value("EN_ATTENTE"))
             .andReturn();
 
         String idProprietaire = JsonPath.read(r.getResponse().getContentAsString(), "$.proprietaire.id");
@@ -136,7 +157,7 @@ class AnnonceTest extends AbstractApiTest {
     @Test
     void lAnnoncePeutEtreLueSansJeton_sansExposerLEmailNiLeTelephoneDuProprietaire() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
-        String id = publierEtRecupererId(jeton, annonce("Visible", quartierUnique()));
+        String id = publierEtValider(jeton, utilisateurConnecte(Role.ADMIN), annonce("Visible", quartierUnique()));
 
         mvc.perform(get("/api/annonces/" + id))
             .andExpect(status().isOk())
@@ -158,7 +179,8 @@ class AnnonceTest extends AbstractApiTest {
     void unAutreProprietaireNePeutNiModifierNiSupprimerMaisLeProprietaireLePeut() throws Exception {
         String jetonProprio = utilisateurConnecte(Role.PROPRIETAIRE);
         String jetonAutre = utilisateurConnecte(Role.PROPRIETAIRE);
-        String id = publierEtRecupererId(jetonProprio, annonce("Titre d'origine", quartierUnique()));
+        String jetonAdmin = utilisateurConnecte(Role.ADMIN);
+        String id = publierEtValider(jetonProprio, jetonAdmin, annonce("Titre d'origine", quartierUnique()));
 
         // L'autre propriétaire : 403 sur la modification ET la suppression, l'annonce reste intacte.
         mvc.perform(put("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAutre))
@@ -166,7 +188,7 @@ class AnnonceTest extends AbstractApiTest {
             .andExpect(status().isForbidden());
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAutre)))
             .andExpect(status().isForbidden());
-        mvc.perform(get("/api/annonces/" + id)).andExpect(jsonPath("$.titre").value("Titre d'origine"));
+        lire(id, null).andExpect(jsonPath("$.titre").value("Titre d'origine")).andExpect(jsonPath("$.statut").value("PUBLIEE"));
 
         // Un simple client : 403 aussi. Sans jeton : 401.
         String jetonClient = utilisateurConnecte(Role.CLIENT);
@@ -175,17 +197,15 @@ class AnnonceTest extends AbstractApiTest {
             .andExpect(status().isForbidden());
         mvc.perform(delete("/api/annonces/" + id)).andExpect(status().isUnauthorized());
 
-        // Le propriétaire peut modifier (y compris le statut) puis supprimer.
-        Map<String, Object> modif = annonce("Titre modifié", "Kandé");
-        modif.put("statut", "RESERVE");
+        // Le propriétaire peut modifier le contenu : l'annonce repasse EN_ATTENTE (elle doit être revalidée), puis la supprimer.
         mvc.perform(put("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonProprio))
-                .contentType(MediaType.APPLICATION_JSON).content(corps(modif)))
+                .contentType(MediaType.APPLICATION_JSON).content(corps(annonce("Titre modifié", "Kandé"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.titre").value("Titre modifié"))
-            .andExpect(jsonPath("$.statut").value("RESERVE"));
+            .andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonProprio)))
             .andExpect(status().isNoContent());
-        mvc.perform(get("/api/annonces/" + id)).andExpect(status().isNotFound());
+        lire(id, jetonProprio).andExpect(status().isNotFound());
     }
 
     @Test
@@ -194,9 +214,10 @@ class AnnonceTest extends AbstractApiTest {
         String jetonAdmin = utilisateurConnecte(Role.ADMIN);
         String id = publierEtRecupererId(jetonProprio, annonce("À modérer", quartierUnique()));
 
+        lire(id, jetonAdmin).andExpect(status().isOk());   // un administrateur voit aussi les annonces EN_ATTENTE
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin)))
             .andExpect(status().isNoContent());
-        mvc.perform(get("/api/annonces/" + id)).andExpect(status().isNotFound());
+        lire(id, jetonAdmin).andExpect(status().isNotFound());
     }
 
     @Test
@@ -209,7 +230,8 @@ class AnnonceTest extends AbstractApiTest {
         mvc.perform(get("/api/annonces/mes-annonces").header(HttpHeaders.AUTHORIZATION, bearer(jetonA)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.totalElements").value(1))
-            .andExpect(jsonPath("$.contenu[0].titre").value("Annonce de A"));
+            .andExpect(jsonPath("$.contenu[0].titre").value("Annonce de A"))
+            .andExpect(jsonPath("$.contenu[0].statut").value("EN_ATTENTE"));
         mvc.perform(get("/api/annonces/mes-annonces")).andExpect(status().isUnauthorized());
     }
 
@@ -219,6 +241,7 @@ class AnnonceTest extends AbstractApiTest {
     private String jeuDeRecherche() throws Exception {
         String quartier = quartierUnique();
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
+        String admin = utilisateurConnecte(Role.ADMIN);
 
         Map<String, Object> a = annonce("A studio", quartier);
         a.put("typeBien", "STUDIO");
@@ -227,7 +250,7 @@ class AnnonceTest extends AbstractApiTest {
         a.put("superficie", 28);
         a.put("pieces", 1);
         a.put("equipements", List.of("WiFi", "climatisation"));
-        publier(jeton, a).andExpect(status().isCreated());
+        publierEtValider(jeton, admin, a);
 
         Map<String, Object> b = annonce("B villa", quartier);
         b.put("typeBien", "VILLA");
@@ -236,7 +259,7 @@ class AnnonceTest extends AbstractApiTest {
         b.put("superficie", 320);
         b.put("pieces", 6);
         b.put("equipements", List.of("piscine"));
-        publier(jeton, b).andExpect(status().isCreated());
+        publierEtValider(jeton, admin, b);
 
         Map<String, Object> c = annonce("C appartement", quartier);
         c.put("typeBien", "APPARTEMENT");
@@ -245,7 +268,7 @@ class AnnonceTest extends AbstractApiTest {
         c.put("superficie", 85);
         c.put("pieces", 3);
         c.put("equipements", List.of("wifi"));
-        publier(jeton, c).andExpect(status().isCreated());
+        publierEtValider(jeton, admin, c);
         return quartier;
     }
 
@@ -267,8 +290,9 @@ class AnnonceTest extends AbstractApiTest {
         chercher(q, "&superficieMax=30").andExpect(jsonPath("$.contenu[*].titre", contains("A studio")));
         chercher(q, "&piecesMin=3").andExpect(jsonPath("$.contenu[*].titre", containsInAnyOrder("B villa", "C appartement")));
         chercher(q, "&transaction=LOCATION&piecesMin=2").andExpect(jsonPath("$.contenu[*].titre", contains("C appartement")));
-        chercher(q, "&statut=DISPONIBLE").andExpect(jsonPath("$.totalElements").value(3));
-        chercher(q, "&statut=VENDU").andExpect(jsonPath("$.totalElements").value(0));
+        // Le public ne choisit pas le statut : le paramètre est ignoré, seules les annonces PUBLIEE sont renvoyées.
+        chercher(q, "&statut=VENDU").andExpect(jsonPath("$.totalElements").value(3));
+        chercher(q, "&statut=EN_ATTENTE").andExpect(jsonPath("$.contenu[*].statut", containsInAnyOrder("PUBLIEE", "PUBLIEE", "PUBLIEE")));
     }
 
     @Test

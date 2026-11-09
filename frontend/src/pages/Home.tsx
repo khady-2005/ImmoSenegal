@@ -46,10 +46,10 @@ const boutonPlein =
 export default function Home() {
   const [onglet, setOnglet] = useState<'TOUT' | Transaction>('TOUT')
   const { etat, reessayer } = useAnnonces(
-    `taille=6&tri=recent&statut=DISPONIBLE${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`,
+    `taille=6&tri=recent${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`,
   )
   // Nombre de VRAIS logements disponibles : les annonces d'exemple ne comptent jamais. Affiché seulement s'il y en a.
-  const { etat: etatReelles } = useAnnonces('taille=1&statut=DISPONIBLE&exemple=false')
+  const { etat: etatReelles } = useAnnonces('taille=1&exemple=false')
   const { utilisateur } = useAuth()
   const [avancee, setAvancee] = useState(false)
   const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0

@@ -27,7 +27,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/annonces")
-@Tag(name = "Annonces", description = "Catalogue public ; publication réservée aux propriétaires, agents et administrateurs")
+@Tag(name = "Annonces", description = "Catalogue (annonces PUBLIEE) ; publication réservée aux propriétaires, agents et administrateurs ; toute nouvelle annonce attend la validation d'un administrateur")
 public class AnnonceController {
 
     private final AnnonceService service;
@@ -37,7 +37,7 @@ public class AnnonceController {
     }
 
     @GetMapping
-    @Operation(summary = "Rechercher des annonces (public) : filtres combinables, pagination, tri",
+    @Operation(summary = "Rechercher dans le catalogue : seules les annonces PUBLIEE sont renvoyées ; filtres combinables, pagination, tri",
         description = "tri = recent (défaut), prix_asc, prix_desc, superficie_desc. taille max : 50. "
             + "equipements : liste séparée par des virgules, tous doivent être présents.")
     public PageResponse<AnnonceResponse> rechercher(
@@ -51,24 +51,23 @@ public class AnnonceController {
             @RequestParam(required = false) String ville,
             @RequestParam(required = false) Integer piecesMin,
             @RequestParam(required = false) List<String> equipements,
-            @RequestParam(required = false) StatutAnnonce statut,
             @RequestParam(required = false) Boolean exemple,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer taille,
             @RequestParam(required = false) String tri) {
         CriteresRecherche criteres = new CriteresRecherche(transaction, type, prixMin, prixMax, superficieMin,
-            superficieMax, quartier, ville, piecesMin, equipements, statut, exemple);
+            superficieMax, quartier, ville, piecesMin, equipements, null, exemple);
         return service.rechercher(criteres, page, taille, tri);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Détail d'une annonce (public)")
-    public AnnonceResponse obtenir(@PathVariable UUID id) {
-        return service.obtenir(id);
+    @Operation(summary = "Détail d'une annonce PUBLIEE (son propriétaire et les administrateurs peuvent lire les autres statuts)")
+    public AnnonceResponse obtenir(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        return service.obtenir(id, utilisateur);
     }
 
     @GetMapping("/mes-annonces")
-    @Operation(summary = "Mes annonces", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    @Operation(summary = "Mes annonces (tous statuts, avec le motif de modération)", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public PageResponse<AnnonceResponse> mesAnnonces(@AuthenticationPrincipal AuthenticatedUser utilisateur,
                                                      @RequestParam(required = false) Integer page,
                                                      @RequestParam(required = false) Integer taille) {
@@ -76,7 +75,7 @@ public class AnnonceController {
     }
 
     @PostMapping
-    @Operation(summary = "Publier une annonce (PROPRIETAIRE, AGENT ou ADMIN)",
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE, AGENT ou ADMIN) : elle est EN_ATTENTE de validation",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @AuthenticationPrincipal AuthenticatedUser utilisateur) {
@@ -84,7 +83,9 @@ public class AnnonceController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Modifier une annonce (son propriétaire ou un ADMIN)",
+    @Operation(summary = "Modifier une annonce (son propriétaire ou un ADMIN) ; statut : seulement RESERVE, VENDU, LOUE ou PUBLIEE",
+        description = "Une modification du contenu par le propriétaire d'une annonce déjà validée la renvoie EN_ATTENTE. "
+            + "Le contenu et le statut se modifient en deux enregistrements séparés.",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public AnnonceResponse modifier(@PathVariable UUID id, @Valid @RequestBody AnnonceRequest requete,
                                     @AuthenticationPrincipal AuthenticatedUser utilisateur) {

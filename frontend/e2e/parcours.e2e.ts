@@ -38,7 +38,7 @@ test.afterEach(async ({ page }, info) => {
   }
 })
 
-test('parcours complet : inscription, demande de rôle, validation admin, publication, catalogue, suppression', async ({ page, request }) => {
+test('parcours complet : inscription, demande de rôle, validation admin, publication, modération, catalogue, suppression', async ({ page, request }) => {
   expect(ADMIN_EMAIL, 'E2E_ADMIN_EMAIL doit être défini').not.toBe('')
 
   // 0. Sécurité : sans connexion, le serveur refuse la publication.
@@ -97,7 +97,7 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByLabel('Superficie (m²)').fill('300')
   await page.getByLabel('Quartier').fill('Néma')
   await page.getByLabel('Équipements').fill('wifi, parking')
-  await page.getByRole('button', { name: /publier l'annonce/i }).click()
+  await page.getByRole('button', { name: /envoyer pour validation/i }).click()
 
   // 5b. Photos : un faux fichier est refusé par le serveur, une vraie image est acceptée et s'affiche.
   await expect(page.getByRole('heading', { name: "Modifier l'annonce" })).toBeVisible()
@@ -110,8 +110,25 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByRole('link', { name: 'Terminer' }).click()
   await expect(page.getByRole('link', { name: TITRE })).toBeVisible()
 
-  // 6. L'annonce apparaît dans le catalogue public (sans être connecté) avec ses filtres.
-  const visiteur = await page.context().browser()!.newPage({ baseURL: page.url().split('/').slice(0, 3).join('/') })
+  // 5c. Tant que l'administrateur n'a pas validé, l'annonce est « En attente » et le serveur ne la montre pas au public.
+  await expect(page.getByRole('listitem').filter({ hasText: TITRE })).toContainText('En attente')
+  const avantValidation = await request.get('/api/annonces?taille=50')
+  expect(JSON.stringify(await avantValidation.json())).not.toContain(TITRE)
+
+  // 5d. L'administrateur (session séparée) valide l'annonce dans l'espace de modération.
+  const baseURL = page.url().split('/').slice(0, 3).join('/')
+  const contexteAdmin = await page.context().browser()!.newContext({ baseURL })
+  const admin = await contexteAdmin.newPage()
+  await connecter(admin, ADMIN_EMAIL, ADMIN_PASSWORD)
+  await admin.getByRole('link', { name: /modération des annonces/i }).click()
+  const aModerer = admin.getByRole('listitem').filter({ hasText: TITRE })
+  await expect(aModerer).toBeVisible()
+  await aModerer.getByRole('button', { name: 'Valider' }).click()
+  await expect(admin.getByRole('status')).toContainText('publiée')
+  await contexteAdmin.close()
+
+  // 6. Une fois validée, l'annonce apparaît dans le catalogue public (sans être connecté) avec ses filtres.
+  const visiteur = await page.context().browser()!.newPage({ baseURL })
   await visiteur.goto('/catalogue?type=VILLA&transaction=VENTE')
   await expect(visiteur.getByRole('link', { name: TITRE })).toBeVisible()
   // La photo est lisible SANS être connecté (lecture publique) : l'image est réellement chargée par le navigateur.
@@ -128,6 +145,9 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByLabel('Statut').selectOption('RESERVE')
   await page.getByRole('button', { name: 'Enregistrer' }).click()
   await expect(page.getByRole('listitem').filter({ hasText: TITRE })).toContainText('Réservé')
+  // Une annonce réservée n'est plus présentée comme disponible : le serveur la retire du catalogue public.
+  const apresReservation = await request.get('/api/annonces?taille=50')
+  expect(JSON.stringify(await apresReservation.json())).not.toContain(TITRE)
   await page.getByRole('listitem').filter({ hasText: TITRE }).getByRole('button', { name: 'Supprimer' }).click()
   await page.getByRole('button', { name: /confirmer la suppression/i }).click()
   await expect(page.getByRole('link', { name: TITRE })).toHaveCount(0)

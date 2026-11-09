@@ -27,7 +27,7 @@ export const libelleRole: Record<Role, string> = {
 
 export type TypeBien = 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN'
 export type TypeTransaction = 'LOCATION' | 'VENTE'
-export type StatutAnnonce = 'DISPONIBLE' | 'RESERVE' | 'VENDU' | 'LOUE'
+export type StatutAnnonce = 'EN_ATTENTE' | 'PUBLIEE' | 'A_CORRIGER' | 'REFUSEE' | 'SUSPENDUE' | 'RESERVE' | 'VENDU' | 'LOUE'
 
 export interface Annonce {
   id: string
@@ -50,6 +50,8 @@ export interface Annonce {
   modifieLe: string
   /** Identifiants des photos, la première sert de couverture. */
   photos: string[]
+  /** Motif de la dernière décision de modération : fourni seulement au propriétaire et aux administrateurs. */
+  motifModeration?: string | null
   /** Vrai pour une annonce d'exemple (démonstration) : le bien n'existe pas et doit toujours être présenté comme tel. */
   exemple: boolean
 }
@@ -71,8 +73,18 @@ export const libelleTypeBien: Record<TypeBien, string> = {
 }
 
 export const libelleStatut: Record<StatutAnnonce, string> = {
-  DISPONIBLE: 'Disponible',
+  EN_ATTENTE: 'En attente de validation',
+  PUBLIEE: 'Publiée',
+  A_CORRIGER: 'À corriger',
+  REFUSEE: 'Refusée',
+  SUSPENDUE: 'Suspendue',
   RESERVE: 'Réservé',
   VENDU: 'Vendu',
   LOUE: 'Loué',
 }
+
+/**
+ * Statuts que le propriétaire choisit lui-même, sur une annonce déjà validée. Les autres (en attente, à corriger,
+ * refusée, suspendue) relèvent de la modération par un administrateur ; le serveur reste seul juge.
+ */
+export const statutsCommerciaux: StatutAnnonce[] = ['PUBLIEE', 'RESERVE', 'VENDU', 'LOUE']

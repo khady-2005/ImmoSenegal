@@ -56,7 +56,7 @@ export function annonceTest(surcharge: Partial<Annonce> = {}): Annonce {
     latitude: null,
     longitude: null,
     equipements: ['climatisation', 'wifi'],
-    statut: 'DISPONIBLE',
+    statut: 'PUBLIEE',
     proprietaire: { id: 'p1', nomComplet: 'Awa Diallo' },
     creeLe: '2026-10-28T10:00:00Z',
     modifieLe: '2026-10-28T10:00:00Z',

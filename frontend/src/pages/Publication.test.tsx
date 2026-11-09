@@ -52,11 +52,11 @@ describe('Publication et gestion des annonces', () => {
     await user.type(screen.getByLabelText('Superficie (m²)'), '300')
     await user.type(screen.getByLabelText('Quartier'), 'Néma')
     await user.type(screen.getByLabelText('Équipements'), 'wifi, parking')
-    await user.click(screen.getByRole('button', { name: /publier l'annonce/i }))
+    await user.click(screen.getByRole('button', { name: /envoyer pour validation/i }))
 
     // Après la publication, on arrive sur la page de l'annonce pour ajouter des photos.
     expect(await screen.findByRole('heading', { name: "Modifier l'annonce" })).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Annonce publiée')
+    expect(screen.getByRole('status')).toHaveTextContent('Annonce enregistrée')
     expect(screen.getByLabelText('Ajouter des photos')).toBeInTheDocument()
     await user.click(screen.getByRole('link', { name: 'Terminer' }))
     await screen.findByRole('heading', { name: 'Mes annonces' })
@@ -79,7 +79,7 @@ describe('Publication et gestion des annonces', () => {
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
     await user.click(await screen.findByRole('link', { name: /publier une annonce/i }))
     await user.type(screen.getByLabelText('Titre'), 'X')
-    await user.click(screen.getByRole('button', { name: /publier l'annonce/i }))
+    await user.click(screen.getByRole('button', { name: /envoyer pour validation/i }))
     expect(await screen.findByText('doit être positif')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('Données invalides.')
   })
@@ -135,5 +135,35 @@ describe('Publication et gestion des annonces', () => {
     await screen.findByRole('heading', { name: 'Mes annonces' })
     const put = api.mock.calls.find(([, i]) => i?.method === 'PUT')!
     expect(JSON.parse(String(put[1]!.body)).statut).toBe('LOUE')
+  })
+
+  it("une annonce en attente n'offre pas de choix de statut, n'envoie pas de statut et explique pourquoi", async () => {
+    const a = annonceTest({ statut: 'EN_ATTENTE' })
+    const { api, user } = await seConnecter('PROPRIETAIRE', {
+      'GET /api/annonces/mes-annonces*': () => json(200, pageTest([a])),
+      [`GET /api/annonces/${a.id}`]: () => json(200, a),
+      [`PUT /api/annonces/${a.id}`]: () => json(200, a),
+    })
+    await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
+    await user.click(await screen.findByRole('link', { name: 'Modifier' }))
+    expect(await screen.findByLabelText('Titre')).toHaveValue('Appartement lumineux')
+    expect(screen.queryByLabelText('Statut')).not.toBeInTheDocument()
+    expect(screen.getByText(/Statut : En attente de validation/)).toBeInTheDocument()
+    // L'annonce n'étant pas publique, sa lecture se fait avec la session du propriétaire.
+    const lecture = api.mock.calls.find(([u, i]) => u === `/api/annonces/${a.id}` && (i?.method ?? 'GET') === 'GET')!
+    expect(JSON.stringify(lecture[1]?.headers)).toContain('Bearer jeton-de-test')
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
+    await screen.findByRole('heading', { name: 'Mes annonces' })
+    const put = api.mock.calls.find(([, i]) => i?.method === 'PUT')!
+    expect(JSON.parse(String(put[1]!.body))).not.toHaveProperty('statut')
+  })
+
+  it("Mes annonces montre le statut et le motif d'une annonce refusée", async () => {
+    const refusee = annonceTest({ statut: 'REFUSEE', motifModeration: 'Photos non conformes' })
+    await seConnecter('PROPRIETAIRE', { 'GET /api/annonces/mes-annonces*': () => json(200, pageTest([refusee])) })
+    await userEvent.setup().click(screen.getByRole('link', { name: /gérer mes annonces/i }))
+    const ligne = (await screen.findByRole('link', { name: 'Appartement lumineux' })).closest('li')!
+    expect(ligne).toHaveTextContent('Refusée')
+    expect(ligne).toHaveTextContent('Motif : Photos non conformes')
   })
 })
