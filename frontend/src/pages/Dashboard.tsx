@@ -77,9 +77,14 @@ export default function Dashboard() {
       {affiche.role === 'CLIENT' && <DemandeRole />}
 
       {affiche.role === 'ADMIN' && (
-        <Link to="/admin/demandes" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold">
-          Demandes de rôle
-        </Link>
+        <>
+          <Link to="/admin/annonces" className="mt-6 mr-3 inline-block rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-950">
+            Modération des annonces
+          </Link>
+          <Link to="/admin/demandes" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold">
+            Demandes de rôle
+          </Link>
+        </>
       )}
 
       {['PROPRIETAIRE', 'AGENT', 'ADMIN'].includes(affiche.role) && (
