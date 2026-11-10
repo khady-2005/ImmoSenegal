@@ -3,7 +3,7 @@ import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import { LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '../auth'
-import logoImmo from '../assets/logo-immosenegal.png'
+import logoImmo from '../assets/Logo immobilier tropical ImmoSénégal.png'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -21,7 +21,7 @@ function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
     <img
       src={logoImmo}
       alt="ImmoSénégal — Votre rêve, notre priorité"
-      className={`${h} w-auto max-w-[200px] object-contain`}
+      className={`${h} w-auto max-w-[220px] object-contain`}
     />
   )
 }
@@ -48,7 +48,7 @@ export default function Layout() {
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-2.5">
-          <Link to="/" className="shrink-0 rounded-md bg-white/95 px-2 py-1" onClick={fermerMenu} aria-label="ImmoSénégal — accueil">
+          <Link to="/" className="shrink-0 rounded-md bg-white px-2 py-1 shadow-sm" onClick={fermerMenu} aria-label="ImmoSénégal — accueil">
             <Logo />
           </Link>
 
@@ -167,7 +167,7 @@ export default function Layout() {
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <div className="inline-block rounded-md bg-white/95 px-2 py-1">
+            <div className="inline-block rounded-md bg-white px-2 py-1 shadow-sm">
               <Logo taille="sm" />
             </div>
             <p className="mt-3 max-w-xs">
