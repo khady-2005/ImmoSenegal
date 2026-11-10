@@ -22,3 +22,13 @@ html { scroll-behavior: smooth; }
 body { @apply bg-slate-50 text-slate-900 antialiased; overflow-x: hidden; }
 
 :focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
+
+
+/* Finition premium : surfaces lumineuses, typographie nette et mouvements accessibles. */
+::selection { background: #d9aa45; color: #0b1f3a; }
+:root { color-scheme: light; }
+body { background: #f8f9f7; }
+a, button { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: no-preference) {
+  a, button { transition-duration: 180ms; }
+}
