@@ -9,17 +9,17 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
   const disponible = annonce.statut === 'PUBLIEE'
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="relative flex h-36 items-end overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-700 p-3">
+    <article className="group overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_8px_28px_rgba(11,31,58,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(11,31,58,0.13)]">
+      <div className="relative flex h-56 items-end overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-700 p-4 sm:h-60">
         {annonce.photos.length > 0 && (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0])}
             alt={`${annonce.exemple ? 'Image illustrative' : 'Photo'} : ${annonce.titre}`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
           />
         )}
-        <span className="relative rounded-full bg-dore-500 px-2.5 py-0.5 text-xs font-semibold text-nuit-950">
+        <span className="relative rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-nuit-900 shadow-sm backdrop-blur">
           {location ? 'À louer' : 'À vendre'}
         </span>
         {annonce.exemple && (
@@ -33,10 +33,10 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           </span>
         )}
       </div>
-      <div className="space-y-2 p-4">
+      <div className="space-y-3 p-5">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{libelleTypeBien[annonce.typeBien]}</p>
         <h3 className="font-semibold leading-snug">
-          <Link to={`/annonces/${annonce.id}`} className="hover:text-emeraude-700 hover:underline">
+          <Link to={`/annonces/${annonce.id}`} className="transition-colors hover:text-emeraude-700">
             {annonce.titre}
           </Link>
         </h3>
@@ -44,7 +44,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           <MapPin aria-hidden className="h-4 w-4" />
           {annonce.quartier}, {annonce.ville}
         </p>
-        <p className="text-lg font-bold text-emeraude-700">
+        <p className="text-xl font-extrabold tracking-tight text-emeraude-800">
           {formatFcfa(annonce.prix)}
           {location && <span className="text-sm font-normal text-slate-500"> / mois</span>}
         </p>
