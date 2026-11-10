@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Identité visuelle : bleu nuit, émeraude, doré (conforme au cahier des charges). */
+/* Identité visuelle ImmoSénégal : bleu marine profond, vert émeraude et blanc. */
 @theme {
   --color-nuit-950: #07142a;
   --color-nuit-900: #0b1f3a;
@@ -19,7 +19,7 @@
 }
 
 html { scroll-behavior: smooth; }
-body { @apply bg-slate-50 text-slate-900 antialiased; overflow-x: hidden; }
+body { @apply bg-white text-slate-900 antialiased; overflow-x: hidden; }
 
 :focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
 
