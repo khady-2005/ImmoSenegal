@@ -6,38 +6,24 @@ import { useAuth } from '../auth'
 import logoImmo from '../assets/Logo immobilier tropical ImmoSénégal.png'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
-  `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? 'bg-white/20 text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'
+  `rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+    isActive
+      ? 'bg-white/15 text-white shadow-sm'
+      : 'text-white/80 hover:bg-white/10 hover:text-white'
   }`
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
-  `block rounded-lg px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10'
+  `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
+    isActive ? 'bg-white/15 text-white' : 'text-white/90 hover:bg-white/10'
   }`
 
-function CadreLogo({
-  children,
-  className = '',
-}: {
-  children: React.ReactNode
-  className?: string
-}) {
-  return (
-    <span
-      className={`inline-flex items-center overflow-hidden rounded-[1.25rem] border-2 border-dore-500 bg-white px-3 py-2 shadow-lg ${className}`}
-    >
-      {children}
-    </span>
-  )
-}
-
 function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
-  const h = taille === 'sm' ? 'h-11' : 'h-16'
+  const h = taille === 'sm' ? 'h-10' : 'h-12 sm:h-13'
   return (
     <img
       src={logoImmo}
       alt="ImmoSénégal — Votre rêve, notre priorité"
-      className={`${h} w-auto max-w-[260px] object-contain object-left`}
+      className={`${h} w-auto max-w-[200px] object-contain object-left sm:max-w-[220px]`}
     />
   )
 }
@@ -62,15 +48,19 @@ export default function Layout() {
         Aller au contenu
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
-        <div className="mx-auto flex h-[5rem] max-w-6xl items-center justify-between gap-x-3 pl-1 pr-4 sm:h-[5.25rem] sm:pl-2 sm:pr-5">
-          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal — accueil" className="shrink-0">
-            <CadreLogo>
-              <Logo />
-            </CadreLogo>
+      <header className="sticky top-0 z-40 bg-nuit-950/95 text-white shadow-md backdrop-blur-md">
+        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-3 sm:h-[4.5rem] sm:px-5">
+          {/* Logo dans un pilule blanche douce */}
+          <Link
+            to="/"
+            onClick={fermerMenu}
+            aria-label="ImmoSénégal — accueil"
+            className="flex shrink-0 items-center rounded-2xl bg-white px-2.5 py-1.5 shadow-sm transition hover:shadow-md"
+          >
+            <Logo />
           </Link>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-1 sm:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 sm:flex">
             <NavLink to="/" end className={lienDesktop}>
               Accueil
             </NavLink>
@@ -85,7 +75,7 @@ export default function Layout() {
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -98,7 +88,7 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="rounded-full bg-dore-500 px-4 py-2 text-sm font-bold text-nuit-950 shadow-md transition-colors hover:bg-dore-600"
+                  className="ml-1 rounded-full bg-gradient-to-r from-dore-500 to-dore-600 px-4 py-1.5 text-sm font-bold text-nuit-950 shadow-sm transition hover:from-dore-600 hover:to-dore-500"
                 >
                   Inscription
                 </NavLink>
@@ -108,7 +98,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-lg p-2 text-white hover:bg-white/10 sm:hidden"
+            className="inline-flex items-center justify-center rounded-xl p-2 text-white hover:bg-white/10 sm:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -118,11 +108,14 @@ export default function Layout() {
           </button>
         </div>
 
+        {/* Fine ligne dorée sous le header */}
+        <div className="h-0.5 bg-gradient-to-r from-transparent via-dore-500/80 to-transparent" aria-hidden />
+
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="border-t border-white/10 bg-nuit-950 px-4 py-3 sm:hidden"
+            className="border-t border-white/10 bg-nuit-950 px-3 py-3 sm:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
@@ -146,7 +139,7 @@ export default function Layout() {
                     <button
                       type="button"
                       onClick={deconnecterEtFermer}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base font-medium text-white/90 hover:bg-white/10"
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/90 hover:bg-white/10"
                     >
                       <LogOut aria-hidden className="h-5 w-5" />
                       Déconnexion
@@ -185,9 +178,12 @@ export default function Layout() {
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <CadreLogo className="px-2.5 py-1.5">
+            <Link
+              to="/"
+              className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1.5 shadow-sm"
+            >
               <Logo taille="sm" />
-            </CadreLogo>
+            </Link>
             <p className="mt-3 max-w-xs">
               Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
             </p>
