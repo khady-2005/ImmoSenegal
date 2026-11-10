@@ -22,3 +22,10 @@ html { scroll-behavior: smooth; }
 body { @apply bg-slate-50 text-slate-900 antialiased; overflow-x: hidden; }
 
 :focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
+
+
+/* Zoom très lent de la photo d'accueil pour donner de la profondeur au hero. */
+@keyframes heroZoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
