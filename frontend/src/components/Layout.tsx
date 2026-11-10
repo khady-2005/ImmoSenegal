@@ -15,13 +15,30 @@ const lienMobile = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10'
   }`
 
+/** Cadre blanc arrondi (haut et bas) autour du logo. */
+function CadreLogo({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <span
+      className={`inline-flex items-center overflow-hidden rounded-2xl bg-white px-3 py-2 shadow-md ring-1 ring-black/5 ${className}`}
+    >
+      {children}
+    </span>
+  )
+}
+
 function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
-  const h = taille === 'sm' ? 'h-11' : 'h-14'
+  const h = taille === 'sm' ? 'h-10' : 'h-14'
   return (
     <img
       src={logoImmo}
       alt="ImmoSénégal — Votre rêve, notre priorité"
-      className={`${h} w-auto max-w-[240px] object-contain object-left`}
+      className={`${h} w-auto max-w-[230px] object-contain object-left`}
     />
   )
 }
@@ -47,14 +64,12 @@ export default function Layout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-x-4 px-4 sm:h-[4.5rem]">
-          <Link
-            to="/"
-            onClick={fermerMenu}
-            aria-label="ImmoSénégal — accueil"
-            className="flex shrink-0 items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm"
-          >
-            <Logo />
+        {/* pl-2 / pr-4 : logo un peu plus à gauche */}
+        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-x-3 pl-2 pr-4 sm:h-[4.75rem] sm:pl-3 sm:pr-5">
+          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal — accueil" className="shrink-0">
+            <CadreLogo>
+              <Logo />
+            </CadreLogo>
           </Link>
 
           <nav aria-label="Navigation principale" className="hidden items-center gap-1 sm:flex">
@@ -172,9 +187,9 @@ export default function Layout() {
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <div className="inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm">
+            <CadreLogo className="px-2.5 py-1.5">
               <Logo taille="sm" />
-            </div>
+            </CadreLogo>
             <p className="mt-3 max-w-xs">
               Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
             </p>
