@@ -28,6 +28,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Lancer scripts/demarrer.sh pour générer .env.complet}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      EXEMPLES_ACTIFS: "true"  # charge les 8 annonces de démonstration dans PostgreSQL
       CORS_ALLOWED_ORIGINS: http://localhost:8080
       # Le proxy nginx est de confiance : on lit la vraie adresse du client. Le cookie n'est pas « Secure » car l'accès local est en http.
       FORWARD_HEADERS_STRATEGY: native
