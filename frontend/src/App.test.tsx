@@ -68,6 +68,12 @@ describe('Accueil', () => {
 })
 
 describe('Application', () => {
+  it('redirige un visiteur non connecté vers la connexion quand il ouvre le catalogue', async () => {
+    simulerApi({})
+    afficher('/catalogue')
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+  })
+
   it('affiche une page 404 pour une route inconnue', () => {
     simulerApi({})
     afficher('/n-importe-quoi')
