@@ -39,7 +39,7 @@ class AnnoncesExempleTest extends AbstractApiTest {
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.contenu[0].titre").value("Villa avec vue sur la mer"))
             .andExpect(jsonPath("$.contenu[0].exemple").value(true))
-            .andExpect(jsonPath("$.contenu[0].description").value(startsWith("Donnée de démonstration")))
+            .andExpect(jsonPath("$.contenu[0].description").value(startsWith("Grande villa lumineuse")))
             .andExpect(jsonPath("$.contenu[0].photos.length()").value(3))
             .andReturn();
 
