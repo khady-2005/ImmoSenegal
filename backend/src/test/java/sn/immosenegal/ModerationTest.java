@@ -74,13 +74,13 @@ class ModerationTest extends AbstractApiTest {
         if (jeton != null) {
             requete.header(HttpHeaders.AUTHORIZATION, bearer(jeton));
         }
+        return mvc.perform(requete);
+    }
 
     /** La fiche exige une session ; un visiteur connecté sans lien avec l'annonce ne la voit pas tant qu'elle n'est pas PUBLIEE. */
     private void invisibleDuPublic(String id) throws Exception {
         lire(id, null).andExpect(status().isUnauthorized());
         lire(id, utilisateurConnecte(Role.CLIENT)).andExpect(status().isNotFound());
-    }
-        return mvc.perform(requete);
     }
 
     private ResultActions decider(String admin, String id, String action, String motif) throws Exception {
