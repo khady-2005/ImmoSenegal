@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Building2, LogOut, Menu, X } from 'lucide-react'
+import { LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '../auth'
+import logoImmo from '../assets/logo-immosenegal.png'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -15,18 +16,13 @@ const lienMobile = ({ isActive }: { isActive: boolean }) =>
   }`
 
 function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
-  const box = taille === 'sm' ? 'h-8 w-8' : 'h-9 w-9'
-  const icon = taille === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
-  const text = taille === 'sm' ? 'text-lg' : 'text-xl'
+  const h = taille === 'sm' ? 'h-10' : 'h-12'
   return (
-    <span className={`flex items-center gap-2.5 font-bold tracking-tight ${text}`}>
-      <span className={`flex ${box} items-center justify-center rounded-xl bg-emeraude-600 shadow-sm`}>
-        <Building2 aria-hidden className={`${icon} text-white`} />
-      </span>
-      <span>
-        Immo<span className="text-dore-500">Sénégal</span>
-      </span>
-    </span>
+    <img
+      src={logoImmo}
+      alt="ImmoSénégal — Votre rêve, notre priorité"
+      className={`${h} w-auto max-w-[200px] object-contain`}
+    />
   )
 }
 
@@ -51,12 +47,11 @@ export default function Layout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-3.5">
-          <Link to="/" className="shrink-0" onClick={fermerMenu} aria-label="ImmoSénégal — accueil">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-2.5">
+          <Link to="/" className="shrink-0 rounded-md bg-white/95 px-2 py-1" onClick={fermerMenu} aria-label="ImmoSénégal — accueil">
             <Logo />
           </Link>
 
-          {/* Navigation desktop */}
           <nav aria-label="Navigation principale" className="hidden items-center gap-1 sm:flex">
             <NavLink to="/" end className={lienDesktop}>
               Accueil
@@ -93,7 +88,6 @@ export default function Layout() {
             )}
           </nav>
 
-          {/* Bouton hamburger (mobile) */}
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-lg p-2 text-white hover:bg-white/10 sm:hidden"
@@ -106,7 +100,6 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* Panneau menu mobile */}
         {menuOuvert && (
           <nav
             id="menu-mobile"
@@ -174,9 +167,9 @@ export default function Layout() {
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <p className="text-white">
+            <div className="inline-block rounded-md bg-white/95 px-2 py-1">
               <Logo taille="sm" />
-            </p>
+            </div>
             <p className="mt-3 max-w-xs">
               Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
             </p>
