@@ -9,7 +9,7 @@ import { analyser } from '../rechercheLibre'
 const exemple = 'Appartement à Thiès, 150 000 FCFA max'
 const reconnus = analyser(exemple, 'LOCATION').reconnus
 
-const fondMaquette = 'flex h-56 items-center justify-center bg-gradient-to-b from-[#dcf0fa] to-[#fdf0d8] px-4 py-5'
+const fondMaquette = 'flex h-56 items-center justify-center bg-gradient-to-br from-[#e5f4f1] via-[#eef5f8] to-[#fff1d7] px-5 py-6'
 
 function MaquetteDecrire() {
   return (
@@ -93,18 +93,18 @@ const etapes = [
 
 export default function CommentCaMarche() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-16" aria-labelledby="titre-etapes">
+    <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 sm:pb-24" aria-labelledby="titre-etapes">
       <h2 id="titre-etapes" className="font-titre text-3xl font-semibold sm:text-4xl">
         Comment ça marche
       </h2>
       <p className="mt-2 max-w-xl text-slate-600">Trois gestes, du premier mot à la fiche du bien.</p>
       <ol className="mt-8 grid gap-5 md:grid-cols-3">
         {etapes.map((etape, i) => (
-          <li key={etape.titre} className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <li key={etape.titre} className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_8px_28px_rgba(11,31,58,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(11,31,58,0.10)]">
             <div aria-hidden className={fondMaquette}>
               {etape.maquette}
             </div>
-            <div className="p-5">
+            <div className="p-6">
               <p className="text-sm font-semibold text-emeraude-700">Étape {i + 1}</p>
               <h3 className="font-titre mt-1 text-xl font-semibold">{etape.titre}</h3>
               <p className="mt-2 text-slate-600">{etape.texte}</p>
