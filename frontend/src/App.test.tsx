@@ -67,6 +67,13 @@ describe('Accueil', () => {
 })
 
 describe('Application', () => {
+  it('permet à un visiteur non connecté de consulter le catalogue', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Maison à visiter' })])) })
+    afficher('/catalogue')
+    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Maison à visiter' })).toBeInTheDocument()
+  })
+
   it('affiche une page 404 pour une route inconnue', () => {
     simulerApi({})
     afficher('/n-importe-quoi')

@@ -10,7 +10,7 @@ const classeSelect = 'w-full rounded-lg border border-slate-300 bg-white px-3 py
 
 /** Rôles autorisés par le serveur à publier. Le serveur reste seul juge : ceci évite seulement un écran inutile. */
 export function peutPublier(role: string | undefined) {
-  return role === 'PROPRIETAIRE' || role === 'AGENT' || role === 'ADMIN'
+  return role === 'PROPRIETAIRE' || role === 'ADMIN'
 }
 
 export default function FormulaireAnnonce() {
@@ -47,8 +47,7 @@ export default function FormulaireAnnonce() {
       <div className="mx-auto max-w-2xl px-4 py-12">
         <h1 className="text-2xl font-bold">Publier une annonce</h1>
         <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-slate-800">
-          Votre compte est un compte Client : il ne peut pas publier d'annonce. Le passage au rôle Propriétaire ou Agent
-          doit être validé par un administrateur : faites la demande depuis votre tableau de bord.
+          Seuls les comptes Propriétaire et Administrateur peuvent publier une annonce. Si vous êtes Client, demandez le rôle Propriétaire depuis votre tableau de bord ; un administrateur devra valider votre demande.
         </p>
       </div>
     )

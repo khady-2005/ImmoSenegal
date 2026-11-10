@@ -31,7 +31,7 @@ afterEach(() => vi.unstubAllGlobals())
 describe('Publication et gestion des annonces', () => {
   it("un compte Client voit un message clair et aucun formulaire", async () => {
     await seConnecter('CLIENT', {}, '/annonces/nouvelle')
-    expect(await screen.findByRole('alert')).toHaveTextContent(/compte Client/)
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Propriétaire et Administrateur/)
     expect(screen.queryByRole('form', { name: /formulaire d'annonce/i })).not.toBeInTheDocument()
   })
 

@@ -39,7 +39,7 @@ class AnnoncesExempleTest extends AbstractApiTest {
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.contenu[0].titre").value("Villa avec vue sur la mer"))
             .andExpect(jsonPath("$.contenu[0].exemple").value(true))
-            .andExpect(jsonPath("$.contenu[0].description").value(startsWith("Annonce d'exemple")))
+            .andExpect(jsonPath("$.contenu[0].description").value(startsWith("Grande villa lumineuse")))
             .andExpect(jsonPath("$.contenu[0].photos.length()").value(3))
             .andReturn();
 
@@ -51,7 +51,7 @@ class AnnoncesExempleTest extends AbstractApiTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType("image/jpeg"));
 
-        // Le filtre « seulement les vraies annonces » les exclut.
+        // Le filtre réservé aux annonces non démonstratives les exclut.
         mvc.perform(get("/api/annonces?quartier=Almadies&exemple=false"))
             .andExpect(jsonPath("$.totalElements").value(0));
 

@@ -95,6 +95,12 @@ describe('Accès protégé et déconnexion', () => {
     expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 
+  it('redirige un visiteur non connecté vers la connexion quand il ouvre une fiche de bien', async () => {
+    simulerApi({})
+    afficher('/annonces/a1111111-1111-1111-1111-111111111111')
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+  })
+
   it('la déconnexion efface la session et ferme l\'espace personnel', async () => {
     simulerApi({
       'POST /api/auth/login': () => reponseConnexion(),

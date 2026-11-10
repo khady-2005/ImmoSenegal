@@ -168,16 +168,19 @@ describe("Page d'accueil", () => {
     expect(api.mock.calls.some((c) => String(c[0]).includes('transaction=VENTE'))).toBe(true)
   })
 
-  it('la page de détail d’une annonce d’exemple le dit en toutes lettres', async () => {
+  it('la page de détail d’une annonce de démonstration le dit clairement', async () => {
     const exemple = annonceTest({ exemple: true, titre: 'Villa avec vue sur la mer' })
-    simulerApi({ [`GET /api/annonces/${exemple.id}`]: () => json(200, exemple) })
+    simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),   // la fiche d'un bien exige un compte connecté
+      [`GET /api/annonces/${exemple.id}`]: () => json(200, exemple),
+    })
     render(
       <MemoryRouter initialEntries={[`/annonces/${exemple.id}`]}>
         <App />
       </MemoryRouter>,
     )
     expect(await screen.findByRole('heading', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
-    expect(screen.getByRole('note')).toHaveTextContent('Ce bien n’existe pas')
+    expect(screen.getByRole('note')).toHaveTextContent('Annonce de démonstration')
   })
 
   it('annonce honnêtement les fonctions pas encore disponibles', async () => {

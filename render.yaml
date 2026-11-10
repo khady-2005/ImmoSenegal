@@ -21,6 +21,8 @@ services:
         sync: false
       - key: CORS_ALLOWED_ORIGINS
         sync: false                  # adresse exacte du site (https://....vercel.app)
+      - key: EXEMPLES_ACTIFS
+        value: "true"               # crée les annonces de démonstration dans PostgreSQL
       - key: FORWARD_HEADERS_STRATEGY
         value: native                # lit la vraie IP du client derrière le proxy Render
       - key: REFRESH_COOKIE_SECURE

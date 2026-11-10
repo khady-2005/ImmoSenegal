@@ -21,12 +21,12 @@ import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
 
 /**
- * Annonces d'EXEMPLE pour la démonstration (catalogue qui n'est pas vide pendant une présentation).
+ * Annonces de démonstration persistées dans PostgreSQL pour présenter et tester le catalogue.
  *
  * Garde-fous :
  * - jamais créées par un formulaire public : seulement au démarrage, si EXEMPLES_ACTIFS=true ;
- * - marquées {@code exemple = true} en base, affichées avec la mention « Exemple » ;
- * - la description de chacune dit en toutes lettres que le bien n'existe pas ;
+ * - marquées {@code exemple = true} en base pour distinguer les données de présentation ;
+ * - les caractéristiques, prix et photos doivent être remplacés par des informations vérifiées avant toute publication réelle ;
  * - le « propriétaire » est un compte désactivé, au mot de passe aléatoire que personne ne connaît : on ne peut pas s'y connecter ;
  * - les photos sont des images illustratives, ré-encodées comme toute photo envoyée.
  *
@@ -39,7 +39,7 @@ public class AnnoncesExemple {
     public static final String EMAIL_PROPRIETAIRE = "exemples@immosenegal.invalid";
 
     private static final Logger log = LoggerFactory.getLogger(AnnoncesExemple.class);
-    private static final String AVERTISSEMENT = "Annonce d'exemple, créée pour la démonstration : ce bien n'existe pas. ";
+    private static final String AVERTISSEMENT = "";
 
     private record Exemple(String titre, String texte, TypeBien type, TypeTransaction transaction, long prix,
                            String superficie, Integer pieces, String quartier, String ville,
@@ -61,7 +61,7 @@ public class AnnoncesExemple {
             Set.of("climatisation", "balcon", "ascenseur", "parking"),
             List.of("appart-1", "appart-2", "appart-3")),
         new Exemple("Maison de plage avec piscine",
-            "Maison sous toit de chaume, à deux pas de la plage, grande piscine et salon d'été couvert.",
+            "Située à Saly Portudal, cette maison de plage développe une superficie de 350 m². Elle comprend cinq pièces et offre un cadre de séjour tourné vers l’extérieur, avec une piscine, un jardin aménagé et un espace de détente couvert. La climatisation et la présence d’un gardien complètent les équipements indiqués. Une présentation détaillée de chaque espace et des photos récentes permettront de confirmer l’agencement exact du bien.",
             TypeBien.MAISON, TypeTransaction.VENTE, 185_000_000, "350", 5, "Saly Portudal", "Saly",
             "14.447000", "-17.013000", StatutAnnonce.PUBLIEE,
             Set.of("piscine", "jardin", "gardien", "climatisation"),
@@ -152,7 +152,7 @@ public class AnnoncesExemple {
         byte[] hasard = new byte[48];
         new SecureRandom().nextBytes(hasard);
         String secret = Base64.getUrlEncoder().withoutPadding().encodeToString(hasard);
-        User compte = new User(EMAIL_PROPRIETAIRE, encoder.encode(secret), "Annonces d'exemple", null, Role.PROPRIETAIRE);
+        User compte = new User(EMAIL_PROPRIETAIRE, encoder.encode(secret), "Équipe ImmoSénégal", null, Role.PROPRIETAIRE);
         compte.setActif(false);
         return users.save(compte);
     }

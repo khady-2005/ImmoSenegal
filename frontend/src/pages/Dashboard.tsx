@@ -84,10 +84,13 @@ export default function Dashboard() {
           <Link to="/admin/demandes" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold">
             Demandes de rôle
           </Link>
+          <Link to="/admin/utilisateurs" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">
+            Gestion des utilisateurs
+          </Link>
         </>
       )}
 
-      {['PROPRIETAIRE', 'AGENT', 'ADMIN'].includes(affiche.role) && (
+      {['PROPRIETAIRE', 'ADMIN'].includes(affiche.role) && (
         <Link to="/mes-annonces" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
           Gérer mes annonces
         </Link>

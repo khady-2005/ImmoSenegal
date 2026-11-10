@@ -103,7 +103,10 @@ describe('Affichage public des photos', () => {
   })
 
   it('le détail affiche la galerie et change de photo au clic sur une vignette', async () => {
-    simulerApi({ [`GET /api/annonces/${ID}`]: () => json(200, annonceTest({ photos: [P1, P2] })) })
+    simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),   // la fiche d'un bien exige un compte connecté
+      [`GET /api/annonces/${ID}`]: () => json(200, annonceTest({ photos: [P1, P2] })),
+    })
     const user = userEvent.setup()
     afficher(`/annonces/${ID}`)
     const principale = await screen.findByAltText(/Photo 1 sur 2/)
@@ -113,7 +116,10 @@ describe('Affichage public des photos', () => {
   })
 
   it('le détail dit clairement quand une annonce n\'a pas de photo', async () => {
-    simulerApi({ [`GET /api/annonces/${ID}`]: () => json(200, annonceTest()) })
+    simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),
+      [`GET /api/annonces/${ID}`]: () => json(200, annonceTest()),
+    })
     afficher(`/annonces/${ID}`)
     expect(await screen.findByText('Aucune photo pour cette annonce.')).toBeInTheDocument()
     expect(within(screen.getByRole('main')).queryByRole('img')).not.toBeInTheDocument()

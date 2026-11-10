@@ -85,9 +85,8 @@ export default function DetailAnnonce() {
       {a && (
         <article className="mt-6">
           {a.exemple && (
-            <p role="note" className="mb-5 rounded-2xl border border-dashed border-slate-400 bg-white p-4 text-slate-700">
-              <strong>Annonce d’exemple.</strong> Ce bien n’existe pas : elle sert à montrer comment le site fonctionne, et ses photos
-              sont des images illustratives.
+            <p role="note" className="mb-5 inline-block rounded-full border border-dashed border-slate-400 bg-white px-4 py-1.5 text-sm text-slate-700">
+              <strong>Annonce de démonstration</strong> : données simulées, photos illustratives.
             </p>
           )}
           <Galerie annonce={a} />

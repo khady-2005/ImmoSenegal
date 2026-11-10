@@ -63,7 +63,7 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
 
   // 2b. Un Client ne peut pas publier (message clair dans l'interface ; le serveur refuserait aussi).
   await page.goto('/annonces/nouvelle')
-  await expect(page.getByRole('alert')).toContainText('compte Client')
+  await expect(page.getByRole('alert')).toContainText('Propriétaire et Administrateur')
   await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 
@@ -135,10 +135,19 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   // La photo est lisible SANS être connecté (lecture publique) : l'image est réellement chargée par le navigateur.
   const couverture = visiteur.getByRole('article').filter({ hasText: TITRE }).getByRole('img')
   await expect.poll(() => couverture.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0)
+  // Ouvrir la fiche complète exige un compte : le serveur refuse (401) et le visiteur est renvoyé vers la connexion.
+  const lienFiche = (await visiteur.getByRole('link', { name: TITRE }).getAttribute('href'))!
+  expect((await request.get(`/api${lienFiche}`)).status()).toBe(401)
   await visiteur.getByRole('link', { name: TITRE }).click()
-  await expect(visiteur.getByRole('heading', { level: 1, name: TITRE })).toBeVisible()
-  await expect(visiteur.getByText('45 000 000 FCFA')).toBeVisible()
+  await expect(visiteur.getByRole('heading', { name: 'Connexion' })).toBeVisible()
   await visiteur.close()
+
+  // Une fois connecté (ici le propriétaire), la fiche s'ouvre avec son prix.
+  await page.goto('/catalogue?type=VILLA&transaction=VENTE')
+  await page.getByRole('link', { name: TITRE }).click()
+  await expect(page.getByRole('heading', { level: 1, name: TITRE })).toBeVisible()
+  await expect(page.getByText('45 000 000 FCFA')).toBeVisible()
+  await page.goto('/mes-annonces')
 
   // 7. Modification du statut puis suppression avec confirmation.
   const ligne = page.getByRole('listitem').filter({ hasText: TITRE })

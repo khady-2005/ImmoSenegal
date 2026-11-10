@@ -102,6 +102,20 @@ class AuthSecurityTest extends AbstractApiTest {
         assertThat(m1).isEqualTo(m2);
     }
 
+    // ---------- Catalogue public, fiche détaillée protégée ----------
+
+    @Test
+    void catalogueResteAccessibleSansConnexion() throws Exception {
+        mvc.perform(get("/api/annonces"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void ficheAnnonceExigeUneConnexion() throws Exception {
+        mvc.perform(get("/api/annonces/11111111-1111-1111-1111-111111111111"))
+            .andExpect(status().isUnauthorized());
+    }
+
     // ---------- 401 : non authentifié ----------
 
     @Test

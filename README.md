@@ -109,17 +109,16 @@ Les propriétaires et agents s'inscrivent comme CLIENT, puis demandent leur rôl
 
 ## Annonces d'exemple (démonstration)
 
-Pour qu'un catalogue vide ne gâche pas une présentation, le serveur peut créer 8 annonces **d'exemple**
-(villas, appartements, studio, terrain à Dakar, Ziguinchor, Saly, Saint-Louis, Mbour) :
+Pour présenter et tester l'application avec un catalogue déjà rempli, le serveur peut créer 8 annonces de **démonstration persistées dans PostgreSQL**
+(villas, appartements, studio, terrain à Dakar, Ziguinchor, Saly, Saint-Louis, Mbour). Les caractéristiques, prix et photos sont simulés : ce ne sont pas des offres immobilières réelles :
 
 ```
 EXEMPLES_ACTIFS=true
 ```
 
-Garde-fous : désactivé par défaut ; jamais créées par un formulaire public ; marquées `exemple = true` en base,
-affichées avec la mention « Exemple » (cartes et page de détail) ; la description précise que le bien n'existe pas ;
-les photos sont des images illustratives ; le compte « propriétaire » associé est désactivé (impossible de s'y connecter) ;
-le compteur de l'accueil ne compte que les vraies annonces (`exemple=false`).
+Garde-fous : jamais créées par un formulaire public ; marquées `exemple = true` en base et affichées avec la mention « Démonstration » ;
+les données et photos sont simulées ; le compte associé est désactivé (impossible de s'y connecter). Les annonces sont bien enregistrées
+et consultables dans la base, mais restent identifiables comme données de démonstration.
 
 Pour les retirer (avec leurs photos), exécuter une seule requête SQL sur la base :
 

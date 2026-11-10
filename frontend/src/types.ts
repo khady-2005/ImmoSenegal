@@ -52,7 +52,7 @@ export interface Annonce {
   photos: string[]
   /** Motif de la dernière décision de modération : fourni seulement au propriétaire et aux administrateurs. */
   motifModeration?: string | null
-  /** Vrai pour une annonce d'exemple (démonstration) : le bien n'existe pas et doit toujours être présenté comme tel. */
+  /** Vrai pour une annonce de démonstration : ses données sont simulées et doivent être présentées comme telles. */
   exemple: boolean
 }
 

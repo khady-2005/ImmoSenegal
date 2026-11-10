@@ -152,14 +152,15 @@ class AnnonceTest extends AbstractApiTest {
         publier(jeton, terrain).andExpect(status().isCreated()).andExpect(jsonPath("$.pieces").doesNotExist());
     }
 
-    // ---------- Lecture publique ----------
+    // ---------- Lecture : le catalogue est public, la fiche exige un compte ----------
 
     @Test
-    void lAnnoncePeutEtreLueSansJeton_sansExposerLEmailNiLeTelephoneDuProprietaire() throws Exception {
+    void lAFicheExigeUneSession_etNExposeNiLEmailNiLeTelephoneDuProprietaire() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
         String id = publierEtValider(jeton, utilisateurConnecte(Role.ADMIN), annonce("Visible", quartierUnique()));
 
-        mvc.perform(get("/api/annonces/" + id))
+        lire(id, null).andExpect(status().isUnauthorized());
+        lire(id, utilisateurConnecte(Role.CLIENT))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.titre").value("Visible"))
             .andExpect(jsonPath("$.proprietaire.nomComplet").exists())
@@ -169,8 +170,9 @@ class AnnonceTest extends AbstractApiTest {
 
     @Test
     void uneAnnonceInconnueRenvoie404_etUnIdentifiantMalFormeRenvoie400() throws Exception {
-        mvc.perform(get("/api/annonces/" + UUID.randomUUID())).andExpect(status().isNotFound());
-        mvc.perform(get("/api/annonces/pas-un-uuid")).andExpect(status().isBadRequest());
+        String jeton = utilisateurConnecte(Role.CLIENT);
+        lire(UUID.randomUUID().toString(), jeton).andExpect(status().isNotFound());
+        lire("pas-un-uuid", jeton).andExpect(status().isBadRequest());
     }
 
     // ---------- Propriété : modifier / supprimer ----------
@@ -188,7 +190,7 @@ class AnnonceTest extends AbstractApiTest {
             .andExpect(status().isForbidden());
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAutre)))
             .andExpect(status().isForbidden());
-        lire(id, null).andExpect(jsonPath("$.titre").value("Titre d'origine")).andExpect(jsonPath("$.statut").value("PUBLIEE"));
+        lire(id, jetonProprio).andExpect(jsonPath("$.titre").value("Titre d'origine")).andExpect(jsonPath("$.statut").value("PUBLIEE"));
 
         // Un simple client : 403 aussi. Sans jeton : 401.
         String jetonClient = utilisateurConnecte(Role.CLIENT);
@@ -223,7 +225,7 @@ class AnnonceTest extends AbstractApiTest {
     @Test
     void mesAnnoncesNeRenvoieQueLesMiennes_etExigeUneSession() throws Exception {
         String jetonA = utilisateurConnecte(Role.PROPRIETAIRE);
-        String jetonB = utilisateurConnecte(Role.AGENT);
+        String jetonB = utilisateurConnecte(Role.PROPRIETAIRE);
         publierEtRecupererId(jetonA, annonce("Annonce de A", quartierUnique()));
         publierEtRecupererId(jetonB, annonce("Annonce de B", quartierUnique()));
 
