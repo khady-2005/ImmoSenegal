@@ -19,12 +19,12 @@ describe('Accueil', () => {
   it("affiche le formulaire de recherche et les annonces récentes venant de l'API", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa des Pins' })])) })
     afficher()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Rentrez enfin chez vous.')
-    expect(screen.getByRole('form', { name: /recherche en une phrase/i })).toBeInTheDocument()
-    // Le formulaire à filtres est derrière « Recherche avancée ».
-    expect(screen.queryByRole('form', { name: /recherche de logement/i })).not.toBeInTheDocument()
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Recherche avancée' }))
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Trouvez le lieu qui vous ressemble.')
+    // Le formulaire à critères est affiché d'emblée ; la phrase libre est dans l'onglet voisin.
     expect(screen.getByRole('form', { name: /recherche de logement/i })).toBeInTheDocument()
+    expect(screen.queryByRole('form', { name: /recherche en une phrase/i })).not.toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('tab', { name: 'En une phrase' }))
+    expect(screen.getByRole('form', { name: /recherche en une phrase/i })).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: 'Villa des Pins' })).toHaveAttribute('href', '/annonces/a1111111-1111-1111-1111-111111111111')
   })
 
@@ -45,10 +45,9 @@ describe('Accueil', () => {
     const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     const user = userEvent.setup()
     afficher()
-    await user.click(screen.getByRole('button', { name: 'Recherche avancée' }))
-    await user.selectOptions(screen.getByLabelText('Je veux', { selector: 'select' }), 'VENTE')
+    await user.click(screen.getByRole('button', { name: 'Acheter' }))
     await user.selectOptions(screen.getByLabelText('Type de bien'), 'VILLA')
-    await user.type(screen.getByLabelText('Quartier'), 'Néma')
+    await user.type(screen.getByLabelText('Ville ou quartier'), 'Néma')
     await user.type(screen.getByLabelText(/Budget max/), '50000000')
     await user.click(within(screen.getByRole('form', { name: /recherche de logement/i })).getByRole('button', { name: /rechercher/i }))
 

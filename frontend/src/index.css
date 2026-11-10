@@ -1,24 +1,66 @@
 @import "tailwindcss";
 
-/* Identité visuelle : bleu nuit, émeraude, doré (conforme au cahier des charges). */
+/*
+ * Identité visuelle ImmoSénégal : palette officielle du cahier de refonte.
+ *   Bleu nuit #0B1F3A (structure) · Vert émeraude #008F69 (confiance) · Or champagne #D9AA45 (accents)
+ *   Blanc cassé #FAFAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
+ * Les teintes « 700 » et « 800 » du vert sont légèrement plus sombres : elles servent aux textes et aux boutons,
+ * pour garder un contraste lisible sur fond clair.
+ */
 @theme {
   --color-nuit-950: #07142a;
   --color-nuit-900: #0b1f3a;
   --color-nuit-800: #12305a;
   --color-nuit-100: #e6ecf5;
-  --color-emeraude-900: #064e3b;
-  --color-emeraude-700: #047857;
-  --color-emeraude-600: #059669;
-  --color-emeraude-500: #10b981;
-  --color-emeraude-50: #ecfdf5;
-  --color-dore-500: #f5b942;
-  --color-dore-600: #d99a1b;
+  --color-emeraude-900: #05503f;
+  --color-emeraude-800: #006650;
+  --color-emeraude-700: #00785a;
+  --color-emeraude-600: #008f69;
+  --color-emeraude-500: #12a37c;
+  --color-emeraude-50: #e8f6f1;
+  --color-dore-500: #d9aa45;
+  --color-dore-600: #b98a2e;
+  --color-dore-100: #f6ecd3;
+  --color-ivoire: #fafaf7;
+  --color-brume: #f1f3f5;
+  --color-encre: #182438;
   --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* Titres : une grotesque expressive, hébergée avec le site (aucun appel à un service externe). */
-  --font-titre: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  /* Titres : une serif éditoriale (Fraunces), hébergée avec le site : aucun appel à un service externe. */
+  --font-titre: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
+  /* Le nom de la marque : une grotesque très grasse, proche des lettres du logo. */
+  --font-marque: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --shadow-carte: 0 1px 2px rgb(11 31 58 / 0.06), 0 10px 30px -12px rgb(11 31 58 / 0.18);
+  --shadow-carte-haut: 0 2px 4px rgb(11 31 58 / 0.06), 0 22px 44px -16px rgb(11 31 58 / 0.32);
 }
 
 html { scroll-behavior: smooth; }
-body { @apply bg-slate-50 text-slate-900 antialiased; overflow-x: hidden; }
+body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
+
+/* Titres éditoriaux : graisse légère, interlettrage légèrement resserré ; l'axe optique de Fraunces s'adapte à la taille. */
+.font-titre { letter-spacing: -0.012em; word-spacing: 0.05em; }
 
 :focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
+
+/* Apparition douce des grandes sections (une seule fois, au défilement). */
+.apparition { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.apparition.visible { opacity: 1; transform: none; }
+
+/* Cartes en cours de chargement. */
+@keyframes lueur { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+.squelette {
+  background: linear-gradient(100deg, #e8ebee 30%, #f6f7f8 50%, #e8ebee 70%);
+  background-size: 200% 100%;
+  animation: lueur 1.6s ease-in-out infinite;
+}
+
+/* Entrée du bloc d'accueil : un seul mouvement, à l'ouverture de la page. */
+@keyframes entree { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.entree { animation: entree 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.entree-2 { animation-delay: 0.12s; }
+.entree-3 { animation-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .apparition { opacity: 1; transform: none; transition: none; }
+  .squelette, .entree { animation: none; }
+}

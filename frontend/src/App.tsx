@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Catalogue from './pages/Catalogue'
 import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
+import MentionsLegales from './pages/MentionsLegales'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="admin/demandes" element={<RequireAuth><AdminDemandes /></RequireAuth>} />
           <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
+          <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
           <Route

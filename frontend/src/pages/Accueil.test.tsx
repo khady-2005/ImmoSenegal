@@ -20,7 +20,7 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Rentrez enfin chez vous.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Trouvez le lieu qui vous ressemble.' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Voir tous les logements' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(2)
@@ -60,8 +60,9 @@ describe("Page d'accueil", () => {
       Villas: 'VILLA',
       Terrains: 'TERRAIN',
     }
+    const liste = within(screen.getByRole('list', { name: 'Types de bien' }))
     for (const [nom, type] of Object.entries(attendus)) {
-      expect(screen.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
+      expect(liste.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
     }
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
@@ -71,6 +72,7 @@ describe("Page d'accueil", () => {
     const user = userEvent.setup()
     afficher()
 
+    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
     await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'studio à Ziguinchor sous 80 000 FCFA')
     // Les critères reconnus sont montrés avant l'envoi.
     expect(await screen.findByText('Budget max 80 000 FCFA')).toBeInTheDocument()
@@ -89,6 +91,7 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     const user = userEvent.setup()
     afficher()
+    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
     await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'bonjour')
     await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
 
@@ -100,6 +103,7 @@ describe("Page d'accueil", () => {
     const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     const user = userEvent.setup()
     afficher()
+    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
     await user.click(screen.getByRole('button', { name: 'Acheter' }))
     await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'villa à Dakar')
     await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
@@ -203,7 +207,7 @@ describe("Page d'accueil", () => {
     afficher()
     const section = screen.getByRole('heading', { name: 'Comment ça marche' }).closest('section')!
     expect(within(section).getAllByRole('listitem')).toHaveLength(3)
-    for (const titre of ['Décrivez', 'Affinez', 'Ouvrez la fiche']) {
+    for (const titre of ['Décrivez votre recherche', 'Trouvez le bien idéal', 'Contactez le propriétaire']) {
       expect(within(section).getByRole('heading', { name: titre })).toBeInTheDocument()
     }
     // Les pastilles de la maquette sortent de la vraie analyse de phrase.

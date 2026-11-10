@@ -1,4 +1,4 @@
-import { Building2, Search } from 'lucide-react'
+import { House, MessageCircle, Search, UserRound } from 'lucide-react'
 import { analyser } from '../rechercheLibre'
 
 /**
@@ -9,11 +9,13 @@ import { analyser } from '../rechercheLibre'
 const exemple = 'Appartement à Thiès, 150 000 FCFA max'
 const reconnus = analyser(exemple, 'LOCATION').reconnus
 
-const fondMaquette = 'flex h-56 items-center justify-center bg-gradient-to-b from-[#dcf0fa] to-[#fdf0d8] px-4 py-5'
+const fondMaquette = 'flex h-52 items-center justify-center bg-gradient-to-b from-emeraude-50 to-dore-100/70 px-5 py-5'
+
+const carteMaquette = 'w-full rounded-xl bg-white p-3 shadow-md shadow-nuit-900/10 ring-1 ring-slate-200/70'
 
 function MaquetteDecrire() {
   return (
-    <div className="w-full rounded-xl bg-white p-3 shadow-md shadow-nuit-900/10">
+    <div className={carteMaquette}>
       <p className="flex items-center gap-2 text-sm text-slate-800">
         <Search className="h-4 w-4 shrink-0 text-slate-400" />
         {exemple}
@@ -29,20 +31,13 @@ function MaquetteDecrire() {
   )
 }
 
-function MaquetteAffiner() {
+function MaquetteTrouver() {
   return (
     <div className="w-full space-y-2">
-      <div className="flex gap-1.5">
-        {['Type', 'Lieu', 'Budget'].map((nom) => (
-          <span key={nom} className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm">
-            {nom}
-          </span>
-        ))}
-      </div>
       {[0, 1].map((i) => (
-        <div key={i} className="flex gap-3 rounded-xl bg-white p-2.5 shadow-md shadow-nuit-900/10">
-          <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-emeraude-50 text-emeraude-700">
-            <Building2 className="h-5 w-5" />
+        <div key={i} className="flex gap-3 rounded-xl bg-white p-2.5 shadow-md shadow-nuit-900/10 ring-1 ring-slate-200/70">
+          <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-nuit-900 text-dore-500">
+            <House className="h-5 w-5" />
           </div>
           <div className="flex-1 space-y-1.5 py-1">
             <div className="h-2.5 w-3/4 rounded bg-slate-200" />
@@ -54,60 +49,70 @@ function MaquetteAffiner() {
   )
 }
 
-function MaquetteFiche() {
+function MaquetteContacter() {
   return (
-    <div className="w-full rounded-xl bg-white p-2.5 shadow-md shadow-nuit-900/10">
-      <div className="flex h-20 items-center justify-center rounded-lg bg-emeraude-50 text-emeraude-700">
-        <Building2 className="h-8 w-8" />
-      </div>
-      <div className="mt-2 grid grid-cols-4 gap-1.5">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className={`h-8 rounded-md ${i === 0 ? 'bg-dore-500/70' : 'bg-slate-200'}`} />
-        ))}
-      </div>
-      <div className="mt-2 space-y-1.5">
+    <div className={`${carteMaquette} flex items-center gap-3`}>
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
+        <UserRound className="h-5 w-5" />
+      </span>
+      <div className="flex-1 space-y-1.5">
         <div className="h-2.5 w-2/3 rounded bg-slate-200" />
-        <div className="h-2.5 w-full rounded bg-slate-100" />
+        <div className="h-2.5 w-1/3 rounded bg-slate-100" />
       </div>
+      <span className="rounded-full bg-dore-100 px-2.5 py-1 text-xs font-semibold text-nuit-900">Bientôt</span>
     </div>
   )
 }
 
 const etapes = [
   {
-    titre: 'Décrivez',
-    texte: 'Écrivez ce que vous cherchez en une phrase. Le site repère le type de bien, le lieu et le budget, et vous montre ce qu’il a compris.',
+    titre: 'Décrivez votre recherche',
+    icone: Search,
+    texte: 'Écrivez ce que vous cherchez en une phrase, ou choisissez vos filtres. Le site repère le type de bien, le lieu et le budget.',
     maquette: <MaquetteDecrire />,
   },
   {
-    titre: 'Affinez',
-    texte: 'Le catalogue s’ouvre déjà filtré. Vous pouvez encore changer le type de bien, le lieu ou le budget.',
-    maquette: <MaquetteAffiner />,
+    titre: 'Trouvez le bien idéal',
+    icone: House,
+    texte: 'Le catalogue s’ouvre déjà filtré. Parcourez les photos, comparez les prix et lisez la fiche détaillée de chaque bien.',
+    maquette: <MaquetteTrouver />,
   },
   {
-    titre: 'Ouvrez la fiche',
-    texte: 'Parcourez la galerie de photos et lisez le détail du bien avant de décider.',
-    maquette: <MaquetteFiche />,
+    titre: 'Contactez le propriétaire',
+    icone: MessageCircle,
+    texte: 'Chaque fiche présente la personne qui publie le bien. La messagerie et la demande de visite arrivent prochainement.',
+    maquette: <MaquetteContacter />,
   },
 ]
 
 export default function CommentCaMarche() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-16" aria-labelledby="titre-etapes">
-      <h2 id="titre-etapes" className="font-titre text-3xl font-semibold sm:text-4xl">
+    <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-etapes">
+      <h2 id="titre-etapes" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
         Comment ça marche
       </h2>
       <p className="mt-2 max-w-xl text-slate-600">Trois gestes, du premier mot à la fiche du bien.</p>
-      <ol className="mt-8 grid gap-5 md:grid-cols-3">
+      <ol className="mt-10 grid gap-6 md:grid-cols-3">
         {etapes.map((etape, i) => (
-          <li key={etape.titre} className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <li
+            key={etape.titre}
+            className="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none"
+          >
             <div aria-hidden className={fondMaquette}>
               {etape.maquette}
             </div>
-            <div className="p-5">
-              <p className="text-sm font-semibold text-emeraude-700">Étape {i + 1}</p>
-              <h3 className="font-titre mt-1 text-xl font-semibold">{etape.titre}</h3>
-              <p className="mt-2 text-slate-600">{etape.texte}</p>
+            <div className="flex-1 p-6">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-nuit-900 text-dore-500 ring-2 ring-dore-500/40 transition-transform duration-300 group-hover:scale-110"
+                >
+                  <etape.icone className="h-5 w-5" />
+                </span>
+                <p className="text-sm font-semibold text-emeraude-700">Étape {i + 1}</p>
+              </div>
+              <h3 className="font-titre mt-4 text-xl font-medium text-nuit-900">{etape.titre}</h3>
+              <p className="mt-2 leading-relaxed text-slate-600">{etape.texte}</p>
             </div>
           </li>
         ))}

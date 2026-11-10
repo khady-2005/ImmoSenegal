@@ -89,7 +89,8 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   // 5. Le nouveau Propriétaire publie une annonce.
   await connecter(page, CLIENT_EMAIL, CLIENT_PASSWORD)
   await page.getByRole('link', { name: /gérer mes annonces/i }).click()
-  await page.getByRole('link', { name: /publier une annonce/i }).click()
+  // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on cible celui de la page.
+  await page.getByRole('main').getByRole('link', { name: /publier une annonce/i }).click()
   await page.getByLabel('Titre').fill(TITRE)
   await page.getByLabel('Transaction').selectOption('VENTE')
   await page.getByLabel('Type de bien').selectOption('VILLA')

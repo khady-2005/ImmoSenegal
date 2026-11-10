@@ -1,4 +1,4 @@
-import { BedDouble, MapPin, Ruler } from 'lucide-react'
+import { ArrowRight, BedDouble, Building2, MapPin, Ruler } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Annonce } from '../types'
 import { libelleStatut, libelleTypeBien } from '../types'
@@ -9,57 +9,72 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
   const disponible = annonce.statut === 'PUBLIEE'
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="relative flex h-36 items-end overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-700 p-3">
-        {annonce.photos.length > 0 && (
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-800">
+        {annonce.photos.length > 0 ? (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0])}
             alt={`${annonce.exemple ? 'Image illustrative' : 'Photo'} : ${annonce.titre}`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
           />
+        ) : (
+          <Building2 aria-hidden className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 text-white/25" />
         )}
-        <span className="relative rounded-full bg-dore-500 px-2.5 py-0.5 text-xs font-semibold text-nuit-950">
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-nuit-950/80 to-transparent" />
+
+        <span className="absolute left-3 top-3 rounded-full bg-dore-500 px-3 py-1 text-xs font-bold text-nuit-950 shadow-sm">
           {location ? 'À louer' : 'À vendre'}
         </span>
-        {annonce.exemple && (
-          <span className="absolute left-3 top-3 rounded-full border border-dashed border-slate-400 bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-            Exemple
-          </span>
-        )}
-        {!disponible && (
-          <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-            {libelleStatut[annonce.statut]}
-          </span>
-        )}
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+          {annonce.exemple && (
+            <span className="rounded-full border border-dashed border-slate-400 bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+              Exemple
+            </span>
+          )}
+          {!disponible && (
+            <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+              {libelleStatut[annonce.statut]}
+            </span>
+          )}
+        </div>
+
+        <p className="font-titre absolute bottom-3 left-4 right-4 text-2xl font-semibold leading-none text-white drop-shadow">
+          {formatFcfa(annonce.prix)}
+          {location && <span className="font-sans text-sm font-normal text-white/85"> / mois</span>}
+        </p>
       </div>
-      <div className="space-y-2 p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{libelleTypeBien[annonce.typeBien]}</p>
-        <h3 className="font-semibold leading-snug">
-          <Link to={`/annonces/${annonce.id}`} className="hover:text-emeraude-700 hover:underline">
+
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <p className="text-sm font-medium text-emeraude-700">{libelleTypeBien[annonce.typeBien]}</p>
+        <h3 className="font-titre text-lg font-semibold leading-snug text-nuit-900">
+          {/* Le lien couvre toute la carte : un clic n'importe où ouvre la fiche. */}
+          <Link to={`/annonces/${annonce.id}`} className="after:absolute after:inset-0 after:content-[''] hover:underline">
             {annonce.titre}
           </Link>
         </h3>
-        <p className="flex items-center gap-1 text-sm text-slate-600">
-          <MapPin aria-hidden className="h-4 w-4" />
+        <p className="flex items-center gap-1.5 text-sm text-slate-600">
+          <MapPin aria-hidden className="h-4 w-4 shrink-0 text-emeraude-600" />
           {annonce.quartier}, {annonce.ville}
         </p>
-        <p className="text-lg font-bold text-emeraude-700">
-          {formatFcfa(annonce.prix)}
-          {location && <span className="text-sm font-normal text-slate-500"> / mois</span>}
-        </p>
-        <p className="flex items-center gap-4 text-sm text-slate-600">
-          <span className="flex items-center gap-1">
-            <Ruler aria-hidden className="h-4 w-4" />
-            {annonce.superficie} m²
-          </span>
-          {annonce.pieces !== null && (
-            <span className="flex items-center gap-1">
-              <BedDouble aria-hidden className="h-4 w-4" />
-              {annonce.pieces} pièce{annonce.pieces > 1 ? 's' : ''}
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-sm text-slate-700">
+          <p className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <Ruler aria-hidden className="h-4 w-4 text-slate-400" />
+              {annonce.superficie} m²
             </span>
-          )}
-        </p>
+            {annonce.pieces !== null && (
+              <span className="flex items-center gap-1.5">
+                <BedDouble aria-hidden className="h-4 w-4 text-slate-400" />
+                {annonce.pieces} pièce{annonce.pieces > 1 ? 's' : ''}
+              </span>
+            )}
+          </p>
+          <span aria-hidden className="flex items-center gap-1 font-semibold text-emeraude-700 transition-all group-hover:gap-2">
+            Voir le détail
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </div>
       </div>
     </article>
   )

@@ -72,9 +72,9 @@ describe('Gestion des photos (propriétaire)', () => {
       { [`DELETE /api/annonces/${ID}/photos/${P1}`]: () => new Response(null, { status: 204 }) },
       [P1, P2],
     )
-    expect(screen.getAllByRole('img')).toHaveLength(2)
+    expect(within(screen.getByRole('main')).getAllByRole('img')).toHaveLength(2)
     await user.click(screen.getByRole('button', { name: 'Supprimer la photo 1' }))
-    await waitFor(() => expect(screen.getAllByRole('img')).toHaveLength(1))
+    await waitFor(() => expect(within(screen.getByRole('main')).getAllByRole('img')).toHaveLength(1))
     expect(api.mock.calls.some(([u, i]) => u === `/api/annonces/${ID}/photos/${P1}` && i?.method === 'DELETE')).toBe(true)
   })
 
@@ -116,6 +116,6 @@ describe('Affichage public des photos', () => {
     simulerApi({ [`GET /api/annonces/${ID}`]: () => json(200, annonceTest()) })
     afficher(`/annonces/${ID}`)
     expect(await screen.findByText('Aucune photo pour cette annonce.')).toBeInTheDocument()
-    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(within(screen.getByRole('main')).queryByRole('img')).not.toBeInTheDocument()
   })
 })

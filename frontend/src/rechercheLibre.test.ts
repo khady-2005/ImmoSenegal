@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { analyser, versCatalogue } from './rechercheLibre'
+import { analyser, lieuVersFiltre, versCatalogue } from './rechercheLibre'
 
 describe('Recherche en une phrase', () => {
   it('reconnaît le type, le quartier, la ville et le budget', () => {
@@ -65,5 +65,19 @@ describe('Recherche en une phrase', () => {
     for (const cle of url.searchParams.keys()) {
       expect(['transaction', 'type', 'ville', 'quartier', 'prixMax']).toContain(cle)
     }
+  })
+})
+
+describe('lieuVersFiltre', () => {
+  it('reconnaît une ville connue, avec ou sans accent, tiret ou majuscule', () => {
+    expect(lieuVersFiltre('dakar')).toEqual({ ville: 'Dakar' })
+    expect(lieuVersFiltre(' Thies ')).toEqual({ ville: 'Thiès' })
+    expect(lieuVersFiltre('saint louis')).toEqual({ ville: 'Saint-Louis' })
+  })
+
+  it('cherche tout autre texte comme un quartier, et ignore un champ vide', () => {
+    expect(lieuVersFiltre('Kandé')).toEqual({ quartier: 'Kandé' })
+    expect(lieuVersFiltre('Médina, Dakar')).toEqual({ quartier: 'Médina, Dakar' })
+    expect(lieuVersFiltre('   ')).toEqual({})
   })
 })

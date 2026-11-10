@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -45,7 +45,8 @@ describe('Publication et gestion des annonces', () => {
       },
     )
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
-    await user.click(await screen.findByRole('link', { name: /publier une annonce/i }))
+    // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on vise celui de la page.
+    await user.click(await within(screen.getByRole('main')).findByRole('link', { name: /publier une annonce/i }))
 
     await user.type(screen.getByLabelText('Titre'), 'Villa neuve')
     await user.type(screen.getByLabelText('Prix (FCFA)'), '45000000')
@@ -77,7 +78,8 @@ describe('Publication et gestion des annonces', () => {
       },
     )
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
-    await user.click(await screen.findByRole('link', { name: /publier une annonce/i }))
+    // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on vise celui de la page.
+    await user.click(await within(screen.getByRole('main')).findByRole('link', { name: /publier une annonce/i }))
     await user.type(screen.getByLabelText('Titre'), 'X')
     await user.click(screen.getByRole('button', { name: /envoyer pour validation/i }))
     expect(await screen.findByText('doit être positif')).toBeInTheDocument()
