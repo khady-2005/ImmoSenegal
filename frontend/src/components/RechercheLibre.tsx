@@ -73,7 +73,7 @@ export default function RechercheLibre() {
                 aria-pressed={choix === valeur}
                 onClick={() => setChoix(valeur)}
                 className={`rounded-full px-4 py-1.5 transition-colors ${
-                  choix === valeur ? 'bg-nuit-900 text-white' : 'text-slate-600 hover:text-slate-900'
+                  choix === valeur ? 'bg-emeraude-700 text-white' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 {nom}
