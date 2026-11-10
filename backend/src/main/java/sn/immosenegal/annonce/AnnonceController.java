@@ -27,7 +27,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/annonces")
-@Tag(name = "Annonces", description = "Catalogue (annonces PUBLIEE) ; publication réservée aux propriétaires, agents et administrateurs ; toute nouvelle annonce attend la validation d'un administrateur")
+@Tag(name = "Annonces", description = "Catalogue (annonces PUBLIEE) ; publication réservée aux propriétaires et administrateurs ; toute nouvelle annonce attend la validation d'un administrateur")
 public class AnnonceController {
 
     private final AnnonceService service;
@@ -75,7 +75,7 @@ public class AnnonceController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer une annonce (PROPRIETAIRE, AGENT ou ADMIN) : elle est EN_ATTENTE de validation",
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : elle est EN_ATTENTE de validation",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @AuthenticationPrincipal AuthenticatedUser utilisateur) {
