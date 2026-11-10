@@ -33,7 +33,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           </span>
           {annonce.exemple && (
             <span className="rounded-full border border-dashed border-white/60 bg-nuit-950/65 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur">
-              Exemple
+              Démonstration
             </span>
           )}
         </div>
