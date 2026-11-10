@@ -37,11 +37,6 @@ export default function DetailAnnonce() {
 
       {a && (
         <article className="mt-6">
-          {a.exemple && (
-            <p role="note" className="mb-4 rounded-xl border border-dashed border-slate-400 bg-white p-4 text-slate-700">
-              <strong>Annonce de démonstration.</strong> Cette annonce est enregistrée dans la base de données pour présenter le fonctionnement du site. Ses caractéristiques, son prix et ses photos sont simulés.
-            </p>
-          )}
           <Galerie annonce={a} />
 
           <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
