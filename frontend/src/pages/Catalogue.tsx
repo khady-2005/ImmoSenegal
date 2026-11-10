@@ -66,7 +66,7 @@ export default function Catalogue() {
 
       {/* Les filtres restent synchronisés avec l’URL pour conserver les recherches partageables. */}
       <form key={params.toString()} onSubmit={appliquer} aria-label="Filtres du catalogue" className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_35px_rgba(11,31,58,0.06)] sm:p-6">
-        <details open>
+        <details>
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
             <span className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emeraude-50 text-emeraude-700">
@@ -74,10 +74,10 @@ export default function Catalogue() {
               </span>
               <span>
                 <span className="block font-titre text-lg font-bold text-nuit-950">Affiner votre recherche</span>
-                <span className="mt-0.5 block text-xs text-slate-500">Quelques critères pour trouver le bien idéal</span>
+                <span className="mt-0.5 block text-xs text-slate-500">Ville, budget, surface et équipements : personnalisez les résultats</span>
               </span>
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">Filtres</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">Afficher les filtres</span>
           </summary>
           <div className="mt-6 grid gap-x-4 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-2 lg:grid-cols-4">
             <div>
