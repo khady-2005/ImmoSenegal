@@ -1,5 +1,6 @@
 package sn.immosenegal.user;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     boolean existsByRole(Role role);
+
+    List<User> findAllByOrderByCreeLeDesc();
 }
