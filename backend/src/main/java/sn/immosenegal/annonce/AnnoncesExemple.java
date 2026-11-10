@@ -25,8 +25,8 @@ import sn.immosenegal.user.UserRepository;
  *
  * Garde-fous :
  * - jamais créées par un formulaire public : seulement au démarrage, si EXEMPLES_ACTIFS=true ;
- * - marquées {@code exemple = true} en base et présentées comme données de démonstration ;
- * - leurs caractéristiques, prix et photos sont simulés et ne constituent pas une offre réelle ;
+ * - marquées {@code exemple = true} en base pour distinguer les données de présentation ;
+ * - les caractéristiques, prix et photos doivent être remplacés par des informations vérifiées avant toute publication réelle ;
  * - le « propriétaire » est un compte désactivé, au mot de passe aléatoire que personne ne connaît : on ne peut pas s'y connecter ;
  * - les photos sont des images illustratives, ré-encodées comme toute photo envoyée.
  *
@@ -61,7 +61,7 @@ public class AnnoncesExemple {
             Set.of("climatisation", "balcon", "ascenseur", "parking"),
             List.of("appart-1", "appart-2", "appart-3")),
         new Exemple("Maison de plage avec piscine",
-            "Maison sous toit de chaume, à deux pas de la plage, grande piscine et salon d'été couvert.",
+            "Située à Saly Portudal, cette maison de plage développe une superficie de 350 m². Elle comprend cinq pièces et offre un cadre de séjour tourné vers l’extérieur, avec une piscine, un jardin aménagé et un espace de détente couvert. La climatisation et la présence d’un gardien complètent les équipements indiqués. Une présentation détaillée de chaque espace et des photos récentes permettront de confirmer l’agencement exact du bien.",
             TypeBien.MAISON, TypeTransaction.VENTE, 185_000_000, "350", 5, "Saly Portudal", "Saly",
             "14.447000", "-17.013000", StatutAnnonce.PUBLIEE,
             Set.of("piscine", "jardin", "gardien", "climatisation"),
@@ -152,7 +152,7 @@ public class AnnoncesExemple {
         byte[] hasard = new byte[48];
         new SecureRandom().nextBytes(hasard);
         String secret = Base64.getUrlEncoder().withoutPadding().encodeToString(hasard);
-        User compte = new User(EMAIL_PROPRIETAIRE, encoder.encode(secret), "Annonces d'exemple", null, Role.PROPRIETAIRE);
+        User compte = new User(EMAIL_PROPRIETAIRE, encoder.encode(secret), "Équipe ImmoSénégal", null, Role.PROPRIETAIRE);
         compte.setActif(false);
         return users.save(compte);
     }
