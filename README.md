@@ -116,7 +116,7 @@ Pour présenter et tester l'application avec un catalogue déjà rempli, le serv
 EXEMPLES_ACTIFS=true
 ```
 
-Garde-fous : jamais créées par un formulaire public ; marquées `exemple = true` en base et affichées avec la mention « Démonstration` ;
+Garde-fous : jamais créées par un formulaire public ; marquées `exemple = true` en base et affichées avec la mention « Démonstration » ;
 les données et photos sont simulées ; le compte associé est désactivé (impossible de s'y connecter). Les annonces sont bien enregistrées
 et consultables dans la base, mais restent identifiables comme données de démonstration.
 
