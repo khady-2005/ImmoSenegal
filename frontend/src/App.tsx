@@ -23,7 +23,7 @@ export default function App() {
           <Route path="catalogue" element={<Catalogue />} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
-          <Route path="annonces/:id" element={<DetailAnnonce />} />
+          <Route path="annonces/:id" element={<RequireAuth><DetailAnnonce /></RequireAuth>} />
           <Route path="admin/demandes" element={<RequireAuth><AdminDemandes /></RequireAuth>} />
           <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
