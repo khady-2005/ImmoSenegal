@@ -21,12 +21,12 @@ import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
 
 /**
- * Annonces d'EXEMPLE pour la démonstration (catalogue qui n'est pas vide pendant une présentation).
+ * Annonces de démonstration persistées dans PostgreSQL pour présenter et tester le catalogue.
  *
  * Garde-fous :
  * - jamais créées par un formulaire public : seulement au démarrage, si EXEMPLES_ACTIFS=true ;
- * - marquées {@code exemple = true} en base, affichées avec la mention « Exemple » ;
- * - la description de chacune dit en toutes lettres que le bien n'existe pas ;
+ * - marquées {@code exemple = true} en base et présentées comme données de démonstration ;
+ * - leurs caractéristiques, prix et photos sont simulés et ne constituent pas une offre réelle ;
  * - le « propriétaire » est un compte désactivé, au mot de passe aléatoire que personne ne connaît : on ne peut pas s'y connecter ;
  * - les photos sont des images illustratives, ré-encodées comme toute photo envoyée.
  *
@@ -39,7 +39,7 @@ public class AnnoncesExemple {
     public static final String EMAIL_PROPRIETAIRE = "exemples@immosenegal.invalid";
 
     private static final Logger log = LoggerFactory.getLogger(AnnoncesExemple.class);
-    private static final String AVERTISSEMENT = "Annonce d'exemple, créée pour la démonstration : ce bien n'existe pas. ";
+    private static final String AVERTISSEMENT = "Donnée de démonstration enregistrée dans la base ImmoSénégal. Les informations, prix et photos sont simulés et ne constituent pas une offre immobilière réelle. ";
 
     private record Exemple(String titre, String texte, TypeBien type, TypeTransaction transaction, long prix,
                            String superficie, Integer pieces, String quartier, String ville,
