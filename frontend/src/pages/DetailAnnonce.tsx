@@ -101,10 +101,6 @@ export default function DetailAnnonce() {
             </section>
           )}
 
-          <p className="mt-8 rounded-lg border border-dore-500/50 bg-amber-50 p-4 text-sm text-slate-800">
-            La carte, la demande de visite et la messagerie ne sont pas encore disponibles : elles arrivent aux
-            prochaines étapes.
-          </p>
         </article>
       )}
     </div>
