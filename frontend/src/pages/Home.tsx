@@ -57,28 +57,32 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden text-white">
+      <section aria-labelledby="titre-accueil" className="relative isolate flex min-h-[680px] items-center overflow-hidden bg-nuit-950 text-white sm:min-h-[740px]">
         {/* Photo d'ambiance (image illustrative, pas une annonce). Le voile sombre garde le texte lisible. */}
         <img
           src={photoAccueil}
           alt=""
           width={1600}
           height={1008}
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
+          className="absolute inset-0 -z-20 h-full w-full object-cover motion-safe:animate-[heroZoom_18s_ease-in-out_infinite_alternate]"
         />
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-nuit-950/60 sm:bg-transparent sm:bg-gradient-to-r sm:from-nuit-950/80 sm:via-nuit-950/45 sm:to-transparent"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-[#061426]/95 via-[#071a2b]/70 to-[#071a2b]/20"
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-nuit-950/55 to-transparent" />
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+        <div className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-28">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-dore-500 shadow-lg backdrop-blur-md">
+            <span aria-hidden className="h-2 w-2 rounded-full bg-dore-500 shadow-[0_0_12px_rgba(245,185,66,0.9)]" />
+            Votre immobilier, partout au Sénégal
+          </div>
           <h1
             id="titre-accueil"
-            className="font-titre max-w-[11ch] text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl"
+            className="font-titre max-w-[10ch] text-6xl font-bold leading-[0.98] tracking-[-0.045em] text-balance drop-shadow-lg sm:text-7xl lg:text-[5.5rem]"
           >
             Rentrez enfin chez vous.
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-white/90">
+          <p className="mt-6 max-w-xl text-lg leading-8 text-white/90 sm:text-xl">
             Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
           </p>
           <RechercheLibre />
@@ -109,7 +113,7 @@ export default function Home() {
         <p className="absolute bottom-2 right-3 text-xs text-white/70">Image illustrative</p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="titre-types">
+      <section className="mx-auto max-w-7xl px-5 pt-20 sm:px-8 sm:pt-24" aria-labelledby="titre-types">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h2 id="titre-types" className="font-titre text-2xl font-semibold">
             Parcourir par type de bien
@@ -134,9 +138,9 @@ export default function Home() {
             <li key={type} className={i === types.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
               <Link
                 to={`/catalogue?type=${type}`}
-                className="flex h-full flex-col items-center gap-2 rounded-2xl bg-white px-3 py-5 font-medium ring-1 ring-slate-200 transition-colors hover:ring-2 hover:ring-emeraude-600"
+                className="group flex h-full flex-col items-center gap-3 rounded-3xl border border-slate-200/80 bg-white px-3 py-7 font-semibold text-slate-800 shadow-[0_8px_28px_rgba(11,31,58,0.05)] transition duration-300 hover:-translate-y-1 hover:border-emeraude-200 hover:shadow-[0_18px_42px_rgba(11,31,58,0.12)]"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emeraude-50 to-[#d7f5e8] text-emeraude-700 transition duration-300 group-hover:scale-110 group-hover:bg-emeraude-700 group-hover:text-white">
                   <Icone aria-hidden className="h-5 w-5" />
                 </span>
                 {nom}
@@ -160,11 +164,14 @@ export default function Home() {
         </ul>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-14" aria-labelledby="titre-annonces">
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24" aria-labelledby="titre-annonces">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="titre-annonces" className="font-titre text-3xl font-semibold">
-            Annonces à la une
+          <div>
+          <h2 id="titre-annonces" className="font-titre text-3xl font-bold tracking-tight sm:text-4xl">
+            Les biens qui pourraient vous plaire
           </h2>
+          <p className="mt-2 text-slate-500">Découvrez une sélection de logements et de terrains au Sénégal.</p>
+          </div>
           <div role="group" aria-label="Type d’annonce" className="inline-flex rounded-full bg-slate-200/70 p-1 text-sm font-semibold">
             {(
               [
@@ -231,12 +238,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16" aria-labelledby="titre-parcours">
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24" aria-labelledby="titre-parcours">
         <h2 id="titre-parcours" className="font-titre text-3xl font-semibold sm:text-4xl">
           Vous cherchez, ou vous proposez ?
         </h2>
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-7 ring-1 ring-slate-200">
+          <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-[0_12px_35px_rgba(11,31,58,0.06)]">
             <h3 className="font-titre text-2xl font-semibold">Je cherche un logement</h3>
             <ul className="mt-4 space-y-3 text-slate-700">
               <li>Parcourez toutes les annonces sans créer de compte.</li>
@@ -251,7 +258,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="rounded-3xl bg-nuit-900 p-7 text-white">
+          <div className="rounded-3xl bg-gradient-to-br from-nuit-900 via-nuit-900 to-emeraude-900 p-8 text-white shadow-xl shadow-nuit-900/15">
             <h3 className="font-titre text-2xl font-semibold">Je propose un bien</h3>
             <ol className="mt-4 space-y-4">
               {[
