@@ -3,9 +3,13 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
-import { annonceTest, json, pageTest, parametresDe, simulerApi } from '../test/apiSimulee'
+import { annonceTest, json, pageTest, parametresDe, reponseConnexion, simulerApi } from '../test/apiSimulee'
 
 function afficher(chemin: string) {
+  const fetchOriginal = globalThis.fetch
+  vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
+    url === '/api/auth/refresh' ? Promise.resolve(reponseConnexion()) : fetchOriginal(url, init),
+  )
   return render(
     <MemoryRouter initialEntries={[chemin]}>
       <App />
