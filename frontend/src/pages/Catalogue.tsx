@@ -64,48 +64,53 @@ export default function Catalogue() {
         </div>
       </section>
 
-      {/* Les filtres restent synchronisés avec l’URL pour conserver les recherches partageables. */}
-      <form key={params.toString()} onSubmit={appliquer} aria-label="Filtres du catalogue" className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_35px_rgba(11,31,58,0.06)] sm:p-6">
-        <details>
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
-            <span className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emeraude-50 text-emeraude-700">
-                <SlidersHorizontal aria-hidden className="h-5 w-5" />
-              </span>
-              <span>
-                <span className="block font-titre text-lg font-bold text-nuit-950">Affiner votre recherche</span>
-                <span className="mt-0.5 block text-xs text-slate-500">Ville, budget, surface et équipements : personnalisez les résultats</span>
-              </span>
+      {/* Recherche rapide : les critères les plus utiles restent immédiatement visibles. */}
+      <form key={params.toString()} onSubmit={appliquer} aria-label="Recherche dans le catalogue" className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_12px_35px_rgba(11,31,58,0.06)] sm:p-6">
+        <div className="grid gap-3 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-end">
+          <div>
+            <label htmlFor="f-ville" className={etiquette}>Ville ou destination</label>
+            <div className="relative">
+              <MapPin aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input id="f-ville" name="ville" placeholder="Ex. : Dakar, Thiès, Saint-Louis" defaultValue={params.get('ville') ?? ''} className={champ + ' pl-10'} />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="f-transaction" className={etiquette}>Vous recherchez</label>
+            <select id="f-transaction" name="transaction" defaultValue={params.get('transaction') ?? ''} className={champ}>
+              <option value="">Location ou vente</option>
+              <option value="LOCATION">Location</option>
+              <option value="VENTE">Vente</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="f-type" className={etiquette}>Type de bien</label>
+            <select id="f-type" name="type" defaultValue={params.get('type') ?? ''} className={champ}>
+              <option value="">Tous les types</option>
+              <option value="MAISON">Maison</option>
+              <option value="APPARTEMENT">Appartement</option>
+              <option value="STUDIO">Studio</option>
+              <option value="VILLA">Villa</option>
+              <option value="TERRAIN">Terrain</option>
+            </select>
+          </div>
+          <button type="submit" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emeraude-700 px-5 py-3 text-sm font-bold text-white shadow-md shadow-emeraude-900/10 transition hover:-translate-y-0.5 hover:bg-emeraude-800">
+            <Search aria-hidden className="h-4 w-4" />
+            Rechercher
+          </button>
+        </div>
+
+        <details className="mt-4 border-t border-slate-100 pt-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-nuit-950 [&::-webkit-details-marker]:hidden">
+            <span className="inline-flex items-center gap-2">
+              <SlidersHorizontal aria-hidden className="h-4 w-4 text-emeraude-700" />
+              Affiner avec des filtres avancés
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">Afficher les filtres</span>
+            <span className="text-xs font-medium text-slate-500">Budget, quartier, surface, pièces…</span>
           </summary>
-          <div className="mt-6 grid gap-x-4 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <label htmlFor="f-transaction" className={etiquette}>Transaction</label>
-              <select id="f-transaction" name="transaction" defaultValue={params.get('transaction') ?? ''} className={champ}>
-                <option value="">Location et vente</option>
-                <option value="LOCATION">Location</option>
-                <option value="VENTE">Vente</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="f-type" className={etiquette}>Type de bien</label>
-              <select id="f-type" name="type" defaultValue={params.get('type') ?? ''} className={champ}>
-                <option value="">Tous les types</option>
-                <option value="MAISON">Maison</option>
-                <option value="APPARTEMENT">Appartement</option>
-                <option value="STUDIO">Studio</option>
-                <option value="VILLA">Villa</option>
-                <option value="TERRAIN">Terrain</option>
-              </select>
-            </div>
+          <div className="mt-5 grid gap-x-4 gap-y-4 border-t border-slate-100 pt-5 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label htmlFor="f-quartier" className={etiquette}>Quartier</label>
               <input id="f-quartier" name="quartier" placeholder="Ex. : Almadies" defaultValue={params.get('quartier') ?? ''} className={champ} />
-            </div>
-            <div>
-              <label htmlFor="f-ville" className={etiquette}>Ville</label>
-              <input id="f-ville" name="ville" placeholder="Ex. : Dakar" defaultValue={params.get('ville') ?? ''} className={champ} />
             </div>
             <div>
               <label htmlFor="f-prixMin" className={etiquette}>Budget minimum (FCFA)</label>
@@ -137,16 +142,12 @@ export default function Catalogue() {
               </select>
             </div>
           </div>
-          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
-            <button type="submit" className="inline-flex items-center gap-2 rounded-xl bg-emeraude-700 px-5 py-3 text-sm font-bold text-white shadow-md shadow-emeraude-900/10 transition hover:-translate-y-0.5 hover:bg-emeraude-800 hover:shadow-lg">
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <button type="submit" className="inline-flex items-center gap-2 rounded-xl bg-emeraude-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emeraude-800">
               <Search aria-hidden className="h-4 w-4" />
-              Rechercher les biens
+              Appliquer les filtres
             </button>
-            <button
-              type="button"
-              onClick={() => setParams(new URLSearchParams())}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50 hover:text-nuit-950"
-            >
+            <button type="button" onClick={() => setParams(new URLSearchParams())} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-nuit-950">
               <RotateCcw aria-hidden className="h-4 w-4" />
               Effacer les filtres
             </button>
