@@ -1,15 +1,46 @@
+import { useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link } from 'react-router-dom'
-import { Building2, LogOut } from 'lucide-react'
+import { Building2, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '../auth'
 
-const lienClasse = ({ isActive }: { isActive: boolean }) =>
-  `rounded-md px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 ${
-    isActive ? 'bg-white/15 text-white' : 'text-nuit-100 hover:bg-white/10 hover:text-white'
+const lienDesktop = ({ isActive }: { isActive: boolean }) =>
+  `rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+    isActive ? 'bg-white/20 text-white' : 'text-white/85 hover:bg-white/10 hover:text-white'
   }`
+
+const lienMobile = ({ isActive }: { isActive: boolean }) =>
+  `block rounded-lg px-3 py-3 text-base font-medium transition-colors ${
+    isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10'
+  }`
+
+function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
+  const box = taille === 'sm' ? 'h-8 w-8' : 'h-9 w-9'
+  const icon = taille === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
+  const text = taille === 'sm' ? 'text-lg' : 'text-xl'
+  return (
+    <span className={`flex items-center gap-2.5 font-bold tracking-tight ${text}`}>
+      <span className={`flex ${box} items-center justify-center rounded-xl bg-emeraude-600 shadow-sm`}>
+        <Building2 aria-hidden className={`${icon} text-white`} />
+      </span>
+      <span>
+        Immo<span className="text-dore-500">Sénégal</span>
+      </span>
+    </span>
+  )
+}
 
 export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
+  const [menuOuvert, setMenuOuvert] = useState(false)
+
+  const fermerMenu = () => setMenuOuvert(false)
+
+  const deconnecterEtFermer = () => {
+    fermerMenu()
+    deconnecter()
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -19,30 +50,29 @@ export default function Layout() {
         Aller au contenu
       </a>
 
-      <header className="bg-nuit-900 text-white shadow">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
-          <Link to="/" className="flex items-center gap-2 text-lg font-bold">
-            <Building2 aria-hidden className="h-6 w-6 text-emeraude-500" />
-            <span>
-              Immo<span className="text-dore-500">Sénégal</span>
-            </span>
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-3.5">
+          <Link to="/" className="shrink-0" onClick={fermerMenu} aria-label="ImmoSénégal — accueil">
+            <Logo />
           </Link>
-          <nav aria-label="Navigation principale" className="flex flex-wrap items-center gap-1">
-            <NavLink to="/" end className={(e) => `${lienClasse(e)} hidden sm:inline-block`}>
+
+          {/* Navigation desktop */}
+          <nav aria-label="Navigation principale" className="hidden items-center gap-1 sm:flex">
+            <NavLink to="/" end className={lienDesktop}>
               Accueil
             </NavLink>
-            <NavLink to="/catalogue" className={lienClasse}>
+            <NavLink to="/catalogue" className={lienDesktop}>
               Catalogue
             </NavLink>
             {utilisateur ? (
               <>
-                <NavLink to="/tableau-de-bord" className={lienClasse}>
+                <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="flex items-center gap-1 rounded-md px-2.5 py-2 text-sm font-medium text-nuit-100 sm:px-3 transition-colors hover:bg-white/10 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -50,17 +80,91 @@ export default function Layout() {
               </>
             ) : (
               <>
-                <NavLink to="/connexion" className={lienClasse}>
+                <NavLink to="/connexion" className={lienDesktop}>
                   Connexion
                 </NavLink>
-                <NavLink to="/inscription" className="rounded-md bg-dore-500 px-2.5 py-2 text-sm font-semibold sm:px-3 text-nuit-950 hover:bg-dore-600">
+                <NavLink
+                  to="/inscription"
+                  className="rounded-full bg-dore-500 px-4 py-2 text-sm font-bold text-nuit-950 shadow-md transition-colors hover:bg-dore-600"
+                >
                   Inscription
                 </NavLink>
               </>
             )}
           </nav>
+
+          {/* Bouton hamburger (mobile) */}
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-lg p-2 text-white hover:bg-white/10 sm:hidden"
+            aria-expanded={menuOuvert}
+            aria-controls="menu-mobile"
+            aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
+            onClick={() => setMenuOuvert((v) => !v)}
+          >
+            {menuOuvert ? <X aria-hidden className="h-6 w-6" /> : <Menu aria-hidden className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Panneau menu mobile */}
+        {menuOuvert && (
+          <nav
+            id="menu-mobile"
+            aria-label="Navigation mobile"
+            className="border-t border-white/10 bg-nuit-950 px-4 py-3 sm:hidden"
+          >
+            <ul className="flex flex-col gap-1">
+              <li>
+                <NavLink to="/" end className={lienMobile} onClick={fermerMenu}>
+                  Accueil
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>
+                  Catalogue
+                </NavLink>
+              </li>
+              {utilisateur ? (
+                <>
+                  <li>
+                    <NavLink to="/tableau-de-bord" className={lienMobile} onClick={fermerMenu}>
+                      Mon espace
+                    </NavLink>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={deconnecterEtFermer}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base font-medium text-white/90 hover:bg-white/10"
+                    >
+                      <LogOut aria-hidden className="h-5 w-5" />
+                      Déconnexion
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <NavLink to="/connexion" className={lienMobile} onClick={fermerMenu}>
+                      Connexion
+                    </NavLink>
+                  </li>
+                  <li className="pt-1">
+                    <NavLink
+                      to="/inscription"
+                      onClick={fermerMenu}
+                      className="block rounded-full bg-dore-500 px-3 py-3 text-center text-base font-bold text-nuit-950 hover:bg-dore-600"
+                    >
+                      Inscription
+                    </NavLink>
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        )}
       </header>
+
       <BandeauServeurLent />
 
       <main id="contenu" className="flex-1">
@@ -70,11 +174,8 @@ export default function Layout() {
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
           <div>
-            <p className="flex items-center gap-2 text-lg font-bold text-white">
-              <Building2 aria-hidden className="h-5 w-5 text-emeraude-500" />
-              <span>
-                Immo<span className="text-dore-500">Sénégal</span>
-              </span>
+            <p className="text-white">
+              <Logo taille="sm" />
             </p>
             <p className="mt-3 max-w-xs">
               Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
