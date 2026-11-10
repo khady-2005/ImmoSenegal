@@ -20,7 +20,7 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="catalogue" element={<RequireAuth><Catalogue /></RequireAuth>} />
+          <Route path="catalogue" element={<Catalogue />} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<DetailAnnonce />} />
@@ -29,14 +29,7 @@ export default function App() {
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
-          <Route
-            path="tableau-de-bord"
-            element={
-              <RequireAuth>
-                <Dashboard />
-              </RequireAuth>
-            }
-          />
+          <Route path="tableau-de-bord" element={<RequireAuth><Dashboard /></RequireAuth>} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
