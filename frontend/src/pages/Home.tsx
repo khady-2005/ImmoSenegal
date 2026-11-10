@@ -246,8 +246,8 @@ export default function Home() {
           <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-[0_12px_35px_rgba(11,31,58,0.06)]">
             <h3 className="font-titre text-2xl font-semibold">Je cherche un logement</h3>
             <ul className="mt-4 space-y-3 text-slate-700">
-              <li>Connectez-vous pour consulter toutes les annonces et leurs détails.</li>
-              <li>Filtrez les biens par type, quartier et budget après connexion.</li>
+              <li>Parcourez librement le catalogue et consultez les détails des biens.</li>
+              <li>Filtrez les biens par type, quartier et budget, sans créer de compte.</li>
               <li>Consultez les photos et le détail de chaque bien.</li>
             </ul>
             <Link
