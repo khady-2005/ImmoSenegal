@@ -15,7 +15,6 @@ const lienMobile = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-white/20 text-white' : 'text-white/90 hover:bg-white/10'
   }`
 
-/** Cadre blanc arrondi (haut et bas) autour du logo. */
 function CadreLogo({
   children,
   className = '',
@@ -25,7 +24,7 @@ function CadreLogo({
 }) {
   return (
     <span
-      className={`inline-flex items-center overflow-hidden rounded-2xl bg-white px-3 py-2 shadow-md ring-1 ring-black/5 ${className}`}
+      className={`inline-flex items-center overflow-hidden rounded-[1.25rem] border-2 border-dore-500 bg-white px-3 py-2 shadow-lg ${className}`}
     >
       {children}
     </span>
@@ -33,12 +32,12 @@ function CadreLogo({
 }
 
 function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
-  const h = taille === 'sm' ? 'h-10' : 'h-14'
+  const h = taille === 'sm' ? 'h-11' : 'h-16'
   return (
     <img
       src={logoImmo}
       alt="ImmoSénégal — Votre rêve, notre priorité"
-      className={`${h} w-auto max-w-[230px] object-contain object-left`}
+      className={`${h} w-auto max-w-[260px] object-contain object-left`}
     />
   )
 }
@@ -64,8 +63,7 @@ export default function Layout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-white/10 bg-nuit-950 text-white shadow-lg">
-        {/* pl-2 / pr-4 : logo un peu plus à gauche */}
-        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-x-3 pl-2 pr-4 sm:h-[4.75rem] sm:pl-3 sm:pr-5">
+        <div className="mx-auto flex h-[5rem] max-w-6xl items-center justify-between gap-x-3 pl-1 pr-4 sm:h-[5.25rem] sm:pl-2 sm:pr-5">
           <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal — accueil" className="shrink-0">
             <CadreLogo>
               <Logo />
