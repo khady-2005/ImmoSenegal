@@ -9,6 +9,7 @@ import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
 import AdminDemandes from './pages/AdminDemandes'
 import AdminModeration from './pages/AdminModeration'
+import AdminUtilisateurs from './pages/AdminUtilisateurs'
 import MesAnnonces from './pages/MesAnnonces'
 import FormulaireAnnonce from './pages/FormulaireAnnonce'
 import RequireAuth from './components/RequireAuth'
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="annonces/:id" element={<RequireAuth><DetailAnnonce /></RequireAuth>} />
           <Route path="admin/demandes" element={<RequireAuth><AdminDemandes /></RequireAuth>} />
           <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
+          <Route path="admin/utilisateurs" element={<RequireAuth><AdminUtilisateurs /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
