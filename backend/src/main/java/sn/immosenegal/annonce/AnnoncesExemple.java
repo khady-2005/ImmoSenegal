@@ -39,7 +39,7 @@ public class AnnoncesExemple {
     public static final String EMAIL_PROPRIETAIRE = "exemples@immosenegal.invalid";
 
     private static final Logger log = LoggerFactory.getLogger(AnnoncesExemple.class);
-    private static final String AVERTISSEMENT = "Donnée de démonstration enregistrée dans la base ImmoSénégal. Les informations, prix et photos sont simulés et ne constituent pas une offre immobilière réelle. ";
+    private static final String AVERTISSEMENT = "";
 
     private record Exemple(String titre, String texte, TypeBien type, TypeTransaction transaction, long prix,
                            String superficie, Integer pieces, String quartier, String ville,
