@@ -87,7 +87,7 @@ export default function Dashboard() {
         </>
       )}
 
-      {['PROPRIETAIRE', 'AGENT', 'ADMIN'].includes(affiche.role) && (
+      {['PROPRIETAIRE', 'ADMIN'].includes(affiche.role) && (
         <Link to="/mes-annonces" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
           Gérer mes annonces
         </Link>
