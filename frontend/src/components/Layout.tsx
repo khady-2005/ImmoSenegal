@@ -1,39 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
-import { NavLink, Outlet, Link } from 'react-router-dom'
-import { LogOut, Menu, X } from 'lucide-react'
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
+import { LogOut, MapPin, Menu, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
-import logoImmo from '../assets/Logo immobilier tropical ImmoSénégal.png'
+import { LogoComplet, Marque } from './Logo'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
-  `rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
+  `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
     isActive
-      ? 'bg-white/15 text-white shadow-sm'
-      : 'text-white/80 hover:bg-white/10 hover:text-white'
+      ? 'text-nuit-900 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
+      : 'text-slate-600 hover:text-nuit-900'
   }`
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
   `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-white/15 text-white' : 'text-white/90 hover:bg-white/10'
+    isActive ? 'bg-brume text-nuit-900' : 'text-slate-700 hover:bg-brume'
   }`
 
-function Logo({ taille = 'md' }: { taille?: 'sm' | 'md' }) {
-  const h = taille === 'sm' ? 'h-10' : 'h-12 sm:h-13'
-  return (
-    <img
-      src={logoImmo}
-      alt="ImmoSénégal — Votre rêve, notre priorité"
-      className={`${h} w-auto max-w-[200px] object-contain object-left sm:max-w-[220px]`}
-    />
-  )
-}
+const boutonPublier =
+  'inline-flex items-center gap-1.5 rounded-full bg-dore-500 px-4 py-2 text-[0.95rem] font-semibold text-nuit-950 shadow-sm transition-all hover:bg-dore-600 hover:shadow-md active:scale-[0.98]'
 
 export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
   const [menuOuvert, setMenuOuvert] = useState(false)
+  const [defile, setDefile] = useState(false)
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const surDefilement = () => setDefile(window.scrollY > 8)
+    surDefilement()
+    window.addEventListener('scroll', surDefilement, { passive: true })
+    return () => window.removeEventListener('scroll', surDefilement)
+  }, [])
+
+  // Une nouvelle page s'ouvre en haut, et le menu mobile se referme.
+  useEffect(() => {
+    setMenuOuvert(false)
+    window.scrollTo?.(0, 0)
+  }, [pathname])
 
   const fermerMenu = () => setMenuOuvert(false)
-
   const deconnecterEtFermer = () => {
     fermerMenu()
     deconnecter()
@@ -48,19 +54,17 @@ export default function Layout() {
         Aller au contenu
       </a>
 
-      <header className="sticky top-0 z-40 bg-nuit-950/95 text-white shadow-md backdrop-blur-md">
-        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-3 sm:h-[4.5rem] sm:px-5">
-          {/* Logo dans un pilule blanche douce */}
-          <Link
-            to="/"
-            onClick={fermerMenu}
-            aria-label="ImmoSénégal — accueil"
-            className="flex shrink-0 items-center rounded-2xl bg-white px-2.5 py-1.5 shadow-sm transition hover:shadow-md"
-          >
-            <Logo />
+      <header
+        className={`sticky top-0 z-40 border-b bg-white/90 backdrop-blur-md transition-shadow ${
+          defile ? 'border-slate-200 shadow-[0_8px_24px_-16px_rgb(11_31_58/0.35)]' : 'border-transparent'
+        }`}
+      >
+        <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-3 px-4 lg:h-20">
+          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="shrink-0 rounded-xl">
+            <Marque />
           </Link>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 sm:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-1 lg:flex">
             <NavLink to="/" end className={lienDesktop}>
               Accueil
             </NavLink>
@@ -72,10 +76,14 @@ export default function Layout() {
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
+                <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
+                  <PlusCircle aria-hidden className="h-4 w-4" />
+                  Publier une annonce
+                </Link>
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-slate-600 transition-colors hover:text-nuit-900"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -88,34 +96,38 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="ml-1 rounded-full bg-gradient-to-r from-dore-500 to-dore-600 px-4 py-1.5 text-sm font-bold text-nuit-950 shadow-sm transition hover:from-dore-600 hover:to-dore-500"
+                  className="ml-1 rounded-full border border-nuit-900/20 px-4 py-2 text-[0.95rem] font-semibold text-nuit-900 transition-colors hover:border-nuit-900 hover:bg-nuit-900 hover:text-white"
                 >
                   Inscription
                 </NavLink>
+                <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
+                  <PlusCircle aria-hidden className="h-4 w-4" />
+                  Publier une annonce
+                </Link>
               </>
             )}
           </nav>
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-xl p-2 text-white hover:bg-white/10 sm:hidden"
+            className="inline-flex items-center justify-center rounded-xl p-2 text-nuit-900 transition-colors hover:bg-brume lg:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
             onClick={() => setMenuOuvert((v) => !v)}
           >
-            {menuOuvert ? <X aria-hidden className="h-6 w-6" /> : <Menu aria-hidden className="h-6 w-6" />}
+            {menuOuvert ? <X aria-hidden className="h-7 w-7" /> : <Menu aria-hidden className="h-7 w-7" />}
           </button>
         </div>
 
-        {/* Fine ligne dorée sous le header */}
-        <div className="h-0.5 bg-gradient-to-r from-transparent via-dore-500/80 to-transparent" aria-hidden />
+        {/* Fine ligne dorée : la signature du logo. */}
+        <div className="h-px bg-gradient-to-r from-transparent via-dore-500 to-transparent" aria-hidden />
 
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="border-t border-white/10 bg-nuit-950 px-3 py-3 sm:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-3 shadow-lg lg:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
@@ -135,11 +147,17 @@ export default function Layout() {
                       Mon espace
                     </NavLink>
                   </li>
+                  <li className="pt-2">
+                    <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
+                      <PlusCircle aria-hidden className="h-5 w-5" />
+                      Publier une annonce
+                    </Link>
+                  </li>
                   <li>
                     <button
                       type="button"
                       onClick={deconnecterEtFermer}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/90 hover:bg-white/10"
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-slate-700 hover:bg-brume"
                     >
                       <LogOut aria-hidden className="h-5 w-5" />
                       Déconnexion
@@ -153,14 +171,16 @@ export default function Layout() {
                       Connexion
                     </NavLink>
                   </li>
-                  <li className="pt-1">
-                    <NavLink
-                      to="/inscription"
-                      onClick={fermerMenu}
-                      className="block rounded-full bg-dore-500 px-3 py-3 text-center text-base font-bold text-nuit-950 hover:bg-dore-600"
-                    >
+                  <li>
+                    <NavLink to="/inscription" className={lienMobile} onClick={fermerMenu}>
                       Inscription
                     </NavLink>
+                  </li>
+                  <li className="pt-2">
+                    <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
+                      <PlusCircle aria-hidden className="h-5 w-5" />
+                      Publier une annonce
+                    </Link>
                   </li>
                 </>
               )}
@@ -176,56 +196,66 @@ export default function Layout() {
       </main>
 
       <footer className="bg-nuit-950 text-sm text-nuit-100/80">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.6fr_1fr_1fr]">
+        <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
-            <Link
-              to="/"
-              className="inline-flex items-center rounded-2xl bg-white px-2.5 py-1.5 shadow-sm"
-            >
-              <Logo taille="sm" />
+            <Link to="/" className="inline-flex rounded-2xl bg-white p-3 shadow-lg" aria-label="ImmoSénégal : accueil">
+              <LogoComplet className="h-24" />
             </Link>
-            <p className="mt-3 max-w-xs">
-              Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
+            <p className="mt-4 max-w-xs leading-relaxed">
+              La plateforme immobilière du Sénégal : maisons, appartements, studios, villas et terrains à louer ou à acheter.
             </p>
           </div>
+
           <nav aria-label="Pied de page : explorer">
             <p className="font-semibold text-white">Explorer</p>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-4 space-y-2.5">
               <li>
-                <Link to="/catalogue" className="hover:text-white hover:underline">
+                <Link to="/catalogue" className="transition-colors hover:text-white hover:underline">
                   Tous les logements
                 </Link>
               </li>
               <li>
-                <Link to="/catalogue?transaction=LOCATION" className="hover:text-white hover:underline">
+                <Link to="/catalogue?transaction=LOCATION" className="transition-colors hover:text-white hover:underline">
                   Logements à louer
                 </Link>
               </li>
               <li>
-                <Link to="/catalogue?transaction=VENTE" className="hover:text-white hover:underline">
+                <Link to="/catalogue?transaction=VENTE" className="transition-colors hover:text-white hover:underline">
                   Logements à acheter
+                </Link>
+              </li>
+              <li>
+                <Link to="/catalogue?type=TERRAIN" className="transition-colors hover:text-white hover:underline">
+                  Terrains
                 </Link>
               </li>
             </ul>
           </nav>
-          <nav aria-label="Pied de page : compte">
-            <p className="font-semibold text-white">Compte</p>
-            <ul className="mt-3 space-y-2">
+
+          <nav aria-label="Pied de page : services">
+            <p className="font-semibold text-white">Services</p>
+            <ul className="mt-4 space-y-2.5">
+              <li>
+                <Link to="/annonces/nouvelle" className="transition-colors hover:text-white hover:underline">
+                  Publier une annonce
+                </Link>
+              </li>
               {utilisateur ? (
                 <li>
-                  <Link to="/tableau-de-bord" className="hover:text-white hover:underline">
+                  <Link to="/tableau-de-bord" className="transition-colors hover:text-white hover:underline">
                     Tableau de bord
                   </Link>
                 </li>
               ) : (
                 <>
                   <li>
-                    <Link to="/connexion" className="hover:text-white hover:underline">
+                    <Link to="/connexion" className="transition-colors hover:text-white hover:underline">
                       Se connecter
                     </Link>
                   </li>
                   <li>
-                    <Link to="/inscription" className="hover:text-white hover:underline">
+                    <Link to="/inscription" className="transition-colors hover:text-white hover:underline">
                       Créer un compte
                     </Link>
                   </li>
@@ -233,9 +263,26 @@ export default function Layout() {
               )}
             </ul>
           </nav>
+
+          <div>
+            <p className="font-semibold text-white">Contact</p>
+            <ul className="mt-4 space-y-2.5">
+              <li className="flex items-start gap-2">
+                <MapPin aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-dore-500" />
+                Ziguinchor, Sénégal
+              </li>
+              <li>Un formulaire de contact arrive prochainement.</li>
+            </ul>
+          </div>
         </div>
-        <div className="border-t border-white/10 py-4 text-center text-xs">
-          <p>© {new Date().getFullYear()} ImmoSénégal – projet de mémoire L3 Ingénierie Informatique, UASZ</p>
+
+        <div className="border-t border-white/10">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs sm:flex-row">
+            <p>© {new Date().getFullYear()} ImmoSénégal. Projet de mémoire de Licence 3 Ingénierie Informatique, UASZ.</p>
+            <Link to="/mentions-legales" className="transition-colors hover:text-white hover:underline">
+              Mentions légales
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

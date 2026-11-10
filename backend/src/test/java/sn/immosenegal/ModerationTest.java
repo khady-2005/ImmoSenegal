@@ -77,6 +77,12 @@ class ModerationTest extends AbstractApiTest {
         return mvc.perform(requete);
     }
 
+    /** La fiche exige une session ; un visiteur connecté sans lien avec l'annonce ne la voit pas tant qu'elle n'est pas PUBLIEE. */
+    private void invisibleDuPublic(String id) throws Exception {
+        lire(id, null).andExpect(status().isUnauthorized());
+        lire(id, utilisateurConnecte(Role.CLIENT)).andExpect(status().isNotFound());
+    }
+
     private ResultActions decider(String admin, String id, String action, String motif) throws Exception {
         var requete = post("/api/admin/annonces/{id}/{action}", id, action);
         if (admin != null) {
@@ -109,7 +115,7 @@ class ModerationTest extends AbstractApiTest {
         String id = creer(proprio, annonce(quartier));
 
         catalogue(quartier).andExpect(jsonPath("$.totalElements").value(0));
-        lire(id, null).andExpect(status().isNotFound());
+        invisibleDuPublic(id);
         lire(id, autre).andExpect(status().isNotFound());
         lire(id, proprio).andExpect(status().isOk()).andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
         lire(id, admin).andExpect(status().isOk());
@@ -117,7 +123,7 @@ class ModerationTest extends AbstractApiTest {
         decider(admin, id, "valider", null).andExpect(status().isOk()).andExpect(jsonPath("$.statut").value("PUBLIEE"));
 
         catalogue(quartier).andExpect(jsonPath("$.totalElements").value(1));
-        lire(id, null).andExpect(status().isOk())
+        lire(id, utilisateurConnecte(Role.CLIENT)).andExpect(status().isOk())
             .andExpect(jsonPath("$.statut").value("PUBLIEE"))
             .andExpect(jsonPath("$.motifModeration").doesNotExist());
     }
@@ -205,7 +211,7 @@ class ModerationTest extends AbstractApiTest {
             .andExpect(jsonPath("$.contenu[0].statut").value("REFUSEE"))
             .andExpect(jsonPath("$.contenu[0].motifModeration").value("Photos non conformes"));
         catalogue(quartier).andExpect(jsonPath("$.totalElements").value(0));
-        lire(id, null).andExpect(status().isNotFound());
+        invisibleDuPublic(id);
 
         // Refusée : plus de modification, plus de changement de statut, plus de validation.
         modifier(proprio, id, annonce(quartier)).andExpect(status().isOk()); // contenu identique : rien ne change
@@ -255,7 +261,7 @@ class ModerationTest extends AbstractApiTest {
         decider(admin, id, "suspendre", "Signalement d'un visiteur").andExpect(status().isOk())
             .andExpect(jsonPath("$.statut").value("SUSPENDUE"));
         catalogue(quartier).andExpect(jsonPath("$.totalElements").value(0));
-        lire(id, null).andExpect(status().isNotFound());
+        invisibleDuPublic(id);
         Map<String, Object> autreTitre = annonce(quartier);
         autreTitre.put("titre", "Autre titre");
         modifier(proprio, id, autreTitre).andExpect(status().isConflict());
@@ -295,7 +301,7 @@ class ModerationTest extends AbstractApiTest {
             corps.put("statut", statut);
             modifier(proprio, id, corps).andExpect(status().isOk()).andExpect(jsonPath("$.statut").value(statut));
             catalogue(quartier).andExpect(jsonPath("$.totalElements").value(0));
-            lire(id, null).andExpect(status().isNotFound());
+            invisibleDuPublic(id);
         }
 
         // Remise en vente : de nouveau PUBLIEE, de nouveau visible (le contenu n'a pas changé, pas de nouvelle validation).

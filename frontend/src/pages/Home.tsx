@@ -1,35 +1,65 @@
 import { useState } from 'react'
-import { ArrowRight, BedSingle, Building2, House, LandPlot, MapPin, Search, TreePalm } from 'lucide-react'
+import { ArrowUpRight, Building2, BedSingle, House, LandPlot, TreePalm } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import SearchForm from '../components/SearchForm'
-import RechercheLibre from '../components/RechercheLibre'
-import type { Transaction } from '../rechercheLibre'
+import RecherchePanneau from '../components/RecherchePanneau'
 import CommentCaMarche from '../components/CommentCaMarche'
 import Faq from '../components/Faq'
+import Apparition from '../components/Apparition'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
 import { useAuth } from '../auth'
 import photoAccueil from '../assets/hero-villa.webp'
 import photoFin from '../assets/bien-saly.webp'
 
+/** Raccourcis vers le catalogue filtré par type de bien (mêmes valeurs que le formulaire de recherche). */
 const types = [
-  { type: 'MAISON', nom: 'Maisons', sousTitre: 'De l’espace pour vivre', icone: House },
-  { type: 'APPARTEMENT', nom: 'Appartements', sousTitre: 'La ville à votre portée', icone: Building2 },
-  { type: 'STUDIO', nom: 'Studios', sousTitre: 'Un espace à vous', icone: BedSingle },
-  { type: 'VILLA', nom: 'Villas', sousTitre: 'Le confort au quotidien', icone: TreePalm },
-  { type: 'TERRAIN', nom: 'Terrains', sousTitre: 'Construisez votre projet', icone: LandPlot },
+  { type: 'MAISON', nom: 'Maisons', icone: House },
+  { type: 'APPARTEMENT', nom: 'Appartements', icone: Building2 },
+  { type: 'STUDIO', nom: 'Studios', icone: BedSingle },
+  { type: 'VILLA', nom: 'Villas', icone: TreePalm },
+  { type: 'TERRAIN', nom: 'Terrains', icone: LandPlot },
 ]
 
-const villes = ['Dakar', 'Ziguinchor', 'Thiès', 'Saint-Louis', 'Mbour', 'Saly', 'Kaolack', 'Touba']
+/**
+ * Destinations : de simples raccourcis vers le filtre « ville » du catalogue. Aucun chiffre ni aucune annonce inventés ;
+ * les cartes n'affichent pas de photo tant que de vraies photos de ces villes ne sont pas fournies.
+ */
+const villes = [
+  { nom: 'Dakar', teinte: 'from-nuit-900 to-nuit-800', place: 'col-span-2 lg:row-span-2 lg:h-auto' },
+  { nom: 'Saly', teinte: 'from-emeraude-900 to-emeraude-700' },
+  { nom: 'Mbour', teinte: 'from-emeraude-900 to-nuit-800' },
+  { nom: 'Saint-Louis', teinte: 'from-nuit-800 to-emeraude-900' },
+  { nom: 'Ziguinchor', teinte: 'from-emeraude-800 to-nuit-900' },
+  { nom: 'Thiès', teinte: 'from-nuit-900 to-emeraude-800' },
+  { nom: 'Kaolack', teinte: 'from-nuit-800 to-emeraude-800' },
+  { nom: 'Touba', teinte: 'from-emeraude-800 to-nuit-950', place: 'col-span-2' },
+]
 
-const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-[#f5b942] px-6 py-3 font-semibold text-[#142238] shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#f0c66f] hover:shadow-lg'
+/** Situations de vie (pas des témoignages : aucune personne réelle n'est citée). */
+const situations = [
+  'Pour qui cherche un studio près du campus.',
+  'Pour la famille qui rêve d’une maison avec une cour.',
+  'Pour qui veut présenter son bien avec de belles photos.',
+]
+
+/** Fonctions pas encore disponibles : affichées comme telles, jamais comme si elles existaient. */
+const aVenir = [
+  'Demande de visite en ligne',
+  'Messagerie avec le propriétaire',
+  'Carte des biens',
+  "Badge « annonce vérifiée »",
+  'Assistant de recherche',
+]
+
+const boutonPlein =
+  'inline-flex items-center rounded-full bg-dore-500 px-6 py-3 font-semibold text-nuit-950 shadow-sm transition-all hover:bg-dore-600 hover:shadow-md active:scale-[0.98]'
 
 export default function Home() {
-  const [onglet, setOnglet] = useState<'TOUT' | Transaction>('TOUT')
-  const [avancee, setAvancee] = useState(false)
+  const [onglet, setOnglet] = useState<'TOUT' | 'LOCATION' | 'VENTE'>('TOUT')
   const { etat, reessayer } = useAnnonces(
     `taille=6&tri=recent${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`,
   )
+  // Nombre de VRAIS logements disponibles : les annonces d'exemple ne comptent jamais. Affiché seulement s'il y en a.
   const { etat: etatReelles } = useAnnonces('taille=1&exemple=false')
   const { utilisateur } = useAuth()
   const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0
@@ -37,126 +67,293 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[680px] overflow-hidden bg-[#07142a] text-white lg:min-h-[720px]">
-        <img src={photoAccueil} alt="" width={1600} height={1008} className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#07142a]/95 via-[#07142a]/78 to-[#07142a]/25" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-[#07142a]/65 to-transparent" />
-        <div className="mx-auto flex min-h-[680px] max-w-7xl items-center px-5 pb-20 pt-20 sm:px-8 lg:min-h-[720px]">
-          <div className="w-full max-w-3xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.19em] text-white/90 backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-[#f5b942]" />
-              L’immobilier, autrement
-            </div>
-            <h1 id="titre-accueil" className="font-titre max-w-[850px] text-5xl font-semibold leading-[1.02] tracking-[-0.045em] text-white sm:text-6xl lg:text-[5.2rem]">
-              Le bon endroit
-              <span className="block text-[#f5b942]">commence ici.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-8 text-white/85 sm:text-lg">
-              Découvrez des maisons, appartements, villas et terrains à louer ou à acheter partout au Sénégal.
-            </p>
-            <div className="mt-8 max-w-2xl">
-              <RechercheLibre />
-            </div>
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/80">
-              <Link to="/catalogue" className="inline-flex items-center gap-2 font-semibold text-white transition hover:text-[#f5b942]">
-                Explorer tous les biens <ArrowRight className="h-4 w-4" />
-              </Link>
-              {total > 0 && <span className="border-l border-white/30 pl-5">{total} bien{total > 1 ? 's' : ''} publié{total > 1 ? 's' : ''}</span>}
-            </div>
-          </div>
+      {/* ───────── Hero : la photo, le titre, puis le panneau de recherche qui déborde sur la section suivante ───────── */}
+      <section aria-labelledby="titre-accueil" className="relative isolate text-white">
+        <div className="absolute inset-0 -z-10 overflow-hidden bg-nuit-900">
+          {/* Photo d'ambiance (image illustrative, pas une annonce). Le voile garde le texte lisible. */}
+          <img src={photoAccueil} alt="" width={1600} height={1008} className="h-full w-full object-cover object-[70%_center]" />
+          <div aria-hidden className="absolute inset-0 bg-nuit-950/55 sm:bg-transparent sm:bg-gradient-to-r sm:from-nuit-950/85 sm:via-nuit-950/50 sm:to-nuit-950/5" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-nuit-950/60 to-transparent" />
         </div>
-        <div className="absolute bottom-5 right-6 hidden text-[10px] uppercase tracking-[0.16em] text-white/60 sm:block">ImmoSénégal · Votre projet, notre priorité</div>
+
+        <div className="mx-auto max-w-6xl px-4 pb-40 pt-16 sm:pb-44 sm:pt-24 lg:pt-28">
+          <h1
+            id="titre-accueil"
+            className="entree font-titre max-w-[13ch] text-[2.9rem] font-medium leading-[1.02] text-balance sm:text-6xl lg:text-7xl"
+          >
+            Trouvez le lieu qui vous ressemble.
+          </h1>
+          <p className="entree entree-2 mt-6 max-w-xl text-lg leading-relaxed text-white/90 sm:text-xl">
+            Découvrez les meilleures opportunités immobilières au Sénégal. Location, vente et terrains : votre prochain projet
+            commence ici.
+          </p>
+          <p className="entree entree-3 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold">
+            {total > 0 && (
+              <span className="flex items-center gap-2.5 text-white/95">
+                <span aria-hidden className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(217,170,69,0.6)]" />
+                {total} logement{total > 1 ? 's' : ''} disponible{total > 1 ? 's' : ''} en ce moment
+              </span>
+            )}
+            <Link to="/catalogue" className="underline decoration-dore-500 decoration-2 underline-offset-4 hover:text-dore-500">
+              Voir tous les logements
+            </Link>
+            {utilisateur ? (
+              <Link to="/tableau-de-bord" className="underline decoration-dore-500 decoration-2 underline-offset-4 hover:text-dore-500">
+                Mon espace
+              </Link>
+            ) : (
+              <Link to="/inscription" className="underline decoration-dore-500 decoration-2 underline-offset-4 hover:text-dore-500">
+                Créer mon compte
+              </Link>
+            )}
+          </p>
+        </div>
+        <p className="absolute bottom-36 right-4 hidden text-xs text-white/70 sm:block">Image illustrative</p>
       </section>
 
-      <section className="bg-[#ffffff] py-16 sm:py-20" aria-labelledby="titre-types">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#047857]">Explorez les possibilités</p>
-              <h2 id="titre-types" className="font-titre mt-3 text-3xl font-semibold tracking-tight text-[#0b1f3a] sm:text-4xl">Quel bien recherchez-vous ?</h2>
-            </div>
-            <button type="button" aria-expanded={avancee} aria-controls="recherche-avancee" onClick={() => setAvancee((v) => !v)} className="inline-flex items-center gap-2 rounded-full border border-[#d8d8d0] bg-white px-5 py-2.5 text-sm font-semibold text-[#0b1f3a] transition hover:border-[#047857] hover:text-[#047857]">
-              <Search className="h-4 w-4" /> {avancee ? 'Fermer les filtres' : 'Affiner ma recherche'}
-            </button>
+      {/* Le panneau remonte sur la photo : un trait d'union entre l'image et la page. */}
+      <div className="relative z-10 mx-auto -mt-32 max-w-6xl px-4 sm:-mt-36">
+        <RecherchePanneau />
+      </div>
+
+      {/* ───────── Types de bien ───────── */}
+      <Apparition>
+        <section className="mx-auto max-w-6xl px-4 pt-20" aria-labelledby="titre-types">
+          <h2 id="titre-types" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
+            Parcourir par type de bien
+          </h2>
+          <p className="mt-2 max-w-xl text-slate-600">Du studio étudiant à la villa avec jardin, choisissez ce qui vous correspond.</p>
+          <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Types de bien">
+            {types.map(({ type, nom, icone: Icone }, i) => (
+              <li key={type} className={i === types.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
+                <Link
+                  to={`/catalogue?type=${type}`}
+                  className="group flex h-full flex-col items-center gap-4 rounded-t-[4rem] rounded-b-2xl bg-white px-4 pb-6 pt-8 text-center shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1.5 hover:bg-nuit-900 hover:shadow-carte-haut motion-reduce:transform-none"
+                >
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700 ring-2 ring-dore-500/60 transition-colors group-hover:bg-dore-500 group-hover:text-nuit-950">
+                    <Icone aria-hidden className="h-6 w-6" />
+                  </span>
+                  <span className="font-titre text-lg font-medium text-nuit-900 transition-colors group-hover:text-white">{nom}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </Apparition>
+
+      {/* ───────── Annonces à la une ───────── */}
+      <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-annonces">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h2 id="titre-annonces" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
+              Annonces à la une
+            </h2>
+            <p className="mt-2 max-w-xl text-slate-600">Les biens publiés le plus récemment.</p>
           </div>
-          {avancee && <div id="recherche-avancee" className="mb-7 rounded-3xl border border-[#e6e2d8] bg-white p-5 shadow-sm sm:p-7"><SearchForm /></div>}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {types.map(({ type, nom, sousTitre, icone: Icone }) => (
-              <Link key={type} to={`/catalogue?type=${type}`} className="group rounded-2xl border border-[#e8e5dc] bg-white p-5 transition duration-300 hover:-translate-y-1 hover:border-[#d7bd85] hover:shadow-[0_16px_35px_rgba(25,39,55,0.08)] sm:p-6">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ecfdf5] text-[#047857] transition group-hover:bg-[#0b1f3a] group-hover:text-white"><Icone className="h-5 w-5" /></span>
-                <span className="mt-5 block font-titre text-lg font-semibold text-[#0b1f3a]">{nom}</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-500">{sousTitre}</span>
-              </Link>
+          <div role="group" aria-label="Type d’annonce" className="inline-flex rounded-full bg-brume p-1 text-sm font-semibold ring-1 ring-slate-200">
+            {(
+              [
+                ['TOUT', 'Toutes'],
+                ['LOCATION', 'À louer'],
+                ['VENTE', 'À vendre'],
+              ] as const
+            ).map(([valeur, nom]) => (
+              <button
+                key={valeur}
+                type="button"
+                aria-pressed={onglet === valeur}
+                onClick={() => setOnglet(valeur)}
+                className={`rounded-full px-4 py-1.5 transition-all ${
+                  onglet === valeur ? 'bg-nuit-900 text-white shadow-sm' : 'text-slate-600 hover:text-nuit-900'
+                }`}
+              >
+                {nom}
+              </button>
             ))}
           </div>
-          <div className="mt-10 flex flex-col gap-4 border-t border-[#e2ded3] pt-7 sm:flex-row sm:items-center">
-            <div className="shrink-0">
-              <p className="text-sm font-semibold text-[#0b1f3a]">Explorer par ville</p>
-              <p className="mt-1 text-xs text-slate-500">Les destinations qui vous intéressent</p>
-            </div>
-            <div className="flex flex-wrap gap-2 sm:ml-auto">
-              {villes.map((ville) => <Link key={ville} to={`/catalogue?ville=${encodeURIComponent(ville)}`} className="inline-flex items-center gap-1.5 rounded-full border border-[#e2ded3] bg-white px-4 py-2 text-sm text-[#455267] transition hover:border-[#047857] hover:text-[#047857]"><MapPin className="h-3.5 w-3.5" />{ville}</Link>)}
-            </div>
-          </div>
         </div>
+        {contientExemple && (
+          <p className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-700">
+            Les annonces marquées « Exemple » servent à la démonstration : ces biens n’existent pas.
+          </p>
+        )}
+        <div className="mt-8">
+          <ListeAnnonces
+            etat={etat}
+            reessayer={reessayer}
+            vide={
+              onglet === 'TOUT'
+                ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre."
+                : 'Aucune annonce de ce type pour le moment.'
+            }
+          />
+        </div>
+        <p className="mt-10 text-center">
+          <Link
+            to="/catalogue"
+            className="inline-flex items-center gap-2 rounded-full border border-nuit-900/25 px-6 py-3 font-semibold text-nuit-900 transition-all hover:border-nuit-900 hover:bg-nuit-900 hover:text-white"
+          >
+            Voir tout le catalogue
+            <ArrowUpRight aria-hidden className="h-4 w-4" />
+          </Link>
+        </p>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24" aria-labelledby="titre-annonces">
-        <div className="mb-9 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#047857]">À découvrir</p>
-            <h2 id="titre-annonces" className="font-titre mt-3 text-3xl font-semibold tracking-tight text-[#0b1f3a] sm:text-4xl">Une sélection de biens</h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500">Parcourez les annonces et trouvez le lieu qui correspond à votre prochain projet.</p>
+      {/* ───────── Destinations ───────── */}
+      <Apparition>
+        <section className="bg-brume py-20" aria-labelledby="titre-destinations">
+          <div className="mx-auto max-w-6xl px-4">
+            <h2 id="titre-destinations" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
+              Destinations populaires
+            </h2>
+            <p className="mt-2 max-w-xl text-slate-600">Choisissez une ville pour voir ses annonces.</p>
+            <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Villes">
+              {villes.map(({ nom, teinte, place }) => (
+                <li key={nom} className={place}>
+                  <Link
+                    to={`/catalogue?ville=${encodeURIComponent(nom)}`}
+                    className={`group relative flex h-36 items-end overflow-hidden rounded-2xl bg-gradient-to-br ${teinte} p-5 text-white shadow-carte transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none sm:h-40 ${
+                      place?.includes('row-span-2') ? 'lg:h-full lg:min-h-[21rem]' : ''
+                    }`}
+                  >
+                    {/* Une arche dorée, comme les ouvertures de l'architecture contemporaine du logo. */}
+                    <span
+                      aria-hidden
+                      className={`absolute bottom-0 rounded-t-full border-2 border-b-0 border-dore-500/55 transition-transform duration-500 group-hover:-translate-y-2 ${
+                        place ? 'right-6 h-[72%] w-20 sm:w-24' : 'right-4 h-[58%] w-14'
+                      }`}
+                    />
+                    <span
+                      aria-hidden
+                      className={`absolute bottom-0 rounded-t-full border border-b-0 border-white/25 transition-transform duration-500 group-hover:-translate-y-1 ${
+                        place ? 'right-10 h-[52%] w-12 sm:right-12' : 'right-[1.875rem] h-[40%] w-7'
+                      }`}
+                    />
+                    <span className="font-titre relative text-2xl font-medium leading-none sm:text-3xl">{nom}</span>
+                    <ArrowUpRight
+                      aria-hidden
+                      className="absolute right-4 top-4 h-5 w-5 text-dore-500 opacity-0 transition-opacity group-hover:opacity-100"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-          <div role="group" aria-label="Type d’annonce" className="inline-flex w-fit rounded-full border border-[#e5e2da] bg-[#ffffff] p-1 text-sm font-semibold">
-            {([['TOUT', 'Tout'], ['LOCATION', 'À louer'], ['VENTE', 'À vendre']] as const).map(([valeur, nom]) => (
-              <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-4 py-2 transition ${onglet === valeur ? 'bg-[#0b1f3a] text-white shadow-sm' : 'text-slate-600 hover:text-[#0b1f3a]'}`}>{nom}</button>
+        </section>
+      </Apparition>
+
+      <Apparition>
+        <CommentCaMarche />
+      </Apparition>
+
+      <section className="bg-nuit-900 py-20 text-white" aria-labelledby="titre-portes">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 id="titre-portes" className="font-titre max-w-[20ch] text-3xl font-medium leading-tight sm:text-5xl">
+            Chacun cherche une porte qui s’ouvre.
+          </h2>
+          <ul className="mt-12 grid gap-8 lg:grid-cols-3">
+            {situations.map((texte) => (
+              <li key={texte} className="flex gap-4 border-t border-dore-500/40 pt-6">
+                <p className="font-titre text-xl leading-snug text-nuit-100 sm:text-2xl">{texte}</p>
+              </li>
             ))}
-          </div>
-        </div>
-        {contientExemple && <p className="mb-4 rounded-xl bg-[#ffffff] px-4 py-3 text-xs text-slate-600">Les annonces marquées « Exemple » sont uniquement destinées à la démonstration.</p>}
-        <ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée." : 'Aucune annonce de ce type pour le moment.'} />
-        <div className="mt-9 flex justify-center">
-          <Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-[#0b1f3a] px-6 py-3 text-sm font-semibold text-[#0b1f3a] transition hover:bg-[#0b1f3a] hover:text-white">Voir tout le catalogue <ArrowRight className="h-4 w-4" /></Link>
+          </ul>
         </div>
       </section>
 
-      <CommentCaMarche />
+      <Apparition>
+        <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-parcours">
+          <h2 id="titre-parcours" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
+            Vous cherchez, ou vous proposez ?
+          </h2>
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-3xl bg-white p-8 shadow-carte ring-1 ring-slate-200/70">
+              <h3 className="font-titre text-2xl font-medium text-nuit-900">Je cherche un logement</h3>
+              <ul className="mt-5 space-y-3 text-slate-700">
+                <li>Parcourez toutes les annonces sans créer de compte.</li>
+                <li>Filtrez par type de bien, quartier et budget.</li>
+                <li>Consultez les photos et le détail de chaque bien.</li>
+              </ul>
+              <Link
+                to="/catalogue"
+                className="mt-7 inline-flex rounded-full bg-nuit-900 px-6 py-3 font-semibold text-white transition-all hover:bg-nuit-800 active:scale-[0.98]"
+              >
+                Parcourir le catalogue
+              </Link>
+            </div>
 
-      <section className="bg-[#0b1f3a] py-16 text-white sm:py-20" aria-labelledby="titre-parcours">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#f5b942]">Vous avez un projet ?</p>
-            <h2 id="titre-parcours" className="font-titre mt-4 text-3xl font-semibold leading-tight sm:text-4xl">Vous cherchez un bien ou souhaitez en proposer un ?</h2>
-            <p className="mt-5 max-w-md text-sm leading-7 text-white/70">ImmoSénégal vous permet de parcourir les annonces ou de rejoindre la plateforme pour gérer vos biens.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-white/15 bg-white/[0.06] p-7">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#f5b942]">Pour les visiteurs</span>
-              <h3 className="font-titre mt-3 text-2xl font-semibold">Je recherche</h3>
-              <p className="mt-3 text-sm leading-6 text-white/70">Consultez librement le catalogue et recherchez selon vos critères.</p>
-              <Link to="/catalogue" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-[#f5b942]">Parcourir les biens <ArrowRight className="h-4 w-4" /></Link>
+            <div className="rounded-3xl bg-nuit-900 p-8 text-white shadow-carte">
+              <h3 className="font-titre text-2xl font-medium">Je propose un bien</h3>
+              <ol className="mt-5 space-y-4">
+                {[
+                  'Créez votre compte : c’est gratuit.',
+                  'Demandez le rôle de propriétaire. Un administrateur examine votre demande.',
+                  'Publiez votre annonce avec jusqu’à 8 photos.',
+                ].map((texte, i) => (
+                  <li key={texte} className="flex gap-3">
+                    <span
+                      aria-hidden
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-dore-500 text-sm font-bold text-nuit-950"
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-nuit-100">{texte}</span>
+                  </li>
+                ))}
+              </ol>
+              <Link to={utilisateur ? '/tableau-de-bord' : '/inscription'} className={`${boutonPlein} mt-7`}>
+                {utilisateur ? 'Aller à mon espace' : 'Créer mon compte'}
+              </Link>
             </div>
-            <div className="rounded-3xl bg-[#ecfdf5] p-7 text-[#0b1f3a]">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#047857]">Pour les propriétaires</span>
-              <h3 className="font-titre mt-3 text-2xl font-semibold">Je propose un bien</h3>
-              <p className="mt-3 text-sm leading-6 text-[#536073]">Créez votre compte et demandez l’accès propriétaire. La publication est réservée aux propriétaires autorisés et aux administrateurs.</p>
-              <Link to={utilisateur ? '/tableau-de-bord' : '/inscription'} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0b1f3a] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#263b56]">{utilisateur ? 'Mon espace' : 'Créer un compte'} <ArrowRight className="h-4 w-4" /></Link>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </Apparition>
 
       <Faq />
 
-      {!utilisateur && <section className="relative isolate overflow-hidden py-16 text-white sm:py-20" aria-labelledby="titre-fin">
-        <img src={photoFin} alt="" width={944} height={704} loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-[#07142a]/85" />
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 sm:px-8 md:flex-row md:items-center md:justify-between">
-          <div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#f5b942]">Votre prochain chapitre</p><h2 id="titre-fin" className="font-titre mt-3 text-3xl font-semibold sm:text-4xl">Et si votre prochain chez-vous était ici ?</h2><p className="mt-3 max-w-lg text-sm leading-6 text-white/75">Rejoignez ImmoSénégal pour demander une visite et accéder aux informations détaillées des biens.</p></div>
-          <Link to="/inscription" className={boutonOr}>Créer mon compte <ArrowRight className="h-4 w-4" /></Link>
+      <section className="border-t border-slate-200 bg-brume py-12" aria-labelledby="titre-avenir">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 id="titre-avenir" className="font-titre text-2xl font-medium text-nuit-900">
+            À venir
+          </h2>
+          <p className="mt-2 max-w-2xl text-slate-600">Ces fonctions ne sont pas encore disponibles.</p>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {aVenir.map((nom) => (
+              <li key={nom} className="rounded-full bg-white px-3.5 py-1.5 text-sm text-slate-700 ring-1 ring-slate-200">
+                {nom}
+              </li>
+            ))}
+          </ul>
         </div>
-      </section>}
+      </section>
+
+      {!utilisateur && (
+        <section className="relative isolate overflow-hidden py-24 text-white" aria-labelledby="titre-fin">
+          <img
+            src={photoFin}
+            alt=""
+            width={944}
+            height={704}
+            loading="lazy"
+            className="absolute inset-0 -z-20 h-full w-full object-cover"
+          />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-nuit-950/90 via-nuit-900/75 to-nuit-900/40" />
+          <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 id="titre-fin" className="font-titre text-3xl font-medium sm:text-5xl">
+                Ouvrez la porte.
+              </h2>
+              <p className="mt-3 max-w-md text-lg text-nuit-100">
+                Créer un compte est gratuit : c’est la première étape pour publier une annonce.
+              </p>
+            </div>
+            <Link to="/inscription" className={boutonPlein}>
+              Créer mon compte
+            </Link>
+          </div>
+          <p className="absolute bottom-2 right-3 text-xs text-white/70">Image illustrative</p>
+        </section>
+      )}
     </>
   )
 }

@@ -21,7 +21,7 @@ export default function Champ({ id, libelle, erreur, aide, ...reste }: Props) {
         id={id}
         aria-invalid={erreur ? true : undefined}
         aria-describedby={decrit}
-        className={`w-full rounded-lg border bg-white px-3 py-2.5 text-slate-900 focus:border-emeraude-600 ${
+        className={`w-full rounded-xl border bg-white px-3.5 py-3 text-encre transition-colors hover:border-slate-400 focus:border-emeraude-600 ${
           erreur ? 'border-red-500' : 'border-slate-300'
         }`}
         {...reste}

@@ -4,6 +4,7 @@ import { UserPlus } from 'lucide-react'
 import { useAuth } from '../auth'
 import { ApiError } from '../api'
 import Champ from '../components/Champ'
+import MiseEnPageAuth from '../components/MiseEnPageAuth'
 
 type Erreurs = Partial<Record<'nomComplet' | 'email' | 'telephone' | 'password' | 'confirmation', string>>
 
@@ -64,16 +65,21 @@ export default function Inscription() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <h1 className="text-2xl font-bold">Créer un compte</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Tous les nouveaux comptes sont des comptes Client. Le rôle Propriétaire ou Agent se demande ensuite et doit
-        être validé par un administrateur.
-      </p>
-
-      <form onSubmit={soumettre} className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow" noValidate>
+    <MiseEnPageAuth
+      titre="Créer un compte"
+      intro="Tous les nouveaux comptes sont des comptes Client. Le rôle Propriétaire ou Agent se demande ensuite et doit être validé par un administrateur."
+      pied={
+        <>
+          Déjà inscrit ?{' '}
+          <Link to="/connexion" className="font-semibold text-emeraude-700 underline">
+            Se connecter
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={soumettre} className="space-y-4" noValidate>
         {erreurGenerale && (
-          <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">
             {erreurGenerale}
           </p>
         )}
@@ -90,19 +96,12 @@ export default function Inscription() {
         <button
           type="submit"
           disabled={enCours}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-emeraude-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-emeraude-700 px-4 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emeraude-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <UserPlus aria-hidden className="h-5 w-5" />
           {enCours ? 'Création du compte…' : 'Créer mon compte'}
         </button>
       </form>
-
-      <p className="mt-4 text-center text-sm text-slate-600">
-        Déjà inscrit ?{' '}
-        <Link to="/connexion" className="font-semibold text-emeraude-700 underline">
-          Se connecter
-        </Link>
-      </p>
-    </div>
+    </MiseEnPageAuth>
   )
 }

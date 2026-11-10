@@ -187,3 +187,16 @@ export function versCatalogue(c: CriteresLibres): string {
   if (c.prixMax) p.set('prixMax', String(c.prixMax))
   return `/catalogue?${p.toString()}`
 }
+
+/**
+ * Champ unique « Ville ou quartier » du formulaire : une ville connue devient le filtre « ville »,
+ * tout autre texte est cherché comme « quartier ».
+ */
+export function lieuVersFiltre(texte: string): { ville?: string; quartier?: string } {
+  const propre = texte.trim()
+  if (!propre) return {}
+  const ville = trouverVille(normaliser(propre).norm)
+  // « Dakar » ou « Saint Louis » seuls : c'est la ville. « Médina, Dakar » ou « Kandé » : on cherche le texte tel quel.
+  if (ville && normaliser(propre).norm.replace(/[- ]/g, '') === ville.norm.replace(/[- ]/g, '')) return { ville: ville.nom }
+  return { quartier: propre }
+}

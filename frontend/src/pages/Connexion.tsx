@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react'
 import { useAuth } from '../auth'
 import { ApiError } from '../api'
 import Champ from '../components/Champ'
+import MiseEnPageAuth from '../components/MiseEnPageAuth'
 
 function messageErreur(e: unknown): string {
   if (e instanceof ApiError) {
@@ -44,13 +45,21 @@ export default function Connexion() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <h1 className="text-2xl font-bold">Connexion</h1>
-      <p className="mt-1 text-sm text-slate-600">Accédez à votre espace ImmoSénégal.</p>
-
-      <form onSubmit={soumettre} className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow" noValidate>
+    <MiseEnPageAuth
+      titre="Connexion"
+      intro="Accédez à votre espace ImmoSénégal."
+      pied={
+        <>
+          Pas encore de compte ?{' '}
+          <Link to="/inscription" className="font-semibold text-emeraude-700 underline">
+            Créer un compte
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={soumettre} className="space-y-4" noValidate>
         {erreur && (
-          <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">
             {erreur}
           </p>
         )}
@@ -75,19 +84,12 @@ export default function Connexion() {
         <button
           type="submit"
           disabled={enCours || email.trim() === '' || password === ''}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white transition-colors hover:bg-emeraude-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-emeraude-700 px-4 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emeraude-800 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <LogIn aria-hidden className="h-5 w-5" />
           {enCours ? 'Connexion…' : 'Se connecter'}
         </button>
       </form>
-
-      <p className="mt-4 text-center text-sm text-slate-600">
-        Pas encore de compte ?{' '}
-        <Link to="/inscription" className="font-semibold text-emeraude-700 underline">
-          Créer un compte
-        </Link>
-      </p>
-    </div>
+    </MiseEnPageAuth>
   )
 }
