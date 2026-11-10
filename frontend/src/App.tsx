@@ -20,7 +20,7 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="catalogue" element={<Catalogue />} />
+          <Route path="catalogue" element={<RequireAuth><Catalogue /></RequireAuth>} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<DetailAnnonce />} />
