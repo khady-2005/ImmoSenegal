@@ -39,7 +39,7 @@ import sn.immosenegal.user.UserRepository;
 @Service
 public class AnnonceService {
 
-    private static final Set<Role> ROLES_PUBLICATION = Set.of(Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+    private static final Set<Role> ROLES_PUBLICATION = Set.of(Role.PROPRIETAIRE, Role.ADMIN);
     private static final int TAILLE_MAX = 50;
     private static final int TAILLE_PAR_DEFAUT = 12;
 
@@ -58,7 +58,7 @@ public class AnnonceService {
     @Transactional
     public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete) {
         if (!ROLES_PUBLICATION.contains(auteur.role())) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Seuls les propriétaires et agents peuvent publier une annonce.");
+            throw new ApiException(HttpStatus.FORBIDDEN, "Seuls les propriétaires et les administrateurs peuvent publier une annonce.");
         }
         // Le propriétaire est TOUJOURS l'utilisateur connecté, jamais une valeur envoyée par le client.
         User proprietaire = users.findById(auteur.id())
