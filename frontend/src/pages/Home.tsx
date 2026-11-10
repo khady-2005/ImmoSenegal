@@ -57,28 +57,28 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden text-white">
+      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[620px] overflow-hidden text-white sm:min-h-[690px]">
         {/* Photo d'ambiance (image illustrative, pas une annonce). Le voile sombre garde le texte lisible. */}
         <img
           src={photoAccueil}
           alt=""
           width={1600}
           height={1008}
-          className="absolute inset-0 -z-20 h-full w-full object-cover"
+          className="absolute inset-0 -z-20 h-full w-full scale-[1.02] object-cover"
         />
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-nuit-950/60 sm:bg-transparent sm:bg-gradient-to-r sm:from-nuit-950/80 sm:via-nuit-950/45 sm:to-transparent"
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-nuit-950/55 to-transparent" />
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+        <div className="mx-auto flex min-h-[620px] max-w-7xl flex-col justify-center px-4 py-20 sm:min-h-[690px] sm:px-6 sm:py-28">
           <h1
             id="titre-accueil"
-            className="font-titre max-w-[11ch] text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl"
+            className="font-titre max-w-[12ch] text-5xl font-bold leading-[0.98] tracking-[-0.045em] text-balance drop-shadow-[0_5px_24px_rgba(0,0,0,0.22)] sm:text-7xl lg:text-[5.5rem]"
           >
             Rentrez enfin chez vous.
           </h1>
-          <p className="mt-4 max-w-lg text-lg text-white/90">
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/90 sm:text-xl">
             Maisons, appartements, studios, villas et terrains à louer ou à acheter, partout au Sénégal.
           </p>
           <RechercheLibre />
@@ -109,7 +109,7 @@ export default function Home() {
         <p className="absolute bottom-2 right-3 text-xs text-white/70">Image illustrative</p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pt-12" aria-labelledby="titre-types">
+      <section className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 sm:pt-20" aria-labelledby="titre-types">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <h2 id="titre-types" className="font-titre text-2xl font-semibold">
             Parcourir par type de bien
@@ -160,7 +160,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-14" aria-labelledby="titre-annonces">
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="titre-annonces">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 id="titre-annonces" className="font-titre text-3xl font-semibold">
             Annonces à la une
