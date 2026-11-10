@@ -57,21 +57,21 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[620px] overflow-hidden text-white sm:min-h-[690px]">
+      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[650px] overflow-hidden bg-nuit-950 text-white sm:min-h-[740px]">
         {/* Photo d'ambiance (image illustrative, pas une annonce). Le voile sombre garde le texte lisible. */}
         <img
           src={photoAccueil}
           alt=""
           width={1600}
           height={1008}
-          className="absolute inset-0 -z-20 h-full w-full scale-[1.02] object-cover"
+          className="absolute inset-0 -z-20 h-full w-full scale-[1.03] object-cover"
         />
         <div
           aria-hidden
-          className="absolute inset-0 -z-10 bg-nuit-950/60 sm:bg-transparent sm:bg-gradient-to-r sm:from-nuit-950/80 sm:via-nuit-950/45 sm:to-transparent"
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-[#061426]/90 via-[#071a2b]/60 to-[#071a2b]/15"
         />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-nuit-950/55 to-transparent" />
-        <div className="mx-auto flex min-h-[620px] max-w-7xl flex-col justify-center px-4 py-20 sm:min-h-[690px] sm:px-6 sm:py-28">
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-2/5 bg-gradient-to-t from-[#061426]/75 to-transparent" />
+        <div className="mx-auto flex min-h-[650px] max-w-7xl flex-col justify-center px-4 py-20 sm:min-h-[740px] sm:px-6 sm:py-28">
           <h1
             id="titre-accueil"
             className="font-titre max-w-[12ch] text-5xl font-bold leading-[0.98] tracking-[-0.045em] text-balance drop-shadow-[0_5px_24px_rgba(0,0,0,0.22)] sm:text-7xl lg:text-[5.5rem]"
@@ -134,9 +134,9 @@ export default function Home() {
             <li key={type} className={i === types.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
               <Link
                 to={`/catalogue?type=${type}`}
-                className="flex h-full flex-col items-center gap-2 rounded-2xl bg-white px-3 py-5 font-medium ring-1 ring-slate-200 transition-colors hover:ring-2 hover:ring-emeraude-600"
+                className="group flex h-full flex-col items-center gap-3 rounded-3xl border border-slate-200/80 bg-white px-3 py-6 font-semibold text-slate-800 shadow-[0_8px_28px_rgba(11,31,58,0.04)] transition duration-300 hover:-translate-y-1 hover:border-emeraude-200 hover:shadow-[0_18px_40px_rgba(11,31,58,0.10)]"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emeraude-50 to-[#d9f5e9] text-emeraude-700 transition duration-300 group-hover:scale-110 group-hover:bg-emeraude-700 group-hover:text-white">
                   <Icone aria-hidden className="h-5 w-5" />
                 </span>
                 {nom}
@@ -150,7 +150,7 @@ export default function Home() {
             <li key={ville}>
               <Link
                 to={`/catalogue?ville=${encodeURIComponent(ville)}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium ring-1 ring-slate-200 transition-colors hover:ring-2 hover:ring-emeraude-600"
+                className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-emeraude-300 hover:text-emeraude-800 hover:shadow-md"
               >
                 <MapPin aria-hidden className="h-4 w-4 text-emeraude-600" />
                 {ville}
@@ -160,7 +160,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20" aria-labelledby="titre-annonces">
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24" aria-labelledby="titre-annonces">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 id="titre-annonces" className="font-titre text-3xl font-semibold">
             Annonces à la une
@@ -236,7 +236,7 @@ export default function Home() {
           Vous cherchez, ou vous proposez ?
         </h2>
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-7 ring-1 ring-slate-200">
+          <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_12px_35px_rgba(11,31,58,0.06)]">
             <h3 className="font-titre text-2xl font-semibold">Je cherche un logement</h3>
             <ul className="mt-4 space-y-3 text-slate-700">
               <li>Parcourez toutes les annonces sans créer de compte.</li>
@@ -251,7 +251,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="rounded-3xl bg-nuit-900 p-7 text-white">
+          <div className="rounded-3xl bg-gradient-to-br from-nuit-900 via-nuit-900 to-emeraude-900 p-7 text-white shadow-xl shadow-nuit-900/15">
             <h3 className="font-titre text-2xl font-semibold">Je propose un bien</h3>
             <ol className="mt-4 space-y-4">
               {[
