@@ -95,7 +95,7 @@ export default function Home() {
       <Apparition><CarrouselUtilite /></Apparition>
 
       <Apparition>
-        <section className="bg-[#f7f8fa] py-20 sm:py-24" aria-labelledby="titre-types">
+        <section className="bg-[#f3f0e9] py-20 sm:py-24" aria-labelledby="titre-types">
           <div className="mx-auto max-w-6xl px-4">
             <div className="flex flex-wrap items-end justify-between gap-5">
               <div>
@@ -161,7 +161,7 @@ export default function Home() {
 
       <Apparition><CommentCaMarche /></Apparition>
 
-      <section className="bg-[#f7f8fa] py-20 sm:py-24" aria-labelledby="titre-proprietaires">
+      <section className="bg-[#f3f0e9] py-20 sm:py-24" aria-labelledby="titre-proprietaires">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-2 lg:items-center">
           <div><SurTitre>Espace propriétaire</SurTitre><h2 id="titre-proprietaires" className="font-titre text-3xl font-medium leading-tight text-nuit-900 sm:text-5xl">Votre bien mérite une <span className="italic text-emeraude-700">belle vitrine.</span></h2><p className="mt-5 max-w-lg leading-relaxed text-slate-600">Présentez votre propriété avec des photos et une description détaillée. Gérez vos annonces depuis votre espace propriétaire.</p><Link to={utilisateur ? '/tableau-de-bord' : '/inscription'} className={`${boutonPlein} mt-7`}>{utilisateur ? 'Accéder à mon espace' : 'Créer mon compte'} <ArrowUpRight className="h-4 w-4" /></Link></div>
           <div className="relative min-h-[320px] overflow-hidden rounded-[2rem] bg-nuit-900 shadow-carte-haut"><img src={photoFin} alt="Villa contemporaine à Saly, image illustrative" loading="lazy" className="absolute inset-0 h-full w-full object-cover" /><span aria-hidden className="absolute inset-0 bg-gradient-to-t from-nuit-950/65 to-transparent" /><span className="absolute bottom-6 left-6 rounded-full border border-white/40 bg-nuit-950/45 px-4 py-2 text-sm font-medium text-white">Valorisez votre bien immobilier</span></div>
