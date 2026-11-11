@@ -7,7 +7,6 @@ import Faq from '../components/Faq'
 import Apparition from '../components/Apparition'
 import ListeAnnonces from '../components/ListeAnnonces'
 import CarrouselUtilite from '../components/CarrouselUtilite'
-import VideoPresentation from '../components/VideoPresentation'
 import { useAnnonces } from '../components/useAnnonces'
 import { useAuth } from '../auth'
 import photoPlage from '../assets/hero-plage.webp'
@@ -40,14 +39,6 @@ const situations = [
   'Pour qui veut présenter son bien avec de belles photos.',
 ]
 
-const aVenir = [
-  'Demande de visite en ligne',
-  'Messagerie avec le propriétaire',
-  'Carte des biens',
-  "Badge « annonce vérifiée »",
-  'Assistant de recherche',
-]
-
 const boutonPlein =
   'inline-flex items-center rounded-full bg-dore-500 px-6 py-3 font-semibold text-nuit-950 shadow-sm transition-all hover:bg-dore-600 hover:shadow-md active:scale-[0.98]'
 
@@ -72,9 +63,7 @@ export default function Home() {
   return (
     <>
       {/* ─── Hero ─── */}
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden bg-gradient-to-b from-sable-50 via-ivoire to-white">
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[34rem] w-[34rem] rounded-full bg-dore-100/70 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-emeraude-50/90 blur-3xl" />
+      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden border-b border-slate-100 bg-[#fbfaf7]">
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-44 pt-14 sm:pt-18 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:pb-48 lg:pt-22">
           <div className="max-w-xl">
@@ -86,19 +75,18 @@ export default function Home() {
               id="titre-accueil"
               className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-nuit-900 text-balance sm:text-6xl lg:text-[4.2rem]"
             >
-              Trouvez le lieu qui{' '}
-              <span className="italic text-emeraude-700">vous ressemble.</span>
+              Trouvez le bien immobilier qui{' '}
+              <span className="italic text-emeraude-700">vous correspond.</span>
             </h1>
             <p className="entree entree-3 mt-6 text-lg leading-relaxed text-slate-600 sm:text-xl">
-              Découvrez les meilleures opportunités immobilières au Sénégal.
-              Location, vente et terrains : votre prochain projet commence ici.
+              Découvrez des maisons, appartements, villas et terrains dans les plus belles localités du Sénégal. Votre prochain projet immobilier commence ici.
             </p>
             <div className="entree entree-3 mt-9 flex flex-wrap items-center gap-4">
               <Link
                 to="/catalogue"
                 className="inline-flex items-center rounded-full bg-emeraude-700 px-7 py-3.5 font-semibold text-white shadow-md transition-all hover:bg-emeraude-800 hover:shadow-lg active:scale-[0.98]"
               >
-                Voir tous les logements
+                Explorer les biens
               </Link>
               {utilisateur ? (
                 <Link
@@ -161,11 +149,7 @@ export default function Home() {
         <CarrouselUtilite />
       </Apparition>
 
-      <Apparition>
-        <VideoPresentation />
-      </Apparition>
-
-      {/* ─── Types ─── */}
+            {/* ─── Types ─── */}
       <Apparition>
         <section className="mx-auto max-w-6xl px-4 pt-16 pb-4" aria-labelledby="titre-types">
           <SurTitre>Explorer</SurTitre>
@@ -237,7 +221,7 @@ export default function Home() {
         </div>
         {contientExemple && (
           <p className="mt-5 rounded-xl border border-dashed border-dore-500/50 bg-dore-100/40 px-4 py-3 text-sm text-nuit-900">
-            Les annonces marquées « Exemple » servent à la démonstration : ces biens n’existent pas.
+            Catalogue de présentation : certaines annonces sont proposées à titre illustratif.
           </p>
         )}
         <div className="mt-8">
@@ -375,25 +359,6 @@ export default function Home() {
       </Apparition>
 
       <Faq />
-
-      <section className="border-t border-slate-200 bg-brume py-12" aria-labelledby="titre-avenir">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 id="titre-avenir" className="font-titre text-2xl font-medium text-nuit-900">
-            À venir
-          </h2>
-          <p className="mt-2 max-w-2xl text-slate-600">Ces fonctions ne sont pas encore disponibles.</p>
-          <ul className="mt-4 flex flex-wrap gap-2">
-            {aVenir.map((nom) => (
-              <li
-                key={nom}
-                className="rounded-full bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200"
-              >
-                {nom}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
       {!utilisateur && (
         <section className="relative isolate overflow-hidden py-24 text-white" aria-labelledby="titre-fin">
