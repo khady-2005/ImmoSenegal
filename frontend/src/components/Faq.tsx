@@ -38,10 +38,10 @@ export default function Faq() {
   const [ouverte, setOuverte] = useState<number | null>(null)
 
   return (
-    <section className="bg-[#f3f0e9] py-14 sm:py-18" aria-labelledby="titre-faq">
-      <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-gradient-to-br from-nuit-950 via-nuit-900 to-[#12305a] px-5 py-8 text-white shadow-carte-haut sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
+    <section className="bg-[#eef5ee] py-14 sm:py-18" aria-labelledby="titre-faq">
+      <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-gradient-to-br from-[#063b2b] via-[#07513a] to-[#0b684c] px-5 py-8 text-white shadow-carte-haut sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-dore-500">Besoin de précisions ?</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Besoin de précisions ?</p>
           <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-white sm:text-4xl">
             Questions fréquentes
           </h2>
@@ -61,7 +61,7 @@ export default function Faq() {
                     aria-expanded={ouvert}
                     aria-controls={idReponse}
                     onClick={() => setOuverte(ouvert ? null : i)}
-                    className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-dore-500 sm:text-base"
+                    className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-emeraude-300 sm:text-base"
                   >
                     {item.q}
                     <ChevronDown
