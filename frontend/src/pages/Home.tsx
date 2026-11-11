@@ -13,6 +13,7 @@ import photoPlage from '../assets/hero-plage.webp'
 import photoSalon from '../assets/hero-salon.webp'
 import photoCoucher from '../assets/hero-coucher.webp'
 import photoFin from '../assets/bien-saly.webp'
+import photoVilla from '../assets/hero-villa.webp'
 
 const types = [
   { type: 'MAISON', nom: 'Maisons', icone: House },
@@ -23,9 +24,9 @@ const types = [
 ]
 
 const villes = [
-  { nom: 'Dakar', teinte: 'bg-sable text-nuit-900 hover:bg-sable-200', place: 'col-span-2 lg:row-span-2 lg:h-auto' },
-  { nom: 'Saly', teinte: 'bg-emeraude-50 text-emeraude-900 hover:bg-emeraude-50/60' },
-  { nom: 'Mbour', teinte: 'bg-[#edf2f7] text-nuit-900 hover:bg-[#e2eaf3]' },
+  { nom: 'Dakar', teinte: 'bg-white text-nuit-900 hover:bg-dore-100', place: 'col-span-2 lg:row-span-2 lg:h-auto' },
+  { nom: 'Saly', teinte: 'bg-[#e7f2f0] text-nuit-900 hover:bg-white' },
+  { nom: 'Mbour', teinte: 'bg-[#e8edf4] text-nuit-900 hover:bg-white' },
   { nom: 'Saint-Louis', teinte: 'bg-[#edf2f7] text-nuit-900 hover:bg-[#e2eaf3]' },
   { nom: 'Ziguinchor', teinte: 'bg-sable text-nuit-900 hover:bg-sable-200' },
   { nom: 'Thiès', teinte: 'bg-emeraude-50 text-emeraude-900 hover:bg-emeraude-50/60' },
@@ -62,86 +63,66 @@ export default function Home() {
 
   return (
     <>
-      {/* ─── Hero ─── */}
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden border-b border-white/10 bg-nuit-900">
-
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-44 pt-14 sm:pt-18 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:pb-48 lg:pt-22">
-          <div className="max-w-xl">
-            <p className="entree inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-emeraude-800 shadow-sm ring-1 ring-dore-500/50">
+      {/* ─── Hero immersif ─── */}
+      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[680px] overflow-hidden bg-nuit-900 text-white sm:min-h-[720px]">
+        <img
+          src={photoVilla}
+          alt=""
+          width={1400}
+          height={900}
+          fetchPriority="high"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+        />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-nuit-950 via-nuit-900/90 to-nuit-900/25" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-nuit-950/80 to-transparent" />
+        <div className="mx-auto flex min-h-[680px] max-w-6xl items-center px-4 pb-36 pt-20 sm:min-h-[720px] sm:pb-40">
+          <div className="max-w-3xl">
+            <p className="entree inline-flex items-center gap-2 rounded-full border border-dore-500/60 bg-nuit-950/70 px-4 py-2 text-sm font-semibold text-white shadow-lg">
               <span aria-hidden className="h-2 w-2 rounded-full bg-dore-500" />
               Location · Vente · Terrains au Sénégal
             </p>
             <h1
               id="titre-accueil"
-              className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-white text-balance sm:text-6xl lg:text-[4.2rem]"
+              className="entree entree-2 font-titre mt-8 max-w-[15ch] text-[2.9rem] font-medium leading-[1.04] text-white text-balance sm:text-6xl lg:text-7xl"
             >
               Trouvez le bien immobilier qui{' '}
               <span className="italic text-dore-500">vous correspond.</span>
             </h1>
-            <p className="entree entree-3 mt-6 text-lg leading-relaxed text-nuit-100 sm:text-xl">
+            <p className="entree entree-3 mt-7 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">
               Découvrez des maisons, appartements, villas et terrains dans les plus belles localités du Sénégal. Votre prochain projet immobilier commence ici.
             </p>
             <div className="entree entree-3 mt-9 flex flex-wrap items-center gap-4">
               <Link
                 to="/catalogue"
-                className="inline-flex items-center rounded-full bg-emeraude-700 px-7 py-3.5 font-semibold text-white shadow-md transition-all hover:bg-emeraude-800 hover:shadow-lg active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full bg-dore-500 px-7 py-4 font-bold text-nuit-950 shadow-xl transition-all hover:-translate-y-0.5 hover:bg-dore-600 active:translate-y-0"
               >
-                Explorer les biens
+                Explorer les biens <ArrowUpRight aria-hidden className="h-5 w-5" />
               </Link>
               {utilisateur ? (
-                <Link
-                  to="/tableau-de-bord"
-                  className="font-semibold text-white underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-dore-500"
-                >
+                <Link to="/tableau-de-bord" className="rounded-full border border-white/50 bg-nuit-950/40 px-6 py-4 font-semibold text-white transition hover:bg-white hover:text-nuit-900">
                   Mon espace
                 </Link>
               ) : (
-                <Link
-                  to="/inscription"
-                  className="font-semibold text-white underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-dore-500"
-                >
+                <Link to="/inscription" className="rounded-full border border-white/50 bg-nuit-950/40 px-6 py-4 font-semibold text-white transition hover:bg-white hover:text-nuit-900">
                   Créer mon compte
                 </Link>
               )}
             </div>
             {total > 0 && (
-              <p className="entree entree-3 mt-7 flex items-center gap-2.5 text-sm font-semibold text-emeraude-100">
-                <span aria-hidden className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(217,170,69,0.45)]" />
+              <p className="entree entree-3 mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-nuit-950/60 px-4 py-2 text-sm font-semibold text-white">
+                <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full bg-dore-500" />
                 {total} logement{total > 1 ? 's' : ''} disponible{total > 1 ? 's' : ''} en ce moment
               </p>
             )}
           </div>
-
-          <div className="entree entree-2 mx-auto w-full max-w-[19rem] sm:max-w-sm lg:mx-0 lg:justify-self-end">
-            <div className="relative aspect-[4/5]">
-              <img
-                src={photoPlage}
-                alt=""
-                width={944}
-                height={704}
-                className="absolute inset-0 h-full w-full rounded-b-[2rem] rounded-t-[999px] object-cover object-[62%_center] shadow-carte-haut ring-4 ring-white"
-              />
-              <img
-                src={photoSalon}
-                alt=""
-                width={520}
-                height={388}
-                className="absolute -bottom-7 -left-6 h-32 w-32 rounded-3xl border-4 border-white object-cover shadow-carte-haut sm:-left-12 sm:h-40 sm:w-40"
-              />
-              <img
-                src={photoCoucher}
-                alt=""
-                width={560}
-                height={353}
-                className="absolute -right-4 top-[26%] h-24 w-24 rounded-full border-4 border-white object-cover shadow-carte-haut sm:-right-9 sm:h-32 sm:w-32"
-              />
-            </div>
-            <p className="mt-12 text-center text-xs font-medium text-slate-500">Images illustratives</p>
-          </div>
+        </div>
+        <div className="pointer-events-none absolute bottom-8 right-6 hidden text-right text-xs font-medium uppercase tracking-[0.22em] text-white/70 lg:block">
+          <span className="block text-dore-500">ImmoSénégal</span>
+          Votre projet commence ici
         </div>
       </section>
 
-      <div className="relative z-10 mx-auto -mt-32 max-w-6xl px-4 sm:-mt-36">
+      <div className="relative z-10 mx-auto -mt-28 max-w-6xl px-4 sm:-mt-32">
         <RecherchePanneau />
       </div>
 
@@ -151,7 +132,7 @@ export default function Home() {
 
             {/* ─── Types ─── */}
       <Apparition>
-        <section className="mx-auto max-w-6xl px-4 pt-16 pb-4" aria-labelledby="titre-types">
+        <section className="bg-[#f1f5f9] py-20" aria-labelledby="titre-types"><div className="mx-auto max-w-6xl px-4">
           <SurTitre>Explorer</SurTitre>
           <h2 id="titre-types" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
             Parcourir par <span className="text-emeraude-700">type de bien</span>
@@ -176,11 +157,11 @@ export default function Home() {
               </li>
             ))}
           </ul>
-        </section>
+        </div></section>
       </Apparition>
 
       {/* ─── Annonces ─── */}
-      <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-annonces">
+      <section className="bg-white py-20" aria-labelledby="titre-annonces"><div className="mx-auto max-w-6xl px-4">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <SurTitre>Sélection</SurTitre>
@@ -244,17 +225,17 @@ export default function Home() {
             <ArrowUpRight aria-hidden className="h-4 w-4" />
           </Link>
         </p>
-      </section>
+      </div></section>
 
       {/* ─── Destinations ─── */}
       <Apparition>
-        <section className="bg-sable-50 py-20" aria-labelledby="titre-destinations">
+        <section className="bg-nuit-900 py-20 text-white" aria-labelledby="titre-destinations">
           <div className="mx-auto max-w-6xl px-4">
             <SurTitre>Où chercher</SurTitre>
-            <h2 id="titre-destinations" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
-              Destinations <span className="text-emeraude-700">populaires</span>
+            <h2 id="titre-destinations" className="font-titre text-3xl font-medium text-white sm:text-4xl">
+              Destinations <span className="text-dore-500">populaires</span>
             </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-nuit-100 sm:text-lg">
               Choisissez une ville pour voir ses annonces.
             </p>
             <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Villes">
