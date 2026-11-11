@@ -22,7 +22,7 @@ describe("Page d'accueil", () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Immo Sénégal' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Découvrir le catalogue' })).toHaveAttribute('href', '/catalogue')
-    const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
+    const liensInscription = screen.getAllByRole('link', { name: 'Inscription' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(1)
     liensInscription.forEach((l) => expect(l).toHaveAttribute('href', '/inscription'))
     expect(await screen.findByText(/la première annonce peut être la vôtre/i)).toBeInTheDocument()
