@@ -15,19 +15,19 @@ export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'
         alt=""
         width={520}
         height={311}
-        className={`${grand ? 'h-11 sm:h-12' : 'h-9'} w-auto rounded-xl object-cover shadow-sm ring-1 ring-dore-500/70`}
+        className={`${grand ? 'h-11 sm:h-12' : 'h-9'} w-auto rounded-xl object-cover shadow-sm ring-1 ring-emeraude-200`}
       />
       <span className="leading-none">
         <span
           className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.4rem] sm:text-[1.6rem]' : 'text-xl'}`}
         >
           <span className={sombre ? 'text-white' : 'text-nuit-900'}>Immo</span>
-          <span className={sombre ? 'text-dore-500' : 'text-emeraude-600'}>Sénégal</span>
+          <span className={sombre ? 'text-emeraude-400' : 'text-emeraude-700'}>Sénégal</span>
         </span>
         <span
           className={`mt-1 hidden text-[0.72rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-slate-600'}`}
         >
-          Votre rêve, notre priorité
+          Trouvez, Visitez, Habitez
         </span>
       </span>
     </span>
