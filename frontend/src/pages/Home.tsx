@@ -21,7 +21,7 @@ const types = [
   { type: 'TERRAIN', nom: 'Terrains', description: 'Donnez vie à vos projets', icone: LandPlot, image: photoPlage },
 ]
 
-const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-dore-500 px-6 py-3.5 font-bold text-nuit-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-dore-600'
+const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-emeraude-500 px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-emeraude-600'
 
 function TitreSection({ petit, titre, accent, id }: { petit: string; titre: string; accent?: string; id?: string }) {
   return <div><p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">{petit}</p><h2 id={id} className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">{titre}{accent && <> <span className="italic text-emeraude-700">{accent}</span></>}</h2></div>
@@ -43,7 +43,7 @@ export default function Home() {
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-nuit-950/35 to-transparent" />
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-dore-500/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-500"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
+            <p className="inline-flex items-center gap-2 rounded-full border border-dore-500/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emeraude-300"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
             <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">Immo<span className="text-dore-500">Sénégal</span></h1>
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
@@ -60,7 +60,7 @@ export default function Home() {
         <div className="rounded-3xl bg-white p-2 shadow-[0_24px_70px_-28px_rgba(7,20,42,0.45)] ring-1 ring-slate-200 sm:p-4"><RecherchePanneau /></div>
       </section>
 
-      <section id="avantages" className="bg-[#fbfaf7] py-9" aria-label="Les avantages ImmoSénégal">
+      <section id="avantages" className="bg-[#f4f8f3] py-9" aria-label="Les avantages ImmoSénégal">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:gap-4">
           {[
             { Icone: ShieldCheck, titre: 'Transactions sécurisées', sous: 'et fiables' },
@@ -86,7 +86,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#f3f0e9] py-16 sm:py-20" aria-labelledby="titre-types">
+      <section className="bg-[#eef5ee] py-16 sm:py-20" aria-labelledby="titre-types">
         <div className="mx-auto max-w-6xl px-4">
           <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
           <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
