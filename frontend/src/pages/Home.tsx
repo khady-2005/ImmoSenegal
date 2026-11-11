@@ -3,7 +3,6 @@ import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin
 import { Link } from 'react-router-dom'
 import RecherchePanneau from '../components/RecherchePanneau'
 import CommentCaMarche from '../components/CommentCaMarche'
-import Faq from '../components/Faq'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
 import photoPlage from '../assets/hero-plage.webp'
@@ -93,7 +92,6 @@ export default function Home() {
       </section>
 
       <div id="comment-ca-marche" className="scroll-mt-24"><CommentCaMarche /></div>
-      <div id="faq" className="scroll-mt-24"><Faq /></div>
 
       <section id="contact" className="relative isolate overflow-hidden py-16 text-white sm:py-20">
         <img src={photoPlage} alt="" width={1400} height={800} loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover" />
