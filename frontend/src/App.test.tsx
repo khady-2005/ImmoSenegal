@@ -19,7 +19,7 @@ describe('Accueil', () => {
   it("affiche le formulaire de recherche et les annonces récentes venant de l'API", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa des Pins' })])) })
     afficher()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Trouvez le lieu qui vous ressemble.')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Trouvez le bien immobilier qui vous correspond.')
     // Le formulaire à critères est affiché d'emblée ; la phrase libre est dans l'onglet voisin.
     expect(screen.getByRole('form', { name: /recherche de logement/i })).toBeInTheDocument()
     expect(screen.queryByRole('form', { name: /recherche en une phrase/i })).not.toBeInTheDocument()
