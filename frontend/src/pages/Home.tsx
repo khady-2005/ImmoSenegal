@@ -51,6 +51,14 @@ const aVenir = [
 const boutonPlein =
   'inline-flex items-center rounded-full bg-dore-500 px-6 py-3 font-semibold text-nuit-950 shadow-sm transition-all hover:bg-dore-600 hover:shadow-md active:scale-[0.98]'
 
+function SurTitre({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-emeraude-700">
+      {children}
+    </p>
+  )
+}
+
 export default function Home() {
   const [onglet, setOnglet] = useState<'TOUT' | 'LOCATION' | 'VENTE'>('TOUT')
   const { etat, reessayer } = useAnnonces(
@@ -63,45 +71,53 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden bg-gradient-to-b from-sable-50 via-sable-50 to-ivoire">
-        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[34rem] w-[34rem] rounded-full bg-dore-100/80 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-emeraude-50 blur-3xl" />
+      {/* ─── Hero ─── */}
+      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden bg-gradient-to-b from-sable-50 via-ivoire to-white">
+        <div aria-hidden className="pointer-events-none absolute -right-40 -top-40 -z-10 h-[34rem] w-[34rem] rounded-full bg-dore-100/70 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-emeraude-50/90 blur-3xl" />
 
-        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-44 pt-12 sm:pt-16 lg:grid-cols-[1.1fr_0.9fr] lg:gap-10 lg:pb-48 lg:pt-20">
-          <div>
-            <p className="entree inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-sm font-medium text-emeraude-800 shadow-sm ring-1 ring-dore-500/40">
-              <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-dore-500" />
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-44 pt-14 sm:pt-18 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:pb-48 lg:pt-22">
+          <div className="max-w-xl">
+            <p className="entree inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-emeraude-800 shadow-sm ring-1 ring-dore-500/50">
+              <span aria-hidden className="h-2 w-2 rounded-full bg-dore-500" />
               Location · Vente · Terrains au Sénégal
             </p>
             <h1
               id="titre-accueil"
-              className="entree entree-2 font-titre mt-6 max-w-[14ch] text-[2.9rem] font-light leading-[1.04] text-nuit-900 text-balance sm:text-6xl lg:text-[4.4rem]"
+              className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-nuit-900 text-balance sm:text-6xl lg:text-[4.2rem]"
             >
-              Trouvez le lieu qui <span className="italic text-emeraude-700">vous ressemble.</span>
+              Trouvez le lieu qui{' '}
+              <span className="italic text-emeraude-700">vous ressemble.</span>
             </h1>
-            <p className="entree entree-3 mt-6 max-w-xl text-lg leading-relaxed text-slate-600 sm:text-xl">
-              Découvrez les meilleures opportunités immobilières au Sénégal. Location, vente et terrains : votre prochain projet
-              commence ici.
+            <p className="entree entree-3 mt-6 text-lg leading-relaxed text-slate-600 sm:text-xl">
+              Découvrez les meilleures opportunités immobilières au Sénégal.
+              Location, vente et terrains : votre prochain projet commence ici.
             </p>
-            <div className="entree entree-3 mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <div className="entree entree-3 mt-9 flex flex-wrap items-center gap-4">
               <Link
                 to="/catalogue"
-                className="inline-flex items-center rounded-full bg-emeraude-700 px-6 py-3 font-semibold text-white shadow-sm transition-all hover:bg-emeraude-800 hover:shadow-md active:scale-[0.98]"
+                className="inline-flex items-center rounded-full bg-emeraude-700 px-7 py-3.5 font-semibold text-white shadow-md transition-all hover:bg-emeraude-800 hover:shadow-lg active:scale-[0.98]"
               >
                 Voir tous les logements
               </Link>
               {utilisateur ? (
-                <Link to="/tableau-de-bord" className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-4 hover:text-emeraude-700">
+                <Link
+                  to="/tableau-de-bord"
+                  className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-emeraude-700"
+                >
                   Mon espace
                 </Link>
               ) : (
-                <Link to="/inscription" className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-4 hover:text-emeraude-700">
+                <Link
+                  to="/inscription"
+                  className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-emeraude-700"
+                >
                   Créer mon compte
                 </Link>
               )}
             </div>
             {total > 0 && (
-              <p className="entree entree-3 mt-6 flex items-center gap-2.5 text-sm font-semibold text-slate-700">
+              <p className="entree entree-3 mt-7 flex items-center gap-2.5 text-sm font-semibold text-emeraude-800">
                 <span aria-hidden className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(217,170,69,0.45)]" />
                 {total} logement{total > 1 ? 's' : ''} disponible{total > 1 ? 's' : ''} en ce moment
               </p>
@@ -132,7 +148,7 @@ export default function Home() {
                 className="absolute -right-4 top-[26%] h-24 w-24 rounded-full border-4 border-white object-cover shadow-carte-haut sm:-right-9 sm:h-32 sm:w-32"
               />
             </div>
-            <p className="mt-12 text-center text-xs text-slate-500">Images illustratives</p>
+            <p className="mt-12 text-center text-xs font-medium text-slate-500">Images illustratives</p>
           </div>
         </div>
       </section>
@@ -149,13 +165,17 @@ export default function Home() {
         <VideoPresentation />
       </Apparition>
 
+      {/* ─── Types ─── */}
       <Apparition>
-        <section className="mx-auto max-w-6xl px-4 pt-20" aria-labelledby="titre-types">
+        <section className="mx-auto max-w-6xl px-4 pt-16 pb-4" aria-labelledby="titre-types">
+          <SurTitre>Explorer</SurTitre>
           <h2 id="titre-types" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
-            Parcourir par type de bien
+            Parcourir par <span className="text-emeraude-700">type de bien</span>
           </h2>
-          <p className="mt-2 max-w-xl text-slate-600">Du studio étudiant à la villa avec jardin, choisissez ce qui vous correspond.</p>
-          <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Types de bien">
+          <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Du studio étudiant à la villa avec jardin, choisissez ce qui vous correspond.
+          </p>
+          <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5" aria-label="Types de bien">
             {types.map(({ type, nom, icone: Icone }, i) => (
               <li key={type} className={i === types.length - 1 ? 'col-span-2 sm:col-span-1' : undefined}>
                 <Link
@@ -165,7 +185,9 @@ export default function Home() {
                   <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700 ring-2 ring-dore-500/60 transition-colors group-hover:bg-emeraude-700 group-hover:text-white">
                     <Icone aria-hidden className="h-6 w-6" />
                   </span>
-                  <span className="font-titre text-lg font-medium text-nuit-900 transition-colors group-hover:text-emeraude-800">{nom}</span>
+                  <span className="font-titre text-lg font-medium text-nuit-900 transition-colors group-hover:text-emeraude-800">
+                    {nom}
+                  </span>
                 </Link>
               </li>
             ))}
@@ -173,15 +195,23 @@ export default function Home() {
         </section>
       </Apparition>
 
+      {/* ─── Annonces ─── */}
       <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-annonces">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
+            <SurTitre>Sélection</SurTitre>
             <h2 id="titre-annonces" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
-              Annonces à la une
+              Annonces <span className="text-emeraude-700">à la une</span>
             </h2>
-            <p className="mt-2 max-w-xl text-slate-600">Les biens publiés le plus récemment.</p>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Les biens publiés le plus récemment.
+            </p>
           </div>
-          <div role="group" aria-label="Type d’annonce" className="inline-flex rounded-full bg-sable p-1 text-sm font-semibold ring-1 ring-sable-200">
+          <div
+            role="group"
+            aria-label="Type d’annonce"
+            className="inline-flex rounded-full bg-sable p-1 text-sm font-semibold ring-1 ring-sable-200"
+          >
             {(
               [
                 ['TOUT', 'Toutes'],
@@ -195,7 +225,9 @@ export default function Home() {
                 aria-pressed={onglet === valeur}
                 onClick={() => setOnglet(valeur)}
                 className={`rounded-full px-4 py-1.5 transition-all ${
-                  onglet === valeur ? 'bg-emeraude-700 text-white shadow-sm' : 'text-slate-600 hover:text-nuit-900'
+                  onglet === valeur
+                    ? 'bg-emeraude-700 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-nuit-900'
                 }`}
               >
                 {nom}
@@ -204,7 +236,7 @@ export default function Home() {
           </div>
         </div>
         {contientExemple && (
-          <p className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-sm text-slate-700">
+          <p className="mt-5 rounded-xl border border-dashed border-dore-500/50 bg-dore-100/40 px-4 py-3 text-sm text-nuit-900">
             Les annonces marquées « Exemple » servent à la démonstration : ces biens n’existent pas.
           </p>
         )}
@@ -222,7 +254,7 @@ export default function Home() {
         <p className="mt-10 text-center">
           <Link
             to="/catalogue"
-            className="inline-flex items-center gap-2 rounded-full border border-nuit-900/25 px-6 py-3 font-semibold text-nuit-900 transition-all hover:border-emeraude-700 hover:bg-emeraude-700 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-emeraude-700/30 px-6 py-3 font-semibold text-emeraude-800 transition-all hover:border-emeraude-700 hover:bg-emeraude-700 hover:text-white"
           >
             Voir tout le catalogue
             <ArrowUpRight aria-hidden className="h-4 w-4" />
@@ -230,14 +262,18 @@ export default function Home() {
         </p>
       </section>
 
+      {/* ─── Destinations ─── */}
       <Apparition>
         <section className="bg-sable-50 py-20" aria-labelledby="titre-destinations">
           <div className="mx-auto max-w-6xl px-4">
+            <SurTitre>Où chercher</SurTitre>
             <h2 id="titre-destinations" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
-              Destinations populaires
+              Destinations <span className="text-emeraude-700">populaires</span>
             </h2>
-            <p className="mt-2 max-w-xl text-slate-600">Choisissez une ville pour voir ses annonces.</p>
-            <ul className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Villes">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Choisissez une ville pour voir ses annonces.
+            </p>
+            <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Villes">
               {villes.map(({ nom, teinte, place }) => (
                 <li key={nom} className={place}>
                   <Link
@@ -252,7 +288,9 @@ export default function Home() {
                         place ? 'right-6 h-[72%] w-20 sm:w-24' : 'right-4 h-[58%] w-14'
                       }`}
                     />
-                    <span className="font-titre relative text-2xl font-medium leading-none sm:text-3xl">{nom}</span>
+                    <span className="font-titre relative text-2xl font-medium leading-none text-nuit-900 sm:text-3xl">
+                      {nom}
+                    </span>
                     <ArrowUpRight
                       aria-hidden
                       className="absolute right-4 top-4 h-5 w-5 text-dore-600 opacity-0 transition-opacity group-hover:opacity-100"
@@ -269,15 +307,18 @@ export default function Home() {
         <CommentCaMarche />
       </Apparition>
 
-      <section className="bg-sable py-20 text-nuit-900" aria-labelledby="titre-portes">
+      <section className="bg-nuit-900 py-20 text-white" aria-labelledby="titre-portes">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 id="titre-portes" className="font-titre max-w-[20ch] text-3xl font-medium leading-tight sm:text-5xl">
+          <SurTitre>
+            <span className="text-dore-500">Pour qui</span>
+          </SurTitre>
+          <h2 id="titre-portes" className="font-titre max-w-[18ch] text-3xl font-medium leading-tight text-white sm:text-5xl">
             Chacun cherche une porte qui s’ouvre.
           </h2>
           <ul className="mt-12 grid gap-8 lg:grid-cols-3">
             {situations.map((texte) => (
-              <li key={texte} className="flex gap-4 border-t border-dore-500/60 pt-6">
-                <p className="font-titre text-xl font-light leading-snug text-nuit-900 sm:text-2xl">{texte}</p>
+              <li key={texte} className="flex gap-4 border-t border-dore-500/50 pt-6">
+                <p className="font-titre text-xl font-light leading-snug text-nuit-100 sm:text-2xl">{texte}</p>
               </li>
             ))}
           </ul>
@@ -286,8 +327,9 @@ export default function Home() {
 
       <Apparition>
         <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-parcours">
+          <SurTitre>Parcours</SurTitre>
           <h2 id="titre-parcours" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
-            Vous cherchez, ou vous proposez ?
+            Vous cherchez, ou vous <span className="text-emeraude-700">proposez</span> ?
           </h2>
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl bg-white p-8 shadow-carte ring-1 ring-slate-200/70">
@@ -342,7 +384,10 @@ export default function Home() {
           <p className="mt-2 max-w-2xl text-slate-600">Ces fonctions ne sont pas encore disponibles.</p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {aVenir.map((nom) => (
-              <li key={nom} className="rounded-full bg-white px-3.5 py-1.5 text-sm text-slate-700 ring-1 ring-slate-200">
+              <li
+                key={nom}
+                className="rounded-full bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200"
+              >
                 {nom}
               </li>
             ))}
@@ -360,7 +405,10 @@ export default function Home() {
             loading="lazy"
             className="absolute inset-0 -z-20 h-full w-full object-cover"
           />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-emeraude-900/85 via-emeraude-900/55 to-emeraude-900/10" />
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-gradient-to-r from-emeraude-900/90 via-emeraude-900/65 to-emeraude-900/20"
+          />
           <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 id="titre-fin" className="font-titre text-3xl font-medium sm:text-5xl">
