@@ -116,6 +116,7 @@ export default function CommentCaMarche() {
           </li>
         ))}
       </ol>
+      </div>
     </section>
   )
 }
