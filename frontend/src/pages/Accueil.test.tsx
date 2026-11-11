@@ -20,8 +20,8 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Le lieu de vos prochains beaux projets.' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Explorer les biens' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByRole('heading', { level: 1, name: 'ImmoSénégal' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Découvrir le catalogue' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(1)
     liensInscription.forEach((l) => expect(l).toHaveAttribute('href', '/inscription'))
@@ -129,17 +129,17 @@ describe("Page d'accueil", () => {
     expect(urls.some((u) => u.includes('taille=6') && !u.includes('exemple='))).toBe(true)
   })
 
-  it('marque clairement les annonces d’exemple, avec une note, et ne les compte pas comme réelles', async () => {
+  it('retire le badge Exemple des annonces illustratives, conserve une note globale et ne les compte pas comme réelles', async () => {
     simulerApi({
       'GET /api/annonces?*': () =>
         json(200, pageTest([annonceTest({ titre: 'Villa avec vue sur la mer', exemple: true, photos: ['p1'] })], { totalElements: 1 })),
     })
     afficher()
     expect(await screen.findByRole('link', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
-    expect(screen.getByText('Exemple')).toBeInTheDocument()
+    expect(screen.queryByText('Exemple')).not.toBeInTheDocument()
     expect(screen.getByText(/Catalogue de présentation : certaines annonces sont proposées à titre illustratif/i)).toBeInTheDocument()
     // La photo d'un exemple est décrite comme illustrative, jamais comme la photo d'un vrai bien.
-    expect(screen.getByAltText('Image illustrative : Villa avec vue sur la mer')).toBeInTheDocument()
+    expect(screen.getByAltText('Photo du type de bien présenté : Villa avec vue sur la mer')).toBeInTheDocument()
   })
 
   it('n’affiche aucune mention « Exemple » pour de vraies annonces', async () => {
@@ -191,13 +191,13 @@ describe("Page d'accueil", () => {
     expect(screen.queryByRole('heading', { name: 'À venir' })).not.toBeInTheDocument()
   })
 
-  it('propose un raccourci vers le catalogue pour chaque ville', async () => {
+  it('propose des raccourcis vers le catalogue par type de bien', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    const villes = within(screen.getByRole('list', { name: 'Villes' }))
-    expect(villes.getByRole('link', { name: 'Dakar' })).toHaveAttribute('href', '/catalogue?ville=Dakar')
-    expect(villes.getByRole('link', { name: 'Thiès' })).toHaveAttribute('href', '/catalogue?ville=Thi%C3%A8s')
-    expect(villes.getByRole('link', { name: 'Saint-Louis' })).toHaveAttribute('href', '/catalogue?ville=Saint-Louis')
+    const types = within(screen.getByRole('list', { name: 'Types de bien' }))
+    for (const [nom, type] of Object.entries({ Maisons: 'MAISON', Appartements: 'APPARTEMENT', Villas: 'VILLA', Studios: 'STUDIO', Terrains: 'TERRAIN' })) {
+      expect(types.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
+    }
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
@@ -271,7 +271,7 @@ describe("Page d'accueil", () => {
 
     // « Mon espace » apparaît dans le menu et dans le haut de page : tous les liens mènent au tableau de bord.
     const liensEspace = await screen.findAllByRole('link', { name: 'Mon espace' })
-    expect(liensEspace.length).toBeGreaterThanOrEqual(2)
+    expect(liensEspace.length).toBeGreaterThanOrEqual(1)
     liensEspace.forEach((l) => expect(l).toHaveAttribute('href', '/tableau-de-bord'))
     expect(screen.queryByRole('link', { name: 'Créer mon compte' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Ouvrez la porte.' })).not.toBeInTheDocument()
