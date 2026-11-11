@@ -137,7 +137,7 @@ describe("Page d'accueil", () => {
     afficher()
     expect(await screen.findByRole('link', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
     expect(screen.getByText('Exemple')).toBeInTheDocument()
-    expect(screen.getByText(/ces biens n’existent pas/)).toBeInTheDocument()
+    expect(screen.getByText(/Catalogue de présentation : certaines annonces sont proposées à titre illustratif/i)).toBeInTheDocument()
     // La photo d'un exemple est décrite comme illustrative, jamais comme la photo d'un vrai bien.
     expect(screen.getByAltText('Image illustrative : Villa avec vue sur la mer')).toBeInTheDocument()
   })
@@ -183,16 +183,12 @@ describe("Page d'accueil", () => {
     expect(screen.getByRole('note')).toHaveTextContent('Annonce de démonstration')
   })
 
-  it('annonce honnêtement les fonctions pas encore disponibles', async () => {
+  it('ne présente pas de rubrique « À venir » sur la page d’accueil', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
 
-    const section = screen.getByRole('heading', { name: 'À venir' }).closest('section')!
-    expect(section).toHaveTextContent('Ces fonctions ne sont pas encore disponibles.')
-    for (const nom of ['Demande de visite en ligne', 'Messagerie avec le propriétaire', 'Carte des biens', 'Assistant de recherche']) {
-      expect(section).toHaveTextContent(nom)
-    }
     await screen.findByText(/la première annonce peut être la vôtre/i)
+    expect(screen.queryByRole('heading', { name: 'À venir' })).not.toBeInTheDocument()
   })
 
   it('propose un raccourci vers le catalogue pour chaque ville', async () => {
