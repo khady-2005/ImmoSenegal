@@ -22,7 +22,7 @@ export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'
           className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.4rem] sm:text-[1.6rem]' : 'text-xl'}`}
         >
           <span className={sombre ? 'text-white' : 'text-nuit-900'}>Immo</span>
-          <span className={sombre ? 'text-emeraude-500' : 'text-emeraude-600'}>Sénégal</span>
+          <span className={sombre ? 'text-dore-500' : 'text-emeraude-600'}>Sénégal</span>
         </span>
         <span
           className={`mt-1 hidden text-[0.72rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-slate-600'}`}
