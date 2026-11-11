@@ -33,7 +33,6 @@ export default function Layout() {
     return () => window.removeEventListener('scroll', surDefilement)
   }, [])
 
-  // Une nouvelle page s'ouvre en haut, et le menu mobile se referme.
   useEffect(() => {
     setMenuOuvert(false)
     window.scrollTo?.(0, 0)
@@ -55,16 +54,22 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b bg-white/90 backdrop-blur-md transition-shadow ${
-          defile ? 'border-slate-200 shadow-[0_8px_24px_-16px_rgb(11_31_58/0.35)]' : 'border-transparent'
+        className={`sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md transition-shadow ${
+          defile ? 'border-slate-200/80 shadow-[0_8px_24px_-16px_rgb(11_31_58/0.3)]' : 'border-transparent'
         }`}
       >
-        <div className="mx-auto flex h-[4.5rem] max-w-6xl items-center justify-between gap-3 px-4 lg:h-20">
-          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="shrink-0 rounded-xl">
+        {/* Logo collé à gauche : peu de padding à gauche */}
+        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 pl-2 pr-3 sm:h-[4.5rem] sm:pl-3 sm:pr-4 lg:h-[4.75rem]">
+          <Link
+            to="/"
+            onClick={fermerMenu}
+            aria-label="ImmoSénégal : accueil"
+            className="shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500"
+          >
             <Marque />
           </Link>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 lg:flex">
             <NavLink to="/" end className={lienDesktop}>
               Accueil
             </NavLink>
@@ -83,7 +88,7 @@ export default function Layout() {
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-slate-600 transition-colors hover:text-nuit-900"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-slate-600 transition-colors hover:bg-brume hover:text-nuit-900"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -96,7 +101,7 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="ml-1 rounded-full border border-nuit-900/20 px-4 py-2 text-[0.95rem] font-semibold text-nuit-900 transition-colors hover:border-nuit-900 hover:bg-nuit-900 hover:text-white"
+                  className="ml-1 rounded-full border border-nuit-900/15 px-4 py-2 text-[0.95rem] font-semibold text-nuit-900 transition-colors hover:border-nuit-900 hover:bg-nuit-900 hover:text-white"
                 >
                   Inscription
                 </NavLink>
@@ -110,24 +115,23 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-xl p-2 text-nuit-900 transition-colors hover:bg-brume lg:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-nuit-900 transition-colors hover:bg-brume lg:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
             onClick={() => setMenuOuvert((v) => !v)}
           >
-            {menuOuvert ? <X aria-hidden className="h-7 w-7" /> : <Menu aria-hidden className="h-7 w-7" />}
+            {menuOuvert ? <X aria-hidden className="h-6 w-6" /> : <Menu aria-hidden className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Fine ligne dorée : la signature du logo. */}
-        <div className="h-px bg-gradient-to-r from-transparent via-dore-500 to-transparent" aria-hidden />
+        <div className="h-0.5 bg-gradient-to-r from-transparent via-dore-500/90 to-transparent" aria-hidden />
 
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-3 shadow-lg lg:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-3 py-3 shadow-lg lg:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
