@@ -171,7 +171,7 @@ export default function RecherchePanneau() {
             onClick={() => setOnglet(valeur)}
             className={`-mb-px border-b-2 px-4 py-2.5 text-[0.95rem] font-semibold transition-colors ${
               onglet === valeur
-                ? 'border-dore-500 text-nuit-900'
+                ? 'border-emeraude-600 text-nuit-900'
                 : 'border-transparent text-slate-500 hover:text-nuit-900'
             }`}
           >
@@ -191,7 +191,7 @@ export default function RecherchePanneau() {
             <Link
               key={s.nom}
               to={s.vers}
-              className="rounded-full bg-brume px-3.5 py-1.5 text-sm font-medium text-nuit-900 transition-colors hover:bg-dore-100"
+              className="rounded-full bg-brume px-3.5 py-1.5 text-sm font-medium text-nuit-900 transition-colors hover:bg-emeraude-50"
             >
               {s.nom}
             </Link>
