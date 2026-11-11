@@ -137,7 +137,7 @@ describe("Page d'accueil", () => {
     afficher()
     expect(await screen.findByRole('link', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
     expect(screen.queryByText('Exemple')).not.toBeInTheDocument()
-    expect(screen.getByText(/Catalogue de présentation : certaines annonces sont proposées à titre illustratif/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Catalogue de présentation/i)).not.toBeInTheDocument()
     // La photo d'un exemple est décrite comme illustrative, jamais comme la photo d'un vrai bien.
     expect(screen.getByAltText('Photo du type de bien présenté : Villa avec vue sur la mer')).toBeInTheDocument()
   })
