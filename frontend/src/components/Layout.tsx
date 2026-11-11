@@ -188,8 +188,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-emerald-100/85">
-        <div className="h-px bg-gradient-to-r from-transparent via-emeraude-500/70 to-transparent" aria-hidden />
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-blue-100/85">
+        <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
             <Link to="/" className="inline-flex rounded-2xl bg-white p-3 shadow-lg" aria-label="ImmoSénégal : accueil">
@@ -270,7 +270,7 @@ export default function Layout() {
           </div>
         </div>
 
-        <div className="border-t border-emerald-100">
+        <div className="border-t border-white/15">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs sm:flex-row">
             <p>© {new Date().getFullYear()} ImmoSénégal. Projet de mémoire de Licence 3 Ingénierie Informatique, UASZ.</p>
             <Link to="/mentions-legales" className="transition-colors hover:text-white hover:underline">
