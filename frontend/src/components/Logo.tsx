@@ -3,28 +3,23 @@ import logoEmbleme from '../assets/logo-embleme.webp'
 
 /**
  * Le logo ImmoSénégal, en deux versions :
- *  - `Marque` : emblème circulaire + nom, pour l'en-tête ;
- *  - `LogoComplet` : logo entier pour pied de page / auth.
+ *  - `Marque` : version compacte (emblème + nom écrit), pour l'en-tête ;
+ *  - `LogoComplet` : le logo entier, pour pied de page / connexion.
  */
 export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'; sombre?: boolean }) {
   const grand = taille === 'md'
-  const tailleCercle = grand ? 'h-12 w-12 sm:h-14 sm:w-14' : 'h-10 w-10'
   return (
     <span className="flex items-center gap-2.5">
-      <span
-        className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-md ring-2 ring-dore-500/80 ${tailleCercle}`}
-      >
-        <img
-          src={logoEmbleme}
-          alt=""
-          width={520}
-          height={311}
-          className="h-full w-full object-cover"
-        />
-      </span>
+      <img
+        src={logoEmbleme}
+        alt=""
+        width={520}
+        height={311}
+        className={`${grand ? 'h-11 sm:h-12' : 'h-9'} w-auto rounded-xl object-cover shadow-sm ring-1 ring-dore-500/70`}
+      />
       <span className="leading-none">
         <span
-          className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.35rem] sm:text-[1.55rem]' : 'text-xl'}`}
+          className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.4rem] sm:text-[1.6rem]' : 'text-xl'}`}
         >
           <span className={sombre ? 'text-white' : 'text-nuit-900'}>Immo</span>
           <span className={sombre ? 'text-emeraude-500' : 'text-emeraude-600'}>Sénégal</span>
