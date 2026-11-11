@@ -8,6 +8,7 @@ import { Chargement, MessageErreur } from '../components/ListeAnnonces'
 import AnnonceCard from '../components/AnnonceCard'
 import { useAnnonces } from '../components/useAnnonces'
 import Galerie from '../components/Galerie'
+import DemandeVisiteForm from '../components/DemandeVisiteForm'
 
 /** Biens du même type dans la même ville (sans l'annonce affichée). Rien n'est affiché s'il n'y en a pas, ou en cas d'erreur. */
 function BiensSimilaires({ annonce }: { annonce: Annonce }) {
@@ -50,7 +51,7 @@ function Caracteristique({ icone: Icone, nom, valeur }: { icone: typeof Ruler; n
 
 export default function DetailAnnonce() {
   const { id = '' } = useParams()
-  const { jeton } = useAuth()
+  const { jeton, utilisateur } = useAuth()
   // Avec une session, le propriétaire et les administrateurs peuvent lire une annonce qui n'est pas encore publiée.
   const { data: a, erreur, chargement } = useApi<Annonce>(`/api/annonces/${encodeURIComponent(id)}`, jeton)
 
@@ -152,10 +153,9 @@ export default function DetailAnnonce() {
                   </dl>
                 </div>
 
-                <p className="mt-6 rounded-2xl bg-dore-100/70 p-4 text-sm leading-relaxed text-nuit-900">
-                  La demande de visite et la messagerie avec le propriétaire ne sont pas encore disponibles : elles arrivent
-                  prochainement.
-                </p>
+                {utilisateur?.role === 'CLIENT' && <DemandeVisiteForm annonceId={a.id} />}
+                {!utilisateur && <p className="mt-6 rounded-2xl bg-dore-100/70 p-4 text-sm leading-relaxed text-nuit-900">Connectez-vous avec un compte client pour demander une visite de ce bien.</p>}
+                {(utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN') && <p className="mt-6 rounded-2xl bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-900">Les demandes de visite reçues pour vos annonces sont accessibles depuis votre tableau de bord.</p>}
               </div>
             </aside>
           </div>
