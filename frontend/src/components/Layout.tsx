@@ -74,7 +74,7 @@ export default function Layout() {
             <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
             <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">À propos</Link>
-            <Link to="/#comment-ca-marche" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Comment ça marche</Link>
+            <Link to="/#comment-ca-marche" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">Comment ça marche</Link>
             <Link to="/#faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">FAQ</Link>
             <Link to="/#contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Contact</Link>
             {utilisateur ? (
@@ -143,7 +143,7 @@ export default function Layout() {
               <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>À propos</Link></li>
               <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>Comment ça marche</Link></li>
               <li><Link to="/#faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>FAQ</Link></li>
-              <li><Link to="/#contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Contact</Link></li>
+              <li><Link to="/#contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
                   <li>
