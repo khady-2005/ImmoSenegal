@@ -1,4 +1,4 @@
-import { House, MessageCircle, Search, UserRound } from 'lucide-react'
+import { ArrowUpRight, House, Search, SlidersHorizontal } from 'lucide-react'
 import { analyser } from '../rechercheLibre'
 
 /**
@@ -49,11 +49,11 @@ function MaquetteTrouver() {
   )
 }
 
-function MaquetteContacter() {
+function MaquetteConsulter() {
   return (
     <div className={`${carteMaquette} flex items-center gap-3`}>
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
-        <UserRound className="h-5 w-5" />
+        <SlidersHorizontal className="h-5 w-5" />
       </span>
       <div className="flex-1 space-y-1.5">
         <div className="h-2.5 w-2/3 rounded bg-slate-200" />
@@ -77,16 +77,16 @@ const etapes = [
     maquette: <MaquetteTrouver />,
   },
   {
-    titre: 'Consultez les informations',
-    icone: MessageCircle,
-    texte: 'Ouvrez la fiche détaillée pour consulter les caractéristiques du bien et les informations de contact accessibles après connexion.',
-    maquette: <MaquetteContacter />,
+    titre: 'Comparez et choisissez',
+    icone: SlidersHorizontal,
+    texte: 'Comparez les caractéristiques et les photos, puis ouvrez la fiche du bien qui correspond à votre projet. Certaines démarches demandent un compte.',
+    maquette: <MaquetteConsulter />,
   },
 ]
 
 export default function CommentCaMarche() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20" aria-labelledby="titre-etapes">
+    <section className="w-full bg-[#f3f0e9] py-16 sm:py-20" aria-labelledby="titre-etapes">\n      <div className="mx-auto max-w-6xl px-4">
       <h2 id="titre-etapes" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
         Comment ça marche
       </h2>
@@ -95,7 +95,7 @@ export default function CommentCaMarche() {
         {etapes.map((etape, i) => (
           <li
             key={etape.titre}
-            className="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none"
+            className="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_18px_50px_-28px_rgba(7,20,42,0.28)] ring-1 ring-[#e7dfd1] transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none"
           >
             <div aria-hidden className={fondMaquette}>
               {etape.maquette}
