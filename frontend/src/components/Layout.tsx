@@ -14,7 +14,7 @@ const lienDesktop = ({ isActive }: { isActive: boolean }) =>
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
   `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-white/10 text-dore-500' : 'text-white/85 hover:bg-emeraude-50 hover:text-emeraude-900'
+    isActive ? 'bg-emeraude-50 text-emeraude-800' : 'text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900'
   }`
 
 const boutonPublier =
@@ -73,7 +73,7 @@ export default function Layout() {
           <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
             <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
-            <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">À propos</Link>
+            <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">À propos</Link>
             <Link to="/#comment-ca-marche" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Comment ça marche</Link>
             <Link to="/#faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">FAQ</Link>
             <Link to="/#contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Contact</Link>
@@ -91,7 +91,7 @@ export default function Layout() {
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-dore-500"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition-colors hover:bg-emeraude-50 hover:text-emeraude-800"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -115,7 +115,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 xl:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-nuit-900 transition-colors hover:bg-emeraude-50 xl:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -141,8 +141,8 @@ export default function Layout() {
               </li>
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
               <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>À propos</Link></li>
-              <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-emeraude-700" onClick={fermerMenu}>Comment ça marche</Link></li>
-              <li><Link to="/#faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>FAQ</Link></li>
+              <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>Comment ça marche</Link></li>
+              <li><Link to="/#faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>FAQ</Link></li>
               <li><Link to="/#contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
@@ -163,7 +163,7 @@ export default function Layout() {
                     <button
                       type="button"
                       onClick={deconnecterEtFermer}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/85 hover:bg-white/10"
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-nuit-900/85 hover:bg-emeraude-50"
                     >
                       <LogOut aria-hidden className="h-5 w-5" />
                       Déconnexion
