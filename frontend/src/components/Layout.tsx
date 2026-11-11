@@ -22,6 +22,7 @@ const boutonPublier =
 
 export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
+  const peutPublier = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN'
   const [menuOuvert, setMenuOuvert] = useState(false)
   const [defile, setDefile] = useState(false)
   const { pathname } = useLocation()
@@ -54,7 +55,7 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md transition-shadow ${
+        className={`sticky top-0 z-40 border-b bg-white transition-shadow ${
           defile ? 'border-slate-200/80 shadow-[0_8px_24px_-16px_rgb(11_31_58/0.3)]' : 'border-transparent'
         }`}
       >
@@ -81,10 +82,12 @@ export default function Layout() {
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
-                <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
-                  <PlusCircle aria-hidden className="h-4 w-4" />
-                  Publier une annonce
-                </Link>
+                {peutPublier && (
+                  <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
+                    <PlusCircle aria-hidden className="h-4 w-4" />
+                    Publier une annonce
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={deconnecter}
@@ -105,10 +108,7 @@ export default function Layout() {
                 >
                   Inscription
                 </NavLink>
-                <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
-                  <PlusCircle aria-hidden className="h-4 w-4" />
-                  Publier une annonce
-                </Link>
+
               </>
             )}
           </nav>
@@ -151,12 +151,14 @@ export default function Layout() {
                       Mon espace
                     </NavLink>
                   </li>
-                  <li className="pt-2">
-                    <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
-                      <PlusCircle aria-hidden className="h-5 w-5" />
-                      Publier une annonce
-                    </Link>
-                  </li>
+                  {peutPublier && (
+                    <li className="pt-2">
+                      <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
+                        <PlusCircle aria-hidden className="h-5 w-5" />
+                        Publier une annonce
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <button
                       type="button"
@@ -180,12 +182,7 @@ export default function Layout() {
                       Inscription
                     </NavLink>
                   </li>
-                  <li className="pt-2">
-                    <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
-                      <PlusCircle aria-hidden className="h-5 w-5" />
-                      Publier une annonce
-                    </Link>
-                  </li>
+
                 </>
               )}
             </ul>
@@ -240,11 +237,13 @@ export default function Layout() {
           <nav aria-label="Pied de page : services">
             <p className="font-semibold text-white">Services</p>
             <ul className="mt-4 space-y-2.5">
-              <li>
-                <Link to="/annonces/nouvelle" className="transition-colors hover:text-white hover:underline">
-                  Publier une annonce
-                </Link>
-              </li>
+              {peutPublier && (
+                <li>
+                  <Link to="/annonces/nouvelle" className="transition-colors hover:text-white hover:underline">
+                    Publier une annonce
+                  </Link>
+                </li>
+              )}
               {utilisateur ? (
                 <li>
                   <Link to="/tableau-de-bord" className="transition-colors hover:text-white hover:underline">
@@ -275,7 +274,6 @@ export default function Layout() {
                 <MapPin aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-dore-500" />
                 Ziguinchor, Sénégal
               </li>
-              <li>Un formulaire de contact arrive prochainement.</li>
             </ul>
           </div>
         </div>
