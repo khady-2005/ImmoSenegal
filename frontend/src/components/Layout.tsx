@@ -75,8 +75,8 @@ export default function Layout() {
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
             <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">À propos</Link>
             <Link to="/#comment-ca-marche" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">Comment ça marche</Link>
-            <Link to="/#faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">FAQ</Link>
-            <Link to="/#contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Contact</Link>
+            <Link to="/#faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">FAQ</Link>
+            <Link to="/#contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">Contact</Link>
             {utilisateur ? (
               <>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
