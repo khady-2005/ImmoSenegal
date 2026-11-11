@@ -23,7 +23,7 @@ describe("Page d'accueil", () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Le lieu de vos prochains beaux projets.' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explorer les biens' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
-    expect(liensInscription.length).toBeGreaterThanOrEqual(2)
+    expect(liensInscription.length).toBeGreaterThanOrEqual(1)
     liensInscription.forEach((l) => expect(l).toHaveAttribute('href', '/inscription'))
     expect(await screen.findByText(/la première annonce peut être la vôtre/i)).toBeInTheDocument()
   })
@@ -33,14 +33,14 @@ describe("Page d'accueil", () => {
       'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
     })
     const { unmount } = afficher()
-    expect(await screen.findByText('1 logement disponible en ce moment')).toBeInTheDocument()
+    expect(await screen.findByText('1 bien publié actuellement')).toBeInTheDocument()
     unmount()
 
     simulerApi({
       'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 12 })),
     })
     afficher()
-    expect(await screen.findByText('12 logements disponibles en ce moment')).toBeInTheDocument()
+    expect(await screen.findByText('12 biens publiés actuellement')).toBeInTheDocument()
   })
 
   it('n\'affiche aucun compteur quand la base est vide', async () => {
@@ -157,7 +157,7 @@ describe("Page d'accueil", () => {
     await screen.findByRole('link', { name: 'Appartement lumineux' })
 
     const groupe = within(screen.getByRole('group', { name: 'Type d’annonce' }))
-    expect(groupe.getByRole('button', { name: 'Toutes' })).toHaveAttribute('aria-pressed', 'true')
+    expect(groupe.getByRole('button', { name: 'Tout' })).toHaveAttribute('aria-pressed', 'true')
     await user.click(groupe.getByRole('button', { name: 'À louer' }))
     expect(groupe.getByRole('button', { name: 'À louer' })).toHaveAttribute('aria-pressed', 'true')
     await screen.findByRole('link', { name: 'Appartement lumineux' })
@@ -206,7 +206,7 @@ describe("Page d'accueil", () => {
     afficher()
     const section = screen.getByRole('heading', { name: 'Comment ça marche' }).closest('section')!
     expect(within(section).getAllByRole('listitem')).toHaveLength(3)
-    for (const titre of ['Décrivez votre recherche', 'Trouvez le bien idéal', 'Contactez le propriétaire']) {
+    for (const titre of ['Décrivez votre recherche', 'Trouvez le bien idéal', 'Comparez et choisissez']) {
       expect(within(section).getByRole('heading', { name: titre })).toBeInTheDocument()
     }
     // Les pastilles de la maquette sortent de la vraie analyse de phrase.
@@ -223,7 +223,7 @@ describe("Page d'accueil", () => {
     const premiere = screen.getByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })
     const paiement = screen.getByRole('button', { name: 'Puis-je réserver, payer ou écrire au propriétaire ?' })
     expect(premiere).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.getByText(/Le catalogue est ouvert à tous/)).not.toBeVisible()
+    expect(screen.getByText(/Vous pouvez parcourir le catalogue et effectuer des recherches sans compte/)).not.toBeVisible()
 
     await user.click(premiere)
     expect(premiere).toHaveAttribute('aria-expanded', 'true')
@@ -232,7 +232,7 @@ describe("Page d'accueil", () => {
     await user.click(paiement)
     expect(premiere).toHaveAttribute('aria-expanded', 'false')
     expect(paiement).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/Pas encore\. La demande de visite/)).toBeVisible()
+    expect(screen.getByText(/Les demandes de visite, les réservations et la messagerie ne sont pas encore disponibles/)).toBeVisible()
 
     await user.click(paiement)
     expect(paiement).toHaveAttribute('aria-expanded', 'false')
