@@ -38,22 +38,22 @@ export default function Faq() {
   const [ouverte, setOuverte] = useState<number | null>(null)
 
   return (
-    <section className="bg-[#fbfaf7] py-16 sm:py-20" aria-labelledby="titre-faq">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
+    <section className="bg-[#f3f0e9] py-14 sm:py-18" aria-labelledby="titre-faq">
+      <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-gradient-to-br from-nuit-950 via-nuit-900 to-[#12305a] px-5 py-8 text-white shadow-carte-haut sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-700">Besoin de précisions ?</p>
-          <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-nuit-900 sm:text-4xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-dore-500">Besoin de précisions ?</p>
+          <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-white sm:text-4xl">
             Questions fréquentes
           </h2>
-          <p className="mt-3 max-w-sm leading-relaxed text-slate-600">Retrouvez ici les informations essentielles pour utiliser ImmoSénégal en toute clarté.</p>
+          <p className="mt-3 max-w-sm leading-relaxed text-nuit-100">Retrouvez ici les informations essentielles pour utiliser ImmoSénégal en toute clarté.</p>
         </div>
-        <ul className="space-y-3">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {questions.map((item, i) => {
             const ouvert = ouverte === i
             const idBouton = `${base}-q${i}`
             const idReponse = `${base}-r${i}`
             return (
-              <li key={item.q} className="overflow-hidden rounded-2xl border border-[#e9e3d8] bg-white px-5 shadow-[0_8px_24px_-20px_rgba(7,20,42,0.35)] sm:px-6">
+              <li key={item.q} className="overflow-hidden rounded-xl border border-white/15 bg-white/10 px-4 shadow-sm transition hover:bg-white/15 sm:px-5">
                 <h3>
                   <button
                     type="button"
@@ -61,7 +61,7 @@ export default function Faq() {
                     aria-expanded={ouvert}
                     aria-controls={idReponse}
                     onClick={() => setOuverte(ouvert ? null : i)}
-                    className="flex w-full items-center justify-between gap-4 py-5 text-left text-base font-semibold text-nuit-900 transition-colors hover:text-emeraude-700 sm:text-lg"
+                    className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-dore-500 sm:text-base"
                   >
                     {item.q}
                     <ChevronDown
@@ -70,7 +70,7 @@ export default function Faq() {
                     />
                   </button>
                 </h3>
-                <div id={idReponse} role="region" aria-labelledby={idBouton} hidden={!ouvert} className="pb-5 pr-9 leading-relaxed text-slate-600">
+                <div id={idReponse} role="region" aria-labelledby={idBouton} hidden={!ouvert} className="pb-4 pr-6 text-sm leading-relaxed text-nuit-100">
                   {item.r}
                 </div>
               </li>
