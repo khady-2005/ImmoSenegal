@@ -5,6 +5,7 @@ import Catalogue from './pages/Catalogue'
 import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
 import MentionsLegales from './pages/MentionsLegales'
+import Visites from './pages/Visites'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
@@ -30,6 +31,8 @@ export default function App() {
           <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
           <Route path="admin/utilisateurs" element={<RequireAuth><AdminUtilisateurs /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
+          <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
+          <Route path="visites-recues" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="inscription" element={<Inscription />} />
