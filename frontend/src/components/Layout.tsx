@@ -60,7 +60,7 @@ export default function Layout() {
         }`}
       >
         {/* Logo collé à gauche : peu de padding à gauche */}
-        <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 pl-2 pr-3 sm:h-[4.5rem] sm:pl-3 sm:pr-4 lg:h-[4.75rem]">
+        <div className="mx-auto flex h-[5rem] max-w-6xl items-center justify-between gap-3 pl-2 pr-3 sm:h-[5.25rem] sm:pl-3 sm:pr-4 lg:h-[5.5rem]">
           <Link
             to="/"
             onClick={fermerMenu}
@@ -130,7 +130,7 @@ export default function Layout() {
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-emerald-100 bg-white px-3 py-3 shadow-lg xl:hidden"
+            className="max-h-[calc(100dvh-5.25rem)] overflow-y-auto border-t border-emerald-100 bg-white px-3 py-3 shadow-lg xl:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
