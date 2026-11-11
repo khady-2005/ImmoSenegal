@@ -5,15 +5,15 @@ import { ChevronDown } from 'lucide-react'
 const questions = [
   {
     q: 'Faut-il un compte pour chercher un logement ?',
-    r: 'Non. Vous pouvez parcourir le catalogue et effectuer des recherches sans compte. La connexion est nécessaire pour accéder aux espaces et démarches réservés aux utilisateurs inscrits.',
+    r: 'Oui. Vous devez vous connecter pour accéder au catalogue et parcourir toutes les annonces. Si vous n’avez pas encore de compte, vous pouvez en créer un gratuitement depuis la page de connexion.',
   },
   {
     q: 'Qui peut publier une annonce ?',
     r: 'Seuls les propriétaires autorisés et les administrateurs peuvent publier. Un compte client ne donne pas automatiquement le droit d’ajouter un bien ; l’accès à la publication est soumis à autorisation.',
   },
   {
-    q: 'Que sont les annonces marquées « Exemple » ?',
-    r: 'Ce sont des annonces fictives utilisées pour présenter le fonctionnement de la plateforme. Les biens et les photos sont illustratifs : il ne s’agit pas d’offres immobilières réelles.',
+    q: 'Les annonces présentées sur la plateforme sont-elles toutes disponibles ?',
+    r: 'Certaines annonces peuvent servir à illustrer le fonctionnement de la plateforme dans le cadre du projet. Vérifiez toujours les informations et la disponibilité d’un bien auprès de son propriétaire avant toute démarche.',
   },
   {
     q: 'Combien de photos puis-je ajouter à une annonce ?',
