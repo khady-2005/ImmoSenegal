@@ -29,7 +29,7 @@ const questions = [
   },
   {
     q: 'Puis-je réserver, payer ou écrire au propriétaire ?',
-    r: 'Pas encore. La demande de visite, la messagerie, la carte des biens et le badge « annonce vérifiée » sont prévus mais ne sont pas disponibles : ils figurent dans la liste « À venir » de cette page.',
+    r: 'Les demandes de visite, les réservations et la messagerie ne sont pas encore disponibles dans la version actuelle. Le catalogue permet de découvrir les annonces et de consulter leurs fiches selon les droits d’accès.',
   },
 ]
 
