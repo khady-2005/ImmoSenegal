@@ -74,7 +74,14 @@ export default function Dashboard() {
         </div>
       </dl>
 
-      {affiche.role === 'CLIENT' && <DemandeRole />}
+      {affiche.role === 'CLIENT' && (
+        <>
+          <DemandeRole />
+          <Link to="/mes-visites" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
+            Mes demandes de visite
+          </Link>
+        </>
+      )}
 
       {affiche.role === 'ADMIN' && (
         <>
@@ -91,9 +98,14 @@ export default function Dashboard() {
       )}
 
       {['PROPRIETAIRE', 'ADMIN'].includes(affiche.role) && (
-        <Link to="/mes-annonces" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
-          Gérer mes annonces
-        </Link>
+        <>
+          <Link to="/mes-annonces" className="mt-6 mr-3 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
+            Gérer mes annonces
+          </Link>
+          <Link to="/visites-recues" className="mt-6 inline-block rounded-lg border border-emeraude-300 bg-white px-4 py-2.5 font-semibold text-emeraude-800 hover:bg-emeraude-50">
+            Demandes de visite reçues
+          </Link>
+        </>
       )}
 
       <p className="mt-6 rounded-lg border border-dore-500/50 bg-amber-50 p-4 text-sm text-slate-800">
