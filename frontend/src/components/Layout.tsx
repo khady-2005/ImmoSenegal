@@ -8,13 +8,13 @@ import { LogoComplet, Marque } from './Logo'
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
     isActive
-      ? 'text-nuit-900 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
-      : 'text-slate-600 hover:text-nuit-900'
+      ? 'text-dore-500 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
+      : 'text-white/80 hover:text-dore-500'
   }`
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
   `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-brume text-nuit-900' : 'text-slate-700 hover:bg-brume'
+    isActive ? 'bg-white/10 text-dore-500' : 'text-white/85 hover:bg-white/10 hover:text-white'
   }`
 
 const boutonPublier =
@@ -55,8 +55,8 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b bg-white transition-shadow ${
-          defile ? 'border-slate-200/80 shadow-[0_8px_24px_-16px_rgb(11_31_58/0.3)]' : 'border-transparent'
+        className={`sticky top-0 z-40 border-b bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-950 text-white transition-shadow ${
+          defile ? 'border-dore-500/30 shadow-[0_8px_28px_-14px_rgb(7_20_42/0.8)]' : 'border-white/10'
         }`}
       >
         {/* Logo collé à gauche : peu de padding à gauche */}
@@ -91,7 +91,7 @@ export default function Layout() {
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-slate-600 transition-colors hover:bg-brume hover:text-nuit-900"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-dore-500"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -104,7 +104,7 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="ml-1 rounded-full border border-nuit-900/15 px-4 py-2 text-[0.95rem] font-semibold text-nuit-900 transition-colors hover:border-nuit-900 hover:bg-nuit-900 hover:text-white"
+                  className="ml-1 rounded-full border border-dore-500/70 bg-dore-500 px-4 py-2 text-[0.95rem] font-bold text-nuit-950 transition-colors hover:bg-dore-600"
                 >
                   Inscription
                 </NavLink>
@@ -115,7 +115,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-nuit-900 transition-colors hover:bg-brume lg:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 lg:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -125,13 +125,13 @@ export default function Layout() {
           </button>
         </div>
 
-        <div className="h-0.5 bg-gradient-to-r from-transparent via-dore-500/90 to-transparent" aria-hidden />
+        <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
 
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-3 py-3 shadow-lg lg:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/10 bg-nuit-900 px-3 py-3 shadow-lg lg:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
@@ -163,7 +163,7 @@ export default function Layout() {
                     <button
                       type="button"
                       onClick={deconnecterEtFermer}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-slate-700 hover:bg-brume"
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/85 hover:bg-white/10"
                     >
                       <LogOut aria-hidden className="h-5 w-5" />
                       Déconnexion
