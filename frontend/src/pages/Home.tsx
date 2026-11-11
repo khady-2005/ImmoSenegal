@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin, ShieldCheck, Headset, Handshake, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import RecherchePanneau from '../components/RecherchePanneau'
 import CommentCaMarche from '../components/CommentCaMarche'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
@@ -44,7 +43,7 @@ export default function Home() {
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="#recherche" className={boutonOr}><span aria-hidden>⌕</span> Rechercher un bien</a>
+              <a href="/catalogue" className={boutonOr}><span aria-hidden>⌕</span> Rechercher un bien</a>
               <Link to="/catalogue" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-nuit-950/35 px-6 py-3.5 font-semibold text-white transition hover:bg-white hover:text-nuit-950">Découvrir le catalogue <ArrowRight aria-hidden className="h-4 w-4" /></Link>
             </div>
             {total > 0 && <p className="mt-6 text-sm font-medium text-white/90">{total} bien{total > 1 ? 's' : ''} publié{total > 1 ? 's' : ''} actuellement</p>}
@@ -52,11 +51,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="recherche" aria-label="Rechercher un logement" className="relative z-10 mx-auto -mt-20 max-w-6xl scroll-mt-28 px-4 sm:-mt-24">
-        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_70px_-28px_rgba(16,42,67,0.22)] ring-1 ring-slate-200 sm:p-4"><RecherchePanneau /></div>
-      </section>
-
-      <section id="avantages" className="bg-[#f2f6fa] py-9" aria-label="Les avantages ImmoSénégal">
+      <section id="avantages" className="bg-[#f3f8f3] py-9" aria-label="Les avantages ImmoSénégal">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:gap-4">
           {[
             { Icone: ShieldCheck, titre: 'Transactions sécurisées', sous: 'et fiables' },
@@ -67,17 +62,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#f7f9fc] py-16 sm:py-20" aria-labelledby="titre-annonces">
+      <section className="bg-white py-16 sm:py-20" aria-labelledby="titre-annonces">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <TitreSection id="titre-annonces" petit="" titre="Biens" accent="vedette" />
             <Link to="/catalogue" className="inline-flex items-center gap-2 pb-1 text-sm font-bold text-nuit-900 hover:text-emeraude-700">Voir tout le catalogue <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
-            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-[#edf3f8] text-[#173b5e] hover:bg-[#d6e3ee]'}`}>{nom}</button>)}
+            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-[#e9f6ed] text-[#07513a] hover:bg-[#dceade]'}`}>{nom}</button>)}
           </div>
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
-          <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-dore-500/50 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-emeraude-700 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
+          <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-emeraude-300 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-emeraude-800 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
         </div>
       </section>
 
