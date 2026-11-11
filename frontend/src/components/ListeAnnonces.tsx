@@ -14,7 +14,7 @@ export function Chargement({ texte = 'Chargement…' }: { texte?: string }) {
 /** Cartes grisées qui pulsent doucement pendant le chargement des annonces. */
 export function CartesEnChargement({ nombre = 6 }: { nombre?: number }) {
   return (
-    <div role="status" aria-label="Chargement des annonces" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div role="status" aria-label="Chargement des annonces" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <span className="sr-only">Chargement des annonces…</span>
       {Array.from({ length: nombre }, (_, i) => (
         <div key={i} aria-hidden className="overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70">
