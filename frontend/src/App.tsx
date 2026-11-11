@@ -26,8 +26,8 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="faq" element={<FaqPage />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="catalogue" element={<Catalogue />} />
+          <Route path="contact" element={<RequireAuth><Contact /></RequireAuth>} />
+          <Route path="catalogue" element={<RequireAuth><Catalogue /></RequireAuth>} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<RequireAuth><DetailAnnonce /></RequireAuth>} />
