@@ -122,7 +122,7 @@ describe("Page d'accueil", () => {
       'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
     })
     afficher()
-    await screen.findByText('1 logement disponible en ce moment')
+    await screen.findByText('1 bien publié actuellement')
     const urls = api.mock.calls.map((c) => String(c[0]))
     expect(urls.some((u) => u.includes('exemple=false'))).toBe(true)
     // La grille, elle, montre aussi les exemples : elle ne filtre pas sur ce critère.
@@ -227,7 +227,7 @@ describe("Page d'accueil", () => {
 
     await user.click(premiere)
     expect(premiere).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/Le catalogue est ouvert à tous/)).toBeVisible()
+    expect(screen.getByText(/Vous pouvez parcourir le catalogue et effectuer des recherches sans compte/)).toBeVisible()
 
     await user.click(paiement)
     expect(premiere).toHaveAttribute('aria-expanded', 'false')
