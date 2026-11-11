@@ -71,12 +71,12 @@ export default function Layout() {
           </Link>
 
           <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
-            <NavLink to="/" end className={lienDesktop}>
-              Accueil
-            </NavLink>
-            <NavLink to="/catalogue" className={lienDesktop}>
-              Catalogue
-            </NavLink>
+            <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
+            <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
+            <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">À propos</Link>
+            <Link to="/#comment-ca-marche" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Comment ça marche</Link>
+            <Link to="/#faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">FAQ</Link>
+            <Link to="/#contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/80 transition hover:text-dore-500">Contact</Link>
             {utilisateur ? (
               <>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
