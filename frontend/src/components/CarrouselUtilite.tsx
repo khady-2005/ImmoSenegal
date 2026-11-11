@@ -23,7 +23,7 @@ const slides = [
   {
     titre: 'Une navigation simple et claire',
     texte:
-      'Retrouvez les catégories, les annonces récentes et les principales localités depuis une seule page d’accueil.'
+      'Retrouvez les catégories, les annonces récentes et les principales localités depuis une seule page d’accueil.',
     icone: Shield,
   },
 ]
