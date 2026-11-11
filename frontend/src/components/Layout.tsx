@@ -3,7 +3,7 @@ import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import { LogOut, MapPin, Menu, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
-import { LogoComplet } from './Logo'
+import { LogoComplet, Marque } from './Logo'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
@@ -59,18 +59,17 @@ export default function Layout() {
           defile ? 'shadow-[0_10px_30px_-12px_rgb(2_12_27/0.65)]' : ''
         }`}
       >
-        {/* Identité typographique : le logo graphique complet reste au pied de page */}
+        {/* Logo compact recadré pour l’en-tête */}
         <div className="mx-auto flex min-h-[5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[5.25rem] sm:px-6 lg:px-8">
-          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="group shrink-0">
-            <span className="block font-serif text-[1.65rem] font-bold leading-none tracking-tight text-white sm:text-[1.9rem]">Immo<span className="text-dore-400 transition-colors group-hover:text-dore-300">Sénégal</span></span>
-            <span className="mt-1 block text-[0.62rem] font-medium italic tracking-[0.16em] text-white/75 sm:text-xs">TROUVEZ. VISITEZ. HABITEZ.</span>
+          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dore-400">
+            <Marque taille="md" sombre />
           </Link>
           <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
             <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
             <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">À propos</Link>
-            <Link to="/faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">FAQ</Link>
-            <Link to="/contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">Contact</Link>
+            <Link to="/faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">FAQ</Link>
+            <Link to="/contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">Contact</Link>
             {utilisateur ? (
               <>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
@@ -85,7 +84,7 @@ export default function Layout() {
                 <button
                   type="button"
                   onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition-colors hover:bg-emeraude-50 hover:text-emeraude-800"
+                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-dore-300"
                 >
                   <LogOut aria-hidden className="h-4 w-4" />
                   Déconnexion
@@ -135,8 +134,8 @@ export default function Layout() {
               </li>
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
               <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>À propos</Link></li>
-              <li><Link to="/faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-emeraude-900" onClick={fermerMenu}>FAQ</Link></li>
-              <li><Link to="/contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>Contact</Link></li>
+              <li><Link to="/faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>FAQ</Link></li>
+              <li><Link to="/contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
                   <li>
@@ -156,7 +155,7 @@ export default function Layout() {
                     <button
                       type="button"
                       onClick={deconnecterEtFermer}
-                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-nuit-900/85 hover:bg-emeraude-50"
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/90 hover:bg-white/10"
                     >
                       <LogOut aria-hidden className="h-5 w-5" />
                       Déconnexion
