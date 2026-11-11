@@ -21,9 +21,9 @@ const slides = [
     icone: Home,
   },
   {
-    titre: 'Transparence et confiance',
+    titre: 'Une navigation simple et claire',
     texte:
-      'Les annonces d’exemple sont clairement indiquées. Les fonctions à venir sont listées sans promesse fausse.',
+      'Retrouvez les catégories, les annonces récentes et les principales localités depuis une seule page d’accueil.'
     icone: Shield,
   },
 ]
