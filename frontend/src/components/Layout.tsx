@@ -140,10 +140,10 @@ export default function Layout() {
                 </NavLink>
               </li>
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
-              <li><Link to="/#avantages" className={lienMobile} onClick={fermerMenu}>À propos</Link></li>
-              <li><Link to="/#comment-ca-marche" className={lienMobile} onClick={fermerMenu}>Comment ça marche</Link></li>
-              <li><Link to="/#faq" className={lienMobile} onClick={fermerMenu}>FAQ</Link></li>
-              <li><Link to="/#contact" className={lienMobile} onClick={fermerMenu}>Contact</Link></li>
+              <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>À propos</Link></li>
+              <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Comment ça marche</Link></li>
+              <li><Link to="/#faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>FAQ</Link></li>
+              <li><Link to="/#contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
                   <li>
