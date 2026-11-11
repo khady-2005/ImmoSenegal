@@ -20,7 +20,7 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Trouvez le bien immobilier qui vous correspond.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Le lieu de vos prochains beaux projets.' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explorer les biens' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Créer mon compte' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(2)
