@@ -86,7 +86,8 @@ const etapes = [
 
 export default function CommentCaMarche() {
   return (
-    <section className="w-full bg-[#f3f0e9] py-16 sm:py-20" aria-labelledby="titre-etapes">\n      <div className="mx-auto max-w-6xl px-4">
+    <section className="w-full bg-[#f3f0e9] py-16 sm:py-20" aria-labelledby="titre-etapes">
+      <div className="mx-auto max-w-6xl px-4">
       <h2 id="titre-etapes" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
         Comment ça marche
       </h2>
