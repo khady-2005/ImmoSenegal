@@ -232,7 +232,7 @@ describe("Page d'accueil", () => {
     await user.click(paiement)
     expect(premiere).toHaveAttribute('aria-expanded', 'false')
     expect(paiement).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/Les demandes de visite sont disponibles.*réservations et la messagerie ne sont pas encore disponibles/)).toBeVisible()
+    expect(screen.getByText(/envoyer des demandes de visite.*réservations et la messagerie ne sont pas encore disponibles/)).toBeVisible()
 
     await user.click(paiement)
     expect(paiement).toHaveAttribute('aria-expanded', 'false')
