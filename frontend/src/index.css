@@ -4,29 +4,28 @@
  * Identité visuelle ImmoSénégal : palette officielle du cahier de refonte.
  *   Bleu profond #102A43 (structure) · Bleu ardoise #173B5E (surfaces) · Or doux #D8A63A (accents)
  *   Blanc cassé #F7FAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
- * Les teintes « 700 » et « 800 » du vert sont légèrement plus sombres : elles servent aux textes et aux boutons,
- * pour garder un contraste lisible sur fond clair.
+ * Les anciennes classes vertes sont redirigées vers des nuances de bleu afin d'unifier toutes les pages.
  */
 @theme {
   --color-nuit-950: #102a43;
   --color-nuit-900: #173b5e;
   --color-nuit-800: #245477;
   --color-nuit-100: #e4f3e9;
-  --color-emeraude-900: #06452f;
-  --color-emeraude-800: #087443;
-  --color-emeraude-700: #0b8750;
-  --color-emeraude-600: #12965b;
-  --color-emeraude-500: #25a86b;
-  --color-emeraude-400: #58bf83;
-  --color-emeraude-300: #9bdcb2;
-  --color-emeraude-50: #e9f6ed;
+  --color-emeraude-900: #102a43;
+  --color-emeraude-800: #173b5e;
+  --color-emeraude-700: #245477;
+  --color-emeraude-600: #326b91;
+  --color-emeraude-500: #4b82a8;
+  --color-emeraude-400: #78a7c5;
+  --color-emeraude-300: #b2cddd;
+  --color-emeraude-50: #edf4f9;
   --color-dore-500: #d8a63a;
   --color-dore-600: #b98724;
   --color-dore-100: #fbf2dc;
   --color-ivoire: #f7faf7;
-  --color-sable-50: #f3f8f3;
-  --color-sable: #eaf3eb;
-  --color-sable-200: #dceade;
+  --color-sable-50: #f2f6fa;
+  --color-sable: #e8f0f6;
+  --color-sable-200: #d6e3ee;
   --color-brume: #f1f3f5;
   --color-encre: #182438;
   --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -34,8 +33,8 @@
   --font-titre: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
   /* Le nom de la marque : une grotesque très grasse, proche des lettres du logo. */
   --font-marque: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --shadow-carte: 0 1px 2px rgb(6 59 43 / 0.06), 0 10px 30px -12px rgb(6 59 43 / 0.16);
-  --shadow-carte-haut: 0 2px 4px rgb(6 59 43 / 0.06), 0 22px 44px -16px rgb(6 59 43 / 0.24);
+  --shadow-carte: 0 1px 2px rgb(16 42 67 / 0.06), 0 10px 30px -12px rgb(16 42 67 / 0.16);
+  --shadow-carte-haut: 0 2px 4px rgb(16 42 67 / 0.06), 0 22px 44px -16px rgb(16 42 67 / 0.24);
 }
 
 html { scroll-behavior: smooth; }
@@ -44,7 +43,7 @@ body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
 /* Titres éditoriaux : graisse légère, interlettrage légèrement resserré ; l'axe optique de Fraunces s'adapte à la taille. */
 .font-titre { letter-spacing: -0.012em; word-spacing: 0.05em; }
 
-:focus-visible { outline: 3px solid var(--color-emeraude-600); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
 
 /* Apparition douce des grandes sections (une seule fois, au défilement). */
 .apparition { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
