@@ -204,7 +204,7 @@ describe("Page d'accueil", () => {
   it('« Comment ça marche » montre trois étapes, avec des critères réellement reconnus', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    const section = screen.getByRole('heading', { name: 'Comment ça marche' }).closest('section')!
+    const section = screen.getByRole('heading', { name: 'Comment ça marche ?' }).closest('section')!
     expect(within(section).getAllByRole('listitem')).toHaveLength(3)
     for (const titre of ['Décrivez votre recherche', 'Trouvez le bien idéal', 'Comparez et choisissez']) {
       expect(within(section).getByRole('heading', { name: titre })).toBeInTheDocument()
