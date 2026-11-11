@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
+import FaqPage from './pages/FaqPage'
+import Contact from './pages/Contact'
 import Catalogue from './pages/Catalogue'
 import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
@@ -23,6 +25,8 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path="faq" element={<FaqPage />} />
+          <Route path="contact" element={<Contact />} />
           <Route path="catalogue" element={<Catalogue />} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
