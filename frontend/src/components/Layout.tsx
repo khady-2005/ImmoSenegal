@@ -55,7 +55,7 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-[#183451] text-white transition-shadow ${
+        className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-[#0b684c] text-white transition-shadow ${
           defile ? 'shadow-[0_10px_30px_-12px_rgb(2_12_27/0.65)]' : ''
         }`}
       >
@@ -188,7 +188,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-blue-100/85">
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-emerald-100/85">
         <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
