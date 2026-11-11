@@ -29,7 +29,7 @@ const questions = [
   },
   {
     q: 'Puis-je réserver, payer ou écrire au propriétaire ?',
-    r: 'Les demandes de visite, les réservations et la messagerie ne sont pas encore disponibles dans la version actuelle. Le catalogue permet de découvrir les annonces et de consulter leurs fiches selon les droits d’accès.',
+    r: 'Les clients connectés peuvent envoyer des demandes de visite et suivre leur traitement depuis leur espace. Les réservations et la messagerie ne sont pas encore disponibles dans la version actuelle.',
   },
 ]
 
