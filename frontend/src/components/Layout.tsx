@@ -139,11 +139,11 @@ export default function Layout() {
                   Accueil
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>
-                  Catalogue
-                </NavLink>
-              </li>
+              <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
+              <li><Link to="/#avantages" className={lienMobile} onClick={fermerMenu}>À propos</Link></li>
+              <li><Link to="/#comment-ca-marche" className={lienMobile} onClick={fermerMenu}>Comment ça marche</Link></li>
+              <li><Link to="/#faq" className={lienMobile} onClick={fermerMenu}>FAQ</Link></li>
+              <li><Link to="/#contact" className={lienMobile} onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
                   <li>
