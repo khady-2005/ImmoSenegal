@@ -1,9 +1,10 @@
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import type { FormEvent } from 'react'
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
 import { parametresApi } from '../annonces'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
+import { useAuth } from '../auth'
 
 const champ =
   'w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-[0.95rem] text-encre placeholder:text-slate-400 transition-colors hover:border-slate-400 focus:border-emeraude-600'
@@ -14,9 +15,16 @@ const AVANCES = ['quartier', 'superficieMin', 'piecesMin', 'equipements']
 
 export default function Catalogue() {
   const [params, setParams] = useSearchParams()
-  const requete = parametresApi(params).toString()
+  const { utilisateur } = useAuth()
+  const requeteParams = parametresApi(params)
+  // Un visiteur peut découvrir six annonces ; la connexion débloque toutes les pages du catalogue.
+  if (!utilisateur) {
+    requeteParams.set('page', '0')
+    requeteParams.set('taille', '6')
+  }
+  const requete = requeteParams.toString()
   const { etat, reessayer } = useAnnonces(requete)
-  const page = Number(params.get('page') ?? 0) || 0
+  const page = utilisateur ? (Number(params.get('page') ?? 0) || 0) : 0
   const avancesActifs = AVANCES.some((nom) => (params.get(nom) ?? '') !== '')
   const filtresActifs = [...params.keys()].some((nom) => nom !== 'page' && nom !== 'tri')
 
@@ -192,7 +200,7 @@ export default function Catalogue() {
           />
         </div>
 
-        {etat.statut === 'ok' && etat.page.totalPages > 1 && (
+        {utilisateur && etat.statut === 'ok' && etat.page.totalPages > 1 && (
           <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-4">
             <button
               type="button"
@@ -216,6 +224,17 @@ export default function Catalogue() {
               <ChevronRight aria-hidden className="h-4 w-4" />
             </button>
           </nav>
+        )}
+
+        {!utilisateur && etat.statut === 'ok' && etat.page.totalElements > 6 && (
+          <section className="mt-10 rounded-3xl border border-emeraude-100 bg-[#eaf3eb] px-6 py-8 text-center sm:px-10" aria-labelledby="titre-catalogue-complet">
+            <h2 id="titre-catalogue-complet" className="font-titre text-2xl font-semibold text-[#063b2b]">Découvrez tout le catalogue</h2>
+            <p className="mx-auto mt-2 max-w-xl text-slate-600">Connectez-vous ou créez un compte pour parcourir toutes les annonces et accéder aux fiches détaillées.</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Link to="/connexion" className="rounded-full bg-[#08734f] px-6 py-3 font-semibold text-white transition hover:bg-[#07513a]">Se connecter</Link>
+              <Link to="/inscription" className="rounded-full border border-[#08734f] px-6 py-3 font-semibold text-[#07513a] transition hover:bg-white">Créer un compte</Link>
+            </div>
+          </section>
         )}
       </div>
     </div>
