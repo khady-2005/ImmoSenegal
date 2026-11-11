@@ -2,31 +2,30 @@ import logoComplet from '../assets/logo-immosenegal.webp'
 import logoEmbleme from '../assets/logo-embleme.webp'
 
 /**
- * Le logo ImmoSénégal, en deux versions :
- *  - `Marque` : version compacte (emblème + nom écrit), pour l'en-tête ;
- *  - `LogoComplet` : le logo entier, pour pied de page / connexion.
+ * Logo compact pour l'en-tête : emblème circulaire lumineux et nom de la plateforme.
+ * La version complète reste utilisée dans le pied de page et les pages de connexion.
  */
 export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'; sombre?: boolean }) {
   const grand = taille === 'md'
   return (
-    <span className="flex items-center gap-2.5">
-      <img
-        src={logoEmbleme}
-        alt=""
-        width={520}
-        height={311}
-        className={`${grand ? 'h-11 sm:h-12' : 'h-9'} w-auto rounded-xl object-cover shadow-sm ring-1 ring-emeraude-200`}
-      />
+    <span className="flex items-center gap-2">
+      <span
+        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-emerald-300/90 shadow-[0_0_7px_rgba(16,185,129,0.45),0_0_15px_rgba(16,185,129,0.22)] ${grand ? 'h-10 w-10 sm:h-11 sm:w-11' : 'h-8 w-8'}`}
+      >
+        <img
+          src={logoEmbleme}
+          alt=""
+          width={520}
+          height={311}
+          className="h-full w-full rounded-full object-cover object-center"
+        />
+      </span>
       <span className="leading-none">
-        <span
-          className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.4rem] sm:text-[1.6rem]' : 'text-xl'}`}
-        >
+        <span className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.2rem] sm:text-[1.35rem]' : 'text-lg'}`}>
           <span className={sombre ? 'text-white' : 'text-nuit-900'}>Immo</span>
           <span className={sombre ? 'text-emeraude-400' : 'text-emeraude-700'}>Sénégal</span>
         </span>
-        <span
-          className={`mt-1 hidden text-[0.72rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-slate-600'}`}
-        >
+        <span className={`mt-1 hidden text-[0.68rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-slate-600'}`}>
           Trouvez, Visitez, Habitez
         </span>
       </span>
