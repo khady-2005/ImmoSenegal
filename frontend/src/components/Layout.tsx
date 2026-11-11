@@ -8,13 +8,13 @@ import { LogoComplet } from './Logo'
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
     isActive
-      ? 'text-emeraude-600 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
-      : 'text-nuit-900/80 hover:text-emeraude-700'
+      ? 'text-dore-400 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-400'
+      : 'text-white/85 hover:text-dore-300'
   }`
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
   `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-emeraude-50 text-emeraude-800' : 'text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900'
+    isActive ? 'bg-white/10 text-dore-300' : 'text-white/90 hover:bg-white/10 hover:text-dore-300'
   }`
 
 const boutonPublier =
@@ -55,16 +55,20 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b border-emerald-100 bg-white text-nuit-900 transition-shadow ${
-          defile ? 'border-emeraude-200 shadow-[0_8px_28px_-14px_rgb(6_59_43/0.18)]' : 'border-emerald-100'
+        className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-[#183451] text-white transition-shadow ${
+          defile ? 'shadow-[0_10px_30px_-12px_rgb(2_12_27/0.65)]' : ''
         }`}
       >
-        {/* Logo collé à gauche : peu de padding à gauche */}
-        <div className="mx-auto flex h-[5rem] max-w-6xl items-center justify-between gap-3 pl-2 pr-3 sm:h-[5.25rem] sm:pl-3 sm:pr-4 lg:h-[5.5rem]">
+        {/* Identité typographique : le logo graphique complet reste au pied de page */}
+        <div className="mx-auto flex min-h-[5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-[5.25rem] sm:px-6 lg:px-8">
+          <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="group shrink-0">
+            <span className="block font-serif text-[1.65rem] font-bold leading-none tracking-tight text-white sm:text-[1.9rem]">Immo<span className="text-dore-400 transition-colors group-hover:text-dore-300">Sénégal</span></span>
+            <span className="mt-1 block text-[0.62rem] font-medium italic tracking-[0.16em] text-white/75 sm:text-xs">TROUVEZ. VISITEZ. HABITEZ.</span>
+          </Link>
           <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
             <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
-            <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">À propos</Link>
+            <Link to="/#avantages" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">À propos</Link>
             <Link to="/faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">FAQ</Link>
             <Link to="/contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-nuit-900/80 transition hover:text-emeraude-700">Contact</Link>
             {utilisateur ? (
@@ -94,7 +98,7 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="ml-1 rounded-full border border-dore-500/70 bg-dore-500 px-4 py-2 text-[0.95rem] font-bold text-nuit-950 transition-colors hover:bg-dore-600"
+                  className="ml-1 rounded-full border border-dore-400 bg-dore-400 px-4 py-2 text-[0.95rem] font-bold text-nuit-950 shadow-sm transition-colors hover:bg-dore-300"
                 >
                   Inscription
                 </NavLink>
@@ -105,7 +109,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-nuit-900 transition-colors hover:bg-emeraude-50 xl:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 xl:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -115,13 +119,13 @@ export default function Layout() {
           </button>
         </div>
 
-        <div className="h-1 bg-gradient-to-r from-emerald-100 via-emeraude-500 to-emerald-100" aria-hidden />
+        <div className="h-1 bg-gradient-to-r from-transparent via-dore-400 to-transparent" aria-hidden />
 
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-5.25rem)] overflow-y-auto border-t border-emerald-100 bg-white px-3 py-3 shadow-lg xl:hidden"
+            className="max-h-[calc(100dvh-5.25rem)] overflow-y-auto border-t border-white/10 bg-nuit-900 px-3 py-3 shadow-lg xl:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
@@ -130,8 +134,8 @@ export default function Layout() {
                 </NavLink>
               </li>
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
-              <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>À propos</Link></li>
-              <li><Link to="/faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>FAQ</Link></li>
+              <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>À propos</Link></li>
+              <li><Link to="/faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-emeraude-900" onClick={fermerMenu}>FAQ</Link></li>
               <li><Link to="/contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
