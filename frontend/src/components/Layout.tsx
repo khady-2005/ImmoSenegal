@@ -67,10 +67,10 @@ export default function Layout() {
             aria-label="ImmoSénégal : accueil"
             className="shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500"
           >
-            <Marque />
+            <Marque sombre />
           </Link>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
             <NavLink to="/" end className={lienDesktop}>
               Accueil
             </NavLink>
@@ -115,7 +115,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 lg:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 xl:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
@@ -131,7 +131,7 @@ export default function Layout() {
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/10 bg-nuit-900 px-3 py-3 shadow-lg lg:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/10 bg-nuit-900 px-3 py-3 shadow-lg xl:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
