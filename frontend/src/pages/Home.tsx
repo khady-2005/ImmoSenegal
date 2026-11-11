@@ -37,14 +37,14 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[560px] overflow-hidden bg-nuit-950 text-white sm:min-h-[620px]">
+      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[560px] overflow-hidden bg-gradient-to-br from-[#063b2b] via-[#07513a] to-[#0b684c] text-white sm:min-h-[620px]">
         <img src={photoVilla} alt="Villa contemporaine avec piscine, image d'ambiance" width={1600} height={1000} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-nuit-950/95 via-nuit-950/75 to-nuit-950/10" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-nuit-950/35 to-transparent" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#063b2b]/95 via-[#07513a]/75 to-[#07513a]/20" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#063b2b]/45 to-transparent" />
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-dore-500/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emeraude-300"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
-            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">Immo<span className="text-dore-500">Sénégal</span></h1>
+            <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200/50 bg-[#063b2b]/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emeraude-300"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
+            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">Immo<span className="text-emerald-300">Sénégal</span></h1>
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
             <div className="mt-7 flex flex-wrap gap-3">
@@ -57,7 +57,7 @@ export default function Home() {
       </section>
 
       <section id="recherche" aria-label="Rechercher un logement" className="relative z-10 mx-auto -mt-20 max-w-6xl scroll-mt-28 px-4 sm:-mt-24">
-        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_70px_-28px_rgba(7,20,42,0.45)] ring-1 ring-slate-200 sm:p-4"><RecherchePanneau /></div>
+        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_70px_-28px_rgba(6,59,43,0.22)] ring-1 ring-slate-200 sm:p-4"><RecherchePanneau /></div>
       </section>
 
       <section id="avantages" className="bg-[#f4f8f3] py-9" aria-label="Les avantages ImmoSénégal">
@@ -71,27 +71,27 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-20" aria-labelledby="titre-annonces">
+      <section className="bg-[#f7faf7] py-16 sm:py-20" aria-labelledby="titre-annonces">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <TitreSection id="titre-annonces" petit="La sélection ImmoSénégal" titre="Nos biens en" accent="vedette" />
             <Link to="/catalogue" className="inline-flex items-center gap-2 pb-1 text-sm font-bold text-nuit-900 hover:text-emeraude-700">Voir tout le catalogue <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
-            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>{nom}</button>)}
+            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-[#eaf3eb] text-[#315744] hover:bg-[#dceade]'}`}>{nom}</button>)}
           </div>
-          {contientExemple && <p className="mt-5 rounded-xl border border-dore-500/40 bg-dore-100/40 px-4 py-3 text-sm text-nuit-900">Catalogue de présentation : certaines annonces sont proposées à titre illustratif.</p>}
+          {contientExemple && <p className="mt-5 rounded-xl border border-emerald-200 bg-[#e6f3e8] px-4 py-3 text-sm text-nuit-900">Catalogue de présentation : certaines annonces sont proposées à titre illustratif.</p>}
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
-          <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-nuit-900/20 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-nuit-900 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
+          <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-emeraude-700/30 px-6 py-3 font-semibold text-emeraude-900 transition hover:bg-emeraude-700 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
         </div>
       </section>
 
-      <section className="bg-[#eef5ee] py-16 sm:py-20" aria-labelledby="titre-types">
+      <section className="bg-[#eaf3eb] py-16 sm:py-20" aria-labelledby="titre-types">
         <div className="mx-auto max-w-6xl px-4">
           <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
           <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
           <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Types de bien">
-            {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
+            {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#f7faf7]/95 via-[#f7faf7]/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
           </ul>
         </div>
       </section>
