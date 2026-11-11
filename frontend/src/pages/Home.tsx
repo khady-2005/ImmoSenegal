@@ -39,8 +39,8 @@ export default function Home() {
     <>
       <section aria-labelledby="titre-accueil" className="relative isolate min-h-[560px] overflow-hidden bg-gradient-to-br from-[#063b2b] via-[#07513a] to-[#0b684c] text-white sm:min-h-[620px]">
         <img src={photoVilla} alt="Villa contemporaine avec piscine, image d'ambiance" width={1600} height={1000} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#063b2b]/95 via-[#07513a]/75 to-[#07513a]/20" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#063b2b]/45 to-transparent" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#063b2b]/65 via-[#07513a]/35 to-[#07513a]/5" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#063b2b]/20 to-transparent" />
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200/50 bg-[#063b2b]/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emeraude-300"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
