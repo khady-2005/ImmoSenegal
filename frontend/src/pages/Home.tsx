@@ -95,7 +95,7 @@ export default function Home() {
 
       <section id="contact" className="relative isolate overflow-hidden py-16 text-white sm:py-20">
         <img src={photoPlage} alt="" width={1400} height={800} loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover" />
-        <span aria-hidden className="absolute inset-0 -z-10 bg-nuit-950/80" />
+        <span aria-hidden className="absolute inset-0 -z-10 bg-nuit-950/55" />
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-dore-500">Votre prochain chapitre</p><h2 className="font-titre text-3xl font-semibold sm:text-4xl">Votre projet immobilier commence ici.</h2><p className="mt-3 max-w-xl text-white/85">Parcourez le catalogue et trouvez le bien qui correspond à vos envies.</p></div><Link to="/catalogue" className={boutonOr}>Commencer maintenant <ArrowRight className="h-4 w-4" /></Link></div>
       </section>
     </>
