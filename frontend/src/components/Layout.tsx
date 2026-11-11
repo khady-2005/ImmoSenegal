@@ -8,13 +8,13 @@ import { LogoComplet, Marque } from './Logo'
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
     isActive
-      ? 'text-dore-500 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
-      : 'text-white/80 hover:text-dore-500'
+      ? 'text-emeraude-600 after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-dore-500'
+      : 'text-nuit-900/80 hover:text-emeraude-700'
   }`
 
 const lienMobile = ({ isActive }: { isActive: boolean }) =>
   `block rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-    isActive ? 'bg-white/10 text-dore-500' : 'text-white/85 hover:bg-white/10 hover:text-white'
+    isActive ? 'bg-white/10 text-dore-500' : 'text-white/85 hover:bg-emeraude-50 hover:text-emeraude-900'
   }`
 
 const boutonPublier =
@@ -55,8 +55,8 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-950 text-white transition-shadow ${
-          defile ? 'border-dore-500/30 shadow-[0_8px_28px_-14px_rgb(7_20_42/0.8)]' : 'border-white/10'
+        className={`sticky top-0 z-40 border-b border-emerald-100 bg-white text-nuit-900 transition-shadow ${
+          defile ? 'border-emeraude-200 shadow-[0_8px_28px_-14px_rgb(6_59_43/0.18)]' : 'border-emerald-100'
         }`}
       >
         {/* Logo collé à gauche : peu de padding à gauche */}
@@ -67,7 +67,7 @@ export default function Layout() {
             aria-label="ImmoSénégal : accueil"
             className="shrink-0 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500"
           >
-            <Marque sombre />
+            <Marque />
           </Link>
 
           <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
@@ -125,13 +125,13 @@ export default function Layout() {
           </button>
         </div>
 
-        <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
+        <div className="h-1 bg-gradient-to-r from-emerald-100 via-emeraude-500 to-emerald-100" aria-hidden />
 
         {menuOuvert && (
           <nav
             id="menu-mobile"
             aria-label="Navigation mobile"
-            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-white/10 bg-nuit-900 px-3 py-3 shadow-lg xl:hidden"
+            className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-emerald-100 bg-white px-3 py-3 shadow-lg xl:hidden"
           >
             <ul className="flex flex-col gap-1">
               <li>
@@ -140,8 +140,8 @@ export default function Layout() {
                 </NavLink>
               </li>
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
-              <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>À propos</Link></li>
-              <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Comment ça marche</Link></li>
+              <li><Link to="/#avantages" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-nuit-900/85 hover:bg-emeraude-50 hover:text-emeraude-900" onClick={fermerMenu}>À propos</Link></li>
+              <li><Link to="/#comment-ca-marche" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-emeraude-700" onClick={fermerMenu}>Comment ça marche</Link></li>
               <li><Link to="/#faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>FAQ</Link></li>
               <li><Link to="/#contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/85 hover:bg-white/10 hover:text-white" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
@@ -196,8 +196,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-nuit-100/80">
-        <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-emerald-100/85">
+        <div className="h-px bg-gradient-to-r from-transparent via-emeraude-500/70 to-transparent" aria-hidden />
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
             <Link to="/" className="inline-flex rounded-2xl bg-white p-3 shadow-lg" aria-label="ImmoSénégal : accueil">
@@ -278,7 +278,7 @@ export default function Layout() {
           </div>
         </div>
 
-        <div className="border-t border-white/10">
+        <div className="border-t border-emerald-100">
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs sm:flex-row">
             <p>© {new Date().getFullYear()} ImmoSénégal. Projet de mémoire de Licence 3 Ingénierie Informatique, UASZ.</p>
             <Link to="/mentions-legales" className="transition-colors hover:text-white hover:underline">
