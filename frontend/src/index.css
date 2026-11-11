@@ -2,8 +2,8 @@
 
 /*
  * Identité visuelle ImmoSénégal : palette officielle du cahier de refonte.
- *   Bleu nuit #0B1F3A (structure) · Vert émeraude #008F69 (confiance) · Or champagne #D9AA45 (accents)
- *   Blanc cassé #FAFAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
+ *   Vert forêt #063B2B (structure) · Vert émeraude #12965B (actions) · Vert sauge (surfaces)
+ *   Blanc cassé #F7FAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
  * Les teintes « 700 » et « 800 » du vert sont légèrement plus sombres : elles servent aux textes et aux boutons,
  * pour garder un contraste lisible sur fond clair.
  */
@@ -17,6 +17,8 @@
   --color-emeraude-700: #0b8750;
   --color-emeraude-600: #12965b;
   --color-emeraude-500: #25a86b;
+  --color-emeraude-400: #58bf83;
+  --color-emeraude-300: #9bdcb2;
   --color-emeraude-50: #e9f6ed;
   --color-dore-500: #15965f;
   --color-dore-600: #0b7549;
@@ -32,8 +34,8 @@
   --font-titre: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
   /* Le nom de la marque : une grotesque très grasse, proche des lettres du logo. */
   --font-marque: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --shadow-carte: 0 1px 2px rgb(11 31 58 / 0.06), 0 10px 30px -12px rgb(11 31 58 / 0.18);
-  --shadow-carte-haut: 0 2px 4px rgb(11 31 58 / 0.06), 0 22px 44px -16px rgb(11 31 58 / 0.32);
+  --shadow-carte: 0 1px 2px rgb(6 59 43 / 0.06), 0 10px 30px -12px rgb(6 59 43 / 0.16);
+  --shadow-carte-haut: 0 2px 4px rgb(6 59 43 / 0.06), 0 22px 44px -16px rgb(6 59 43 / 0.24);
 }
 
 html { scroll-behavior: smooth; }
