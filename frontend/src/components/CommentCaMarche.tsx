@@ -1,4 +1,4 @@
-import { ArrowUpRight, House, Search, SlidersHorizontal } from 'lucide-react'
+import { House, Search, SlidersHorizontal } from 'lucide-react'
 import { analyser } from '../rechercheLibre'
 
 /**
