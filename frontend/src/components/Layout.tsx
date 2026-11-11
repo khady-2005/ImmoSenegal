@@ -196,7 +196,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-nuit-950 text-sm text-nuit-100/80">
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-nuit-100/80">
         <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
