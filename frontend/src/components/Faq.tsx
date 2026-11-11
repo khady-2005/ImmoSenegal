@@ -41,7 +41,8 @@ export default function Faq() {
     <section className="bg-[#fbfaf7] py-16 sm:py-20" aria-labelledby="titre-faq">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-700">Besoin de précisions ?</p>\n          <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-nuit-900 sm:text-4xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-700">Besoin de précisions ?</p>
+          <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-nuit-900 sm:text-4xl">
             Questions fréquentes
           </h2>
           <p className="mt-3 max-w-sm leading-relaxed text-slate-600">Retrouvez ici les informations essentielles pour utiliser ImmoSénégal en toute clarté.</p>
