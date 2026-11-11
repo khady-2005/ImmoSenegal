@@ -8,23 +8,23 @@
  * pour garder un contraste lisible sur fond clair.
  */
 @theme {
-  --color-nuit-950: #07142a;
-  --color-nuit-900: #0b1f3a;
-  --color-nuit-800: #12305a;
-  --color-nuit-100: #e6ecf5;
-  --color-emeraude-900: #05503f;
-  --color-emeraude-800: #006650;
-  --color-emeraude-700: #00785a;
-  --color-emeraude-600: #008f69;
-  --color-emeraude-500: #12a37c;
-  --color-emeraude-50: #e8f6f1;
-  --color-dore-500: #d9aa45;
-  --color-dore-600: #b98a2e;
-  --color-dore-100: #f6ecd3;
-  --color-ivoire: #fbf9f4;
-  --color-sable-50: #fbf6ec;
-  --color-sable: #f4ecdd;
-  --color-sable-200: #eadfc8;
+  --color-nuit-950: #063b2b;
+  --color-nuit-900: #07513a;
+  --color-nuit-800: #0b684c;
+  --color-nuit-100: #e4f3e9;
+  --color-emeraude-900: #06452f;
+  --color-emeraude-800: #087443;
+  --color-emeraude-700: #0b8750;
+  --color-emeraude-600: #12965b;
+  --color-emeraude-500: #25a86b;
+  --color-emeraude-50: #e9f6ed;
+  --color-dore-500: #15965f;
+  --color-dore-600: #0b7549;
+  --color-dore-100: #e2f3e8;
+  --color-ivoire: #f7faf7;
+  --color-sable-50: #f3f8f3;
+  --color-sable: #eaf3eb;
+  --color-sable-200: #dceade;
   --color-brume: #f1f3f5;
   --color-encre: #182438;
   --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -42,7 +42,7 @@ body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
 /* Titres éditoriaux : graisse légère, interlettrage légèrement resserré ; l'axe optique de Fraunces s'adapte à la taille. */
 .font-titre { letter-spacing: -0.012em; word-spacing: 0.05em; }
 
-:focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--color-emeraude-600); outline-offset: 2px; }
 
 /* Apparition douce des grandes sections (une seule fois, au défilement). */
 .apparition { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
