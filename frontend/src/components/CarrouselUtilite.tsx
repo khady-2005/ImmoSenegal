@@ -44,7 +44,7 @@ export default function CarrouselUtilite() {
   const Icone = slide.icone
 
   return (
-    <section className="bg-brume py-16" aria-labelledby="titre-carrousel">
+    <section className="bg-[#f1f5f9] py-20" aria-labelledby="titre-carrousel">
       <div className="mx-auto max-w-6xl px-4">
         <h2 id="titre-carrousel" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
           À quoi sert ImmoSénégal ?
@@ -53,9 +53,9 @@ export default function CarrouselUtilite() {
           L’essentiel de la plateforme, en quelques points.
         </p>
 
-        <div className="relative mt-8 overflow-hidden rounded-3xl bg-nuit-900 p-8 text-white shadow-carte sm:p-10">
+        <div className="relative mt-8 overflow-hidden rounded-[2rem] bg-gradient-to-br from-nuit-900 via-nuit-900 to-[#17466c] p-8 text-white shadow-carte-haut ring-1 ring-dore-500/30 sm:p-12">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-10">
-            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-dore-500 text-nuit-950">
+            <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-dore-500 text-nuit-950 shadow-lg">
               <Icone aria-hidden className="h-8 w-8" />
             </span>
             <div className="min-w-0 flex-1">
