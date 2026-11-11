@@ -108,7 +108,7 @@ export default function Home() {
             <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5" aria-label="Types de bien">
               {types.map(({ type, nom, description, icone: Icone, image }) => (
                 <li key={type}>
-                  <Link to={`/catalogue?type=${type}`} className="group relative flex h-64 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition duration-300 hover:-translate-y-1.5 hover:shadow-carte-haut">
+                  <Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-64 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition duration-300 hover:-translate-y-1.5 hover:shadow-carte-haut">
                     <img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-nuit-950/95 via-nuit-950/20 to-transparent" />
                     <span className="relative mt-auto flex w-full items-end justify-between p-5 text-white">
