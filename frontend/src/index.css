@@ -2,15 +2,15 @@
 
 /*
  * Identité visuelle ImmoSénégal : palette officielle du cahier de refonte.
- *   Vert forêt #063B2B (structure) · Vert émeraude #12965B (actions) · Vert sauge (surfaces)
+ *   Bleu profond #102A43 (structure) · Bleu ardoise #173B5E (surfaces) · Or doux #D8A63A (accents)
  *   Blanc cassé #F7FAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
  * Les teintes « 700 » et « 800 » du vert sont légèrement plus sombres : elles servent aux textes et aux boutons,
  * pour garder un contraste lisible sur fond clair.
  */
 @theme {
-  --color-nuit-950: #063b2b;
-  --color-nuit-900: #07513a;
-  --color-nuit-800: #0b684c;
+  --color-nuit-950: #102a43;
+  --color-nuit-900: #173b5e;
+  --color-nuit-800: #245477;
   --color-nuit-100: #e4f3e9;
   --color-emeraude-900: #06452f;
   --color-emeraude-800: #087443;
@@ -20,9 +20,9 @@
   --color-emeraude-400: #58bf83;
   --color-emeraude-300: #9bdcb2;
   --color-emeraude-50: #e9f6ed;
-  --color-dore-500: #15965f;
-  --color-dore-600: #0b7549;
-  --color-dore-100: #e2f3e8;
+  --color-dore-500: #d8a63a;
+  --color-dore-600: #b98724;
+  --color-dore-100: #fbf2dc;
   --color-ivoire: #f7faf7;
   --color-sable-50: #f3f8f3;
   --color-sable: #eaf3eb;
