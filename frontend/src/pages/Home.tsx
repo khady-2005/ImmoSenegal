@@ -76,7 +76,7 @@ export default function Home() {
               className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-white text-balance sm:text-6xl lg:text-[4.2rem]"
             >
               Trouvez le bien immobilier qui{' '}
-              <span className="italic text-emeraude-700">vous correspond.</span>
+              <span className="italic text-dore-500">vous correspond.</span>
             </h1>
             <p className="entree entree-3 mt-6 text-lg leading-relaxed text-nuit-100 sm:text-xl">
               Découvrez des maisons, appartements, villas et terrains dans les plus belles localités du Sénégal. Votre prochain projet immobilier commence ici.
@@ -98,7 +98,7 @@ export default function Home() {
               ) : (
                 <Link
                   to="/inscription"
-                  className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-emeraude-700"
+                  className="font-semibold text-white underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-dore-500"
                 >
                   Créer mon compte
                 </Link>
