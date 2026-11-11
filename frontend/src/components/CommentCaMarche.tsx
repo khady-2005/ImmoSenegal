@@ -9,7 +9,7 @@ import { analyser } from '../rechercheLibre'
 const exemple = 'Appartement à Thiès, 150 000 FCFA max'
 const reconnus = analyser(exemple, 'LOCATION').reconnus
 
-const fondMaquette = 'flex h-52 items-center justify-center bg-gradient-to-b from-emeraude-50 to-dore-100/70 px-5 py-5'
+const fondMaquette = 'flex h-44 items-center justify-center bg-gradient-to-b from-emeraude-50 to-dore-100/70 px-5 py-5 sm:h-48'
 
 const carteMaquette = 'w-full rounded-xl bg-white p-3 shadow-md shadow-nuit-900/10 ring-1 ring-slate-200/70'
 
@@ -59,7 +59,6 @@ function MaquetteContacter() {
         <div className="h-2.5 w-2/3 rounded bg-slate-200" />
         <div className="h-2.5 w-1/3 rounded bg-slate-100" />
       </div>
-      <span className="rounded-full bg-dore-100 px-2.5 py-1 text-xs font-semibold text-nuit-900">Bientôt</span>
     </div>
   )
 }
@@ -78,21 +77,21 @@ const etapes = [
     maquette: <MaquetteTrouver />,
   },
   {
-    titre: 'Contactez le propriétaire',
+    titre: 'Consultez les informations',
     icone: MessageCircle,
-    texte: 'Chaque fiche présente la personne qui publie le bien. La messagerie et la demande de visite arrivent prochainement.',
+    texte: 'Ouvrez la fiche détaillée pour consulter les caractéristiques du bien et les informations de contact accessibles après connexion.',
     maquette: <MaquetteContacter />,
   },
 ]
 
 export default function CommentCaMarche() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-20" aria-labelledby="titre-etapes">
+    <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:py-20" aria-labelledby="titre-etapes">
       <h2 id="titre-etapes" className="font-titre text-3xl font-medium text-nuit-900 sm:text-4xl">
         Comment ça marche
       </h2>
       <p className="mt-2 max-w-xl text-slate-600">Trois gestes, du premier mot à la fiche du bien.</p>
-      <ol className="mt-10 grid gap-6 md:grid-cols-3">
+      <ol className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6">
         {etapes.map((etape, i) => (
           <li
             key={etape.titre}
@@ -101,7 +100,7 @@ export default function CommentCaMarche() {
             <div aria-hidden className={fondMaquette}>
               {etape.maquette}
             </div>
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-5 sm:p-6">
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
