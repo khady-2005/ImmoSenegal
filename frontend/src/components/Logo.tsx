@@ -23,9 +23,9 @@ export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'
       <span className="leading-none">
         <span className={`font-marque block font-extrabold tracking-tight ${grand ? 'text-[1.7rem] sm:text-[1.9rem] lg:text-[2.05rem]' : 'text-lg'}`}>
           <span className={sombre ? 'text-white' : 'text-nuit-900'}>Immo</span>
-          <span className={sombre ? 'text-dore-400' : 'text-emeraude-700'}>Sénégal</span>
+          <span className={sombre ? 'text-dore-400' : 'text-nuit-900'}>Sénégal</span>
         </span>
-        <span className={`mt-1.5 hidden text-[0.78rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-slate-600'}`}>
+        <span className={`mt-1.5 hidden text-[0.78rem] italic sm:block ${sombre ? 'text-nuit-100/80' : 'text-nuit-800'}`}>
           Trouvez, Visitez, Habitez
         </span>
       </span>
