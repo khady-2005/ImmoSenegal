@@ -33,7 +33,6 @@ export default function Home() {
   const { etat: etatReelles } = useAnnonces('taille=1&exemple=false')
   const { utilisateur } = useAuth()
   const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0
-  const contientExemple = etat.statut === 'ok' && etat.page.contenu.some((a) => a.exemple)
 
   return (
     <>
@@ -80,7 +79,6 @@ export default function Home() {
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
             {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-[#eaf3eb] text-[#315744] hover:bg-[#dceade]'}`}>{nom}</button>)}
           </div>
-          {contientExemple && <p className="mt-5 rounded-xl border border-emerald-200 bg-[#e6f3e8] px-4 py-3 text-sm text-nuit-900">Catalogue de présentation : certaines annonces sont proposées à titre illustratif.</p>}
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
           <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-emeraude-700/30 px-6 py-3 font-semibold text-emeraude-900 transition hover:bg-emeraude-700 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
         </div>
