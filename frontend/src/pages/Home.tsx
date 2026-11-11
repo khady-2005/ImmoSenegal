@@ -23,8 +23,8 @@ const types = [
 
 const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-dore-500 px-6 py-3.5 font-bold text-nuit-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-dore-600'
 
-function TitreSection({ petit, titre, accent }: { petit: string; titre: string; accent?: string }) {
-  return <div><p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">{petit}</p><h2 className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">{titre}{accent && <> <span className="italic text-emeraude-700">{accent}</span></>}</h2></div>
+function TitreSection({ petit, titre, accent, id }: { petit: string; titre: string; accent?: string; id?: string }) {
+  return <div><p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">{petit}</p><h2 id={id} className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">{titre}{accent && <> <span className="italic text-emeraude-700">{accent}</span></>}</h2></div>
 }
 
 export default function Home() {
@@ -74,7 +74,7 @@ export default function Home() {
       <section className="bg-white py-16 sm:py-20" aria-labelledby="titre-annonces">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-5">
-            <TitreSection petit="La sélection ImmoSénégal" titre="Nos biens en" accent="vedette" />
+            <TitreSection id="titre-annonces" petit="La sélection ImmoSénégal" titre="Nos biens en" accent="vedette" />
             <Link to="/catalogue" className="inline-flex items-center gap-2 pb-1 text-sm font-bold text-nuit-900 hover:text-emeraude-700">Voir tout le catalogue <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
@@ -88,7 +88,7 @@ export default function Home() {
 
       <section className="bg-[#f3f0e9] py-16 sm:py-20" aria-labelledby="titre-types">
         <div className="mx-auto max-w-6xl px-4">
-          <TitreSection petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
+          <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
           <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
           <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Types de bien">
             {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
