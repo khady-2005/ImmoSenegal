@@ -10,7 +10,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const disponible = annonce.statut === 'PUBLIEE'
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-nuit-800 to-emeraude-800">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emeraude-900 to-emeraude-700">
         {annonce.photos.length > 0 ? (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0])}
@@ -23,7 +23,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
         )}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-nuit-950/80 to-transparent" />
 
-        <span className="absolute left-3 top-3 rounded-full bg-dore-500 px-3 py-1 text-xs font-bold text-nuit-950 shadow-sm">
+        <span className="absolute left-3 top-3 rounded-full bg-emeraude-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
           {location ? 'À louer' : 'À vendre'}
         </span>
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
