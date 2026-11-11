@@ -88,3 +88,26 @@ export const libelleStatut: Record<StatutAnnonce, string> = {
  * refusée, suspendue) relèvent de la modération par un administrateur ; le serveur reste seul juge.
  */
 export const statutsCommerciaux: StatutAnnonce[] = ['PUBLIEE', 'RESERVE', 'VENDU', 'LOUE']
+
+
+// ---------- Demandes de visite ----------
+export type StatutVisite = 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'PROPOSEE' | 'ANNULEE'
+
+export interface DemandeVisite {
+  id: string
+  annonceId: string
+  annonceTitre: string
+  ville: string
+  quartier: string
+  clientId: string
+  clientNom: string
+  clientEmail: string
+  clientTelephone: string | null
+  proprietaireNom: string
+  dateVisite: string
+  message: string | null
+  statut: StatutVisite
+  reponseProprietaire: string | null
+  creeLe: string
+  modifieLe: string
+}
