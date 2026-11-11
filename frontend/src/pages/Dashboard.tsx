@@ -108,9 +108,8 @@ export default function Dashboard() {
         </>
       )}
 
-      <p className="mt-6 rounded-lg border border-dore-500/50 bg-amber-50 p-4 text-sm text-slate-800">
-        Les visites, offres, messages et paiements ne sont pas encore disponibles : ils arrivent aux
-        prochaines étapes.
+      <p className="mt-6 rounded-lg border border-emeraude-200 bg-emeraude-50 p-4 text-sm text-emeraude-900">
+        Les demandes de visite sont disponibles depuis votre espace. Les offres, la messagerie et les paiements seront ajoutés dans les prochaines étapes.
       </p>
     </div>
   )
