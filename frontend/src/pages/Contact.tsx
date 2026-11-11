@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 
 export default function Contact() {
   return (
-    <div className="min-h-[70vh] bg-[#f2f6fa]">
-      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#102a43] via-[#173b5e] to-[#245477] px-4 py-20 text-white sm:py-24">
+    <div className="min-h-[70vh] bg-[#f3f8f3]">
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#063b2b] via-[#07513a] to-[#0b684c] px-4 py-20 text-white sm:py-24">
         <div className="mx-auto max-w-5xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-dore-400">ImmoSénégal</p>
           <h1 className="mt-4 font-titre text-4xl font-semibold sm:text-5xl">Contactez-nous</h1>
@@ -15,19 +15,19 @@ export default function Contact() {
       </section>
       <section className="mx-auto grid max-w-5xl gap-6 px-4 py-14 md:grid-cols-2">
         <article className="rounded-3xl border border-dore-100 bg-white p-7 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fbf2dc] text-[#173b5e]"><MapPin aria-hidden /></div>
-          <h2 className="mt-5 text-xl font-semibold text-[#102a43]">Notre localisation</h2>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e9f6ed] text-[#07513a]"><MapPin aria-hidden /></div>
+          <h2 className="mt-5 text-xl font-semibold text-[#063b2b]">Notre localisation</h2>
           <p className="mt-2 text-slate-600">Ziguinchor, Sénégal</p>
           <p className="mt-4 text-sm leading-relaxed text-slate-500">
             ImmoSénégal est une plateforme immobilière développée dans le cadre d’un projet de mémoire de Licence 3 en Ingénierie Informatique à l’UASZ.
           </p>
         </article>
         <article className="rounded-3xl border border-dore-100 bg-white p-7 shadow-sm">
-          <h2 className="text-xl font-semibold text-[#102a43]">Vous recherchez un bien ?</h2>
+          <h2 className="text-xl font-semibold text-[#063b2b]">Vous recherchez un bien ?</h2>
           <p className="mt-2 leading-relaxed text-slate-600">
             Consultez le catalogue pour parcourir les annonces et effectuer une recherche par localité, type de bien ou transaction.
           </p>
-          <Link to="/catalogue" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#d8a63a] px-5 py-3 font-semibold text-white transition hover:bg-[#173b5e]">
+          <Link to="/catalogue" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#12965b] px-5 py-3 font-semibold text-white transition hover:bg-[#087443]">
             Consulter le catalogue <ArrowRight aria-hidden className="h-4 w-4" />
           </Link>
         </article>
