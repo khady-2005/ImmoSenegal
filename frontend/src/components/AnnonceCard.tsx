@@ -14,7 +14,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
         {annonce.photos.length > 0 ? (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0])}
-            alt={`${annonce.exemple ? 'Image illustrative' : 'Photo'} : ${annonce.titre}`}
+            alt={`Photo du type de bien présenté : ${annonce.titre}`}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
           />
@@ -27,11 +27,6 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           {location ? 'À louer' : 'À vendre'}
         </span>
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
-          {annonce.exemple && (
-            <span className="rounded-full border border-dashed border-slate-400 bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-              Exemple
-            </span>
-          )}
           {!disponible && (
             <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
               {libelleStatut[annonce.statut]}
