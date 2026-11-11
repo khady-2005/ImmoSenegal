@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <>
       {/* ─── Hero ─── */}
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden border-b border-slate-100 bg-[#fbfaf7]">
+      <section aria-labelledby="titre-accueil" className="relative isolate overflow-hidden border-b border-white/10 bg-nuit-900">
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-44 pt-14 sm:pt-18 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12 lg:pb-48 lg:pt-22">
           <div className="max-w-xl">
@@ -73,12 +73,12 @@ export default function Home() {
             </p>
             <h1
               id="titre-accueil"
-              className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-nuit-900 text-balance sm:text-6xl lg:text-[4.2rem]"
+              className="entree entree-2 font-titre mt-7 text-[2.85rem] font-medium leading-[1.05] text-white text-balance sm:text-6xl lg:text-[4.2rem]"
             >
               Trouvez le bien immobilier qui{' '}
               <span className="italic text-emeraude-700">vous correspond.</span>
             </h1>
-            <p className="entree entree-3 mt-6 text-lg leading-relaxed text-slate-600 sm:text-xl">
+            <p className="entree entree-3 mt-6 text-lg leading-relaxed text-nuit-100 sm:text-xl">
               Découvrez des maisons, appartements, villas et terrains dans les plus belles localités du Sénégal. Votre prochain projet immobilier commence ici.
             </p>
             <div className="entree entree-3 mt-9 flex flex-wrap items-center gap-4">
@@ -91,7 +91,7 @@ export default function Home() {
               {utilisateur ? (
                 <Link
                   to="/tableau-de-bord"
-                  className="font-semibold text-nuit-900 underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-emeraude-700"
+                  className="font-semibold text-white underline decoration-dore-500 decoration-2 underline-offset-[5px] hover:text-dore-500"
                 >
                   Mon espace
                 </Link>
@@ -105,7 +105,7 @@ export default function Home() {
               )}
             </div>
             {total > 0 && (
-              <p className="entree entree-3 mt-7 flex items-center gap-2.5 text-sm font-semibold text-emeraude-800">
+              <p className="entree entree-3 mt-7 flex items-center gap-2.5 text-sm font-semibold text-emeraude-100">
                 <span aria-hidden className="inline-block h-4 w-2.5 rounded-[2px] bg-dore-500 shadow-[0_0_10px_2px_rgba(217,170,69,0.45)]" />
                 {total} logement{total > 1 ? 's' : ''} disponible{total > 1 ? 's' : ''} en ce moment
               </p>
