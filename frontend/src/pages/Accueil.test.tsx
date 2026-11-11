@@ -215,27 +215,12 @@ describe("Page d'accueil", () => {
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
-  it('la FAQ s’ouvre et se referme, une réponse à la fois, sans promettre ce qui n’existe pas', async () => {
+  it('garde la FAQ sur sa page dédiée et conserve Comment ça marche sur l’accueil', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
-    const user = userEvent.setup()
     afficher()
-
-    const premiere = screen.getByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })
-    const paiement = screen.getByRole('button', { name: 'Puis-je réserver, payer ou écrire au propriétaire ?' })
-    expect(premiere).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.getByText(/Vous pouvez parcourir le catalogue et effectuer des recherches sans compte/)).not.toBeVisible()
-
-    await user.click(premiere)
-    expect(premiere).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/Vous pouvez parcourir le catalogue et effectuer des recherches sans compte/)).toBeVisible()
-
-    await user.click(paiement)
-    expect(premiere).toHaveAttribute('aria-expanded', 'false')
-    expect(paiement).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/envoyer des demandes de visite.*réservations et la messagerie ne sont pas encore disponibles/)).toBeVisible()
-
-    await user.click(paiement)
-    expect(paiement).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
+    expect(screen.getByRole('heading', { name: 'Comment ça marche ?' })).toBeInTheDocument()
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
