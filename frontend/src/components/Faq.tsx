@@ -53,7 +53,7 @@ export default function Faq() {
             const idBouton = `${base}-q${i}`
             const idReponse = `${base}-r${i}`
             return (
-              <li key={item.q} className="overflow-hidden rounded-xl border border-white/20 bg-[#173b63] px-4 shadow-sm transition hover:bg-white/15 sm:px-5">
+              <li key={item.q} className="overflow-hidden rounded-xl border border-white/20 bg-[#173b63] px-4 shadow-sm transition hover:bg-[#245783] sm:px-5">
                 <h3>
                   <button
                     type="button"
