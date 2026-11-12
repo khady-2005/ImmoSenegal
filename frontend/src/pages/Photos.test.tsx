@@ -93,6 +93,7 @@ describe('Gestion des photos (propriétaire)', () => {
 describe('Affichage public des photos', () => {
   it('le catalogue montre la photo de couverture, et rien de fictif sans photo', async () => {
     simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),
       'GET /api/annonces?*': () =>
         json(200, pageTest([annonceTest({ photos: [P1, P2] }), annonceTest({ id: 'c2', titre: 'Sans photo' })])),
     })
