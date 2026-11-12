@@ -67,48 +67,27 @@ describe("Page d'accueil", () => {
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
-  it('transforme une phrase libre en filtres du catalogue et les envoie au serveur', async () => {
-    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
-    const user = userEvent.setup()
-    afficher()
-
-    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
-    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'studio à Ziguinchor sous 80 000 FCFA')
-    // Les critères reconnus sont montrés avant l'envoi.
-    expect(await screen.findByText('Budget max 80 000 FCFA')).toBeInTheDocument()
-    expect(screen.getByText('Studio')).toBeInTheDocument()
-    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
-
-    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
-    const p = parametresDe(api.mock.calls.at(-1)![0])
-    expect(p.get('transaction')).toBe('LOCATION')
-    expect(p.get('type')).toBe('STUDIO')
-    expect(p.get('ville')).toBe('Ziguinchor')
-    expect(p.get('prixMax')).toBe('80000')
-  })
-
-  it("n'ouvre pas le catalogue et l'explique quand la phrase ne contient aucun critère", async () => {
+  it('propose un accès au catalogue depuis la page d’accueil', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
-    const user = userEvent.setup()
     afficher()
-    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
-    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'bonjour')
-    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
-
-    expect(await screen.findByText(/n’avons reconnu aucun critère/i)).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Catalogue des annonces' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Rechercher un bien' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.queryByRole('tab', { name: 'En une phrase' })).not.toBeInTheDocument()
+    await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
-  it('le choix Acheter est pris en compte quand la phrase ne dit ni louer ni acheter', async () => {
-    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
-    const user = userEvent.setup()
+  it('ne présente pas les anciens onglets de recherche sur l’accueil', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    await user.click(screen.getByRole('tab', { name: 'En une phrase' }))
-    await user.click(screen.getByRole('button', { name: 'Acheter' }))
-    await user.type(screen.getByLabelText('Décrivez le logement que vous cherchez'), 'villa à Dakar')
-    await user.click(within(screen.getByRole('form', { name: /recherche en une phrase/i })).getByRole('button', { name: /rechercher/i }))
-    await screen.findByRole('heading', { name: 'Catalogue des annonces' })
-    expect(parametresDe(api.mock.calls.at(-1)![0]).get('transaction')).toBe('VENTE')
+    expect(screen.queryByRole('tab', { name: 'En une phrase' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Décrivez le logement que vous cherchez')).not.toBeInTheDocument()
+    await screen.findByText(/la première annonce peut être la vôtre/i)
+  })
+
+  it('redirige le visiteur vers la connexion lorsqu’il ouvre le catalogue', async () => {
+    simulerApi({})
+    afficher()
+    await userEvent.setup().click(screen.getByRole('link', { name: 'Découvrir le catalogue' }))
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 
   it('affiche les annonces récentes quand il y en a', async () => {
