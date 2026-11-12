@@ -1,9 +1,9 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach } from 'vitest'
 import App from './App'
-import { annonceTest, json, pageTest, parametresDe, simulerApi } from './test/apiSimulee'
+import { annonceTest, json, pageTest, simulerApi } from './test/apiSimulee'
 
 function afficher(chemin = '/') {
   return render(
