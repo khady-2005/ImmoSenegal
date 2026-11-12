@@ -35,7 +35,7 @@ describe('Serveur lent (réveil de l\'hébergement)', () => {
   })
 
   it("n'affiche rien quand le serveur répond vite", async () => {
-    simulerApi({ 'POST /api/auth/refresh': () => json(200, { accessToken: 'jeton-test', utilisateur: { id: 'u1', email: 'test@example.com', prenom: 'Test', nom: 'User', role: 'PROPRIETAIRE' } }), 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
+    simulerApi({ 'POST /api/auth/refresh': () => reponseConnexion(), 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
     render(
       <MemoryRouter initialEntries={['/catalogue']}>
         <App />
