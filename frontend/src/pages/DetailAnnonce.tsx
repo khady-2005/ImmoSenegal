@@ -155,7 +155,7 @@ export default function DetailAnnonce() {
 
                 {utilisateur?.role === 'CLIENT' && <DemandeVisiteForm annonceId={a.id} />}
                 {!utilisateur && <p className="mt-6 rounded-2xl bg-dore-100/70 p-4 text-sm leading-relaxed text-nuit-900">Connectez-vous avec un compte client pour demander une visite de ce bien.</p>}
-                {(utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN') && <p className="mt-6 rounded-2xl bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-900">Les demandes de visite reçues pour vos annonces sont accessibles depuis votre tableau de bord.</p>}
+                {(utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN') && <p className="mt-6 rounded-2xl bg-dore-100 p-4 text-sm leading-relaxed text-nuit-900">Les demandes de visite reçues pour vos annonces sont accessibles depuis votre tableau de bord.</p>}
               </div>
             </aside>
           </div>
