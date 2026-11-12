@@ -38,7 +38,7 @@ export default function MiseEnPageAuth({ titre, intro, children, pied }: { titre
           </Link>
           <h1 className="font-titre mt-6 text-center text-3xl font-medium text-nuit-900">{titre}</h1>
           <p className="mx-auto mt-2 max-w-sm text-center text-sm leading-relaxed text-slate-600">{intro}</p>
-          <div className="mt-7 rounded-3xl bg-white p-6 shadow-carte ring-1 ring-slate-200/70 sm:p-8">{children}</div>
+          <div className="mt-7 rounded-3xl bg-white/88 p-6 shadow-carte backdrop-blur-sm ring-1 ring-slate-200/70 sm:p-8">{children}</div>
           <p className="mt-5 text-center text-sm text-slate-600">{pied}</p>
         </div>
       </div>
