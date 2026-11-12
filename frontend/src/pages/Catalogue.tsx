@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import type { FormEvent } from 'react'
-import { ChevronLeft, ChevronRight, MapPinned, Search, SlidersHorizontal } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
 import { parametresApi } from '../annonces'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
