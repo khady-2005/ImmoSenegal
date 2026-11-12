@@ -93,7 +93,7 @@ export default function APropos() {
             <p>
               La plateforme met l’accent sur la présentation des biens, leurs caractéristiques et les possibilités de recherche. Elle permet également, selon les fonctionnalités disponibles, d’envoyer une demande de visite pour une annonce.
             </p>
-            <div className="rounded-2xl border border-emeraude-100 bg-white/85 p-6 backdrop-blur-sm shadow-carte">
+            <div className="rounded-2xl border border-emeraude-100 bg-white p-6 shadow-carte">
               <p className="font-semibold text-nuit-950">Une démarche simple</p>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 Découvrir les annonces, consulter les détails utiles et effectuer les démarches proposées sur la fiche du bien.
