@@ -141,30 +141,6 @@ export default function FormulaireAnnonce() {
     }
   }
 
-  function utiliserMaPosition() {
-    if (!navigator.geolocation) {
-      setMessageCarte('La géolocalisation n’est pas disponible sur cet appareil.')
-      return
-    }
-    setLocalisationEnCours(true)
-    setMessageCarte('Autorisez la localisation dans votre navigateur…')
-    navigator.geolocation.getCurrentPosition(
-      p => {
-        setLatitude(String(p.coords.latitude))
-        setLongitude(String(p.coords.longitude))
-        setMessageCarte('Votre position a été ajoutée. Vérifiez qu’elle correspond bien au logement.')
-        setLocalisationEnCours(false)
-      },
-      err => {
-        setMessageCarte(err.code === err.PERMISSION_DENIED
-          ? 'Autorisation refusée. Vous pouvez autoriser la localisation dans les réglages du navigateur.'
-          : 'Position introuvable. Vérifiez les réglages de localisation.')
-        setLocalisationEnCours(false)
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
-    )
-  }
-
   const coordonneesValides = latitude.trim() !== '' && longitude.trim() !== '' &&
     Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude)) &&
     Number(latitude) >= -90 && Number(latitude) <= 90 &&
@@ -216,10 +192,7 @@ export default function FormulaireAnnonce() {
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" onClick={() => void localiserAdresse()} disabled={localisationEnCours} className="rounded-xl bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
-              {localisationEnCours ? 'Recherche…' : 'Localiser l’adresse saisie'}
-            </button>
-            <button type="button" onClick={utiliserMaPosition} disabled={localisationEnCours} className="rounded-xl border border-nuit-900 px-4 py-2.5 text-sm font-semibold text-nuit-900 disabled:opacity-60">
-              Utiliser ma position GPS
+              {localisationEnCours ? 'Recherche…' : 'Localiser la maison sur la carte'}
             </button>
           </div>
           {messageCarte && <p role="status" className="mt-3 text-sm text-nuit-900">{messageCarte}</p>}
@@ -240,7 +213,7 @@ export default function FormulaireAnnonce() {
           ) : (
             <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">Aucune position GPS sélectionnée. La carte de cette annonce indiquera que la localisation précise reste à renseigner.</p>
           )}
-          <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser l’adresse saisie » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
+          <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser la maison sur la carte » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
         </section>
         <Champ id="equipements" name="equipements" libelle="Équipements" aide="Séparés par des virgules : wifi, parking, climatisation" defaultValue={a?.equipements.join(', ')} erreur={champs.equipements} />
         {edition && a && statutsCommerciaux.includes(a.statut) && (
