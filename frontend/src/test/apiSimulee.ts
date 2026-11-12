@@ -22,7 +22,9 @@ export function json(statut: number, corps: unknown, entetes: Record<string, str
 /** Remplace fetch par une API simulée. Clé = « METHODE /chemin ». Retourne le mock pour inspecter les appels. */
 export function simulerApi(routes: Record<string, Gestionnaire>) {
   const mock = vi.fn(async (url: string, init?: RequestInit) => {
-    const cle = `${init?.method ?? 'GET'} ${url}`
+    const adresse = new URL(url, 'http://localhost')
+    const chemin = `${adresse.pathname}${adresse.search}`
+    const cle = `${init?.method ?? 'GET'} ${chemin}`
     // Une clé peut se terminer par « * » pour accepter n'importe quelle suite (ex. paramètres de recherche).
     const gestionnaire = routes[cle] ?? Object.entries(routes).find(([k]) => k.endsWith('*') && cle.startsWith(k.slice(0, -1)))?.[1]
     if (!gestionnaire) throw new Error(`Appel non prévu dans le test : ${cle}`)
@@ -32,7 +34,7 @@ export function simulerApi(routes: Record<string, Gestionnaire>) {
   // par défaut est « pas de session » et l'appel n'est pas compté, pour ne pas fausser les assertions des tests.
   const sansSession = json(401, { message: 'Session expirée. Veuillez vous reconnecter.' })
   vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
-    url === '/api/auth/refresh' && !routes['POST /api/auth/refresh'] ? Promise.resolve(sansSession.clone()) : mock(url, init),
+    new URL(url, 'http://localhost').pathname === '/api/auth/refresh' && !routes['POST /api/auth/refresh'] ? Promise.resolve(sansSession.clone()) : mock(url, init),
   )
   return mock
 }
