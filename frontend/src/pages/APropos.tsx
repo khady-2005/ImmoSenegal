@@ -79,14 +79,14 @@ export default function APropos() {
       </section>
 
       <section className="px-4 py-20 sm:py-24">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.8fr_1.2fr]">
-          <div>
+        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-[0.8fr_1.2fr]">
+          <div className="rounded-3xl border border-slate-200 bg-white/95 p-7 shadow-carte sm:p-9">
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Pourquoi ce projet ?</p>
             <h2 className="mt-4 font-titre text-3xl font-semibold leading-tight text-nuit-950 sm:text-4xl">
               Une recherche immobilière mieux organisée.
             </h2>
           </div>
-          <div className="space-y-5 text-base leading-relaxed text-slate-600">
+          <div className="space-y-5 rounded-3xl border border-slate-200 bg-white/95 p-7 text-base leading-relaxed text-slate-600 shadow-carte sm:p-9">
             <p>
               Lorsqu’on cherche une maison, un appartement ou un terrain, les informations peuvent être dispersées et difficiles à comparer. ImmoSénégal rassemble les annonces dans un même espace afin de rendre leur consultation plus pratique.
             </p>
