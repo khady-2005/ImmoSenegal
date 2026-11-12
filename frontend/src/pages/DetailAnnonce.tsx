@@ -160,6 +160,60 @@ export default function DetailAnnonce() {
             </aside>
           </div>
 
+          <section className="mt-12" aria-labelledby="titre-localisation">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-dore-600">Préparer votre visite</p>
+                <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-medium text-nuit-900 sm:text-3xl">Localisation du logement</h2>
+                <p className="mt-2 flex items-center gap-1.5 text-slate-600">
+                  <MapPin aria-hidden className="h-4 w-4 text-dore-600" />
+                  {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
+                </p>
+              </div>
+              {typeof a.latitude === 'number' && typeof a.longitude === 'number' && (
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${a.latitude},${a.longitude}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-dore-500 px-5 py-3 text-sm font-bold text-nuit-950 transition hover:bg-dore-400"
+                >
+                  Préparer l’itinéraire
+                </a>
+              )}
+            </div>
+            {typeof a.latitude === 'number' && typeof a.longitude === 'number' &&
+             Number.isFinite(a.latitude) && Number.isFinite(a.longitude) &&
+             a.latitude >= -90 && a.latitude <= 90 && a.longitude >= -180 && a.longitude <= 180 ? (
+              <div className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-carte">
+                <iframe
+                  title={`Carte de localisation de ${a.titre}`}
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${a.longitude - 0.012}%2C${a.latitude - 0.008}%2C${a.longitude + 0.012}%2C${a.latitude + 0.008}&layer=mapnik&marker=${a.latitude}%2C${a.longitude}`}
+                  className="h-[360px] w-full border-0 sm:h-[440px]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 px-4 py-3 text-xs text-slate-500">
+                  <span>Repère : emplacement indiqué pour ce logement</span>
+                  <a href={`https://www.openstreetmap.org/?mlat=${a.latitude}&mlon=${a.longitude}#map=16/${a.latitude}/${a.longitude}`} target="_blank" rel="noreferrer" className="font-semibold text-nuit-900 underline">Agrandir la carte</a>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6">
+                <p className="font-semibold text-nuit-900">Position GPS non renseignée</p>
+                <p className="mt-1 text-sm text-slate-600">La carte précise sera affichée dès que les coordonnées GPS de ce logement seront ajoutées à son annonce.</p>
+                <a
+                  href={`https://www.openstreetmap.org/search?query=${encodeURIComponent([a.adresse, a.quartier, a.ville, 'Sénégal'].filter(Boolean).join(', '))}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex text-sm font-semibold text-nuit-900 underline"
+                >
+                  Rechercher cette adresse sur la carte
+                </a>
+              </div>
+            )}
+          </section>
+
           <BiensSimilaires annonce={a} />
         </article>
       )}
