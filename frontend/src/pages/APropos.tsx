@@ -103,7 +103,7 @@ export default function APropos() {
         </div>
       </section>
 
-      <section className="bg-white/75 px-4 py-20 backdrop-blur-sm sm:py-24">
+      <section className="bg-white px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-2xl">
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Comment utiliser la plateforme</p>
