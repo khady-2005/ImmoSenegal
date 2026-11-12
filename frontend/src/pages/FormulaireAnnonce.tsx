@@ -149,7 +149,7 @@ export default function FormulaireAnnonce() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
       {nouvelle && (
-        <p role="status" className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
+        <p role="status" className="mt-4 rounded-lg bg-dore-100 p-3 text-sm text-nuit-900">
           Annonce enregistrée : elle sera visible dans le catalogue après validation par un administrateur. Ajoutez maintenant des photos, puis cliquez sur « Terminer ».
         </p>
       )}
