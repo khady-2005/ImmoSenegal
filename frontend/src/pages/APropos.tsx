@@ -1,64 +1,129 @@
-import { ArrowRight, Compass, House, MapPin, Search, ShieldCheck, Users, CalendarCheck } from 'lucide-react'
+import { ArrowRight, Building2, Compass, FileCheck2, MapPin, Search, ShieldCheck, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const publics = [
-  { Icone: Search, titre: 'Les personnes en recherche', texte: 'Parcourez les annonces et utilisez les critères du catalogue pour cibler les biens qui vous intéressent.' },
-  { Icone: House, titre: 'Les propriétaires et annonceurs', texte: 'Présentez un bien immobilier sur une plateforme dédiée au marché sénégalais, selon les règles de publication.' },
-  { Icone: CalendarCheck, titre: 'Les personnes qui souhaitent visiter', texte: 'Consultez une annonce et envoyez une demande de visite depuis la plateforme.' },
+const usages = [
+  {
+    Icone: Search,
+    numero: '01',
+    titre: 'Explorer les annonces',
+    texte: 'Parcourez les biens présentés et affinez votre recherche à partir des critères proposés dans le catalogue.',
+  },
+  {
+    Icone: FileCheck2,
+    numero: '02',
+    titre: 'Mieux comprendre chaque bien',
+    texte: 'Consultez les informations disponibles sur le logement ou le terrain : localisation, caractéristiques et photos.',
+  },
+  {
+    Icone: Users,
+    numero: '03',
+    titre: 'Demander une visite',
+    texte: 'Lorsque vous êtes intéressé par une annonce, vous pouvez transmettre une demande de visite depuis la plateforme.',
+  },
 ]
 
-const principes = [
-  { Icone: ShieldCheck, titre: 'Clarté', texte: 'Des informations structurées pour mieux comprendre chaque annonce.' },
-  { Icone: MapPin, titre: 'Proximité', texte: 'Une attention portée aux villes, quartiers et réalités du Sénégal.' },
-  { Icone: Users, titre: 'Accessibilité', texte: 'Un parcours simple pour les personnes qui cherchent ou proposent un bien.' },
+const engagements = [
+  {
+    Icone: MapPin,
+    titre: 'Un ancrage sénégalais',
+    texte: 'Une plateforme conçue en tenant compte des villes, des quartiers et des habitudes de recherche au Sénégal.',
+  },
+  {
+    Icone: ShieldCheck,
+    titre: 'Des informations lisibles',
+    texte: 'Une présentation structurée pour aider chacun à comprendre les détails affichés dans les annonces.',
+  },
+  {
+    Icone: Building2,
+    titre: 'Un parcours accessible',
+    texte: 'Un espace qui rassemble la découverte des biens et les démarches prévues sur la plateforme.',
+  },
 ]
 
 export default function APropos() {
   return (
     <div className="min-h-screen bg-ivoire">
       <section className="relative isolate overflow-hidden bg-nuit-950 px-4 py-20 text-white sm:py-28">
-        <div aria-hidden className="absolute -right-24 -top-28 -z-10 h-96 w-96 rounded-full border-[48px] border-emeraude-700/30" />
-        <div aria-hidden className="absolute -bottom-36 left-1/3 -z-10 h-80 w-80 rounded-full bg-emeraude-700/20 blur-3xl" />
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.2fr_0.8fr] md:items-end">
+        <div aria-hidden className="absolute -right-24 -top-24 -z-10 h-96 w-96 rounded-full border-[52px] border-emeraude-700/25" />
+        <div aria-hidden className="absolute -bottom-40 left-[28%] -z-10 h-96 w-96 rounded-full bg-emeraude-600/20 blur-3xl" />
+        <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.15fr_0.85fr] md:items-center">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-emeraude-300/40 bg-emeraude-900/50 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emeraude-300">
-              <Compass className="h-4 w-4" /> Notre projet
+            <p className="inline-flex items-center gap-2 rounded-full border border-emeraude-300/30 bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-emeraude-300">
+              <Compass className="h-4 w-4" /> À propos d’ImmoSénégal
             </p>
-            <h1 className="mt-6 max-w-3xl font-titre text-4xl font-semibold leading-tight sm:text-6xl">L’immobilier sénégalais, dans un espace plus simple à explorer.</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/80">ImmoSénégal est une plateforme dédiée à la consultation et à la publication d’annonces immobilières, ainsi qu’à la demande de visites.</p>
+            <h1 className="mt-7 max-w-3xl font-titre text-4xl font-semibold leading-[1.12] tracking-tight sm:text-6xl">
+              Trouver un bien au Sénégal, avec plus de clarté.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/75">
+              ImmoSénégal est une plateforme immobilière qui facilite la consultation des annonces et la découverte des biens proposés à la location ou à la vente.
+            </p>
+            <Link to="/catalogue" className="mt-8 inline-flex items-center gap-2 rounded-full bg-emeraude-500 px-6 py-3.5 font-bold text-white shadow-lg shadow-black/15 transition hover:bg-emeraude-400">
+              Découvrir le catalogue <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <div className="rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emeraude-300">Notre ambition</p>
-            <p className="mt-3 font-titre text-2xl leading-snug">Rapprocher les personnes et les biens, avec des informations faciles à consulter.</p>
+
+          <div className="relative">
+            <div className="rounded-[2rem] border border-white/15 bg-white/[0.08] p-7 shadow-2xl backdrop-blur-sm sm:p-9">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Notre objectif</p>
+              <p className="mt-5 font-titre text-3xl font-medium leading-snug sm:text-4xl">
+                Rendre les annonces immobilières plus simples à découvrir et à comparer.
+              </p>
+              <div className="mt-8 h-px bg-white/15" />
+              <p className="mt-5 text-sm leading-relaxed text-white/65">
+                Une expérience pensée pour les personnes qui recherchent un logement, un terrain ou souhaitent présenter un bien.
+              </p>
+            </div>
+            <div aria-hidden className="absolute -bottom-4 -left-4 -z-10 h-24 w-24 rounded-3xl border border-emeraude-400/30" />
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:py-20 md:grid-cols-[0.75fr_1.25fr]">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-emeraude-700">L’origine du projet</p>
-          <h2 className="mt-3 font-titre text-3xl font-semibold leading-tight text-nuit-950 sm:text-4xl">Une réponse à un besoin concret</h2>
-        </div>
-        <div className="space-y-5 text-base leading-relaxed text-slate-600">
-          <p>Rechercher un logement ou un terrain demande souvent de comparer des informations dispersées. ImmoSénégal propose un espace unique pour parcourir des annonces, préciser une recherche et découvrir les caractéristiques des biens.</p>
-          <p>Le projet est développé dans le cadre d’un mémoire de Licence 3 en Ingénierie Informatique à l’Université Assane Seck de Ziguinchor. Il s’appuie sur les usages de recherche et de présentation de biens immobiliers au Sénégal.</p>
-          <div className="rounded-2xl border-l-4 border-emeraude-600 bg-sable-50 p-5">
-            <p className="font-semibold text-nuit-900">Une plateforme pensée autour de trois étapes</p>
-            <p className="mt-1">Découvrir les annonces, comparer les informations utiles, puis prendre contact pour organiser une visite.</p>
+      <section className="px-4 py-20 sm:py-24">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Pourquoi ce projet ?</p>
+            <h2 className="mt-4 font-titre text-3xl font-semibold leading-tight text-nuit-950 sm:text-4xl">
+              Une recherche immobilière mieux organisée.
+            </h2>
+          </div>
+          <div className="space-y-5 text-base leading-relaxed text-slate-600">
+            <p>
+              Lorsqu’on cherche une maison, un appartement ou un terrain, les informations peuvent être dispersées et difficiles à comparer. ImmoSénégal rassemble les annonces dans un même espace afin de rendre leur consultation plus pratique.
+            </p>
+            <p>
+              La plateforme met l’accent sur la présentation des biens, leurs caractéristiques et les possibilités de recherche. Elle permet également, selon les fonctionnalités disponibles, d’envoyer une demande de visite pour une annonce.
+            </p>
+            <div className="rounded-2xl border border-emeraude-100 bg-white p-6 shadow-carte">
+              <p className="font-semibold text-nuit-950">Une démarche simple</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                Découvrir les annonces, consulter les détails utiles et effectuer les démarches proposées sur la fiche du bien.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white px-4 py-16 sm:py-20">
+      <section className="bg-white px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-emeraude-700">À qui s’adresse ImmoSénégal ?</p>
-          <h2 className="mt-3 max-w-2xl font-titre text-3xl font-semibold text-nuit-950 sm:text-4xl">Un même espace pour différents projets immobiliers</h2>
-          <div className="mt-9 grid gap-5 md:grid-cols-3">
-            {publics.map(({ Icone, titre, texte }, index) => (
-              <article key={titre} className="rounded-3xl border border-slate-200 bg-ivoire p-7">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emeraude-50 text-emeraude-800"><Icone className="h-6 w-6" /></span>
-                <p className="mt-6 text-xs font-bold uppercase tracking-widest text-emeraude-700">0{index + 1}</p>
-                <h3 className="mt-2 font-titre text-xl font-semibold text-nuit-950">{titre}</h3>
+          <div className="max-w-2xl">
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Comment utiliser la plateforme</p>
+            <h2 className="mt-4 font-titre text-3xl font-semibold text-nuit-950 sm:text-4xl">
+              Les étapes essentielles
+            </h2>
+            <p className="mt-4 leading-relaxed text-slate-600">
+              ImmoSénégal accompagne les principales étapes de découverte d’un bien immobilier.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {usages.map(({ Icone, numero, titre, texte }) => (
+              <article key={numero} className="group rounded-3xl border border-slate-200 bg-ivoire p-7 transition duration-300 hover:-translate-y-1 hover:border-emeraude-300 hover:shadow-carte-haut">
+                <div className="flex items-center justify-between">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emeraude-50 text-emeraude-800">
+                    <Icone className="h-6 w-6" />
+                  </span>
+                  <span className="font-marque text-sm font-bold tracking-widest text-emeraude-700">{numero}</span>
+                </div>
+                <h3 className="mt-7 font-titre text-xl font-semibold text-nuit-950">{titre}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">{texte}</p>
               </article>
             ))}
@@ -66,21 +131,39 @@ export default function APropos() {
         </div>
       </section>
 
-      <section className="bg-sable-50 px-4 py-16 sm:py-20">
+      <section className="bg-sable-50 px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-6xl">
-          <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-emeraude-700">Ce qui nous guide</p>
-          <h2 className="mt-3 font-titre text-3xl font-semibold text-nuit-950 sm:text-4xl">Nos principes</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {principes.map(({ Icone, titre, texte }) => (
-              <div key={titre} className="flex gap-4 rounded-2xl bg-white p-6 shadow-carte">
-                <Icone className="mt-1 h-7 w-7 shrink-0 text-emeraude-700" />
-                <div><h3 className="font-semibold text-nuit-950">{titre}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{texte}</p></div>
+          <div className="max-w-2xl">
+            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Nos repères</p>
+            <h2 className="mt-4 font-titre text-3xl font-semibold text-nuit-950 sm:text-4xl">
+              Ce qui guide ImmoSénégal
+            </h2>
+          </div>
+          <div className="mt-9 grid gap-5 md:grid-cols-3">
+            {engagements.map(({ Icone, titre, texte }) => (
+              <div key={titre} className="flex gap-4 rounded-2xl border border-sable-200 bg-white p-6">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emeraude-50 text-emeraude-800">
+                  <Icone className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-semibold text-nuit-950">{titre}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{texte}</p>
+                </div>
               </div>
             ))}
           </div>
-          <div className="mt-12 flex flex-col justify-between gap-5 rounded-3xl bg-nuit-950 p-8 text-white sm:flex-row sm:items-center sm:p-10">
-            <div><p className="text-sm font-bold uppercase tracking-widest text-emeraude-300">Votre projet commence ici</p><h2 className="mt-2 font-titre text-2xl font-semibold sm:text-3xl">Explorez les annonces disponibles.</h2></div>
-            <Link to="/catalogue" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-emeraude-600 px-6 py-3 font-bold text-white transition hover:bg-emeraude-700">Voir le catalogue <ArrowRight className="h-4 w-4" /></Link>
+
+          <div className="mt-14 grid gap-6 rounded-3xl bg-nuit-950 p-8 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Un projet universitaire</p>
+              <h2 className="mt-3 font-titre text-2xl font-semibold sm:text-3xl">Développé à l’Université Assane Seck de Ziguinchor.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/70">
+                ImmoSénégal est réalisé dans le cadre d’un mémoire de Licence 3 en Ingénierie Informatique. Le projet met en pratique des compétences de conception et de développement d’une application web.
+              </p>
+            </div>
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emeraude-300/30 bg-emeraude-500/15 text-emeraude-300">
+              <Building2 className="h-8 w-8" />
+            </div>
           </div>
         </div>
       </section>
