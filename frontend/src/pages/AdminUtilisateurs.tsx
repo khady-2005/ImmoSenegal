@@ -81,7 +81,7 @@ export default function AdminUtilisateurs() {
                   Inscrit le {new Date(u.creeLe).toLocaleDateString('fr-FR')} · {u.telephone ?? 'Téléphone non renseigné'}
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${u.actif ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`}>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${u.actif ? 'bg-dore-100 text-nuit-900' : 'bg-red-50 text-red-800'}`}>
                 {u.actif ? 'Compte actif' : 'Compte désactivé'}
               </span>
             </div>
