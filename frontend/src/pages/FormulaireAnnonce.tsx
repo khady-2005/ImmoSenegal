@@ -25,6 +25,10 @@ export default function FormulaireAnnonce() {
   const [erreur, setErreur] = useState<string | null>(null)
   const [champs, setChamps] = useState<Record<string, string>>({})
   const [envoi, setEnvoi] = useState(false)
+  const [latitude, setLatitude] = useState('')
+  const [longitude, setLongitude] = useState('')
+  const [localisationEnCours, setLocalisationEnCours] = useState(false)
+  const [messageCarte, setMessageCarte] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -34,6 +38,8 @@ export default function FormulaireAnnonce() {
         if (annule) return
         setInitial(a)
         setPhotos(a.photos)
+        setLatitude(a.latitude == null ? '' : String(a.latitude))
+        setLongitude(a.longitude == null ? '' : String(a.longitude))
       })
       .catch((e: unknown) => !annule && setErreur(e instanceof ApiError ? e.message : 'Chargement impossible.'))
       .finally(() => !annule && setChargement(false))
@@ -77,6 +83,8 @@ export default function FormulaireAnnonce() {
       quartier: texte('quartier'),
       ville: texte('ville'),
       adresse: texte('adresse') || null,
+      latitude: latitude.trim() === '' ? null : Number(latitude),
+      longitude: longitude.trim() === '' ? null : Number(longitude),
       equipements: texte('equipements') === '' ? [] : texte('equipements').split(',').map((x) => x.trim()).filter(Boolean),
       // Le statut n'est envoyé que s'il se choisit ici (annonce déjà validée) ; sinon il relève de la modération.
       ...(edition && initial && statutsCommerciaux.includes(initial.statut) ? { statut: texte('statut') } : {}),
@@ -103,6 +111,64 @@ export default function FormulaireAnnonce() {
   }
 
   const a = initial
+
+  async function localiserAdresse() {
+    const form = document.querySelector<HTMLFormElement>('form[aria-label="Formulaire d\'annonce"]')
+    if (!form) return
+    const data = new FormData(form)
+    const adresseComplete = [data.get('adresse'), data.get('quartier'), data.get('ville'), 'Sénégal']
+      .map(v => String(v ?? '').trim()).filter(Boolean).join(', ')
+    if (!String(data.get('quartier') ?? '').trim() || !String(data.get('ville') ?? '').trim()) {
+      setMessageCarte('Renseignez d’abord le quartier et la ville.')
+      return
+    }
+    setLocalisationEnCours(true)
+    setMessageCarte('Recherche de cette adresse sur la carte…')
+    try {
+      const url = new URL('https://nominatim.openstreetmap.org/search')
+      url.search = new URLSearchParams({ q: adresseComplete, format: 'jsonv2', limit: '1', countrycodes: 'sn' }).toString()
+      const response = await fetch(url, { headers: { Accept: 'application/json' } })
+      if (!response.ok) throw new Error('La recherche de l’adresse est momentanément indisponible.')
+      const resultats = await response.json() as Array<{ lat: string; lon: string; display_name: string }>
+      if (!resultats.length) throw new Error('Adresse introuvable. Essayez de préciser le quartier ou la rue.')
+      setLatitude(resultats[0].lat)
+      setLongitude(resultats[0].lon)
+      setMessageCarte('Emplacement trouvé : ' + resultats[0].display_name + '. Vérifiez le repère sur la carte.')
+    } catch (e) {
+      setMessageCarte(e instanceof Error ? e.message : 'Impossible de localiser cette adresse.')
+    } finally {
+      setLocalisationEnCours(false)
+    }
+  }
+
+  function utiliserMaPosition() {
+    if (!navigator.geolocation) {
+      setMessageCarte('La géolocalisation n’est pas disponible sur cet appareil.')
+      return
+    }
+    setLocalisationEnCours(true)
+    setMessageCarte('Autorisez la localisation dans votre navigateur…')
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        setLatitude(String(p.coords.latitude))
+        setLongitude(String(p.coords.longitude))
+        setMessageCarte('Votre position a été ajoutée. Vérifiez qu’elle correspond bien au logement.')
+        setLocalisationEnCours(false)
+      },
+      err => {
+        setMessageCarte(err.code === err.PERMISSION_DENIED
+          ? 'Autorisation refusée. Vous pouvez autoriser la localisation dans les réglages du navigateur.'
+          : 'Position introuvable. Vérifiez les réglages de localisation.')
+        setLocalisationEnCours(false)
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+    )
+  }
+
+  const coordonneesValides = latitude.trim() !== '' && longitude.trim() !== '' &&
+    Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude)) &&
+    Number(latitude) >= -90 && Number(latitude) <= 90 &&
+    Number(longitude) >= -180 && Number(longitude) <= 180
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
@@ -143,6 +209,39 @@ export default function FormulaireAnnonce() {
           <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} erreur={champs.ville} />
           <Champ id="adresse" name="adresse" libelle="Adresse (facultatif)" defaultValue={a?.adresse ?? ''} erreur={champs.adresse} />
         </div>
+        <section className="rounded-2xl border border-dore-200 bg-dore-50/60 p-4 sm:p-5" aria-labelledby="titre-position-bien">
+          <div>
+            <h2 id="titre-position-bien" className="font-semibold text-nuit-900">Localisation sur la carte</h2>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">Placez le repère à l’emplacement du logement. Cette position sera visible sur sa fiche pour aider les visiteurs à préparer leur déplacement.</p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" onClick={() => void localiserAdresse()} disabled={localisationEnCours} className="rounded-xl bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
+              {localisationEnCours ? 'Recherche…' : 'Localiser l’adresse saisie'}
+            </button>
+            <button type="button" onClick={utiliserMaPosition} disabled={localisationEnCours} className="rounded-xl border border-nuit-900 px-4 py-2.5 text-sm font-semibold text-nuit-900 disabled:opacity-60">
+              Utiliser ma position GPS
+            </button>
+          </div>
+          {messageCarte && <p role="status" className="mt-3 text-sm text-nuit-900">{messageCarte}</p>}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="latitude-bien" className="mb-1 block text-xs font-medium text-slate-600">Latitude GPS</label>
+              <input id="latitude-bien" type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="Ex. 14.7167" className={classeSelect} />
+            </div>
+            <div>
+              <label htmlFor="longitude-bien" className="mb-1 block text-xs font-medium text-slate-600">Longitude GPS</label>
+              <input id="longitude-bien" type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="Ex. -17.4677" className={classeSelect} />
+            </div>
+          </div>
+          {coordonneesValides ? (
+            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <iframe title="Aperçu de la position du logement" src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(longitude) - 0.012}%2C${Number(latitude) - 0.008}%2C${Number(longitude) + 0.012}%2C${Number(latitude) + 0.008}&layer=mapnik&marker=${latitude}%2C${longitude}`} className="h-64 w-full border-0" loading="lazy" />
+            </div>
+          ) : (
+            <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">Aucune position GPS sélectionnée. La carte de cette annonce indiquera que la localisation précise reste à renseigner.</p>
+          )}
+          <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser l’adresse saisie » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
+        </section>
         <Champ id="equipements" name="equipements" libelle="Équipements" aide="Séparés par des virgules : wifi, parking, climatisation" defaultValue={a?.equipements.join(', ')} erreur={champs.equipements} />
         {edition && a && statutsCommerciaux.includes(a.statut) && (
           <div>
