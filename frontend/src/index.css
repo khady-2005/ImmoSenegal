@@ -65,3 +65,16 @@ body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
   .apparition { opacity: 1; transform: none; transition: none; }
   .squelette, .entree { animation: none; }
 }
+
+/* Fond immobilier commun : photo de maison discrète derrière les pages. */
+html, body, #root { min-height: 100%; }
+body {
+  background-color: #f4f7fb;
+  background-image:
+    linear-gradient(rgba(247, 250, 253, 0.88), rgba(247, 250, 253, 0.91)),
+    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
+  background-position: center, center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
