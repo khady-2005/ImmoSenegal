@@ -38,7 +38,7 @@ export default function Home() {
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#102a43]/55 to-transparent" />
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-dore-400/60 bg-[#063b2b]/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-400"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
+            <p className="inline-flex items-center gap-2 rounded-full border border-dore-400/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-400"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
             <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">Immo<span className="text-dore-400">Sénégal</span></h1>
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
@@ -62,14 +62,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-20" aria-labelledby="titre-annonces">
+      <section className="bg-white/80 py-16 sm:py-20 backdrop-blur-sm" aria-labelledby="titre-annonces">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <TitreSection id="titre-annonces" petit="" titre="Biens" accent="vedette" />
             <Link to="/catalogue" className="inline-flex items-center gap-2 pb-1 text-sm font-bold text-nuit-900 hover:text-emeraude-700">Voir tout le catalogue <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
-            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-[#e9f6ed] text-[#07513a] hover:bg-[#dceade]'}`}>{nom}</button>)}
+            {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full px-5 py-2 text-sm font-bold transition ${onglet === valeur ? 'bg-nuit-900 text-white shadow' : 'bg-dore-100 text-nuit-900 hover:bg-dore-100'}`}>{nom}</button>)}
           </div>
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
           <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-emeraude-300 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-emeraude-800 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
