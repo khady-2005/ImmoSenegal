@@ -4,7 +4,7 @@ const titre = 'font-titre text-xl font-semibold text-nuit-900'
 
 export default function MentionsLegales() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-14">
+    <div className="mx-auto max-w-3xl px-4 py-14"><div className="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-carte sm:p-10">
       <h1 className="font-titre text-4xl font-semibold text-nuit-900">Mentions légales</h1>
       <p className="mt-3 text-slate-600">Ce que vous devez savoir sur ce site, en toute franchise.</p>
 
@@ -53,6 +53,6 @@ export default function MentionsLegales() {
           Retour à l’accueil
         </Link>
       </p>
-    </div>
+    </div></div>
   )
 }
