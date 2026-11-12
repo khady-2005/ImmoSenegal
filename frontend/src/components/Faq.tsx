@@ -39,7 +39,7 @@ export default function Faq() {
 
   return (
     <section className="bg-transparent py-14 sm:py-18" aria-labelledby="titre-faq">
-      <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-nuit-950/85 px-5 py-8 text-white shadow-carte-haut backdrop-blur-sm sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
+      <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-nuit-950/70 px-5 py-8 text-white shadow-carte-haut backdrop-blur-sm sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
         <div>
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Besoin de précisions ?</p>
           <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-white sm:text-4xl">
