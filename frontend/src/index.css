@@ -1,41 +1,37 @@
 @import "tailwindcss";
 
 /*
- * Identité visuelle ImmoSénégal : palette officielle du cahier de refonte.
- *   Vert forêt #063B2B (structure) · Vert émeraude #12965B (actions) · Vert sauge (surfaces)
- *   Blanc cassé #F7FAF7 (fond) · Gris clair #F1F3F5 (surfaces) · Texte #182438
- * Les teintes « 700 » et « 800 » du vert sont légèrement plus sombres : elles servent aux textes et aux boutons,
- * pour garder un contraste lisible sur fond clair.
+ * Identité visuelle ImmoSénégal : bleu profond et or lumineux.
+ * Bleu = structure et confiance ; or = actions, repères et détails de marque.
+ * Les tons clairs gardent les textes et les composants lisibles sur mobile.
  */
 @theme {
-  --color-nuit-950: #063b2b;
-  --color-nuit-900: #07513a;
-  --color-nuit-800: #0b684c;
-  --color-nuit-100: #e4f3e9;
-  --color-emeraude-900: #06452f;
-  --color-emeraude-800: #087443;
-  --color-emeraude-700: #0b8750;
-  --color-emeraude-600: #12965b;
-  --color-emeraude-500: #25a86b;
-  --color-emeraude-400: #58bf83;
-  --color-emeraude-300: #9bdcb2;
-  --color-emeraude-50: #e9f6ed;
-  --color-dore-500: #15965f;
-  --color-dore-600: #0b7549;
-  --color-dore-100: #e2f3e8;
-  --color-ivoire: #f7faf7;
-  --color-sable-50: #f3f8f3;
-  --color-sable: #eaf3eb;
-  --color-sable-200: #dceade;
-  --color-brume: #f1f3f5;
-  --color-encre: #182438;
+  --color-nuit-950: #102b49;
+  --color-nuit-900: #173b63;
+  --color-nuit-800: #245783;
+  --color-nuit-100: #e7f0f8;
+  --color-emeraude-900: #805500;
+  --color-emeraude-800: #986600;
+  --color-emeraude-700: #b77b00;
+  --color-emeraude-600: #d99a00;
+  --color-emeraude-500: #f0b400;
+  --color-emeraude-400: #ffc928;
+  --color-emeraude-300: #ffdc72;
+  --color-emeraude-50: #fff8df;
+  --color-dore-500: #f2b800;
+  --color-dore-600: #d99a00;
+  --color-dore-100: #fff2c2;
+  --color-ivoire: #fbfcff;
+  --color-sable-50: #f5f8fc;
+  --color-sable: #edf3f9;
+  --color-sable-200: #dce7f2;
+  --color-brume: #f1f4f8;
+  --color-encre: #182b40;
   --font-sans: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* Titres : une serif éditoriale (Fraunces), hébergée avec le site : aucun appel à un service externe. */
   --font-titre: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
-  /* Le nom de la marque : une grotesque très grasse, proche des lettres du logo. */
   --font-marque: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --shadow-carte: 0 1px 2px rgb(6 59 43 / 0.06), 0 10px 30px -12px rgb(6 59 43 / 0.16);
-  --shadow-carte-haut: 0 2px 4px rgb(6 59 43 / 0.06), 0 22px 44px -16px rgb(6 59 43 / 0.24);
+  --shadow-carte: 0 1px 2px rgb(16 43 73 / 0.06), 0 10px 30px -12px rgb(16 43 73 / 0.16);
+  --shadow-carte-haut: 0 2px 4px rgb(16 43 73 / 0.06), 0 22px 44px -16px rgb(16 43 73 / 0.22);
 }
 
 html { scroll-behavior: smooth; }
@@ -44,7 +40,7 @@ body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
 /* Titres éditoriaux : graisse légère, interlettrage légèrement resserré ; l'axe optique de Fraunces s'adapte à la taille. */
 .font-titre { letter-spacing: -0.012em; word-spacing: 0.05em; }
 
-:focus-visible { outline: 3px solid var(--color-emeraude-600); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--color-dore-500); outline-offset: 2px; }
 
 /* Apparition douce des grandes sections (une seule fois, au défilement). */
 .apparition { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
