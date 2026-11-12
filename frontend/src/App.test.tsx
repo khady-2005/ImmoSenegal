@@ -16,15 +16,12 @@ function afficher(chemin = '/') {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('Accueil', () => {
-  it("affiche le formulaire de recherche et les annonces récentes venant de l'API", async () => {
+  it("présente l'accueil et dirige vers le catalogue sans formulaire de recherche intégré", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa des Pins' })])) })
     afficher()
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('ImmoSénégal')
-    // Le formulaire à critères est affiché d'emblée ; la phrase libre est dans l'onglet voisin.
-    expect(screen.getByRole('form', { name: /recherche de logement/i })).toBeInTheDocument()
-    expect(screen.queryByRole('form', { name: /recherche en une phrase/i })).not.toBeInTheDocument()
-    await userEvent.setup().click(screen.getByRole('tab', { name: 'En une phrase' }))
-    expect(screen.getByRole('form', { name: /recherche en une phrase/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Rechercher un bien' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.queryByRole('form', { name: /recherche/i })).not.toBeInTheDocument()
     expect(await screen.findByRole('link', { name: 'Villa des Pins' })).toHaveAttribute('href', '/annonces/a1111111-1111-1111-1111-111111111111')
   })
 
@@ -41,37 +38,19 @@ describe('Accueil', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/impossible de joindre le serveur/i)
   })
 
-  it('la recherche envoie les critères saisis vers le catalogue et vers l\'API', async () => {
-    const api = simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
-    const user = userEvent.setup()
+  it('redirige un visiteur vers la connexion lorsqu’il choisit de consulter le catalogue', async () => {
+    simulerApi({})
     afficher()
-    await user.click(screen.getByRole('button', { name: 'Acheter' }))
-    await user.selectOptions(screen.getByLabelText('Type de bien'), 'VILLA')
-    await user.type(screen.getByLabelText('Ville ou quartier'), 'Néma')
-    await user.type(screen.getByLabelText(/Budget max/), '50000000')
-    await user.click(within(screen.getByRole('form', { name: /recherche de logement/i })).getByRole('button', { name: /rechercher/i }))
-
-    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Transaction')).toHaveValue('VENTE')
-    expect(screen.getByLabelText('Type de bien')).toHaveValue('VILLA')
-    expect(screen.getByLabelText('Quartier')).toHaveValue('Néma')
-    expect(screen.getByLabelText('Prix maximum (FCFA)')).toHaveValue(50000000)
-
-    const dernier = api.mock.calls.at(-1)![0]
-    const p = parametresDe(dernier)
-    expect(p.get('transaction')).toBe('VENTE')
-    expect(p.get('type')).toBe('VILLA')
-    expect(p.get('quartier')).toBe('Néma')
-    expect(p.get('prixMax')).toBe('50000000')
+    await userEvent.setup().click(screen.getByRole('link', { name: 'Rechercher un bien' }))
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 })
 
 describe('Application', () => {
-  it('permet à un visiteur non connecté de consulter le catalogue', async () => {
-    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Maison à visiter' })])) })
+  it('redirige un visiteur non connecté vers la connexion avant le catalogue', async () => {
+    simulerApi({})
     afficher('/catalogue')
-    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
-    expect(await screen.findByRole('link', { name: 'Maison à visiter' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 
   it('affiche une page 404 pour une route inconnue', () => {
