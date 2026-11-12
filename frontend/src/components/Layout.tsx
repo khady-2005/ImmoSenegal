@@ -36,6 +36,7 @@ export default function Layout() {
 
   useEffect(() => {
     setMenuOuvert(false)
+    document.body.classList.toggle('fond-pages', pathname !== '/')
     window.scrollTo?.(0, 0)
   }, [pathname])
 
