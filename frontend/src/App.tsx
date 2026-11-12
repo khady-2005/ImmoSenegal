@@ -5,6 +5,7 @@ import APropos from './pages/APropos'
 import FaqPage from './pages/FaqPage'
 import Contact from './pages/Contact'
 import Catalogue from './pages/Catalogue'
+import AssistantImmobilier from './pages/AssistantImmobilier'
 import CarteBiens from './pages/CarteBiens'
 import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="faq" element={<FaqPage />} />
           <Route path="contact" element={<RequireAuth><Contact /></RequireAuth>} />
           <Route path="catalogue" element={<RequireAuth><Catalogue /></RequireAuth>} />
+          <Route path="assistant" element={<AssistantImmobilier />} />
           <Route path="carte" element={<RequireAuth><CarteBiens /></RequireAuth>} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
