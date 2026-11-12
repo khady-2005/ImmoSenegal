@@ -4,6 +4,8 @@ import { appelApi, ApiError } from '../api'
 import AnnonceCard from '../components/AnnonceCard'
 import type { Annonce, PagePaginee, TypeBien, TypeTransaction } from '../types'
 
+type Message = { role: 'assistant' | 'user'; content: string }
+
 type Criteres = {
   transaction: TypeTransaction
   type: TypeBien | ''
@@ -30,6 +32,50 @@ export default function AssistantImmobilier() {
   const [rechercheFaite, setRechercheFaite] = useState(false)
   const [chargement, setChargement] = useState(false)
   const [erreur, setErreur] = useState('')
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: "Bonjour ! Je suis l’assistant immobilier d’ImmoSénégal. Je peux vous guider pour louer ou acheter un logement et vous aider à rechercher dans les annonces publiées. Quel est votre projet ?" },
+  ])
+  const [message, setMessage] = useState('')
+
+  function envoyerMessage(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const texte = message.trim()
+    if (!texte) return
+    const bas = texte.toLocaleLowerCase('fr')
+    let reponse = "Pour mieux vous orienter, pouvez-vous préciser la ville ou le quartier qui vous intéresse ?"
+    if (/bonjour|salut|bonsoir/.test(bas)) {
+      reponse = "Bonjour ! Vous souhaitez louer, acheter ou simplement obtenir des conseils sur l’immobilier au Sénégal ?"
+    } else if (/louer|location|locataire/.test(bas)) {
+      modifier('transaction', 'LOCATION')
+      reponse = "Très bien, nous allons chercher une location. Dans quelle ville ou quel quartier souhaitez-vous habiter ?"
+    } else if (/acheter|achat|vente|acqu[eé]rir/.test(bas)) {
+      modifier('transaction', 'VENTE')
+      reponse = "D’accord, votre projet est un achat. Dans quelle ville ou quel quartier recherchez-vous ?"
+    } else if (/budget|prix|fcfa|franc/.test(bas)) {
+      const montant = texte.match(/[0-9][0-9\s.,]*/)
+      if (montant) {
+        const nombre = Number(montant[0].replace(/[\s.,]/g, ''))
+        if (nombre > 0) modifier('prixMax', String(nombre))
+      }
+      reponse = "Merci pour cette précision. Indiquez aussi la ville ou le quartier, puis lancez la recherche dans le formulaire ci-dessous pour voir les annonces correspondantes."
+    } else if (/dakar|thi[eé]s|saint.?louis|ziguinchor|kaolack|mbour|rufisque/.test(bas)) {
+      const villes = ['Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque']
+      const ville = villes.find((v) => bas.includes(v.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, ''))) ?? 'Dakar'
+      modifier('ville', ville)
+      reponse = "J’ai noté " + ville + ". Quel type de bien recherchez-vous : maison, appartement, studio, villa ou terrain ?"
+    } else if (/maison|appartement|studio|villa|terrain/.test(bas)) {
+      const types: [RegExp, TypeBien][] = [[/maison/, 'MAISON'], [/appartement/, 'APPARTEMENT'], [/studio/, 'STUDIO'], [/villa/, 'VILLA'], [/terrain/, 'TERRAIN']]
+      const type = types.find(([regex]) => regex.test(bas))?.[1]
+      if (type) modifier('type', type)
+      reponse = "C’est noté. Quel est votre budget maximum en FCFA ? Vous pouvez aussi lancer la recherche avec les critères déjà renseignés."
+    } else if (/conseil|dossier|document|contrat|visite|arnaque|frais/.test(bas)) {
+      reponse = "Quelques conseils utiles : visitez le logement avant tout engagement, vérifiez l’identité de votre interlocuteur et demandez un document écrit précisant le prix, les frais et les conditions. Pour une question juridique précise, faites vérifier les documents par un professionnel."
+    } else if (/merci/.test(bas)) {
+      reponse = "Avec plaisir ! Je peux vous aider à préciser votre recherche. Vous cherchez plutôt à louer ou à acheter ?"
+    }
+    setMessages((anciens) => [...anciens, { role: 'user', content: texte }, { role: 'assistant', content: reponse }])
+    setMessage('')
+  }
 
   function modifier<K extends keyof Criteres>(cle: K, valeur: Criteres[K]) {
     setCriteres((actuels) => ({ ...actuels, [cle]: valeur }))
@@ -84,6 +130,28 @@ export default function AssistantImmobilier() {
         <div className="mt-5 flex items-center gap-2 text-sm text-[#ffdc72]">
           <Sparkles aria-hidden className="h-4 w-4" />
           Recherche basée sur les annonces réelles du catalogue
+        </div>
+      </section>
+
+      <section className="mt-8 overflow-hidden rounded-3xl border border-white/70 bg-white/95 shadow-xl backdrop-blur-sm" aria-label="Conversation avec l’assistant immobilier">
+        <div className="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-7">
+          <div className="flex items-center justify-between gap-3">
+            <div><h2 className="font-titre text-xl font-semibold text-[#102b49]">Discutons de votre projet</h2><p className="text-xs text-slate-500">Assistant gratuit · réponses guidées, sans clé API</p></div>
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Disponible</span>
+          </div>
+        </div>
+        <div className="max-h-80 space-y-3 overflow-y-auto p-5 sm:px-7" aria-live="polite">
+          {messages.map((item, index) => <div key={index} className={item.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
+            <p className={item.role === 'user' ? 'max-w-[88%] rounded-2xl rounded-br-md bg-[#173b63] px-4 py-3 text-sm leading-relaxed text-white' : 'max-w-[88%] rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3 text-sm leading-relaxed text-slate-800'}>{item.content}</p>
+          </div>)}
+        </div>
+        <form onSubmit={envoyerMessage} className="flex gap-2 border-t border-slate-200 p-4 sm:p-5">
+          <label className="sr-only" htmlFor="assistant-message">Votre message</label>
+          <input id="assistant-message" value={message} onChange={(e) => setMessage(e.target.value)} className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#d99a00] focus:ring-2 focus:ring-[#f2b800]/25" placeholder="Ex. Je cherche une maison à louer à Dakar…" maxLength={500} />
+          <button type="submit" disabled={!message.trim()} className="rounded-xl bg-[#f2b800] px-5 py-3 text-sm font-bold text-[#102b49] transition hover:bg-[#ffcf35] disabled:cursor-not-allowed disabled:opacity-50">Envoyer</button>
+        </form>
+        <div className="flex flex-wrap gap-2 px-4 pb-5 sm:px-5">
+          {['Je veux louer', 'Je veux acheter', 'Je cherche une maison', 'J’ai besoin de conseils'].map((suggestion) => <button key={suggestion} type="button" onClick={() => setMessage(suggestion)} className="rounded-full border border-[#d7e1ec] px-3 py-1.5 text-xs font-medium text-[#173b63] transition hover:border-[#d99a00] hover:bg-amber-50">{suggestion}</button>)}
         </div>
       </section>
 
