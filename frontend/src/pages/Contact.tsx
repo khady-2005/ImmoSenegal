@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 
 export default function Contact() {
   return (
-    <div className="min-h-[70vh] bg-transparent">
-      <section className="relative isolate overflow-hidden bg-nuit-950/80 px-4 py-20 text-white backdrop-blur-[2px] sm:py-24">
+    <div className="min-h-[70vh] bg-cover bg-center bg-fixed" style={{ backgroundImage: 'linear-gradient(rgba(247,250,253,0.48), rgba(247,250,253,0.58)), url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85")' }}>
+      <section className="relative isolate overflow-hidden bg-nuit-950/65 px-4 py-20 text-white backdrop-blur-[2px] sm:py-24">
         <div className="mx-auto max-w-5xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-dore-400">ImmoSénégal</p>
           <h1 className="mt-4 font-titre text-4xl font-semibold sm:text-5xl">Contactez-nous</h1>
