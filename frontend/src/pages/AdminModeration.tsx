@@ -127,7 +127,7 @@ export default function AdminModeration() {
         ))}
       </div>
 
-      {info && <p role="status" className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">{info}</p>}
+      {info && <p role="status" className="mt-4 rounded-lg bg-dore-100 p-3 text-sm text-nuit-900">{info}</p>}
       {erreur && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       {!annonces && !erreur && <p role="status" className="mt-6 text-slate-500">Chargement…</p>}
       {annonces && annonces.length === 0 && (
