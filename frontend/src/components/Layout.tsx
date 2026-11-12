@@ -55,7 +55,7 @@ export default function Layout() {
       </a>
 
       <header
-        className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-[#0b684c] text-white transition-shadow ${
+        className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 text-white transition-shadow ${
           defile ? 'shadow-[0_10px_30px_-12px_rgb(2_12_27/0.65)]' : ''
         }`}
       >
@@ -97,7 +97,7 @@ export default function Layout() {
                 </NavLink>
                 <NavLink
                   to="/inscription"
-                  className="ml-1 rounded-full border border-dore-400 bg-dore-400 px-4 py-2 text-[0.95rem] font-bold text-nuit-950 shadow-sm transition-colors hover:bg-dore-300"
+                  className="ml-1 rounded-full border-2 border-[#ffe28a] bg-[#ffc928] px-4 py-2 text-[0.95rem] font-extrabold text-[#102b49] shadow-[0_2px_10px_rgba(0,0,0,0.22)] transition-colors hover:bg-[#ffdc72] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   Inscription
                 </NavLink>
@@ -170,7 +170,7 @@ export default function Layout() {
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink to="/inscription" className={lienMobile} onClick={fermerMenu}>
+                    <NavLink to="/inscription" className="block rounded-xl border border-[#ffe28a] bg-[#ffc928] px-3 py-3 text-base font-extrabold text-[#102b49] shadow-sm transition-colors hover:bg-[#ffdc72]" onClick={fermerMenu}>
                       Inscription
                     </NavLink>
                   </li>
