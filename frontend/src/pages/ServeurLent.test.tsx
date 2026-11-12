@@ -13,7 +13,12 @@ afterEach(() => {
 describe('Serveur lent (réveil de l\'hébergement)', () => {
   it("affiche un message d'attente après 4 secondes, puis le retire quand le serveur répond", async () => {
     let repondre: (r: Response) => void = () => undefined
-    simulerApi({ 'POST /api/auth/refresh': () => reponseConnexion(), 'GET /api/annonces?*': () => new Promise<Response>((r) => (repondre = r)) })
+    let demarrerRequete: () => void = () => undefined
+    const requeteDemarree = new Promise<void>((resolve) => { demarrerRequete = resolve })
+    simulerApi({ 'POST /api/auth/refresh': () => reponseConnexion(), 'GET /api/annonces?*': () => {
+      demarrerRequete()
+      return new Promise<Response>((r) => (repondre = r))
+    } })
     render(
       <MemoryRouter initialEntries={['/catalogue']}>
         <App />
@@ -21,6 +26,8 @@ describe('Serveur lent (réveil de l\'hébergement)', () => {
     )
     expect(screen.queryByText(/le serveur se réveille/i)).not.toBeInTheDocument()
 
+    // Attendre que la restauration de session soit terminée et que la requête catalogue ait réellement démarré.
+    await act(async () => { await requeteDemarree })
     await act(async () => {
       await vi.advanceTimersByTimeAsync(4100)
     })
