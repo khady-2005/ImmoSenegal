@@ -75,7 +75,7 @@ body {
 body.fond-pages {
   background-color: #f4f7fb;
   background-image:
-    linear-gradient(rgba(247, 250, 253, 0.96), rgba(247, 250, 253, 0.97)),
+    linear-gradient(rgba(247, 250, 253, 0.72), rgba(247, 250, 253, 0.78)),
     url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
   background-position: center, center;
   background-size: cover;
