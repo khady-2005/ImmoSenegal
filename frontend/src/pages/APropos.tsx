@@ -63,7 +63,7 @@ export default function APropos() {
           </div>
 
           <div className="relative">
-            <div className="rounded-[2rem] border border-white/15 bg-white/[0.08] p-7 shadow-2xl backdrop-blur-sm sm:p-9">
+            <div className="rounded-[2rem] border border-white/15 bg-nuit-950/95 p-7 shadow-2xl sm:p-9">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Notre objectif</p>
               <p className="mt-5 font-titre text-3xl font-medium leading-snug sm:text-4xl">
                 Rendre les annonces immobilières plus simples à découvrir et à comparer.
@@ -116,7 +116,7 @@ export default function APropos() {
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {usages.map(({ Icone, numero, titre, texte }) => (
-              <article key={numero} className="group rounded-3xl border border-slate-200 bg-white/85 p-7 backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:border-emeraude-300 hover:shadow-carte-haut">
+              <article key={numero} className="group rounded-3xl border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-emeraude-300 hover:shadow-carte-haut">
                 <div className="flex items-center justify-between">
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emeraude-50 text-emeraude-800">
                     <Icone className="h-6 w-6" />
@@ -131,7 +131,7 @@ export default function APropos() {
         </div>
       </section>
 
-      <section className="bg-white/65 px-4 py-20 backdrop-blur-sm sm:py-24">
+      <section className="bg-white/95 px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="max-w-2xl">
             <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-emeraude-700">Nos repères</p>
