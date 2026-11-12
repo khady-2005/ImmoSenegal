@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
-import { annonceTest, json, pageTest, simulerApi } from '../test/apiSimulee'
+import { annonceTest, json, pageTest, reponseConnexion, simulerApi } from '../test/apiSimulee'
 
 beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }))
 afterEach(() => {
@@ -13,7 +13,7 @@ afterEach(() => {
 describe('Serveur lent (réveil de l\'hébergement)', () => {
   it("affiche un message d'attente après 4 secondes, puis le retire quand le serveur répond", async () => {
     let repondre: (r: Response) => void = () => undefined
-    simulerApi({ 'POST /api/auth/refresh': () => json(200, { accessToken: 'jeton-test', utilisateur: { id: 'u1', email: 'test@example.com', prenom: 'Test', nom: 'User', role: 'PROPRIETAIRE' } }), 'GET /api/annonces?*': () => new Promise<Response>((r) => (repondre = r)) })
+    simulerApi({ 'POST /api/auth/refresh': () => reponseConnexion(), 'GET /api/annonces?*': () => new Promise<Response>((r) => (repondre = r)) })
     render(
       <MemoryRouter initialEntries={['/catalogue']}>
         <App />
