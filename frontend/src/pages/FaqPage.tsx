@@ -2,8 +2,8 @@ import Faq from '../components/Faq'
 
 export default function FaqPage() {
   return (
-    <div className="min-h-[70vh] bg-[#eef5ee]">
-      <section className="bg-gradient-to-br from-nuit-950 via-nuit-900 to-nuit-800 px-4 py-16 text-white sm:py-20">
+    <div className="min-h-[70vh] bg-transparent">
+      <section className="bg-nuit-950/80 px-4 py-16 text-white backdrop-blur-[2px] sm:py-20">
         <div className="mx-auto max-w-6xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-dore-300">Centre d’aide</p>
           <h1 className="mt-3 font-titre text-4xl font-semibold sm:text-5xl">Questions fréquentes</h1>
