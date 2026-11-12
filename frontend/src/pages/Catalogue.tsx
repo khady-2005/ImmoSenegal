@@ -74,7 +74,7 @@ export default function Catalogue() {
           key={params.toString()}
           onSubmit={appliquer}
           aria-label="Filtres du catalogue"
-          className="relative z-10 -mt-20 rounded-3xl bg-white p-5 shadow-carte-haut ring-1 ring-black/5 sm:p-7"
+          className="relative z-10 -mt-20 rounded-3xl bg-white/90 p-5 shadow-carte-haut backdrop-blur-sm ring-1 ring-black/5 sm:p-7"
         >
           <div className="mb-4 flex items-center gap-2 font-semibold text-nuit-900">
             <SlidersHorizontal aria-hidden className="h-5 w-5 text-emeraude-700" />
@@ -228,11 +228,11 @@ export default function Catalogue() {
 
         {!utilisateur && etat.statut === 'ok' && etat.page.totalElements > 6 && (
           <section className="mt-10 rounded-3xl border border-emeraude-100 bg-[#eaf3eb] px-6 py-8 text-center sm:px-10" aria-labelledby="titre-catalogue-complet">
-            <h2 id="titre-catalogue-complet" className="font-titre text-2xl font-semibold text-[#063b2b]">Découvrez tout le catalogue</h2>
+            <h2 id="titre-catalogue-complet" className="font-titre text-2xl font-semibold text-nuit-950">Découvrez tout le catalogue</h2>
             <p className="mx-auto mt-2 max-w-xl text-slate-600">Connectez-vous ou créez un compte pour parcourir toutes les annonces et accéder aux fiches détaillées.</p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
-              <Link to="/connexion" className="rounded-full bg-[#08734f] px-6 py-3 font-semibold text-white transition hover:bg-[#07513a]">Se connecter</Link>
-              <Link to="/inscription" className="rounded-full border border-[#08734f] px-6 py-3 font-semibold text-[#07513a] transition hover:bg-white">Créer un compte</Link>
+              <Link to="/connexion" className="rounded-full bg-dore-500 px-6 py-3 font-semibold text-white transition hover:bg-dore-600">Se connecter</Link>
+              <Link to="/inscription" className="rounded-full border border-dore-600 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-white">Créer un compte</Link>
             </div>
           </section>
         )}
