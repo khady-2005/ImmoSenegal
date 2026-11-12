@@ -43,7 +43,7 @@ export default function Home() {
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="/catalogue" className={boutonOr}><span aria-hidden>⌕</span> Rechercher un bien</a>
+              <Link to="/catalogue" className={boutonOr}><span aria-hidden>⌕</span> Rechercher un bien</Link>
               <Link to="/catalogue" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-nuit-950/35 px-6 py-3.5 font-semibold text-white transition hover:bg-white hover:text-nuit-950">Découvrir le catalogue <ArrowRight aria-hidden className="h-4 w-4" /></Link>
             </div>
             {total > 0 && <p className="mt-6 text-sm font-medium text-white/90">{total} bien{total > 1 ? 's' : ''} publié{total > 1 ? 's' : ''} actuellement</p>}
