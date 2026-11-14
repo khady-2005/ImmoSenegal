@@ -81,6 +81,9 @@ export default function Connexion() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <p className="text-right text-sm">
+          <Link to="/mot-de-passe-oublie" className="font-semibold text-emeraude-700 underline">Mot de passe oublié ?</Link>
+        </p>
         <button
           type="submit"
           disabled={enCours || email.trim() === '' || password === ''}
