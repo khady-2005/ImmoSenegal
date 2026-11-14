@@ -33,7 +33,7 @@ public class Annonce {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "proprietaire_id", nullable = false, updatable = false)
+    @JoinColumn(name = "proprietaire_id", nullable = false)
     private User proprietaire;
 
     @Column(nullable = false, length = 150)
@@ -135,6 +135,7 @@ public class Annonce {
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
 
+    public void setProprietaire(User proprietaire) { this.proprietaire = proprietaire; }
     public void setTitre(String titre) { this.titre = titre; }
     public void setDescription(String description) { this.description = description; }
     public void setTypeBien(TypeBien typeBien) { this.typeBien = typeBien; }
