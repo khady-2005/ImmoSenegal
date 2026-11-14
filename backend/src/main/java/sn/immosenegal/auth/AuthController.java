@@ -38,20 +38,36 @@ public class AuthController {
     private final RefreshTokenService refresh;
     private final JwtService jwt;
     private final CookieRefresh cookies;
+    private final ReinitialisationMotDePasseService reinitialisation;
 
     public AuthController(AuthService service, UserRepository users, RefreshTokenService refresh, JwtService jwt,
-                          CookieRefresh cookies) {
+                          CookieRefresh cookies, ReinitialisationMotDePasseService reinitialisation) {
         this.service = service;
         this.users = users;
         this.refresh = refresh;
         this.jwt = jwt;
         this.cookies = cookies;
+        this.reinitialisation = reinitialisation;
     }
 
     @PostMapping("/register")
     @Operation(summary = "Créer un compte (toujours avec le rôle CLIENT)")
     public ResponseEntity<UserResponse> inscrire(@Valid @RequestBody RegisterRequest requete) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.inscrire(requete));
+    }
+
+    @PostMapping("/mot-de-passe-oublie")
+    @Operation(summary = "Demander un lien temporaire de réinitialisation du mot de passe")
+    public ResponseEntity<Void> demanderReinitialisation(@Valid @RequestBody DemandeReinitialisationRequest requete) {
+        reinitialisation.demander(requete.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reinitialiser-mot-de-passe")
+    @Operation(summary = "Définir un nouveau mot de passe avec un lien temporaire")
+    public ResponseEntity<Void> reinitialiserMotDePasse(@Valid @RequestBody ReinitialiserMotDePasseRequest requete) {
+        reinitialisation.reinitialiser(requete.token(), requete.nouveauMotDePasse());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
