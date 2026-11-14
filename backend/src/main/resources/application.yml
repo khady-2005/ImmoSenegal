@@ -6,6 +6,17 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/immosenegal}
     username: ${DB_USER:immosenegal}
     password: ${DB_PASSWORD}
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   servlet:
     multipart:
       # Photos : 5 Mo maximum (le défaut de Spring serait 1 Mo).
@@ -58,17 +69,3 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   mail:
     from: ${MAIL_FROM:}
-
-# E-mail : désactivé tant que les variables SMTP ne sont pas configurées.
-spring:
-  mail:
-    host: ${MAIL_HOST:}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
