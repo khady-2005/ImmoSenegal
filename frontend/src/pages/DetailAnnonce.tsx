@@ -9,6 +9,7 @@ import AnnonceCard from '../components/AnnonceCard'
 import { useAnnonces } from '../components/useAnnonces'
 import Galerie from '../components/Galerie'
 import DemandeVisiteForm from '../components/DemandeVisiteForm'
+import DemandeReservationForm from '../components/DemandeReservationForm'
 import AvisAnnonce from '../components/AvisAnnonce'
 
 /** Biens du même type dans la même ville (sans l'annonce affichée). Rien n'est affiché s'il n'y en a pas, ou en cas d'erreur. */
@@ -155,6 +156,7 @@ export default function DetailAnnonce() {
                 </div>
 
                 {utilisateur?.role === 'CLIENT' && <DemandeVisiteForm annonceId={a.id} />}
+                {utilisateur?.role === 'CLIENT' && <DemandeReservationForm annonceId={a.id} />}
                 {!utilisateur && <p className="mt-6 rounded-2xl bg-dore-100/70 p-4 text-sm leading-relaxed text-nuit-900">Connectez-vous avec un compte client pour demander une visite de ce bien.</p>}
                 {(utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN') && <p className="mt-6 rounded-2xl bg-dore-100 p-4 text-sm leading-relaxed text-nuit-900">Les demandes de visite reçues pour vos annonces sont accessibles depuis votre tableau de bord.</p>}
               </div>
