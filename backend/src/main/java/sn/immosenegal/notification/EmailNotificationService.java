@@ -17,12 +17,15 @@ public class EmailNotificationService {
 
     private final ObjectProvider<JavaMailSender> mailSenders;
     private final String expediteur;
+    private final String hoteSmtp;
 
     public EmailNotificationService(
             ObjectProvider<JavaMailSender> mailSenders,
-            @Value("${app.mail.from:}") String expediteur) {
+            @Value("${app.mail.from:}") String expediteur,
+            @Value("${spring.mail.host:}") String hoteSmtp) {
         this.mailSenders = mailSenders;
         this.expediteur = expediteur;
+        this.hoteSmtp = hoteSmtp;
     }
 
     public void envoyer(User destinataire, String titre, String message) {
@@ -31,7 +34,8 @@ public class EmailNotificationService {
         }
 
         JavaMailSender sender = mailSenders.getIfAvailable();
-        if (sender == null || expediteur == null || expediteur.isBlank()) {
+        if (sender == null || expediteur == null || expediteur.isBlank()
+                || hoteSmtp == null || hoteSmtp.isBlank()) {
             return; // Configuration SMTP absente : les notifications dans l'application restent actives.
         }
 
