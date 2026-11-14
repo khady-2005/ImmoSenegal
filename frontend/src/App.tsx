@@ -15,6 +15,8 @@ import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
+import MotDePasseOublie from './pages/MotDePasseOublie'
+import ReinitialiserMotDePasse from './pages/ReinitialiserMotDePasse'
 import Dashboard from './pages/Dashboard'
 import AdminDemandes from './pages/AdminDemandes'
 import AdminModeration from './pages/AdminModeration'
@@ -49,6 +51,8 @@ export default function App() {
           <Route path="visites-recues" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
+          <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
+          <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />
           <Route path="inscription" element={<Inscription />} />
           <Route path="tableau-de-bord" element={<RequireAuth><Dashboard /></RequireAuth>} />
           <Route path="*" element={<NotFound />} />
