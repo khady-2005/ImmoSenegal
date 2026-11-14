@@ -9,6 +9,7 @@ import AnnonceCard from '../components/AnnonceCard'
 import { useAnnonces } from '../components/useAnnonces'
 import Galerie from '../components/Galerie'
 import DemandeVisiteForm from '../components/DemandeVisiteForm'
+import AvisAnnonce from '../components/AvisAnnonce'
 
 /** Biens du même type dans la même ville (sans l'annonce affichée). Rien n'est affiché s'il n'y en a pas, ou en cas d'erreur. */
 function BiensSimilaires({ annonce }: { annonce: Annonce }) {
@@ -214,6 +215,7 @@ export default function DetailAnnonce() {
             )}
           </section>
 
+          <AvisAnnonce annonceId={a.id} />
           <BiensSimilaires annonce={a} />
         </article>
       )}
