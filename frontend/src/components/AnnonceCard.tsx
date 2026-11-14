@@ -4,6 +4,7 @@ import type { Annonce } from '../types'
 import { libelleStatut, libelleTypeBien } from '../types'
 import { formatFcfa } from '../format'
 import { urlPhoto } from './photos'
+import BoutonFavori from './BoutonFavori'
 
 export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
@@ -11,6 +12,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emeraude-900 to-emeraude-700">
+        <BoutonFavori annonceId={annonce.id} />
         {annonce.photos.length > 0 ? (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0])}
