@@ -13,15 +13,18 @@ import sn.immosenegal.security.AuthenticatedUser;
 @Service
 public class NotificationService {
     private final NotificationRepository notifications;
+    private final EmailNotificationService emails;
 
-    public NotificationService(NotificationRepository notifications) {
+    public NotificationService(NotificationRepository notifications, EmailNotificationService emails) {
         this.notifications = notifications;
+        this.emails = emails;
     }
 
     @Transactional
     public void creer(sn.immosenegal.user.User destinataire, String type, String titre, String message, String lien) {
         if (destinataire != null) {
             notifications.save(new Notification(destinataire, type, titre, message, lien));
+            emails.envoyer(destinataire, titre, message);
         }
     }
 
