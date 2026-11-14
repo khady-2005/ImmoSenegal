@@ -17,7 +17,7 @@ export function FavorisProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let annule = false
-    if (utilisateur?.role !== 'CLIENT' || !jeton) {
+    if (!utilisateur || !jeton) {
       setIds([])
       setChargement(false)
       return
@@ -28,10 +28,10 @@ export function FavorisProvider({ children }: { children: ReactNode }) {
       .catch(() => { if (!annule) setIds([]) })
       .finally(() => { if (!annule) setChargement(false) })
     return () => { annule = true }
-  }, [utilisateur?.id, utilisateur?.role, jeton])
+  }, [utilisateur?.id, jeton])
 
   const basculer = useCallback(async (id: string) => {
-    if (!jeton || utilisateur?.role !== 'CLIENT') return
+    if (!jeton || !utilisateur) return
     const dejaPresent = ids.includes(id)
     if (dejaPresent) {
       await appelApi<void>(`/api/favoris/${id}`, { method: 'DELETE', token: jeton })
@@ -40,7 +40,7 @@ export function FavorisProvider({ children }: { children: ReactNode }) {
       await appelApi<void>(`/api/favoris/${id}`, { method: 'POST', token: jeton })
       setIds(actuels => actuels.includes(id) ? actuels : [...actuels, id])
     }
-  }, [ids, jeton, utilisateur?.role])
+  }, [ids, jeton, utilisateur?.id])
 
   const valeur = useMemo(() => ({ ids, contient: (id: string) => ids.includes(id), basculer, chargement }), [ids, basculer, chargement])
   return <Contexte.Provider value={valeur}>{children}</Contexte.Provider>
