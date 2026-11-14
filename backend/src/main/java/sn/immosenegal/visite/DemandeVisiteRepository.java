@@ -8,4 +8,5 @@ public interface DemandeVisiteRepository extends JpaRepository<DemandeVisite, UU
     List<DemandeVisite> findByClientIdOrderByCreeLeDesc(UUID clientId);
     List<DemandeVisite> findByAnnonceProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     List<DemandeVisite> findAllByOrderByCreeLeDesc();
+    boolean existsByAnnonceIdAndClientIdAndStatutAndDateVisiteBefore(UUID annonceId, UUID clientId, StatutVisite statut, java.time.LocalDateTime dateVisite);
 }
