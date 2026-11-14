@@ -4,6 +4,7 @@ import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
 import { LogOut, MapPin, Menu, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
 import { LogoComplet, Marque } from './Logo'
+import CentreNotifications from './CentreNotifications'
 
 const lienDesktop = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-full px-3.5 py-2 text-[0.95rem] font-medium transition-colors ${
