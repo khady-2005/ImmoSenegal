@@ -41,38 +41,90 @@ export default function AssistantImmobilier() {
     e.preventDefault()
     const texte = message.trim()
     if (!texte) return
-    const bas = texte.toLocaleLowerCase('fr')
-    let reponse = "Pour mieux vous orienter, pouvez-vous préciser la ville ou le quartier qui vous intéresse ?"
-    if (/bonjour|salut|bonsoir/.test(bas)) {
-      reponse = "Bonjour ! Vous souhaitez louer, acheter ou simplement obtenir des conseils sur l’immobilier au Sénégal ?"
-    } else if (/louer|location|locataire/.test(bas)) {
-      modifier('transaction', 'LOCATION')
-      reponse = "Très bien, nous allons chercher une location. Dans quelle ville ou quel quartier souhaitez-vous habiter ?"
-    } else if (/acheter|achat|vente|acqu[eé]rir/.test(bas)) {
-      modifier('transaction', 'VENTE')
-      reponse = "D’accord, votre projet est un achat. Dans quelle ville ou quel quartier recherchez-vous ?"
-    } else if (/budget|prix|fcfa|franc/.test(bas)) {
-      const montant = texte.match(/[0-9][0-9\s.,]*/)
-      if (montant) {
-        const nombre = Number(montant[0].replace(/[\s.,]/g, ''))
-        if (nombre > 0) modifier('prixMax', String(nombre))
-      }
-      reponse = "Merci pour cette précision. Indiquez aussi la ville ou le quartier, puis lancez la recherche dans le formulaire ci-dessous pour voir les annonces correspondantes."
-    } else if (/dakar|thi[eé]s|saint.?louis|ziguinchor|kaolack|mbour|rufisque/.test(bas)) {
-      const villes = ['Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque']
-      const ville = villes.find((v) => bas.includes(v.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, ''))) ?? 'Dakar'
-      modifier('ville', ville)
-      reponse = "J’ai noté " + ville + ". Quel type de bien recherchez-vous : maison, appartement, studio, villa ou terrain ?"
-    } else if (/maison|appartement|studio|villa|terrain/.test(bas)) {
-      const types: [RegExp, TypeBien][] = [[/maison/, 'MAISON'], [/appartement/, 'APPARTEMENT'], [/studio/, 'STUDIO'], [/villa/, 'VILLA'], [/terrain/, 'TERRAIN']]
-      const type = types.find(([regex]) => regex.test(bas))?.[1]
-      if (type) modifier('type', type)
-      reponse = "C’est noté. Quel est votre budget maximum en FCFA ? Vous pouvez aussi lancer la recherche avec les critères déjà renseignés."
-    } else if (/conseil|dossier|document|contrat|visite|arnaque|frais/.test(bas)) {
-      reponse = "Quelques conseils utiles : visitez le logement avant tout engagement, vérifiez l’identité de votre interlocuteur et demandez un document écrit précisant le prix, les frais et les conditions. Pour une question juridique précise, faites vérifier les documents par un professionnel."
-    } else if (/merci/.test(bas)) {
-      reponse = "Avec plaisir ! Je peux vous aider à préciser votre recherche. Vous cherchez plutôt à louer ou à acheter ?"
+    const bas = texte.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    const nouveaux: Criteres = { ...criteres }
+    const changements: string[] = []
+
+    if (/\b(louer|location|locataire)\b/.test(bas)) {
+      nouveaux.transaction = 'LOCATION'
+      changements.push('location')
+    } else if (/\b(acheter|achat|vente|acquerir)\b/.test(bas)) {
+      nouveaux.transaction = 'VENTE'
+      changements.push('achat')
     }
+
+    const types: [RegExp, TypeBien][] = [
+      [/\b(maison|maisons)\b/, 'MAISON'],
+      [/\b(appartement|appartements)\b/, 'APPARTEMENT'],
+      [/\b(studio|studios)\b/, 'STUDIO'],
+      [/\b(villa|villas)\b/, 'VILLA'],
+      [/\b(terrain|terrains)\b/, 'TERRAIN'],
+    ]
+    const typeTrouve = types.find(([regex]) => regex.test(bas))?.[1]
+    if (typeTrouve) {
+      nouveaux.type = typeTrouve
+      changements.push('type de bien')
+    }
+
+    const villes = ['Dakar', 'Thies', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque']
+    const villeTrouvee = villes.find((ville) => bas.includes(ville.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '')))
+    if (villeTrouvee) {
+      nouveaux.ville = villeTrouvee === 'Thies' ? 'Thiès' : villeTrouvee
+      changements.push('ville')
+    }
+
+    const quartier = texte.match(/quartier\s+(?:de\s+)?([\p{L} -]{2,30})/iu)
+    if (quartier?.[1]) {
+      nouveaux.quartier = quartier[1].trim().replace(/[.,!?].*$/, '')
+      changements.push('quartier')
+    }
+
+    const budgetMentionne = /budget|maximum|max|prix|fcfa|francs?|mille/.test(bas)
+    const montant = texte.match(/(\d[\d\s.,]*)(?:\s*(mille|millions?))?/i)
+    if (budgetMentionne && montant) {
+      const nombre = Number(montant[1].replace(/[\s.,]/g, '')) * (montant[2]?.toLowerCase().startsWith('mill') ? 1000000 : montant[2] ? 1000 : 1)
+      if (Number.isFinite(nombre) && nombre > 0) {
+        nouveaux.prixMax = String(nombre)
+        changements.push('budget')
+      }
+    }
+
+    const pieces = bas.match(/(\d+)\s*(?:pieces?|chambres?)/)
+    if (pieces) {
+      nouveaux.piecesMin = pieces[1]
+      changements.push('nombre de pièces')
+    }
+
+    const equipements = ['parking', 'climatisation', 'wifi', 'jardin', 'garage', 'meuble', 'terrasse', 'piscine']
+    const equipementsTrouves = equipements.filter((item) => bas.includes(item))
+    if (equipementsTrouves.length) {
+      nouveaux.equipements = [...new Set([...(criteres.equipements ? criteres.equipements.split(',').map((x) => x.trim().toLowerCase()) : []), ...equipementsTrouves])].join(', ')
+      changements.push('équipements')
+    }
+
+    setCriteres(nouveaux)
+    let reponse: string
+    if (/\b(bonjour|salut|bonsoir)\b/.test(bas) && changements.length === 0) {
+      reponse = "Bonjour ! Je peux vous accompagner pour louer ou acheter un logement au Sénégal. Décrivez-moi votre projet avec vos mots."
+    } else if (/conseil|dossier|document|contrat|visite|arnaque|frais/.test(bas)) {
+      reponse = "Voici quelques précautions utiles : visitez le logement, vérifiez l’identité de votre interlocuteur et demandez un document écrit indiquant le prix, les frais et les conditions. Ne versez pas d’argent avant d’avoir vérifié l’annonce et les documents. Pour une question juridique précise, demandez l’avis d’un professionnel."
+    } else if (/\bmerci\b/.test(bas) && changements.length === 0) {
+      reponse = "Avec plaisir ! Vous pouvez me décrire votre recherche, même en une seule phrase."
+    } else {
+      const manquants: string[] = []
+      if (!nouveaux.type) manquants.push('le type de logement')
+      if (!nouveaux.ville) manquants.push('la ville')
+      if (!nouveaux.prixMax) manquants.push('votre budget maximum')
+      if (changements.length) {
+        reponse = "J’ai compris : " + changements.join(', ') + ". "
+        reponse += manquants.length
+          ? "Pour affiner votre recherche, pouvez-vous préciser " + manquants.slice(0, 2).join(' et ') + " ?"
+          : "Vos critères sont renseignés. Cliquez sur « Trouver mes logements » pour consulter les annonces publiées correspondantes."
+      } else {
+        reponse = "Je peux vous aider à préparer une recherche immobilière. Dites-moi par exemple : « Je cherche une maison à louer à Dakar avec un budget de 150 000 FCFA »."
+      }
+    }
+
     setMessages((anciens) => [...anciens, { role: 'user', content: texte }, { role: 'assistant', content: reponse }])
     setMessage('')
   }
