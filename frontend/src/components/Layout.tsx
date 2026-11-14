@@ -74,7 +74,7 @@ export default function Layout() {
             <Link to="/contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">Contact</Link>
             {utilisateur ? (
               <>
-                {utilisateur.role === "CLIENT" && <NavLink to="/mes-favoris" className={lienDesktop}>Mes favoris</NavLink>}
+                <NavLink to="/mes-favoris" className={lienDesktop}>Mes favoris</NavLink>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
@@ -142,7 +142,7 @@ export default function Layout() {
               <li><Link to="/contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>Contact</Link></li>
               {utilisateur ? (
                 <>
-                  {utilisateur.role === "CLIENT" && <li><NavLink to="/mes-favoris" className={lienMobile} onClick={fermerMenu}>Mes favoris</NavLink></li>}
+                  <li><NavLink to="/mes-favoris" className={lienMobile} onClick={fermerMenu}>Mes favoris</NavLink></li>
                   <li>
                     <NavLink to="/tableau-de-bord" className={lienMobile} onClick={fermerMenu}>
                       Mon espace
