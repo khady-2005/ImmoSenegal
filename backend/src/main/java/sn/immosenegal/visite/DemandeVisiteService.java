@@ -17,6 +17,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
+import sn.immosenegal.notification.NotificationService;
 
 @Service
 public class DemandeVisiteService {
@@ -24,13 +25,15 @@ public class DemandeVisiteService {
     private final AnnonceRepository annonces;
     private final UserRepository users;
     private final AuditService audit;
+    private final NotificationService notifications;
 
     public DemandeVisiteService(DemandeVisiteRepository demandes, AnnonceRepository annonces,
-                                UserRepository users, AuditService audit) {
+                                UserRepository users, AuditService audit, NotificationService notifications) {
         this.demandes = demandes;
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
+        this.notifications = notifications;
     }
 
     @Transactional
@@ -47,6 +50,8 @@ public class DemandeVisiteService {
         User client = users.findById(acteur.id())
             .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
         DemandeVisite demande = demandes.save(new DemandeVisite(annonce, client, requete.dateVisite(), propre(requete.message())));
+        notifications.creer(annonce.getProprietaire(), "VISITE_NOUVELLE", "Nouvelle demande de visite",
+            client.getNomComplet() + " souhaite visiter « " + annonce.getTitre() + " ».", "/visites-recues");
         audit.enregistrer("DEMANDE_VISITE_CREEE", acteur.id(), "Demande de visite " + demande.getId());
         return DemandeVisiteResponse.de(demande);
     }
@@ -91,6 +96,14 @@ public class DemandeVisiteService {
             }
             default -> throw new ApiException(HttpStatus.BAD_REQUEST, "Action non autorisée pour le propriétaire.");
         }
+        String titreNotification = switch (requete.action()) {
+            case ACCEPTEE -> "Votre visite a été acceptée";
+            case REFUSEE -> "Votre demande de visite a reçu une réponse";
+            case PROPOSEE -> "Un nouveau créneau vous est proposé";
+            default -> "Mise à jour de votre demande de visite";
+        };
+        notifications.creer(demande.getClient(), "VISITE_REPONSE", titreNotification,
+            "Le propriétaire a répondu pour « " + demande.getAnnonce().getTitre() + " ».", "/mes-visites");
         audit.enregistrer("DEMANDE_VISITE_TRAITEE", acteur.id(), "Demande de visite " + id + " : " + requete.action());
         return DemandeVisiteResponse.de(demande);
     }
@@ -107,6 +120,8 @@ public class DemandeVisiteService {
             throw new ApiException(HttpStatus.CONFLICT, "La date proposée est passée. Contactez le propriétaire.");
         }
         demande.confirmer();
+        notifications.creer(demande.getAnnonce().getProprietaire(), "VISITE_CONFIRMEE", "Créneau de visite confirmé",
+            demande.getClient().getNomComplet() + " a confirmé le créneau proposé pour « " + demande.getAnnonce().getTitre() + " ».", "/visites-recues");
         return DemandeVisiteResponse.de(demande);
     }
 
@@ -119,6 +134,8 @@ public class DemandeVisiteService {
             throw new ApiException(HttpStatus.CONFLICT, "Cette demande ne peut plus être annulée.");
         }
         demande.annuler();
+        notifications.creer(demande.getAnnonce().getProprietaire(), "VISITE_ANNULEE", "Demande de visite annulée",
+            demande.getClient().getNomComplet() + " a annulé sa demande pour « " + demande.getAnnonce().getTitre() + " ».", "/visites-recues");
         audit.enregistrer("DEMANDE_VISITE_ANNULEE", acteur.id(), "Demande de visite " + id);
     }
 
