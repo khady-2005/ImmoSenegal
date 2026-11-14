@@ -57,12 +57,31 @@ public class AnnonceService {
 
     @Transactional
     public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete) {
+        return creer(auteur, requete, null);
+    }
+
+    @Transactional
+    public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete, UUID proprietaireId) {
         if (!ROLES_PUBLICATION.contains(auteur.role())) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Seuls les propriétaires et les administrateurs peuvent publier une annonce.");
         }
-        // Le propriétaire est TOUJOURS l'utilisateur connecté, jamais une valeur envoyée par le client.
-        User proprietaire = users.findById(auteur.id())
-            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        User proprietaire;
+        if (auteur.role() == Role.ADMIN) {
+            if (proprietaireId == null) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez le propriétaire auquel rattacher cette annonce.");
+            }
+            proprietaire = users.findById(proprietaireId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Compte propriétaire introuvable."));
+            if (proprietaire.getRole() != Role.PROPRIETAIRE || !proprietaire.isActif()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Le compte choisi doit être un propriétaire actif.");
+            }
+        } else {
+            if (proprietaireId != null && !proprietaireId.equals(auteur.id())) {
+                throw new ApiException(HttpStatus.FORBIDDEN, "Vous ne pouvez pas publier au nom d'un autre propriétaire.");
+            }
+            proprietaire = users.findById(auteur.id())
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        }
         Annonce annonce = new Annonce(proprietaire);
         appliquer(annonce, requete);
         // Le statut demandé par le client est ignoré : toute nouvelle annonce attend la validation d'un administrateur.
@@ -70,6 +89,22 @@ public class AnnonceService {
         annonces.save(annonce);
         audit.enregistrer("ANNONCE_CREEE", auteur.id(), "Annonce " + annonce.getId() + " (en attente de validation)");
         return AnnonceResponse.pourGestion(annonce, List.of());
+    }
+
+    @Transactional
+    public AnnonceResponse reattribuerProprietaire(UUID id, UUID proprietaireId, AuthenticatedUser admin) {
+        exigerAdmin(admin);
+        Annonce annonce = trouver(id);
+        User proprietaire = users.findById(proprietaireId)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Compte propriétaire introuvable."));
+        if (proprietaire.getRole() != Role.PROPRIETAIRE || !proprietaire.isActif()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Le compte choisi doit être un propriétaire actif.");
+        }
+        UUID ancien = annonce.getProprietaire().getId();
+        annonce.setProprietaire(proprietaire);
+        audit.enregistrer("ANNONCE_PROPRIETAIRE_MODIFIE", admin.id(),
+            "Annonce " + id + " réattribuée de " + ancien + " à " + proprietaireId);
+        return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
     }
 
     @Transactional
