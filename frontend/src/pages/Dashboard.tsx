@@ -1,11 +1,26 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, Building2, CalendarDays, ClipboardList, Compass, FileCheck2, ShieldCheck, Users } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import DemandeRole from '../components/DemandeRole'
 import { libelleRole, type Utilisateur } from '../types'
 
-/** Tableau de bord de base : affiche le profil tel que VÉRIFIÉ par le serveur (GET /api/auth/me). */
+type Acces = { titre: string; description: string; lien: string; icone: typeof Building2; action: string }
+
+function CarteAcces({ item }: { item: Acces }) {
+  const Icone = item.icone
+  return (
+    <Link to={item.lien} className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-dore-400 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Icone className="h-5 w-5" aria-hidden /></span>
+      <h2 className="mt-4 text-lg font-semibold text-nuit-900">{item.titre}</h2>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{item.description}</p>
+      <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-nuit-800 group-hover:text-amber-700">{item.action}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
+    </Link>
+  )
+}
+
+/** Tableau de bord organisé selon le rôle vérifié par le serveur. */
 export default function Dashboard() {
   const { utilisateur: depuisConnexion, jeton, deconnecter, majUtilisateur } = useAuth()
   const navigate = useNavigate()
@@ -18,99 +33,84 @@ export default function Dashboard() {
       .then((p) => {
         if (annule) return
         setProfil(p)
-        // Le rôle a pu changer côté serveur (demande approuvée) : on aligne l'interface.
         if (p.role !== depuisConnexion?.role) majUtilisateur(p)
       })
       .catch((e: unknown) => {
         if (annule) return
         if (e instanceof ApiError && e.status === 401) {
-          // Jeton expiré ou compte désactivé : retour à la connexion.
           deconnecter()
           navigate('/connexion', { replace: true })
         } else {
           setErreur(e instanceof ApiError ? e.message : 'Impossible de charger votre profil.')
         }
       })
-    return () => {
-      annule = true
-    }
+    return () => { annule = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jeton, deconnecter, navigate, majUtilisateur])
 
   const affiche = profil ?? depuisConnexion
   if (!affiche) return null
 
+  const accesClient: Acces[] = [
+    { titre: 'Mes demandes de visite', description: 'Suivez les réponses des propriétaires, confirmez un créneau proposé ou annulez une demande.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir mes visites' },
+    { titre: 'Découvrir les biens', description: 'Consultez les annonces disponibles et trouvez un logement ou un terrain au Sénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
+    { titre: 'Assistant immobilier', description: 'Décrivez votre recherche pour obtenir de l’aide afin de trouver un bien adapté.', lien: '/assistant', icone: ClipboardList, action: 'Parler à l’assistant' },
+  ]
+  const accesProprietaire: Acces[] = [
+    { titre: 'Gérer mes annonces', description: 'Consultez vos biens publiés et suivez leur état de validation.', lien: '/mes-annonces', icone: Building2, action: 'Gérer mes annonces' },
+    { titre: 'Demandes de visite reçues', description: 'Consultez les demandes des personnes intéressées et acceptez, refusez ou proposez un autre créneau.', lien: '/visites-recues', icone: CalendarDays, action: 'Traiter les demandes' },
+    { titre: 'Publier un bien', description: 'Ajoutez une maison, un appartement, une villa, un studio ou un terrain.', lien: '/annonces/nouvelle', icone: FileCheck2, action: 'Créer une annonce' },
+  ]
+  const accesAdmin: Acces[] = [
+    { titre: 'Modération des annonces', description: 'Examinez les annonces soumises et gérez leur publication.', lien: '/admin/annonces', icone: Building2, action: 'Modérer les annonces' },
+    { titre: 'Demandes de rôle', description: 'Consultez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
+    { titre: 'Gestion des utilisateurs', description: 'Consultez et gérez les comptes de la plateforme.', lien: '/admin/utilisateurs', icone: Users, action: 'Gérer les comptes' },
+    { titre: 'Toutes les demandes de visite', description: 'Consultez les demandes de visite de la plateforme.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir les visites' },
+  ]
+
+  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'PROPRIETAIRE' ? accesProprietaire : affiche.role === 'ADMIN' ? accesAdmin : [
+    { titre: 'Explorer les annonces', description: 'Consultez les biens disponibles sur ImmoSénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
+    { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
+  ]
+
+  const introduction = affiche.role === 'CLIENT'
+    ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'
+    : affiche.role === 'PROPRIETAIRE'
+      ? 'Gérez vos annonces et les demandes de visite liées à vos biens.'
+      : affiche.role === 'ADMIN'
+        ? 'Accédez aux outils de gestion et de suivi de la plateforme.'
+        : 'Retrouvez les principaux outils disponibles sur la plateforme.'
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-2xl font-bold">Bonjour, {affiche.nomComplet}</h1>
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
+      <section className="rounded-3xl bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 p-6 text-white shadow-lg sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-dore-400">Mon espace ImmoSénégal</p>
+        <h1 className="mt-3 text-2xl font-bold sm:text-3xl">Bonjour, {affiche.nomComplet}</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">{introduction}</p>
+        <span className="mt-5 inline-flex rounded-full border border-dore-400/50 bg-white/10 px-3 py-1.5 text-sm font-medium text-dore-200">{libelleRole[affiche.role]}</span>
+      </section>
 
-      {erreur && (
-        <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">
-          {erreur}
-        </p>
-      )}
-      {!profil && !erreur && (
-        <p role="status" className="mt-2 text-sm text-slate-500">
-          Vérification de votre session…
-        </p>
-      )}
+      {erreur && <p role="alert" className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+      {!profil && !erreur && <p role="status" className="mt-4 text-sm text-slate-500">Vérification de votre session…</p>}
 
-      <dl className="mt-6 grid gap-4 rounded-2xl bg-white p-5 shadow sm:grid-cols-2">
-        <div>
-          <dt className="text-sm text-slate-500">Email</dt>
-          <dd className="font-medium">{affiche.email}</dd>
+      <section className="mt-8">
+        <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {acces.map(item => <CarteAcces key={item.lien} item={item} />)}
         </div>
-        <div>
-          <dt className="text-sm text-slate-500">Rôle</dt>
-          <dd className="font-medium">{libelleRole[affiche.role]}</dd>
-        </div>
-        <div>
-          <dt className="text-sm text-slate-500">Téléphone</dt>
-          <dd className="font-medium">{affiche.telephone ?? 'Non renseigné'}</dd>
-        </div>
-        <div>
-          <dt className="text-sm text-slate-500">Membre depuis</dt>
-          <dd className="font-medium">{new Date(affiche.creeLe).toLocaleDateString('fr-FR')}</dd>
-        </div>
-      </dl>
+      </section>
 
-      {affiche.role === 'CLIENT' && (
-        <>
-          <DemandeRole />
-          <Link to="/mes-visites" className="mt-6 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
-            Mes demandes de visite
-          </Link>
-        </>
-      )}
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-lg font-semibold text-nuit-900">Informations de mon compte</h2>
+        <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div><dt className="text-sm text-slate-500">Adresse e-mail</dt><dd className="mt-1 font-medium text-slate-900">{affiche.email}</dd></div>
+          <div><dt className="text-sm text-slate-500">Téléphone</dt><dd className="mt-1 font-medium text-slate-900">{affiche.telephone ?? 'Non renseigné'}</dd></div>
+          <div><dt className="text-sm text-slate-500">Membre depuis</dt><dd className="mt-1 font-medium text-slate-900">{new Date(affiche.creeLe).toLocaleDateString('fr-FR')}</dd></div>
+        </dl>
+      </section>
 
-      {affiche.role === 'ADMIN' && (
-        <>
-          <Link to="/admin/annonces" className="mt-6 mr-3 inline-block rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-950">
-            Modération des annonces
-          </Link>
-          <Link to="/admin/demandes" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold">
-            Demandes de rôle
-          </Link>
-          <Link to="/admin/utilisateurs" className="mt-6 mr-3 inline-block rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold hover:bg-slate-50">
-            Gestion des utilisateurs
-          </Link>
-        </>
-      )}
-
-      {['PROPRIETAIRE', 'ADMIN'].includes(affiche.role) && (
-        <>
-          <Link to="/mes-annonces" className="mt-6 mr-3 inline-block rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
-            Gérer mes annonces
-          </Link>
-          <Link to="/visites-recues" className="mt-6 inline-block rounded-lg border border-emeraude-300 bg-white px-4 py-2.5 font-semibold text-emeraude-800 hover:bg-emeraude-50">
-            Demandes de visite reçues
-          </Link>
-        </>
-      )}
-
-      <p className="mt-6 rounded-lg border border-emeraude-200 bg-emeraude-50 p-4 text-sm text-emeraude-900">
-        Les demandes de visite sont disponibles depuis votre espace. Les offres, la messagerie et les paiements seront ajoutés dans les prochaines étapes.
-      </p>
-    </div>
+      {affiche.role === 'CLIENT' && <DemandeRole />}
+      {affiche.role === 'AGENT' && <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">L’espace dédié aux agents immobiliers sera complété avec les fonctions de gestion qui leur seront attribuées.</p>}
+    </main>
   )
 }
