@@ -79,6 +79,7 @@ export default function Layout() {
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
+                <CentreNotifications />
                 {peutPublier && (
                   <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
                     <PlusCircle aria-hidden className="h-4 w-4" />
@@ -149,6 +150,7 @@ export default function Layout() {
                       Mon espace
                     </NavLink>
                   </li>
+                  <li className="px-3 py-2"><CentreNotifications /></li>
                   {peutPublier && (
                     <li className="pt-2">
                       <Link to="/annonces/nouvelle" onClick={fermerMenu} className={`${boutonPublier} w-full justify-center py-3 text-base`}>
