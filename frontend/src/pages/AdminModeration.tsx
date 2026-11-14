@@ -7,6 +7,8 @@ import { libelleStatut, libelleTypeBien, type Annonce, type PagePaginee, type St
 
 type Action = 'valider' | 'refuser' | 'suspendre' | 'demander-correction'
 
+interface ProprietaireOption { id: string; nomComplet: string; email: string; role: string; actif: boolean }
+
 const ONGLETS: { statut: StatutAnnonce; libelle: string }[] = [
   { statut: 'EN_ATTENTE', libelle: 'En attente' },
   { statut: 'PUBLIEE', libelle: 'Publiées' },
@@ -49,6 +51,7 @@ export default function AdminModeration() {
   const [saisie, setSaisie] = useState<{ id: string; action: Action } | null>(null)
   const [motif, setMotif] = useState('')
   const [envoi, setEnvoi] = useState(false)
+  const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
 
   const charger = useCallback(async () => {
     try {
@@ -61,8 +64,22 @@ export default function AdminModeration() {
   }, [jeton, statut])
 
   useEffect(() => {
-    if (utilisateur?.role === 'ADMIN') void charger()
-  }, [charger, utilisateur?.role])
+    if (utilisateur?.role !== 'ADMIN') return
+    void charger()
+    appelApi<ProprietaireOption[]>('/api/admin/users', { token: jeton })
+      .then((comptes) => setProprietaires(comptes.filter((u) => u.role === 'PROPRIETAIRE' && u.actif)))
+      .catch(() => setErreur('Impossible de charger la liste des propriétaires.'))
+  }, [charger, utilisateur?.role, jeton])
+
+  async function changerProprietaire(annonceId: string, proprietaireId: string) {
+    setErreur(null); setInfo(null); setEnvoi(true)
+    try {
+      await appelApi('/api/annonces/' + annonceId + '/proprietaire', { method: 'PATCH', token: jeton, body: { proprietaireId } })
+      setInfo('Le propriétaire de cette annonce a été modifié. Les nouvelles demandes de visite seront envoyées à ce compte.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Réattribution impossible.') }
+    finally { setEnvoi(false) }
+  }
 
   async function decider(id: string, action: Action, texte?: string) {
     setErreur(null)
@@ -150,6 +167,18 @@ export default function AdminModeration() {
               <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
             </div>
             {a.exemple && <p className="mt-2 text-sm text-slate-600">Annonce d'exemple (le bien n'existe pas).</p>}
+            {!a.exemple && (
+              <div className="mt-3 max-w-xl">
+                <label htmlFor={'proprietaire-' + a.id} className="mb-1 block text-xs font-semibold text-slate-600">Rattacher cette annonce au propriétaire réel</label>
+                <select id={'proprietaire-' + a.id} value={a.proprietaire.id} disabled={envoi || proprietaires.length === 0}
+                  onChange={(e) => void changerProprietaire(a.id, e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 disabled:bg-slate-100">
+                  {!proprietaires.some((p) => p.id === a.proprietaire.id) && <option value={a.proprietaire.id}>{a.proprietaire.nomComplet} (compte actuel)</option>}
+                  {proprietaires.map((p) => <option key={p.id} value={p.id}>{p.nomComplet} — {p.email}</option>)}
+                </select>
+                {proprietaires.length === 0 && <p className="mt-1 text-xs text-amber-800">Aucun compte propriétaire actif disponible.</p>}
+              </div>
+            )}
             {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
               <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-slate-800"><strong>Motif :</strong> {a.motifModeration}</p>
             )}
