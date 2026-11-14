@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Building2, CalendarDays, ClipboardList, Compass, FileCheck2, ShieldCheck, Users } from 'lucide-react'
+import { ArrowRight, Building2, CalendarDays, ClipboardList, Compass, FileCheck2, ShieldCheck, Users, Heart } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import DemandeRole from '../components/DemandeRole'
@@ -52,6 +52,7 @@ export default function Dashboard() {
   if (!affiche) return null
 
   const accesClient: Acces[] = [
+    { titre: 'Mes favoris', description: 'Retrouvez les annonces que vous avez enregistrées avec le cœur.', lien: '/mes-favoris', icone: Heart, action: 'Voir mes favoris' },
     { titre: 'Mes demandes de visite', description: 'Suivez les réponses des propriétaires, confirmez un créneau proposé ou annulez une demande.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir mes visites' },
     { titre: 'Découvrir les biens', description: 'Consultez les annonces disponibles et trouvez un logement ou un terrain au Sénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Décrivez votre recherche pour obtenir de l’aide afin de trouver un bien adapté.', lien: '/assistant', icone: ClipboardList, action: 'Parler à l’assistant' },
