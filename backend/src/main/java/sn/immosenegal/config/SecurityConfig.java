@@ -45,7 +45,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health", "/api/ping").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
-                    "/api/auth/refresh", "/api/auth/logout").permitAll()
+                    "/api/auth/refresh", "/api/auth/logout",
+                    "/api/auth/mot-de-passe-oublie", "/api/auth/reinitialiser-mot-de-passe").permitAll()
                 // Catalogue public en lecture ; « mes annonces » exige une session ; publier exige un rôle autorisé.
                 .requestMatchers(HttpMethod.GET, "/api/annonces/mes-annonces").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/annonces").permitAll()
