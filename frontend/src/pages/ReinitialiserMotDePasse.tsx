@@ -34,7 +34,8 @@ export default function ReinitialiserMotDePasse() {
   }
 
   return (
-    <MiseEnPageAuth titre="Créer un nouveau mot de passe" intro="Choisissez un nouveau mot de passe pour votre compte.">
+    <MiseEnPageAuth titre="Créer un nouveau mot de passe" intro="Choisissez un nouveau mot de passe pour votre compte."
+      pied={<Link to="/connexion" className="font-semibold text-emeraude-700 underline">Retour à la connexion</Link>} >
       <form onSubmit={soumettre} className="space-y-4" noValidate>
         {message && <p role="status" className="rounded-xl bg-blue-50 p-3 text-sm text-blue-800">{message}</p>}
         {erreur && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
