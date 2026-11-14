@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth'
@@ -12,7 +12,7 @@ export default function BoutonFavori({ annonceId }: { annonceId: string }) {
   const [erreur, setErreur] = useState('')
   if (utilisateur?.role !== 'CLIENT') return null
 
-  async function cliquer(e: React.MouseEvent<HTMLButtonElement>) {
+  async function cliquer(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
     e.stopPropagation()
     setEnCours(true)
