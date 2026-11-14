@@ -8,6 +8,14 @@ import { libelleStatut, libelleTypeBien, statutsCommerciaux, type Annonce, type 
 
 const classeSelect = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900'
 
+interface ProprietaireOption {
+  id: string
+  nomComplet: string
+  email: string
+  role: string
+  actif: boolean
+}
+
 /** Rôles autorisés par le serveur à publier. Le serveur reste seul juge : ceci évite seulement un écran inutile. */
 export function peutPublier(role: string | undefined) {
   return role === 'PROPRIETAIRE' || role === 'ADMIN'
@@ -29,6 +37,21 @@ export default function FormulaireAnnonce() {
   const [longitude, setLongitude] = useState('')
   const [localisationEnCours, setLocalisationEnCours] = useState(false)
   const [messageCarte, setMessageCarte] = useState('')
+  const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
+  const [proprietaireId, setProprietaireId] = useState('')
+
+  useEffect(() => {
+    if (utilisateur?.role !== 'ADMIN' || edition) return
+    let annule = false
+    appelApi<ProprietaireOption[]>('/api/admin/users', { token: jeton })
+      .then((comptes) => {
+        if (!annule) setProprietaires(comptes.filter((u) => u.role === 'PROPRIETAIRE' && u.actif))
+      })
+      .catch((e: unknown) => {
+        if (!annule) setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les propriétaires.')
+      })
+    return () => { annule = true }
+  }, [utilisateur?.role, edition, jeton])
 
   useEffect(() => {
     if (!id) return
@@ -93,7 +116,14 @@ export default function FormulaireAnnonce() {
     setErreur(null)
     setChamps({})
     try {
-      const reponse = await appelApi<Annonce>(edition ? `/api/annonces/${id}` : '/api/annonces', {
+      if (!edition && utilisateur?.role === 'ADMIN' && !proprietaireId) {
+        setErreur('Choisissez le propriétaire de cette annonce.')
+        setEnvoi(false)
+        return
+      }
+      const url = edition ? `/api/annonces/${id}` :
+        utilisateur?.role === 'ADMIN' ? `/api/annonces?proprietaireId=${encodeURIComponent(proprietaireId)}` : '/api/annonces'
+      const reponse = await appelApi<Annonce>(url, {
         method: edition ? 'PUT' : 'POST',
         body: corps,
         token: jeton,
@@ -155,6 +185,17 @@ export default function FormulaireAnnonce() {
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
         {erreur && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+        {!edition && utilisateur?.role === 'ADMIN' && (
+          <div>
+            <label htmlFor="proprietaire-annonce" className="mb-1 block text-sm font-medium text-slate-700">Propriétaire de cette annonce</label>
+            <select id="proprietaire-annonce" value={proprietaireId} onChange={(e) => setProprietaireId(e.target.value)} required className={classeSelect}>
+              <option value="">Choisir un propriétaire</option>
+              {proprietaires.map((p) => <option key={p.id} value={p.id}>{p.nomComplet} — {p.email}</option>)}
+            </select>
+            {proprietaires.length === 0 && <p className="mt-1 text-sm text-amber-800">Aucun compte propriétaire actif. Il faut d'abord qu'un compte soit inscrit puis validé avec le rôle Propriétaire.</p>}
+            <p className="mt-1 text-xs text-slate-500">Les demandes de visite pour cette annonce seront envoyées à ce propriétaire. L'administration conservera l'accès de suivi.</p>
+          </div>
+        )}
         <Champ id="titre" name="titre" libelle="Titre" required maxLength={150} defaultValue={a?.titre} erreur={champs.titre} />
         <div>
           <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">Description</label>
