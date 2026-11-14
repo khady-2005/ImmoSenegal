@@ -9,7 +9,7 @@ export default function BoutonFavori({ annonceId }: { annonceId: string }) {
   const { contient, basculer } = useFavoris()
   const [enCours, setEnCours] = useState(false)
   const [erreur, setErreur] = useState('')
-  if (utilisateur?.role !== 'CLIENT') return null
+  if (!utilisateur) return null
 
   async function cliquer(e: MouseEvent<HTMLButtonElement>) {
     e.preventDefault()
