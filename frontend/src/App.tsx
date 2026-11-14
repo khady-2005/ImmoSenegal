@@ -11,6 +11,8 @@ import DetailAnnonce from './pages/DetailAnnonce'
 import NotFound from './pages/NotFound'
 import MentionsLegales from './pages/MentionsLegales'
 import Visites from './pages/Visites'
+import MesFavoris from './pages/MesFavoris'
+import { FavorisProvider } from './favoris'
 import Connexion from './pages/Connexion'
 import Inscription from './pages/Inscription'
 import Dashboard from './pages/Dashboard'
@@ -25,6 +27,7 @@ import { AuthProvider } from './auth'
 export default function App() {
   return (
     <AuthProvider>
+      <FavorisProvider>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
@@ -42,6 +45,7 @@ export default function App() {
           <Route path="admin/utilisateurs" element={<RequireAuth><AdminUtilisateurs /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
+          <Route path="mes-favoris" element={<RequireAuth><MesFavoris /></RequireAuth>} />
           <Route path="visites-recues" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
@@ -50,6 +54,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+      </FavorisProvider>
     </AuthProvider>
   )
 }
