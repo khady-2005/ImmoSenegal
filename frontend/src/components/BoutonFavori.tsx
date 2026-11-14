@@ -1,6 +1,5 @@
 import { useState, type MouseEvent } from 'react'
 import { Heart } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../auth'
 import { useFavoris } from '../favoris'
 import { ApiError } from '../api'
