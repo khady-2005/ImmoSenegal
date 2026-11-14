@@ -39,9 +39,9 @@ public class AvisService {
 
     @Transactional(readOnly = true)
     public List<AvisResponse> lister(UUID annonceId) {
-        if (!annonces.existsById(annonceId)) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable.");
-        }
+        annonces.findById(annonceId)
+            .filter(a -> a.getStatut() == StatutAnnonce.PUBLIEE)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
         return avis.findByAnnonceIdOrderByCreeLeDesc(annonceId).stream().map(AvisResponse::de).toList();
     }
 
