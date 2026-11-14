@@ -78,9 +78,21 @@ public class AnnonceController {
     @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : elle est EN_ATTENTE de validation",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
+                                                 @RequestParam(required = false) UUID proprietaireId,
                                                  @AuthenticationPrincipal AuthenticatedUser utilisateur) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.creer(utilisateur, requete));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.creer(utilisateur, requete, proprietaireId));
     }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/{id}/proprietaire")
+    @Operation(summary = "Réattribuer une annonce à un compte propriétaire (ADMIN uniquement)",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public AnnonceResponse reattribuerProprietaire(@PathVariable UUID id,
+            @Valid @RequestBody ReattributionProprietaire requete,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        return service.reattribuerProprietaire(id, requete.proprietaireId(), utilisateur);
+    }
+
+    public record ReattributionProprietaire(@jakarta.validation.constraints.NotNull UUID proprietaireId) {}
 
     @PutMapping("/{id}")
     @Operation(summary = "Modifier une annonce (son propriétaire ou un ADMIN) ; statut : seulement RESERVE, VENDU, LOUE ou PUBLIEE",
