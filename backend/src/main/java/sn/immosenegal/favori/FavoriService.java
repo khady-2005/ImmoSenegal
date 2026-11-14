@@ -12,7 +12,6 @@ import sn.immosenegal.annonce.AnnonceRepository;
 import sn.immosenegal.annonce.StatutAnnonce;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.security.AuthenticatedUser;
-import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
 
@@ -54,8 +53,8 @@ public class FavoriService {
     }
 
     private void exigerClient(AuthenticatedUser acteur) {
-        if (acteur == null || acteur.role() != Role.CLIENT) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Les favoris sont réservés aux comptes clients.");
+        if (acteur == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Connectez-vous pour gérer vos favoris.");
         }
     }
 }
