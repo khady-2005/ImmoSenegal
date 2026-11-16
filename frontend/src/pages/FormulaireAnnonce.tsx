@@ -4,6 +4,7 @@ import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
 import GestionPhotos from '../components/GestionPhotos'
+import CarteSelection from '../components/CarteSelection'
 import { libelleStatut, libelleTypeBien, statutsCommerciaux, type Annonce, type TypeBien, type TypeTransaction } from '../types'
 
 const classeSelect = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-slate-900'
@@ -247,12 +248,17 @@ export default function FormulaireAnnonce() {
               <input id="longitude-bien" type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="Ex. -17.4677" className={classeSelect} />
             </div>
           </div>
-          {coordonneesValides ? (
-            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white">
-              <iframe title="Aperçu de la position du logement" src={`https://www.openstreetmap.org/export/embed.html?bbox=${Number(longitude) - 0.012}%2C${Number(latitude) - 0.008}%2C${Number(longitude) + 0.012}%2C${Number(latitude) + 0.008}&layer=mapnik&marker=${latitude}%2C${longitude}`} className="h-64 w-full border-0" loading="lazy" />
-            </div>
-          ) : (
-            <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">Aucune position GPS sélectionnée. La carte de cette annonce indiquera que la localisation précise reste à renseigner.</p>
+          <CarteSelection
+            latitude={latitude}
+            longitude={longitude}
+            onChange={(lat, lng) => {
+              setLatitude(String(lat))
+              setLongitude(String(lng))
+              setMessageCarte('Position GPS sélectionnée. Vous pouvez déplacer le repère pour ajuster l’emplacement.')
+            }}
+          />
+          {!coordonneesValides && (
+            <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">Cliquez sur la carte pour choisir l’emplacement exact du logement. Vous pouvez aussi déplacer le repère après sa création.</p>
           )}
           <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser la maison sur la carte » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
         </section>
