@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, BedDouble, Check, Home, MapPin, Ruler, UserRound, Tag } from 'lucide-react'
+import { ArrowLeft, BedDouble, Check, Home, MapPin, Navigation, Ruler, UserRound, Tag } from 'lucide-react'
 import { useApi } from '../useApi'
 import { useAuth } from '../auth'
 import { formatFcfa } from '../format'
@@ -173,14 +173,17 @@ export default function DetailAnnonce() {
                   {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
                 </p>
               </div>
-              {typeof a.latitude === 'number' && typeof a.longitude === 'number' && (
+              {typeof a.latitude === 'number' && Number.isFinite(a.latitude) && a.latitude >= -90 && a.latitude <= 90 &&
+               typeof a.longitude === 'number' && Number.isFinite(a.longitude) && a.longitude >= -180 && a.longitude <= 180 && (
                 <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${a.latitude},${a.longitude}`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${a.latitude},${a.longitude}&travelmode=driving`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
+                  aria-label={`Obtenir l’itinéraire vers ${a.titre} dans Google Maps`}
                   className="inline-flex items-center gap-2 rounded-xl bg-dore-500 px-5 py-3 text-sm font-bold text-nuit-950 transition hover:bg-dore-400"
                 >
-                  Préparer l’itinéraire
+                  <Navigation aria-hidden className="h-4 w-4" />
+                  Obtenir l’itinéraire
                 </a>
               )}
             </div>
