@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import '@fontsource-variable/dm-sans'
 import '@fontsource-variable/bricolage-grotesque/opsz.css'
 import '@fontsource-variable/fraunces/opsz.css'
+import 'leaflet/dist/leaflet.css'
 import App from './App'
 import './index.css'
 
