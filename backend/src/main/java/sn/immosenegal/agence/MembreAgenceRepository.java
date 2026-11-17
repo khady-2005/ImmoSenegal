@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MembreAgenceRepository extends JpaRepository<MembreAgence, UUID> {
     List<MembreAgence> findAllByUtilisateurId(UUID utilisateurId);
     List<MembreAgence> findAllByAgenceIdAndStatut(UUID agenceId, StatutMembreAgence statut);
+    List<MembreAgence> findAllByAgenceId(UUID agenceId);
     Optional<MembreAgence> findByAgenceIdAndUtilisateurId(UUID agenceId, UUID utilisateurId);
     boolean existsByAgenceIdAndUtilisateurId(UUID agenceId, UUID utilisateurId);
 }
