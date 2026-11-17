@@ -77,6 +77,8 @@ export default function Dashboard() {
     { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
 
+  const accesAvecAgences: Acces[] = [...acces, { titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }]
+
   const introduction = affiche.role === 'CLIENT'
     ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'
     : affiche.role === 'PROPRIETAIRE'
@@ -100,7 +102,7 @@ export default function Dashboard() {
       <section className="mt-8">
         <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {acces.map(item => <CarteAcces key={item.lien} item={item} />)}
+          {accesAvecAgences.map(item => <CarteAcces key={item.lien} item={item} />)}
         </div>
       </section>
 
