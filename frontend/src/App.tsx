@@ -19,6 +19,7 @@ import Inscription from './pages/Inscription'
 import MotDePasseOublie from './pages/MotDePasseOublie'
 import ReinitialiserMotDePasse from './pages/ReinitialiserMotDePasse'
 import Dashboard from './pages/Dashboard'
+import MesAgences from './pages/MesAgences'
 import AdminDemandes from './pages/AdminDemandes'
 import AdminModeration from './pages/AdminModeration'
 import AdminUtilisateurs from './pages/AdminUtilisateurs'
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />
           <Route path="inscription" element={<Inscription />} />
           <Route path="tableau-de-bord" element={<RequireAuth><Dashboard /></RequireAuth>} />
+          <Route path="mes-agences" element={<RequireAuth><MesAgences /></RequireAuth>} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
