@@ -1,5 +1,7 @@
 package sn.immosenegal.reservation;
 import java.util.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.springframework.http.HttpStatus;
