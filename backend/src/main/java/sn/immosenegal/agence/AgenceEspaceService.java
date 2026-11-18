@@ -199,7 +199,8 @@ public class AgenceEspaceService {
             membre.getFonction().name(), membre.getStatut().name(), membre.getCreeLe());
     }
 
-    public record AgencePubliqueResume(UUID id, String nom, String slug, String description, String adresse, String logoUrl) {}\n    public record AgenceResume(UUID id, String nom, String slug, String fonction) {}
+    public record AgencePubliqueResume(UUID id, String nom, String slug, String description, String adresse, String logoUrl) {}
+    public record AgenceResume(UUID id, String nom, String slug, String fonction) {}
     public record InvitationResume(UUID id, UUID agenceId, String agenceNom, String fonction,
                                    java.time.Instant creeLe) {}
     public record MembreResume(UUID id, UUID utilisateurId, String nom, String email,
