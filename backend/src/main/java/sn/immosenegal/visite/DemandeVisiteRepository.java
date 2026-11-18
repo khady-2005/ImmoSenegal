@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import sn.immosenegal.agence.StatutMandatGestion;
 
 public interface DemandeVisiteRepository extends JpaRepository<DemandeVisite, UUID> {
     List<DemandeVisite> findByClientIdOrderByCreeLeDesc(UUID clientId);
