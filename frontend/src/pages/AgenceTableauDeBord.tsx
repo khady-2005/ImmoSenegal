@@ -4,6 +4,7 @@ import { ArrowLeft, Building2, MailPlus, RefreshCw, ShieldCheck, Users } from 'l
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import type { Annonce, PagePaginee } from '../types'
+import MissionsAgence from '../components/MissionsAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -247,6 +248,8 @@ export default function AgenceTableauDeBord() {
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
+
+      {agence && <MissionsAgence agenceId={agenceId} fonction="RESPONSABLE" />}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-xl font-bold text-nuit-900">Proposer la gestion d’un bien</h2>
