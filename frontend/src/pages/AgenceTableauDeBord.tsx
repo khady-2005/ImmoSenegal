@@ -5,7 +5,7 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
-type Membre = {
+type Mandat = {\n  id: string\n  agenceId: string\n  agenceNom: string\n  annonceId: string\n  annonceTitre: string\n  ville: string\n  proprietaireNom: string\n  origine: string\n  statut: string\n  creeLe: string\n  decideLe: string | null\n}\ntype Membre = {
   id: string
   utilisateurId: string
   nom: string
@@ -26,7 +26,7 @@ export default function AgenceTableauDeBord() {
   const { jeton, utilisateur } = useAuth()
   const navigate = useNavigate()
   const [agence, setAgence] = useState<Agence | null>(null)
-  const [membres, setMembres] = useState<Membre[]>([])
+  const [membres, setMembres] = useState<Membre[]>([])\n  const [mandats, setMandats] = useState<Mandat[]>([])
   const [email, setEmail] = useState('')
   const [fonction, setFonction] = useState<'GESTIONNAIRE' | 'AGENT'>('AGENT')
   const [chargement, setChargement] = useState(true)
@@ -54,7 +54,7 @@ export default function AgenceTableauDeBord() {
         return
       }
       setAgence(espace ?? { id: agenceId, nom: 'Agence', slug: '', fonction: 'ADMIN' })
-      setMembres(equipe)
+      setMembres(equipe)\n      setMandats(demandes)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         navigate('/mes-agences', { replace: true })
@@ -67,6 +67,25 @@ export default function AgenceTableauDeBord() {
   }, [jeton, agenceId, utilisateur?.role, navigate])
 
   useEffect(() => { void charger() }, [charger])
+
+  const repondreMandat = async (mandat: Mandat, accepter: boolean) => {
+    setMembreEnCours(mandat.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/reponse`, {
+        method: 'POST',
+        token: jeton,
+        body: { accepter },
+      })
+      setMessage(accepter ? 'La demande du propriétaire a été acceptée.' : 'La demande du propriétaire a été refusée.')
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de répondre à cette demande.')
+    } finally {
+      setMembreEnCours(null)
+    }
+  }
 
   const inviter = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -128,6 +147,40 @@ export default function AgenceTableauDeBord() {
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-nuit-900">Mandats et demandes de gestion</h2>
+            <p className="mt-1 text-sm text-slate-600">Les demandes envoyées par les propriétaires et les propositions de votre agence.</p>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{mandats.length} demande(s)</span>
+        </div>
+        {mandats.length === 0 ? (
+          <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucune demande de gestion pour le moment.</p>
+        ) : (
+          <div className="mt-4 divide-y divide-slate-100">
+            {mandats.map((mandat) => (
+              <article key={mandat.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-semibold text-nuit-900">{mandat.annonceTitre}</p>
+                  <p className="text-sm text-slate-600">{mandat.ville} · Propriétaire : {mandat.proprietaireNom}</p>
+                  <p className="mt-1 text-xs text-slate-500">{mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Demande reçue du propriétaire' : 'Proposition envoyée par votre agence'}</p>
+                  <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                    {mandat.statut === 'EN_ATTENTE' ? (mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Votre réponse est attendue' : 'En attente du propriétaire') : mandat.statut === 'ACCEPTE' ? 'Mandat accepté' : 'Demande refusée'}
+                  </span>
+                </div>
+                {mandat.origine === 'INITIATIVE_PROPRIETAIRE' && mandat.statut === 'EN_ATTENTE' && (
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, true)} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">Accepter</button>
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, false)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">Refuser</button>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
