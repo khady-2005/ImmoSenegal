@@ -49,10 +49,27 @@ public class ContactAgenceController {
             requete.statut(), requete.notes(), requete.membreAssigneId()), acteur);
     }
 
+    @GetMapping("/{contactId}/activites")
+    public List<ContactAgenceService.ActiviteResume> listerActivites(@PathVariable UUID agenceId,
+            @PathVariable UUID contactId, @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.listerActivites(agenceId, contactId, acteur);
+    }
+
+    @PostMapping("/{contactId}/activites")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ContactAgenceService.ActiviteResume ajouterActivite(@PathVariable UUID agenceId,
+            @PathVariable UUID contactId, @Valid @RequestBody ActiviteRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.ajouterActivite(agenceId, contactId,
+            new ContactAgenceService.NouvelleActivite(requete.type(), requete.contenu()), acteur);
+    }
+
     public record CreationContactRequest(@NotBlank @Size(max = 120) String nom,
         @Size(max = 254) String email, @Size(max = 30) String telephone,
         @NotBlank @Size(max = 20) String typeBesoin, @Size(max = 160) String recherche,
         @Size(max = 100) String ville, @Size(max = 2000) String notes, UUID membreAssigneId) {}
+    public record ActiviteRequest(@NotBlank @Size(max = 20) String type,
+        @NotBlank @Size(max = 2000) String contenu) {}
     public record ModificationContactRequest(StatutContactCrm statut,
         @Size(max = 2000) String notes, UUID membreAssigneId) {}
 }
