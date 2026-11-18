@@ -26,6 +26,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [profil, setProfil] = useState<Utilisateur | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [peutVoirAgences, setPeutVoirAgences] = useState(false)
   const [accesAgence, setAccesAgence] = useState(false)
 
   useEffect(() => {
@@ -53,6 +54,23 @@ export default function Dashboard() {
     return () => { annule = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jeton, deconnecter, navigate, majUtilisateur])
+
+  useEffect(() => {
+    let annule = false
+    if (!jeton) {
+      setPeutVoirAgences(false)
+      return
+    }
+    Promise.all([
+      appelApi<unknown[]>('/api/agence/mes-espaces', { token: jeton }),
+      appelApi<unknown[]>('/api/agence/mes-invitations', { token: jeton }),
+    ]).then(([espaces, invitations]) => {
+      if (!annule) setPeutVoirAgences(espaces.length > 0 || invitations.length > 0)
+    }).catch(() => {
+      if (!annule) setPeutVoirAgences(false)
+    })
+    return () => { annule = true }
+  }, [jeton])
 
   const affiche = profil ?? depuisConnexion
   if (!affiche) return null
