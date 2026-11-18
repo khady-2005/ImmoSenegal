@@ -12,6 +12,7 @@ import NotFound from './pages/NotFound'
 import MentionsLegales from './pages/MentionsLegales'
 import Visites from './pages/Visites'
 import Reservations from './pages/Reservations'
+import MesContratsLocation from './pages/MesContratsLocation'
 import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
 import Connexion from './pages/Connexion'
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="visites-recues" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mes-reservations" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
+          <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
