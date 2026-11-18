@@ -5,6 +5,7 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
 type Agence = { id: string; nom: string; slug: string; description?: string; adresse?: string; logoUrl?: string }
+type EspaceAgence = { id: string; nom: string; fonction: string }
 type Candidature = { id: string; agenceId: string; agenceNom: string; fonction: string; statut: string; creeLe: string; traiteeLe?: string | null }
 
 const libelles: Record<string, string> = {
@@ -19,6 +20,7 @@ export default function AnnuaireAgences() {
   const { jeton } = useAuth()
   const [agences, setAgences] = useState<Agence[]>([])
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
+  const [mesEspaces, setMesEspaces] = useState<EspaceAgence[]>([])
   const [fonctions, setFonctions] = useState<Record<string, 'AGENT' | 'GESTIONNAIRE'>>({})
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState<string | null>(null)
@@ -30,12 +32,14 @@ export default function AnnuaireAgences() {
     setChargement(true)
     setErreur(null)
     try {
-      const [liste, mesDemandes] = await Promise.all([
+      const [liste, mesDemandes, espaces] = await Promise.all([
         appelApi<Agence[]>('/api/agence/annuaire', { token: jeton }),
         appelApi<Candidature[]>('/api/mes-candidatures-agence', { token: jeton }),
+        appelApi<EspaceAgence[]>('/api/agence/mes-espaces', { token: jeton }),
       ])
       setAgences(liste)
       setCandidatures(mesDemandes)
+      setMesEspaces(espaces)
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les agences.')
     } finally {
@@ -92,6 +96,7 @@ export default function AnnuaireAgences() {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {agences.map(agence => {
               const candidature = candidaturePour(agence.id)
+              const dejaMembre = mesEspaces.some(espace => espace.id === agence.id)
               const ancienne = candidatures.find(c => c.agenceId === agence.id)
               return (
                 <article key={agence.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -103,7 +108,9 @@ export default function AnnuaireAgences() {
                       {agence.description && <p className="mt-2 text-sm leading-relaxed text-slate-600">{agence.description}</p>}
                     </div>
                   </div>
-                  {candidature ? (
+                  {dejaMembre ? (
+                    <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800"><CheckCircle2 className="h-4 w-4" /> Vous êtes déjà membre — {mesEspaces.find(espace => espace.id === agence.id)?.fonction === 'RESPONSABLE' ? 'Responsable' : 'Collaborateur'}</p>
+                  ) : candidature ? (
                     <p className="mt-5 flex items-center gap-2 rounded-xl bg-amber-50 p-3 text-sm font-medium text-amber-800"><Send className="h-4 w-4" /> Candidature envoyée — en attente de réponse</p>
                   ) : ancienne?.statut === 'ACCEPTEE' ? (
                     <p className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-800"><CheckCircle2 className="h-4 w-4" /> Vous êtes membre de cette agence</p>
