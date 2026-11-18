@@ -88,6 +88,21 @@ public class MandatGestionService {
         return mandats.findAllByAgenceIdOrderByCreeLeDesc(agenceId).stream().map(this::versResume).toList();
     }
 
+    /** Portefeuille visible par tout membre actif de l'agence ; seuls les mandats acceptés sont exposés. */
+    @Transactional(readOnly = true)
+    public List<MandatResume> portefeuilleAgence(UUID agenceId, AuthenticatedUser acteur) {
+        agenceActive(agenceId);
+        boolean autorise = acteur != null && (acteur.role().name().equals("ADMIN")
+            || membres.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF).isPresent());
+        if (!autorise) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Vous devez être membre actif de cette agence pour consulter son portefeuille.");
+        }
+        return mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+            agenceId, StatutMandatGestion.ACCEPTE).stream().map(this::versResume).toList();
+    }
+
     @Transactional(readOnly = true)
     public List<MandatResume> mesPropositions(AuthenticatedUser acteur) {
         return mandats.findAllByProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(this::versResume).toList();
