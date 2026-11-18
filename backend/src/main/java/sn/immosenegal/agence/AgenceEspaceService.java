@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
@@ -19,12 +20,14 @@ public class AgenceEspaceService {
     private final AgenceRepository agences;
     private final MembreAgenceRepository membres;
     private final UserRepository utilisateurs;
+    private final NotificationService notifications;
 
     public AgenceEspaceService(AgenceRepository agences, MembreAgenceRepository membres,
-                               UserRepository utilisateurs) {
+                               UserRepository utilisateurs, NotificationService notifications) {
         this.agences = agences;
         this.membres = membres;
         this.utilisateurs = utilisateurs;
+        this.notifications = notifications;
     }
 
     @Transactional(readOnly = true)
@@ -84,6 +87,10 @@ public class AgenceEspaceService {
         }
 
         MembreAgence membre = membres.save(new MembreAgence(agence, utilisateur, fonction));
+        notifications.creer(utilisateur, "INVITATION_AGENCE", "Invitation à rejoindre une agence",
+            "L’agence " + agence.getNom() + " vous invite à rejoindre son équipe comme "
+                + (fonction == FonctionAgence.AGENT ? "agent immobilier" : "gestionnaire immobilier") + ".",
+            "/mes-agences");
         return new InvitationResume(membre.getId(), agence.getId(), agence.getNom(),
             fonction.name(), membre.getCreeLe());
     }
@@ -98,8 +105,15 @@ public class AgenceEspaceService {
         if (membre.getStatut() != StatutMembreAgence.INVITATION_EN_ATTENTE) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette invitation n'est plus en attente.");
         }
-        trouverAgenceActive(agenceId);
+        Agence agence = trouverAgenceActive(agenceId);
         membre.setStatut(StatutMembreAgence.ACTIF);
+        membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+            .forEach(responsable -> notifications.creer(responsable.getUtilisateur(),
+                "INVITATION_AGENCE_ACCEPTEE", "Invitation acceptée",
+                membre.getUtilisateur().getNomComplet() + " a accepté votre invitation à rejoindre "
+                    + agence.getNom() + " comme " + membre.getFonction().name().toLowerCase() + ".",
+                "/mes-agences/" + agenceId));
     }
 
     public MembreResume modifierFonction(UUID agenceId, UUID membreId, FonctionAgence fonction,
