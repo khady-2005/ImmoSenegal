@@ -28,11 +28,20 @@ public class MandatGestionController {
 
     @PostMapping("/agence/{agenceId}/mandats/propositions")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Proposer la gestion d'une annonce à son propriétaire")
+    @Operation(summary = "L'agence propose la gestion d'une annonce à son propriétaire")
     public MandatGestionService.MandatResume proposer(@PathVariable UUID agenceId,
             @Valid @RequestBody PropositionRequest request,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.proposer(agenceId, request.annonceId(), acteur);
+    }
+
+    @PostMapping("/agence/{agenceId}/mandats/demandes")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Le propriétaire demande à une agence de gérer son annonce")
+    public MandatGestionService.MandatResume demander(@PathVariable UUID agenceId,
+            @Valid @RequestBody PropositionRequest request,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.demander(agenceId, request.annonceId(), acteur);
     }
 
     @GetMapping("/agence/{agenceId}/mandats")
