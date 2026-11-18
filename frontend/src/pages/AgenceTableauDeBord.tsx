@@ -7,6 +7,7 @@ import type { Annonce, PagePaginee } from '../types'
 import MissionsAgence from '../components/MissionsAgence'
 import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
+import CRMAgence from '../components/CRMAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -252,6 +253,7 @@ export default function AgenceTableauDeBord() {
       {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
 
       {agence && <MissionsAgence agenceId={agenceId} fonction="RESPONSABLE" />}
+      {agence && <CRMAgence agenceId={agenceId} fonction="RESPONSABLE" />}
       {agence && <VisitesAgence agenceId={agenceId} />}
       <PortefeuilleAgence agenceId={agenceId} />
 
