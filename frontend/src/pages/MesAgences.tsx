@@ -118,12 +118,12 @@ export default function MesAgences() {
                 <p className="mt-4 text-xs font-semibold text-nuit-800">Ouvrir le tableau de bord →</p>
               </Link>
             ) : (
-              <article key={agence.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <Link key={agence.id} to={`/mes-agences/${agence.id}/espace`} className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-dore-400 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><Building2 className="h-5 w-5" /></span>
                 <h3 className="mt-4 text-lg font-semibold text-nuit-900">{agence.nom}</h3>
                 <p className="mt-1 text-sm text-slate-600">{libelleFonction[agence.fonction] ?? agence.fonction}</p>
-                <p className="mt-4 text-xs text-slate-500">Vous êtes membre de cette agence.</p>
-              </article>
+                <p className="mt-4 text-xs font-semibold text-nuit-800">Ouvrir mon espace collaborateur →</p>
+              </Link>
             )
           ))}
         </div>
