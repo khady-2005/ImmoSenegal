@@ -37,30 +37,48 @@ public class MandatGestionService {
         this.utilisateurs = utilisateurs;
     }
 
+    /** L'agence propose de gérer un bien appartenant à un autre utilisateur. */
     public MandatResume proposer(UUID agenceId, UUID annonceId, AuthenticatedUser acteur) {
         verifierResponsable(agenceId, acteur);
-        Agence agence = agences.findById(agenceId)
-            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
-        Annonce annonce = annonces.findById(annonceId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
-        if (annonce.isExemple()) throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Une annonce de démonstration ne peut pas faire l'objet d'un mandat.");
-        if (annonce.getStatut() != StatutAnnonce.PUBLIEE) throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Seules les annonces publiées peuvent faire l'objet d'une proposition.");
-        if (annonce.getProprietaire().getId().equals(acteur.id())) throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Vous ne pouvez pas proposer un mandat sur votre propre annonce.");
-        if (mandats.existsByAgenceIdAndAnnonceId(agenceId, annonceId)) throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Cette agence a déjà une proposition ou un mandat pour ce bien.");
-
-        User proprietaire = annonce.getProprietaire();
-        User proposant = utilisateurs.findById(acteur.id())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Compte utilisateur introuvable."));
-        MandatGestion mandat = mandats.save(new MandatGestion(agence, annonce, proprietaire, proposant));
-        notifications.creer(proprietaire, "PROPOSITION_MANDAT_GESTION",
+        Agence agence = agenceActive(agenceId);
+        Annonce annonce = annoncePubliee(annonceId);
+        if (annonce.getProprietaire().getId().equals(acteur.id())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous ne pouvez pas proposer un mandat sur votre propre annonce.");
+        }
+        verifierAbsenceMandat(agenceId, annonceId);
+        User proposant = utilisateurActeur(acteur);
+        MandatGestion mandat = mandats.save(new MandatGestion(agence, annonce,
+            annonce.getProprietaire(), proposant, OrigineMandatGestion.INITIATIVE_AGENCE));
+        notifications.creer(annonce.getProprietaire(), "PROPOSITION_MANDAT_GESTION",
             "Proposition de gestion immobilière",
             agence.getNom() + " souhaite prendre en charge votre bien : " + annonce.getTitre(),
             "/mes-annonces");
+        return versResume(mandat);
+    }
+
+    /** Le propriétaire demande à une agence précise de prendre en charge son annonce. */
+    public MandatResume demander(UUID agenceId, UUID annonceId, AuthenticatedUser acteur) {
+        Agence agence = agenceActive(agenceId);
+        Annonce annonce = annoncePubliee(annonceId);
+        if (!annonce.getProprietaire().getId().equals(acteur.id())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez demander la gestion que de votre propre bien.");
+        }
+        List<MembreAgence> responsables = membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF)
+            .stream().filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).toList();
+        if (responsables.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette agence n'a pas encore de responsable actif.");
+        }
+        verifierAbsenceMandat(agenceId, annonceId);
+        User proprietaire = utilisateurActeur(acteur);
+        MandatGestion mandat = mandats.save(new MandatGestion(agence, annonce,
+            proprietaire, proprietaire, OrigineMandatGestion.INITIATIVE_PROPRIETAIRE));
+        for (MembreAgence responsable : responsables) {
+            notifications.creer(responsable.getUtilisateur(), "DEMANDE_MANDAT_GESTION",
+                "Nouvelle demande de gestion",
+                proprietaire.getNomComplet() + " souhaite confier son bien à " + agence.getNom()
+                    + " : " + annonce.getTitre(),
+                "/mes-agences/" + agenceId);
+        }
         return versResume(mandat);
     }
 
@@ -75,18 +93,64 @@ public class MandatGestionService {
         return mandats.findAllByProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(this::versResume).toList();
     }
 
+    /** La partie qui reçoit la demande est seule autorisée à répondre. */
     public MandatResume repondre(UUID mandatId, boolean accepter, AuthenticatedUser acteur) {
-        MandatGestion mandat = mandats.findByIdAndProprietaireId(mandatId, acteur.id())
+        MandatGestion mandat = mandats.findById(mandatId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposition introuvable."));
-        if (mandat.getStatut() != StatutMandatGestion.EN_ATTENTE) throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Cette proposition a déjà reçu une réponse.");
+        boolean destinataireAutorise;
+        if (mandat.getOrigine() == OrigineMandatGestion.INITIATIVE_AGENCE) {
+            destinataireAutorise = mandat.getProprietaire().getId().equals(acteur.id());
+        } else {
+            destinataireAutorise = acteur.role().name().equals("ADMIN") ||
+                membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
+                    .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                    .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
+        }
+        if (!destinataireAutorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            "Vous n'êtes pas autorisé à répondre à cette demande.");
+        if (mandat.getStatut() != StatutMandatGestion.EN_ATTENTE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà reçu une réponse.");
+        }
+
         mandat.decider(accepter ? StatutMandatGestion.ACCEPTE : StatutMandatGestion.REFUSE);
         String decision = accepter ? "acceptée" : "refusée";
-        notifications.creer(mandat.getProposePar(), "REPONSE_MANDAT_GESTION",
-            "Réponse à une proposition de gestion",
-            "Le propriétaire a " + decision + " la proposition concernant : " + mandat.getAnnonce().getTitre(),
-            "/mes-agences/" + mandat.getAgence().getId());
+        User destinataire = mandat.getProposePar();
+        String titre = mandat.getOrigine() == OrigineMandatGestion.INITIATIVE_AGENCE
+            ? "Réponse à votre proposition de gestion"
+            : "Réponse de l'agence à votre demande";
+        String message = mandat.getOrigine() == OrigineMandatGestion.INITIATIVE_AGENCE
+            ? "Le propriétaire a " + decision + " la proposition concernant : " + mandat.getAnnonce().getTitre()
+            : mandat.getAgence().getNom() + " a " + decision + " votre demande concernant : " + mandat.getAnnonce().getTitre();
+        notifications.creer(destinataire, "REPONSE_MANDAT_GESTION", titre, message,
+            mandat.getOrigine() == OrigineMandatGestion.INITIATIVE_AGENCE
+                ? "/mes-agences/" + mandat.getAgence().getId() : "/mes-annonces");
         return versResume(mandat);
+    }
+
+    private Agence agenceActive(UUID agenceId) {
+        return agences.findById(agenceId)
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
+    }
+
+    private Annonce annoncePubliee(UUID annonceId) {
+        Annonce annonce = annonces.findById(annonceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
+        if (annonce.isExemple() || annonce.getStatut() != StatutAnnonce.PUBLIEE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Seules les annonces publiées peuvent faire l'objet d'une demande de gestion.");
+        }
+        return annonce;
+    }
+
+    private void verifierAbsenceMandat(UUID agenceId, UUID annonceId) {
+        if (mandats.existsByAgenceIdAndAnnonceId(agenceId, annonceId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une demande ou un mandat existe déjà pour ce bien auprès de cette agence.");
+        }
+    }
+
+    private User utilisateurActeur(AuthenticatedUser acteur) {
+        return utilisateurs.findById(acteur.id())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Compte utilisateur introuvable."));
     }
 
     private void verifierResponsable(UUID agenceId, AuthenticatedUser acteur) {
@@ -95,17 +159,17 @@ public class MandatGestionService {
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
                 .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
         if (!autorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Seul le responsable de l'agence peut gérer les propositions de mandat.");
+            "Seul le responsable de l'agence peut consulter ses mandats.");
     }
 
     private MandatResume versResume(MandatGestion m) {
         return new MandatResume(m.getId(), m.getAgence().getId(), m.getAgence().getNom(),
             m.getAnnonce().getId(), m.getAnnonce().getTitre(), m.getAnnonce().getVille(),
             m.getProprietaire().getId(), m.getProprietaire().getNomComplet(),
-            m.getStatut().name(), m.getCreeLe(), m.getDecideLe());
+            m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe());
     }
 
     public record MandatResume(UUID id, UUID agenceId, String agenceNom, UUID annonceId,
             String annonceTitre, String ville, UUID proprietaireId, String proprietaireNom,
-            String statut, java.time.Instant creeLe, java.time.Instant decideLe) {}
+            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe) {}
 }
