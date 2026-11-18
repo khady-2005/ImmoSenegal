@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MandatGestionRepository extends JpaRepository<MandatGestion, UUID> {
     List<MandatGestion> findAllByAgenceIdOrderByCreeLeDesc(UUID agenceId);
+    List<MandatGestion> findAllByAgenceIdAndStatutOrderByCreeLeDesc(UUID agenceId, StatutMandatGestion statut);
     List<MandatGestion> findAllByProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     Optional<MandatGestion> findByIdAndProprietaireId(UUID id, UUID proprietaireId);
     boolean existsByAgenceIdAndAnnonceId(UUID agenceId, UUID annonceId);
