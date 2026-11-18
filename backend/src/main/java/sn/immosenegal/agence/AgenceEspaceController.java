@@ -30,6 +30,12 @@ public class AgenceEspaceController {
         this.service = service;
     }
 
+    @GetMapping("/api/agence/annuaire")
+    @Operation(summary = "Lister les agences actives pouvant recevoir une demande de gestion")
+    public List<AgenceEspaceService.AgencePubliqueResume> annuaire() {
+        return service.annuaire();
+    }
+
     @GetMapping("/api/agence/mes-espaces")
     @Operation(summary = "Lister les espaces des agences dont je suis membre")
     public List<AgenceEspaceService.AgenceResume> mesEspaces(
