@@ -28,6 +28,14 @@ public class AgenceEspaceService {
     }
 
     @Transactional(readOnly = true)
+    public List<AgencePubliqueResume> annuaire() {
+        return agences.findAllByStatutOrderByNomAsc(StatutAgence.ACTIVE).stream()
+            .map(a -> new AgencePubliqueResume(a.getId(), a.getNom(), a.getSlug(),
+                a.getDescription(), a.getAdresse(), a.getLogoUrl()))
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<AgenceResume> mesAgences(AuthenticatedUser acteur) {
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
@@ -191,7 +199,7 @@ public class AgenceEspaceService {
             membre.getFonction().name(), membre.getStatut().name(), membre.getCreeLe());
     }
 
-    public record AgenceResume(UUID id, String nom, String slug, String fonction) {}
+    public record AgencePubliqueResume(UUID id, String nom, String slug, String description, String adresse, String logoUrl) {}\n    public record AgenceResume(UUID id, String nom, String slug, String fonction) {}
     public record InvitationResume(UUID id, UUID agenceId, String agenceNom, String fonction,
                                    java.time.Instant creeLe) {}
     public record MembreResume(UUID id, UUID utilisateurId, String nom, String email,
