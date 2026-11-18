@@ -19,6 +19,18 @@ type Mandat = {
   creeLe: string
   decideLe: string | null
 }
+type Candidature = {
+  id: string
+  agenceId: string
+  agenceNom: string
+  utilisateurId: string
+  nom: string
+  email: string
+  fonction: string
+  statut: string
+  creeLe: string
+}
+
 type Membre = {
   id: string
   utilisateurId: string
@@ -42,6 +54,7 @@ export default function AgenceTableauDeBord() {
   const [agence, setAgence] = useState<Agence | null>(null)
   const [membres, setMembres] = useState<Membre[]>([])
   const [mandats, setMandats] = useState<Mandat[]>([])
+  const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
   const [annonceChoisie, setAnnonceChoisie] = useState('')
   const [email, setEmail] = useState('')
@@ -57,11 +70,12 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe, demandes, catalogue] = await Promise.all([
+      const [espaces, equipe, demandes, catalogue, demandesEquipe] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=50', { token: jeton }),
+        appelApi<Candidature[]>(`/api/agence/${agenceId}/candidatures`, { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -75,6 +89,7 @@ export default function AgenceTableauDeBord() {
       setAgence(espace ?? { id: agenceId, nom: 'Agence', slug: '', fonction: 'ADMIN' })
       setMembres(equipe)
       setMandats(demandes)
+      setCandidatures(demandesEquipe)
       setAnnoncesDisponibles(catalogue.contenu)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
@@ -127,6 +142,27 @@ export default function AgenceTableauDeBord() {
       setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer cette proposition de gestion.')
     } finally {
       setEnvoi(false)
+    }
+  }
+
+  const deciderCandidature = async (candidature: Candidature, accepter: boolean) => {
+    setMembreEnCours(candidature.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi(`/api/agence/${agenceId}/candidatures/${candidature.id}/decision`, {
+        method: 'POST',
+        token: jeton,
+        body: { accepter },
+      })
+      setMessage(accepter
+        ? `${candidature.nom} a été accepté(e) comme collaborateur.`
+        : `La candidature de ${candidature.nom} a été refusée.`)
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de traiter cette candidature.')
+    } finally {
+      setMembreEnCours(null)
     }
   }
 
@@ -285,6 +321,46 @@ export default function AgenceTableauDeBord() {
                     <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, false)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">Refuser</button>
                   </div>
                 )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-nuit-900">Candidatures reçues</h2>
+            <p className="mt-1 text-sm text-slate-600">Les agents et gestionnaires qui souhaitent rejoindre votre agence.</p>
+          </div>
+          <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">{candidatures.length} en attente</span>
+        </div>
+        {candidatures.length === 0 ? (
+          <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucune candidature en attente pour le moment.</p>
+        ) : (
+          <div className="mt-4 divide-y divide-slate-100">
+            {candidatures.map((candidature) => (
+              <article key={candidature.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-semibold text-nuit-900">{candidature.nom}</p>
+                  <p className="text-sm text-slate-600">{candidature.email}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Fonction souhaitée : {fonctions[candidature.fonction] ?? candidature.fonction}
+                    {' · '}Reçue le {new Date(candidature.creeLe).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button type="button" disabled={membreEnCours === candidature.id}
+                    onClick={() => void deciderCandidature(candidature, true)}
+                    className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">
+                    Accepter
+                  </button>
+                  <button type="button" disabled={membreEnCours === candidature.id}
+                    onClick={() => void deciderCandidature(candidature, false)}
+                    className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">
+                    Refuser
+                  </button>
+                </div>
               </article>
             ))}
           </div>
