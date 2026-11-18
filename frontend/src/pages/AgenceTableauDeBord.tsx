@@ -130,6 +130,27 @@ export default function AgenceTableauDeBord() {
     }
   }
 
+  const changerStatut = async (membre: Membre, nouveauStatut: 'ACTIF' | 'SUSPENDU') => {
+    setMembreEnCours(membre.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi(`/api/agence/${agenceId}/membres/${membre.id}/statut`, {
+        method: 'PATCH',
+        token: jeton,
+        body: { statut: nouveauStatut },
+      })
+      setMessage(nouveauStatut === 'SUSPENDU'
+        ? `L’accès de ${membre.nom} à cette agence a été suspendu.`
+        : `L’accès de ${membre.nom} à cette agence a été réactivé.`)
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de modifier le statut de ce membre.')
+    } finally {
+      setMembreEnCours(null)
+    }
+  }
+
   const inviter = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!email.trim()) return
@@ -275,7 +296,7 @@ export default function AgenceTableauDeBord() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="flex items-center gap-2 text-xl font-bold text-nuit-900"><Users className="h-5 w-5" /> Équipe de l’agence</h2>
-              <p className="mt-1 text-sm text-slate-600">Les membres actifs qui ont accès à cet espace.</p>
+              <p className="mt-1 text-sm text-slate-600">Consultez les membres actifs et suspendus, et gérez leurs accès.</p>
             </div>
             <button type="button" onClick={() => void charger()} disabled={chargement} aria-label="Actualiser l’équipe" className="rounded-full border border-slate-300 p-2 text-slate-700 hover:bg-slate-50 disabled:opacity-50">
               <RefreshCw className={`h-4 w-4 ${chargement ? 'animate-spin' : ''}`} />
@@ -295,18 +316,31 @@ export default function AgenceTableauDeBord() {
                       {membre.fonction === 'RESPONSABLE' && <ShieldCheck className="h-3.5 w-3.5" />}
                       {fonctions[membre.fonction] ?? membre.fonction}
                     </span>
+                    <span className={`ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${membre.statut === 'ACTIF' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                      {membre.statut === 'ACTIF' ? 'Accès actif' : 'Accès suspendu'}
+                    </span>
                   </div>
                   {membre.fonction !== 'RESPONSABLE' && (
-                    <select
-                      aria-label={`Fonction de ${membre.nom}`}
-                      value={membre.fonction}
-                      disabled={membreEnCours === membre.id}
-                      onChange={(event) => void changerFonction(membre, event.target.value as 'GESTIONNAIRE' | 'AGENT')}
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:opacity-50"
-                    >
-                      <option value="AGENT">Agent immobilier</option>
-                      <option value="GESTIONNAIRE">Gestionnaire</option>
-                    </select>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
+                        aria-label={`Fonction de ${membre.nom}`}
+                        value={membre.fonction}
+                        disabled={membreEnCours === membre.id}
+                        onChange={(event) => void changerFonction(membre, event.target.value as 'GESTIONNAIRE' | 'AGENT')}
+                        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 disabled:opacity-50"
+                      >
+                        <option value="AGENT">Agent immobilier</option>
+                        <option value="GESTIONNAIRE">Gestionnaire</option>
+                      </select>
+                      <button
+                        type="button"
+                        disabled={membreEnCours === membre.id}
+                        onClick={() => void changerStatut(membre, membre.statut === 'ACTIF' ? 'SUSPENDU' : 'ACTIF')}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${membre.statut === 'ACTIF' ? 'border border-red-200 text-red-700 hover:bg-red-50' : 'bg-emerald-700 text-white hover:bg-emerald-800'}`}
+                      >
+                        {membre.statut === 'ACTIF' ? 'Suspendre l’accès' : 'Réactiver l’accès'}
+                      </button>
+                    </div>
                   )}
                 </article>
               ))}
