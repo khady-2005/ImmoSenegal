@@ -128,7 +128,13 @@ public class AgenceEspaceService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "La fonction du responsable doit être modifiée par un administrateur.");
         }
+        FonctionAgence ancienneFonction = membre.getFonction();
         membre.setFonction(fonction);
+        notifications.creer(membre.getUtilisateur(), "FONCTION_AGENCE_MODIFIEE",
+            "Votre fonction dans l’agence a changé",
+            "Votre fonction au sein de " + membre.getAgence().getNom() + " est passée de "
+                + ancienneFonction.name().toLowerCase() + " à " + fonction.name().toLowerCase() + ".",
+            "/mes-agences");
         return versResume(membre);
     }
 
@@ -145,6 +151,12 @@ public class AgenceEspaceService {
                 "Le responsable ne peut pas être suspendu depuis cet espace.");
         }
         membre.setStatut(statut);
+        notifications.creer(membre.getUtilisateur(), "ACCES_AGENCE_MODIFIE",
+            statut == StatutMembreAgence.ACTIF ? "Votre accès à l’agence est réactivé" : "Votre accès à l’agence est suspendu",
+            statut == StatutMembreAgence.ACTIF
+                ? "Votre accès à l’espace de " + membre.getAgence().getNom() + " est de nouveau actif."
+                : "Votre accès à l’espace de " + membre.getAgence().getNom() + " a été suspendu par le responsable.",
+            "/mes-agences");
         return versResume(membre);
     }
 
