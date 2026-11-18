@@ -76,6 +76,12 @@ export default function MissionsAgence({ agenceId, fonction }: { agenceId: strin
     </div>
     {erreur && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
     {message && <p role="status" className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{message}</p>}
+    <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Total</p><p className="mt-1 text-2xl font-bold text-nuit-900">{missions.length}</p></div>
+      <div className="rounded-xl bg-amber-50 p-3"><p className="text-xs text-amber-800">À faire</p><p className="mt-1 text-2xl font-bold text-nuit-900">{missions.filter(m => m.statut === 'A_FAIRE').length}</p></div>
+      <div className="rounded-xl bg-blue-50 p-3"><p className="text-xs text-blue-800">En cours</p><p className="mt-1 text-2xl font-bold text-nuit-900">{missions.filter(m => m.statut === 'EN_COURS').length}</p></div>
+      <div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-800">Terminées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{missions.filter(m => m.statut === 'TERMINEE').length}</p></div>
+    </div>
     {responsable && <form onSubmit={creer} className="mt-5 grid gap-3 rounded-xl bg-slate-50 p-4 md:grid-cols-2">
       <div className="md:col-span-2"><label htmlFor="mission-titre" className="mb-1 block text-sm font-semibold text-slate-700">Titre de la mission</label><input id="mission-titre" required maxLength={160} value={titre} onChange={e => setTitre(e.target.value)} placeholder="Ex. Organiser une visite à Almadies" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"/></div>
       <div><label htmlFor="mission-membre" className="mb-1 block text-sm font-semibold text-slate-700">Collaborateur</label><select id="mission-membre" required value={membreId} onChange={e => setMembreId(e.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"><option value="">Choisir un collaborateur</option>{membres.map(m => <option key={m.id} value={m.id}>{m.nom} — {libelleFonction[m.fonction] ?? m.fonction}</option>)}</select></div>
