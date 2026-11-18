@@ -26,13 +26,19 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [profil, setProfil] = useState<Utilisateur | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [accesAgence, setAccesAgence] = useState(false)
 
   useEffect(() => {
     let annule = false
-    appelApi<Utilisateur>('/api/auth/me', { token: jeton })
-      .then((p) => {
+    Promise.all([
+      appelApi<Utilisateur>('/api/auth/me', { token: jeton }),
+      appelApi<unknown[]>('/api/agence/mes-espaces', { token: jeton }),
+      appelApi<unknown[]>('/api/agence/mes-invitations', { token: jeton }),
+    ])
+      .then(([p, espaces, invitations]) => {
         if (annule) return
         setProfil(p)
+        setAccesAgence(p.role === 'ADMIN' || espaces.length > 0 || invitations.length > 0)
         if (p.role !== depuisConnexion?.role) majUtilisateur(p)
       })
       .catch((e: unknown) => {
@@ -77,7 +83,7 @@ export default function Dashboard() {
     { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
 
-  const accesAvecAgences: Acces[] = [...acces, { titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }]
+  const accesAvecAgences: Acces[] = accesAgence ? [...acces, { titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }] : acces
 
   const introduction = affiche.role === 'CLIENT'
     ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'
