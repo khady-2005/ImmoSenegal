@@ -6,6 +6,7 @@ import { useAuth } from '../auth'
 import MissionsAgence from '../components/MissionsAgence'
 import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
+import CRMAgence from '../components/CRMAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 
@@ -92,6 +93,7 @@ export default function CollaborateurTableauDeBord() {
       </section>
 
       <MissionsAgence agenceId={agenceId} fonction={agence.fonction} />
+      <CRMAgence agenceId={agenceId} fonction={agence.fonction} />
       <VisitesAgence agenceId={agenceId} />
       <PortefeuilleAgence agenceId={agenceId} />
 
