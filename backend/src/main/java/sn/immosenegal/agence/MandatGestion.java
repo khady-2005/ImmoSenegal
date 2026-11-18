@@ -31,6 +31,10 @@ public class MandatGestion {
     private User proposePar;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 25)
+    private OrigineMandatGestion origine;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatutMandatGestion statut = StatutMandatGestion.EN_ATTENTE;
 
@@ -42,11 +46,13 @@ public class MandatGestion {
 
     protected MandatGestion() {}
 
-    public MandatGestion(Agence agence, Annonce annonce, User proprietaire, User proposePar) {
+    public MandatGestion(Agence agence, Annonce annonce, User proprietaire, User proposePar,
+            OrigineMandatGestion origine) {
         this.agence = agence;
         this.annonce = annonce;
         this.proprietaire = proprietaire;
         this.proposePar = proposePar;
+        this.origine = origine;
     }
 
     public UUID getId() { return id; }
@@ -54,6 +60,7 @@ public class MandatGestion {
     public Annonce getAnnonce() { return annonce; }
     public User getProprietaire() { return proprietaire; }
     public User getProposePar() { return proposePar; }
+    public OrigineMandatGestion getOrigine() { return origine; }
     public StatutMandatGestion getStatut() { return statut; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getDecideLe() { return decideLe; }
