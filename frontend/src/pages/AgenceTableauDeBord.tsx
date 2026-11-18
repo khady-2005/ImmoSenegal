@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, MailPlus, RefreshCw, ShieldCheck, Users } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
@@ -68,7 +68,7 @@ export default function AgenceTableauDeBord() {
 
   useEffect(() => { void charger() }, [charger])
 
-  const inviter = async (event: React.FormEvent<HTMLFormElement>) => {
+  const inviter = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!email.trim()) return
     setEnvoi(true)
