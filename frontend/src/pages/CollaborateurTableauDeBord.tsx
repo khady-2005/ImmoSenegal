@@ -116,7 +116,7 @@ export default function CollaborateurTableauDeBord() {
             Votre accès est limité à votre compte et à votre appartenance active à cette agence. La gestion de l’équipe et des paramètres de l’agence reste réservée au responsable.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Les dossiers et données de travail propres à l’agence seront ajoutés à cet espace dans les prochaines étapes, avec des contrôles d’accès côté serveur.
+            Les missions qui vous sont attribuées sont disponibles dans la rubrique « Missions de l’agence ». Les autres dossiers métier seront intégrés progressivement, avec des contrôles d’accès côté serveur.
           </p>
         </article>
       </section>
