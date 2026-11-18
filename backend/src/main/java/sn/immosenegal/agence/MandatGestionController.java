@@ -50,6 +50,12 @@ public class MandatGestionController {
         return service.mandatsAgence(agenceId, acteur);
     }
 
+    @GetMapping("/agence/{agenceId}/portefeuille")
+    public List<MandatGestionService.MandatResume> portefeuilleAgence(@PathVariable UUID agenceId,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.portefeuilleAgence(agenceId, acteur);
+    }
+
     @GetMapping("/mandats/mes-propositions")
     public List<MandatGestionService.MandatResume> mesPropositions(
             @AuthenticationPrincipal AuthenticatedUser acteur) {
