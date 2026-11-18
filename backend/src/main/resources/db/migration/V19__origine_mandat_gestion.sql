@@ -1,0 +1,5 @@
+ALTER TABLE mandats_gestion
+    ADD COLUMN origine VARCHAR(25) NOT NULL DEFAULT 'INITIATIVE_AGENCE';
+
+ALTER TABLE mandats_gestion
+    ALTER COLUMN origine DROP DEFAULT;
