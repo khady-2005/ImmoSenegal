@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, MailPlus, RefreshCw, ShieldCheck, Users } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
+import type { Annonce, PagePaginee } from '../types'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -41,6 +42,8 @@ export default function AgenceTableauDeBord() {
   const [agence, setAgence] = useState<Agence | null>(null)
   const [membres, setMembres] = useState<Membre[]>([])
   const [mandats, setMandats] = useState<Mandat[]>([])
+  const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
+  const [annonceChoisie, setAnnonceChoisie] = useState('')
   const [email, setEmail] = useState('')
   const [fonction, setFonction] = useState<'GESTIONNAIRE' | 'AGENT'>('AGENT')
   const [chargement, setChargement] = useState(true)
@@ -54,10 +57,11 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe, demandes] = await Promise.all([
+      const [espaces, equipe, demandes, catalogue] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
+        appelApi<PagePaginee<Annonce>>('/api/annonces?taille=50', { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -71,6 +75,7 @@ export default function AgenceTableauDeBord() {
       setAgence(espace ?? { id: agenceId, nom: 'Agence', slug: '', fonction: 'ADMIN' })
       setMembres(equipe)
       setMandats(demandes)
+      setAnnoncesDisponibles(catalogue.contenu)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         navigate('/mes-agences', { replace: true })
@@ -100,6 +105,28 @@ export default function AgenceTableauDeBord() {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de répondre à cette demande.')
     } finally {
       setMembreEnCours(null)
+    }
+  }
+
+  const proposerGestion = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!annonceChoisie) return
+    setEnvoi(true)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi(`/api/agence/${agenceId}/mandats/propositions`, {
+        method: 'POST',
+        token: jeton,
+        body: { annonceId: annonceChoisie },
+      })
+      setAnnonceChoisie('')
+      setMessage('Votre proposition de gestion a été envoyée au propriétaire.')
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer cette proposition de gestion.')
+    } finally {
+      setEnvoi(false)
     }
   }
 
@@ -163,6 +190,51 @@ export default function AgenceTableauDeBord() {
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-xl font-bold text-nuit-900">Proposer la gestion d’un bien</h2>
+        <p className="mt-1 text-sm leading-relaxed text-slate-600">
+          Sélectionnez une annonce publiée appartenant à un propriétaire. Celui-ci recevra votre proposition et restera libre de l’accepter ou de la refuser.
+        </p>
+        {(() => {
+          const dejaTraitees = new Set(mandats.map((mandat) => mandat.annonceId))
+          const disponibles = annoncesDisponibles.filter((annonce) =>
+            !annonce.exemple &&
+            annonce.proprietaire.id !== utilisateur?.id &&
+            !dejaTraitees.has(annonce.id)
+          )
+          return disponibles.length === 0 ? (
+            <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+              Aucune annonce publiée disponible pour une nouvelle proposition pour le moment.
+            </p>
+          ) : (
+            <form onSubmit={proposerGestion} className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <label className="sr-only" htmlFor="annonce-a-gerer">Annonce à proposer</label>
+              <select
+                id="annonce-a-gerer"
+                required
+                value={annonceChoisie}
+                onChange={(event) => setAnnonceChoisie(event.target.value)}
+                className="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
+              >
+                <option value="">Choisir une annonce publiée…</option>
+                {disponibles.map((annonce) => (
+                  <option key={annonce.id} value={annonce.id}>
+                    {annonce.titre} — {annonce.ville} · {annonce.proprietaire.nomComplet}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                disabled={envoi || !annonceChoisie}
+                className="rounded-full bg-nuit-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {envoi ? 'Envoi…' : 'Envoyer une proposition'}
+              </button>
+            </form>
+          )
+        })()}
+      </section>
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
