@@ -5,7 +5,20 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
-type Mandat = {\n  id: string\n  agenceId: string\n  agenceNom: string\n  annonceId: string\n  annonceTitre: string\n  ville: string\n  proprietaireNom: string\n  origine: string\n  statut: string\n  creeLe: string\n  decideLe: string | null\n}\ntype Membre = {
+type Mandat = {
+  id: string
+  agenceId: string
+  agenceNom: string
+  annonceId: string
+  annonceTitre: string
+  ville: string
+  proprietaireNom: string
+  origine: string
+  statut: string
+  creeLe: string
+  decideLe: string | null
+}
+type Membre = {
   id: string
   utilisateurId: string
   nom: string
@@ -26,7 +39,8 @@ export default function AgenceTableauDeBord() {
   const { jeton, utilisateur } = useAuth()
   const navigate = useNavigate()
   const [agence, setAgence] = useState<Agence | null>(null)
-  const [membres, setMembres] = useState<Membre[]>([])\n  const [mandats, setMandats] = useState<Mandat[]>([])
+  const [membres, setMembres] = useState<Membre[]>([])
+  const [mandats, setMandats] = useState<Mandat[]>([])
   const [email, setEmail] = useState('')
   const [fonction, setFonction] = useState<'GESTIONNAIRE' | 'AGENT'>('AGENT')
   const [chargement, setChargement] = useState(true)
@@ -40,9 +54,10 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe] = await Promise.all([
+      const [espaces, equipe, demandes] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
+        appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -54,7 +69,8 @@ export default function AgenceTableauDeBord() {
         return
       }
       setAgence(espace ?? { id: agenceId, nom: 'Agence', slug: '', fonction: 'ADMIN' })
-      setMembres(equipe)\n      setMandats(demandes)
+      setMembres(equipe)
+      setMandats(demandes)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         navigate('/mes-agences', { replace: true })
