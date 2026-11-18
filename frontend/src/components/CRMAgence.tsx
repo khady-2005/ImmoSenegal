@@ -18,6 +18,7 @@ type Contact = {
   creeLe: string
 }
 type Membre = { id: string; nom: string; fonction: string; statut: string }
+type Activite = { id: string; type: string; contenu: string; auteurNom: string; creeLe: string }
 
 const statuts = [
   ['NOUVEAU', 'Nouveau'],
@@ -38,6 +39,10 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
   const { jeton } = useAuth()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [membres, setMembres] = useState<Membre[]>([])
+  const [contactOuvert, setContactOuvert] = useState<string | null>(null)
+  const [activites, setActivites] = useState<Activite[]>([])
+  const [typeActivite, setTypeActivite] = useState('NOTE')
+  const [contenuActivite, setContenuActivite] = useState('')
   const [nom, setNom] = useState('')
   const [email, setEmail] = useState('')
   const [telephone, setTelephone] = useState('')
@@ -85,6 +90,35 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible d’ajouter ce contact.')
     } finally { setEnvoi(false) }
+  }
+
+  const ouvrirHistorique = async (contactId: string) => {
+    if (!jeton) return
+    if (contactOuvert === contactId) { setContactOuvert(null); return }
+    setContactOuvert(contactId)
+    setContenuActivite('')
+    try {
+      const liste = await appelApi<Activite[]>(`/api/agence/${agenceId}/crm/contacts/${contactId}/activites`, { token: jeton })
+      setActivites(liste)
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de charger l’historique.')
+    }
+  }
+
+  const ajouterActivite = async (event: FormEvent<HTMLFormElement>, contactId: string) => {
+    event.preventDefault()
+    if (!jeton || !contenuActivite.trim()) return
+    try {
+      await appelApi(`/api/agence/${agenceId}/crm/contacts/${contactId}/activites`, {
+        method: 'POST', token: jeton, body: { type: typeActivite, contenu: contenuActivite.trim() },
+      })
+      setContenuActivite('')
+      const liste = await appelApi<Activite[]>(`/api/agence/${agenceId}/crm/contacts/${contactId}/activites`, { token: jeton })
+      setActivites(liste)
+      setMessage('Échange ajouté à l’historique.')
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible d’enregistrer cet échange.')
+    }
   }
 
   const changerStatut = async (contact: Contact, statut: string) => {
@@ -172,6 +206,29 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
                     </select>
                   </label>
                 </div>
+                <button type="button" onClick={() => void ouvrirHistorique(contact.id)} className="mt-3 text-sm font-semibold text-amber-800 hover:underline">
+                  {contactOuvert === contact.id ? 'Masquer les échanges' : 'Voir l’historique et ajouter un échange'}
+                </button>
+                {contactOuvert === contact.id && (
+                  <div className="mt-3 rounded-xl bg-slate-50 p-4">
+                    <h4 className="text-sm font-semibold text-nuit-900">Historique des échanges</h4>
+                    {activites.length === 0 ? <p className="mt-2 text-xs text-slate-500">Aucun échange enregistré.</p> : (
+                      <ul className="mt-3 space-y-2">
+                        {activites.map(a => <li key={a.id} className="rounded-lg bg-white p-3">
+                          <p className="text-xs font-semibold text-slate-700">{a.type} · {a.auteurNom} · {new Date(a.creeLe).toLocaleString('fr-FR')}</p>
+                          <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{a.contenu}</p>
+                        </li>)}
+                      </ul>
+                    )}
+                    <form onSubmit={e => void ajouterActivite(e, contact.id)} className="mt-3 grid gap-2 sm:grid-cols-[150px_1fr_auto]">
+                      <select value={typeActivite} onChange={e => setTypeActivite(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm">
+                        <option value="NOTE">Note</option><option value="APPEL">Appel</option><option value="EMAIL">E-mail</option><option value="VISITE">Visite</option><option value="AUTRE">Autre</option>
+                      </select>
+                      <input required maxLength={2000} value={contenuActivite} onChange={e => setContenuActivite(e.target.value)} placeholder="Résultat de l’échange, prochaine étape..." className="min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
+                      <button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white">Ajouter</button>
+                    </form>
+                  </div>
+                )}
               </article>
             ))}
           </div>
