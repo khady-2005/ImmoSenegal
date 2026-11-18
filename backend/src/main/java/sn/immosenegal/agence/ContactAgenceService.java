@@ -17,14 +17,17 @@ import sn.immosenegal.user.UserRepository;
 @Transactional
 public class ContactAgenceService {
     private final ContactAgenceRepository contacts;
+    private final ActiviteContactAgenceRepository activites;
     private final AgenceRepository agences;
     private final MembreAgenceRepository membres;
     private final UserRepository utilisateurs;
     private final NotificationService notifications;
 
-    public ContactAgenceService(ContactAgenceRepository contacts, AgenceRepository agences,
-            MembreAgenceRepository membres, UserRepository utilisateurs, NotificationService notifications) {
+    public ContactAgenceService(ContactAgenceRepository contacts, ActiviteContactAgenceRepository activites,
+            AgenceRepository agences, MembreAgenceRepository membres, UserRepository utilisateurs,
+            NotificationService notifications) {
         this.contacts = contacts;
+        this.activites = activites;
         this.agences = agences;
         this.membres = membres;
         this.utilisateurs = utilisateurs;
@@ -101,6 +104,43 @@ public class ContactAgenceService {
         return resume(contact);
     }
 
+    @Transactional(readOnly = true)
+    public List<ActiviteResume> listerActivites(UUID agenceId, UUID contactId, AuthenticatedUser acteur) {
+        verifierAccesContact(agenceId, contactId, acteur);
+        return activites.findAllByContactIdOrderByCreeLeDesc(contactId).stream()
+            .map(a -> new ActiviteResume(a.getId(), a.getType(), a.getContenu(),
+                a.getAuteur().getNomComplet(), a.getCreeLe())).toList();
+    }
+
+    public ActiviteResume ajouterActivite(UUID agenceId, UUID contactId, NouvelleActivite requete,
+            AuthenticatedUser acteur) {
+        ContactAgence contact = verifierAccesContact(agenceId, contactId, acteur);
+        String type = propre(requete.type());
+        String contenu = propre(requete.contenu());
+        if (!List.of("NOTE", "APPEL", "EMAIL", "VISITE", "AUTRE").contains(type))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type d'activité invalide.");
+        if (contenu == null || contenu.length() > 2000)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le contenu est obligatoire (2 000 caractères maximum).");
+        User auteur = utilisateurs.findById(acteur.id())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        ActiviteContactAgence activite = activites.save(new ActiviteContactAgence(contact, auteur, type, contenu));
+        return new ActiviteResume(activite.getId(), activite.getType(), activite.getContenu(),
+            auteur.getNomComplet(), activite.getCreeLe());
+    }
+
+    private ContactAgence verifierAccesContact(UUID agenceId, UUID contactId, AuthenticatedUser acteur) {
+        MembreAgence membre = verifierMembre(agenceId, acteur);
+        ContactAgence contact = contacts.findByIdAndAgenceId(contactId, agenceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact introuvable."));
+        boolean responsable = membre.getFonction() == FonctionAgence.RESPONSABLE
+            || acteur.role().name().equals("ADMIN");
+        if (!responsable && (contact.getMembreAssigne() == null
+                || !contact.getMembreAssigne().getId().equals(membre.getId()))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Ce contact ne vous est pas attribué.");
+        }
+        return contact;
+    }
+
     private MembreAgence verifierMembre(UUID agenceId, AuthenticatedUser acteur) {
         agences.findById(agenceId).filter(a -> a.getStatut() == StatutAgence.ACTIVE)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
@@ -137,6 +177,8 @@ public class ContactAgenceService {
     public record CreationContact(String nom, String email, String telephone, String typeBesoin,
         String recherche, String ville, String notes, UUID membreAssigneId) {}
     public record ModificationContact(StatutContactCrm statut, String notes, UUID membreAssigneId) {}
+    public record NouvelleActivite(String type, String contenu) {}
+    public record ActiviteResume(UUID id, String type, String contenu, String auteurNom, java.time.Instant creeLe) {}
     public record ContactResume(UUID id, String nom, String email, String telephone, String typeBesoin,
         String recherche, String ville, String notes, String statut, UUID membreAssigneId,
         String membreAssigneNom, String createurNom, java.time.Instant creeLe, java.time.Instant modifieLe) {}
