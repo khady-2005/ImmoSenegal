@@ -81,7 +81,30 @@ public class MissionAgenceService {
                 && requete.statut() != StatutMissionAgence.TERMINEE) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Seul le responsable peut rouvrir une mission terminée.");
         }
+        StatutMissionAgence ancienStatut = mission.getStatut();
         mission.changerStatut(requete.statut());
+        if (ancienStatut != requete.statut()) {
+            String libelle = switch (requete.statut()) {
+                case A_FAIRE -> "à faire";
+                case EN_COURS -> "en cours";
+                case TERMINEE -> "terminée";
+            };
+            User auteur = utilisateurs.findById(acteur.id())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+            if (responsable) {
+                notifications.creer(mission.getMembre().getUtilisateur(), "MISSION_AGENCE_AVANCEMENT",
+                    "Avancement d’une mission modifié",
+                    "Le responsable a modifié la mission « " + mission.getTitre() + " » : " + libelle + ".",
+                    "/mes-agences/" + agenceId + "/espace");
+            } else {
+                membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+                    .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                    .forEach(r -> notifications.creer(r.getUtilisateur(), "MISSION_AGENCE_AVANCEMENT",
+                        "Avancement d’une mission",
+                        auteur.getNomComplet() + " a mis à jour « " + mission.getTitre() + " » : " + libelle + ".",
+                        "/mes-agences/" + agenceId));
+            }
+        }
         return resume(mission);
     }
 
