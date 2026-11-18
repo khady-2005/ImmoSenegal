@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { appelApi, ApiError } from '../api'
+import { useAuth } from '../auth'
 
 type Contact = {
   id: string
@@ -34,9 +35,7 @@ const besoins = [
 ]
 
 export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fonction: string }) {
-  const { jeton } = ({} as { jeton?: string })
-  // Le jeton est fourni par le contexte d'authentification ci-dessous.
-  const [token, setToken] = useState<string | null>(null)
+  const { jeton } = useAuth()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [membres, setMembres] = useState<Membre[]>([])
   const [nom, setNom] = useState('')
@@ -69,13 +68,11 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
     }
   }, [agenceId, fonction])
 
-  useEffect(() => {
-    // Le contexte est lu dans le composant parent et injecté via l'événement d'initialisation.
-  }, [])
+  useEffect(() => { if (jeton) void charger(jeton) }, [jeton, charger])
 
   const creer = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!token) return
+    if (!jeton) return
     setEnvoi(true); setErreur(null); setMessage(null)
     try {
       await appelApi(`/api/agence/${agenceId}/crm/contacts`, {
@@ -84,7 +81,7 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
       })
       setNom(''); setEmail(''); setTelephone(''); setRecherche(''); setVille(''); setNotes(''); setMembreAssigneId('')
       setMessage('Contact ajouté au portefeuille commercial.')
-      await charger(token)
+      await charger(jeton)
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible d’ajouter ce contact.')
     } finally { setEnvoi(false) }
