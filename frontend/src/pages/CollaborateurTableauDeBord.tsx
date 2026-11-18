@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, CalendarDays, ClipboardList, Compass, MapPinned, ShieldCheck } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
+import MissionsAgence from '../components/MissionsAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 
@@ -87,6 +88,8 @@ export default function CollaborateurTableauDeBord() {
         </div>
         <p className="mt-5 max-w-3xl text-sm leading-relaxed text-white/80">{role.mission}</p>
       </section>
+
+      <MissionsAgence agenceId={agenceId} fonction={agence.fonction} />
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
