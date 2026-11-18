@@ -62,6 +62,25 @@ export default function MesAnnonces() {
     }
   }
 
+  async function repondreProposition(mandat: Mandat, accepter: boolean) {
+    setDemandeEnCours(mandat.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/reponse`, {
+        method: 'POST',
+        token: jeton,
+        body: { accepter },
+      })
+      setMessage(accepter ? 'Vous avez accepté la proposition de l’agence.' : 'Vous avez refusé la proposition de l’agence.')
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible d’enregistrer votre réponse.')
+    } finally {
+      setDemandeEnCours(null)
+    }
+  }
+
   async function demanderGestion(annonce: Annonce) {
     const agenceId = agenceChoisie[annonce.id]
     if (!agenceId) {
@@ -115,9 +134,17 @@ export default function MesAnnonces() {
                     <p className="font-semibold text-nuit-900">{mandat.annonceTitre}</p>
                     <p className="text-sm text-slate-600">{mandat.agenceNom} · {libelleOrigine(mandat.origine)}</p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
-                    {libelleMandat(mandat.statut)}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                      {libelleMandat(mandat.statut)}
+                    </span>
+                    {mandat.origine === 'INITIATIVE_AGENCE' && mandat.statut === 'EN_ATTENTE' && (
+                      <>
+                        <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, true)} className="rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Accepter</button>
+                        <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, false)} className="rounded-full border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50">Refuser</button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </li>
             ))}
