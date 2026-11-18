@@ -76,7 +76,7 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
     setEnvoi(true); setErreur(null); setMessage(null)
     try {
       await appelApi(`/api/agence/${agenceId}/crm/contacts`, {
-        method: 'POST', token,
+        method: 'POST', token: jeton,
         body: { nom, email, telephone, typeBesoin, recherche, ville, notes, membreAssigneId: membreAssigneId || null },
       })
       setNom(''); setEmail(''); setTelephone(''); setRecherche(''); setVille(''); setNotes(''); setMembreAssigneId('')
@@ -88,14 +88,14 @@ export default function CRMAgence({ agenceId, fonction }: { agenceId: string; fo
   }
 
   const changerStatut = async (contact: Contact, statut: string) => {
-    if (!token) return
+    if (!jeton) return
     setErreur(null); setMessage(null)
     try {
       await appelApi(`/api/agence/${agenceId}/crm/contacts/${contact.id}`, {
-        method: 'PATCH', token, body: { statut, notes: contact.notes },
+        method: 'PATCH', token: jeton, body: { statut, notes: contact.notes },
       })
       setMessage('Suivi du contact mis à jour.')
-      await charger(token)
+      await charger(jeton)
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de modifier ce contact.')
     }
