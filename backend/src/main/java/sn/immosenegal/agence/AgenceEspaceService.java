@@ -56,7 +56,8 @@ public class AgenceEspaceService {
     @Transactional(readOnly = true)
     public List<MembreResume> listerMembres(UUID agenceId, AuthenticatedUser acteur) {
         verifierAccesGestion(agenceId, acteur);
-        return membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+        return membres.findAllByAgenceId(agenceId).stream()
+            .filter(m -> m.getStatut() != StatutMembreAgence.INVITATION_EN_ATTENTE)
             .map(this::versResume)
             .toList();
     }
