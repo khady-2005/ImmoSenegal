@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface EtatDesLieuxRepository extends JpaRepository<EtatDesLieux, UUID> {
     List<EtatDesLieux> findAllByContratIdOrderByCreeLeDesc(UUID contratId);
     boolean existsByContratIdAndType(UUID contratId, TypeEtatDesLieux type);
+    List<EtatDesLieux> findAllByStatut(StatutEtatDesLieux statut);
 }
