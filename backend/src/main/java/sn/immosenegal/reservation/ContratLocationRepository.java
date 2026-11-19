@@ -5,4 +5,5 @@ public interface ContratLocationRepository extends JpaRepository<ContratLocation
  List<ContratLocation> findAllByProprietaireIdOrderByCreeLeDesc(UUID id);
  List<ContratLocation> findAllByLocataireIdOrderByCreeLeDesc(UUID id);
  boolean existsByReservationId(UUID id);
+ List<ContratLocation> findAllByOrderByCreeLeDesc();
 }
