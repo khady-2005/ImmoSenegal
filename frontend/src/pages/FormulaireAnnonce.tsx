@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
@@ -319,7 +319,7 @@ export default function FormulaireAnnonce() {
             {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Enregistrer et ajouter les photos'}
           </button>
           <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
-            {nouvelle ? 'Terminer' : 'Annuler'}
+            Annuler
           </Link>
         </div>
       </form>
