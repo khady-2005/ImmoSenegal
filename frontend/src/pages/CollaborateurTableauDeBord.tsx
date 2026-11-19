@@ -7,6 +7,7 @@ import MissionsAgence from '../components/MissionsAgence'
 import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import CRMAgence from '../components/CRMAgence'
+import VentesAgence from '../components/VentesAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 
@@ -96,6 +97,7 @@ export default function CollaborateurTableauDeBord() {
       <CRMAgence agenceId={agenceId} fonction={agence.fonction} />
       <VisitesAgence agenceId={agenceId} />
       <PortefeuilleAgence agenceId={agenceId} />
+      <VentesAgence agenceId={agenceId} fonction={agence.fonction} />
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
