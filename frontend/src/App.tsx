@@ -19,6 +19,7 @@ import EtatsDesLieux from './pages/EtatsDesLieux'
 import DepotGarantie from './pages/DepotGarantie'
 import EspaceLocataire from './pages/EspaceLocataire'
 import EspaceProprietaire from './pages/EspaceProprietaire'
+import AdminLitigesLocatifs from './pages/AdminLitigesLocatifs'
 import AdminSupervisionLocative from './pages/AdminSupervisionLocative'
 import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
+          <Route path="admin/litiges-locatifs" element={<RequireRole roles={["ADMIN"]}><AdminLitigesLocatifs /></RequireRole>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mes-favoris" element={<RequireAuth><MesFavoris /></RequireAuth>} />
