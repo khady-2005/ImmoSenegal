@@ -185,6 +185,45 @@ public class AgenceEspaceService {
             .map(this::versResume).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AgenceAdminResume> listerAgencesAdmin(AuthenticatedUser admin) {
+        verifierAdmin(admin);
+        return agences.findAll().stream()
+            .sorted(java.util.Comparator.comparing(Agence::getNom, String.CASE_INSENSITIVE_ORDER))
+            .map(a -> new AgenceAdminResume(a.getId(), a.getNom(), a.getSlug(),
+                a.getType().name(), a.getStatut().name(), a.getAdresse(), a.getEmailContact(),
+                a.getTelephoneContact(), a.getCreeLe(),
+                membres.findAllByAgenceId(a.getId()).stream()
+                    .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF).count()))
+            .toList();
+    }
+
+    public AgenceAdminResume modifierStatutAgence(UUID agenceId, StatutAgence statut,
+                                                   AuthenticatedUser admin) {
+        verifierAdmin(admin);
+        if (statut == StatutAgence.EN_ATTENTE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Une agence ne peut pas être replacée en attente après sa décision.");
+        }
+        Agence agence = agences.findById(agenceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable."));
+        agence.setStatut(statut);
+        agence.setModifieLe(java.time.Instant.now());
+        membres.findAllByAgenceId(agenceId).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .forEach(m -> notifications.creer(m.getUtilisateur(), "STATUT_AGENCE_MODIFIE",
+                statut == StatutAgence.ACTIVE ? "Agence réactivée" : "Agence suspendue",
+                statut == StatutAgence.ACTIVE
+                    ? "L’agence " + agence.getNom() + " est de nouveau active."
+                    : "L’agence " + agence.getNom() + " a été suspendue par l’administration.",
+                "/mes-agences"));
+        return new AgenceAdminResume(agence.getId(), agence.getNom(), agence.getSlug(),
+            agence.getType().name(), agence.getStatut().name(), agence.getAdresse(),
+            agence.getEmailContact(), agence.getTelephoneContact(), agence.getCreeLe(),
+            membres.findAllByAgenceId(agenceId).stream()
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF).count());
+    }
+
     private void verifierAccesGestion(UUID agenceId, AuthenticatedUser acteur) {
         trouverAgenceActive(agenceId);
         if (acteur.role().name().equals("ADMIN")) return;
@@ -227,6 +266,9 @@ public class AgenceEspaceService {
     }
 
     public record AgencePubliqueResume(UUID id, String nom, String slug, String description, String adresse, String logoUrl) {}
+    public record AgenceAdminResume(UUID id, String nom, String slug, String type, String statut,
+            String adresse, String emailContact, String telephoneContact, java.time.Instant creeLe,
+            long membresActifs) {}
     public record AgenceResume(UUID id, String nom, String slug, String fonction) {}
     public record InvitationResume(UUID id, UUID agenceId, String agenceNom, String fonction,
                                    java.time.Instant creeLe) {}
