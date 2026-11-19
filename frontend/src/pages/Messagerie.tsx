@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { MessageCircle, Send } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
+import MessagerieMandats from '../components/MessagerieMandats'
 
 type Conversation = {
   reservationId: string
@@ -72,8 +73,11 @@ export default function Messagerie() {
     } finally { setEnvoi(false) }
   }
 
+  if (utilisateur?.role === 'AGENT') {
+    return <main className="mx-auto max-w-6xl px-4 py-8"><h1 className="font-titre text-3xl font-semibold text-nuit-900">Messagerie professionnelle</h1><MessagerieMandats /></main>
+  }
   if (utilisateur?.role !== 'CLIENT' && utilisateur?.role !== 'PROPRIETAIRE') {
-    return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">La messagerie est réservée aux clients et propriétaires.</p></main>
+    return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">La messagerie est réservée aux utilisateurs concernés par une réservation ou un mandat de gestion.</p></main>
   }
 
   const active = conversations.find(c => c.reservationId === selection)
@@ -103,6 +107,7 @@ export default function Messagerie() {
           </> : <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-slate-500"><MessageCircle className="h-10 w-10 text-emeraude-700" /><p className="mt-3 font-medium text-slate-700">Sélectionnez une conversation</p><p className="mt-1 text-sm">Vos échanges liés aux réservations apparaîtront ici.</p></div>}
         </section>
       </div>
+      <MessagerieMandats />
     </main>
   )
 }
