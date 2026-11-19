@@ -104,6 +104,7 @@ export default function MesContratsLocation(){
    <h1 className="mt-2 text-3xl font-bold text-nuit-900">{titreEspace}</h1>
    <p className="mt-2 text-sm text-slate-600">{espaceLocataire?'Retrouvez les informations de vos logements, vos contrats actifs et l’historique des loyers déclarés.':espaceProprietaire?'Suivez les logements loués, les contrats en cours et les paiements déclarés par vos locataires.':'Consultez les contrats de location auxquels votre compte participe.'}</p>
    <p className="mt-1 text-xs text-slate-500">Seuls les contrats auxquels votre compte participe sont affichés. Les paiements sont des déclarations enregistrées sur la plateforme, pas une vérification bancaire.</p>
+   <a href="/incidents-location" className="mt-3 inline-flex rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-50">Gérer les incidents et réparations</a>
   </header>
 
   {!chargement&&<section aria-label="Résumé des contrats" className="mt-6 grid gap-3 sm:grid-cols-3">
