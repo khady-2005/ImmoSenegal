@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import type { FormEvent } from 'react'
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, Search, SlidersHorizontal } from 'lucide-react'
 import { parametresApi } from '../annonces'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
@@ -165,7 +165,11 @@ export default function Catalogue() {
                 : `${etat.page.totalElements} annonce${etat.page.totalElements > 1 ? 's' : ''}`
               : ' '}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/carte" className="inline-flex items-center gap-2 rounded-xl border border-emeraude-200 bg-white px-4 py-2.5 text-sm font-semibold text-emeraude-800 transition hover:border-emeraude-400 hover:bg-emerald-50">
+              <MapPin aria-hidden className="h-4 w-4" /> Voir sur la carte
+            </Link>
+            <div className="flex items-center gap-2">
             <label htmlFor="f-tri" className="text-sm font-medium text-slate-700">Trier par</label>
             <select
               id="f-tri"
@@ -178,6 +182,7 @@ export default function Catalogue() {
               <option value="prix_desc">Prix décroissant</option>
               <option value="superficie_desc">Plus grande surface</option>
             </select>
+            </div>
           </div>
         </div>
 
