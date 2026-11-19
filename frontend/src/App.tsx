@@ -59,9 +59,9 @@ export default function App() {
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<RequireAuth><DetailAnnonce /></RequireAuth>} />
-          <Route path="admin/demandes" element={<RequireAuth><AdminDemandes /></RequireAuth>} />
-          <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
-          <Route path="admin/utilisateurs" element={<RequireAuth><AdminUtilisateurs /></RequireAuth>} />
+          <Route path="admin/demandes" element={<RequireRole roles={["ADMIN"]}><AdminDemandes /></RequireRole>} />
+          <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
+          <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
