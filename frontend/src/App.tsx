@@ -61,13 +61,13 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="a-propos" element={<APropos />} />
           <Route path="faq" element={<FaqPage />} />
-          <Route path="contact" element={<RequireAuth><Contact /></RequireAuth>} />
-          <Route path="catalogue" element={<RequireAuth><Catalogue /></RequireAuth>} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="catalogue" element={<Catalogue />} />
           <Route path="assistant" element={<AssistantImmobilier />} />
-          <Route path="carte" element={<RequireAuth><CarteBiens /></RequireAuth>} />
+          <Route path="carte" element={<CarteBiens />} />
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
-          <Route path="annonces/:id" element={<RequireAuth><DetailAnnonce /></RequireAuth>} />
+          <Route path="annonces/:id" element={<DetailAnnonce />} />
           <Route path="admin/demandes" element={<RequireRole roles={["ADMIN"]}><AdminDemandes /></RequireRole>} />
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
