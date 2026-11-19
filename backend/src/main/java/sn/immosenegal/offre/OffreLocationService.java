@@ -130,6 +130,20 @@ public class OffreLocationService {
         if (offre.getStatut() != StatutOffre.EN_ATTENTE)
             throw new ApiException(HttpStatus.CONFLICT, "Cette proposition ne peut plus être annulée.");
         offre.annuler();
+        String message = offre.getLocataire().getNomComplet() + " a annulé sa proposition de loyer pour « "
+            + offre.getAnnonce().getTitre() + " ». ";
+        List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+            offre.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
+        if (actifs.isEmpty()) {
+            notifications.creer(offre.getAnnonce().getProprietaire(), "PROPOSITION_LOYER_ANNULEE",
+                "Proposition de loyer annulée", message, "/offres-recues");
+        } else {
+            for (MandatGestion mandat : actifs) {
+                membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
+                    .forEach(m -> notifications.creer(m.getUtilisateur(), "PROPOSITION_LOYER_ANNULEE",
+                        "Proposition de loyer annulée", message, "/offres-recues"));
+            }
+        }
         audit.enregistrer("OFFRE_LOCATION_ANNULEE", acteur.id(), "Offre " + id);
     }
 
