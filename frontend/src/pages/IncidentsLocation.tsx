@@ -154,7 +154,7 @@ export default function IncidentsLocation() {
                   {(i.statut === 'OUVERT' || i.statut === 'EN_COURS') && <button onClick={() => void actualiser(i, 'RESOLU')} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">Marquer comme résolu</button>}
                 </div>
               </div>}
-              {!estProprietaire && i.declareParId === utilisateur?.id && i.statut === 'RESOLU' &&
+              {i.declareParId === utilisateur?.id && i.statut === 'RESOLU' &&
                 <button onClick={() => void actualiser(i, 'CLOTURE')} className="mt-4 rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white">Confirmer et clôturer</button>}
               {i.statut === 'CLOTURE' && <p className="mt-3 text-xs text-slate-500">Incident clôturé le {dateFr(i.modifieLe)}.</p>}
             </article>)}</div>}
