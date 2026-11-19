@@ -59,7 +59,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     <section aria-labelledby="titre-photos" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="titre-photos" className="text-lg font-semibold">Photos ({photos.length}/{PHOTOS_MAX})</h2>
       <p className="mt-1 text-sm text-slate-600">
-        JPEG ou PNG, 5 Mo maximum chacune. La première photo sert de couverture. Les informations cachées dans les photos
+        JPEG ou PNG, 5 Mo maximum chacune (8 photos par annonce). Ajoutez une vue de la façade, du salon, des chambres, de la cuisine, des salles de bain et des extérieurs. La première photo sert de couverture et les suivantes gardent l'ordre d'ajout. Les informations cachées dans les photos
         (position GPS, appareil) sont supprimées à l'envoi.
       </p>
 
