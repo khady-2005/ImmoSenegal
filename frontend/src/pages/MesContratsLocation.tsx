@@ -78,6 +78,8 @@ export default function MesContratsLocation(){
 
  const actifs=contrats.filter(c=>c.etat==='ACTIF')
  const loyerActif=actifs.reduce((s,c)=>s+Number(c.loyerMensuel||0),0)
+ const locatairesActifs=new Set(actifs.map(c=>c.locataireNom)).size
+ const logementsActifs=new Set(actifs.map(c=>c.annonceId)).size
 
  return <main className="mx-auto max-w-5xl px-4 py-10">
   <header>
@@ -89,8 +91,8 @@ export default function MesContratsLocation(){
 
   {!chargement&&<section aria-label="Résumé des contrats" className="mt-6 grid gap-3 sm:grid-cols-3">
    <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats suivis</p><p className="mt-1 text-2xl font-bold text-nuit-900">{contrats.length}</p></div>
-   <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats actifs</p><p className="mt-1 text-2xl font-bold text-nuit-900">{actifs.length}</p></div>
-   <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Loyers mensuels des contrats actifs</p><p className="mt-1 text-xl font-bold text-nuit-900">{monnaie(loyerActif)}</p></div>
+   <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{espaceProprietaire?'Locataires actifs':'Contrats actifs'}</p><p className="mt-1 text-2xl font-bold text-nuit-900">{espaceProprietaire?locatairesActifs:actifs.length}</p></div>
+   <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{espaceProprietaire?'Logements actuellement loués':'Loyers mensuels de vos contrats actifs'}</p><p className="mt-1 text-xl font-bold text-nuit-900">{espaceProprietaire?logementsActifs:monnaie(loyerActif)}</p></div>
   </section>}
 
   {erreur&&<p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
@@ -110,7 +112,7 @@ export default function MesContratsLocation(){
       <p className="mt-2 text-xs text-slate-500">Début : {c.dateDebut}{c.dateFin?' · Fin : '+c.dateFin:''}</p>
       <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>void ouvrir(c.id)} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">{selection===c.id?'Actualiser les paiements':'Voir les paiements'}</button>{c.etat==='ACTIF'&&<button onClick={()=>void resilier(c.id)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Résilier le contrat</button>}</div>
       {selection===c.id&&<div className="mt-5 border-t border-slate-100 pt-4"><h3 className="font-semibold text-nuit-900">Historique des paiements déclarés</h3>{paiements.length===0?<p className="mt-2 text-sm text-slate-500">Aucun paiement déclaré pour ce contrat.</p>:<ul className="mt-3 space-y-2">{paiements.map(p=><li key={p.id} className="rounded-lg bg-slate-50 p-3 text-sm"><strong>{monnaie(p.montant)}</strong> — période {p.periode} · déclaré le {p.datePaiement}<p className="mt-1 text-xs text-slate-500">Déclaré par {p.enregistrePar}{p.reference?' · Référence : '+p.reference:''}</p></li>)}</ul>}
-       <form onSubmit={ajouter} className="mt-4 grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-2"><h4 className="font-semibold text-nuit-900 sm:col-span-2">Enregistrer un paiement déclaré</h4><label className="text-sm">Montant (FCFA)<input required type="number" min="1" step="0.01" value={montant} onChange={e=>setMontant(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Période du loyer<input required type="date" value={periode} onChange={e=>setPeriode(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Date du paiement<input required type="date" value={datePaiement} onChange={e=>setDatePaiement(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Référence facultative<input maxLength={500} value={reference} onChange={e=>setReference(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">Enregistrer la déclaration</button></form>
+       <form onSubmit={ajouter} className="mt-4 grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-2"><h4 className="font-semibold text-nuit-900 sm:col-span-2">{espaceProprietaire?'Enregistrer un loyer reçu':'Déclarer le paiement de mon loyer'}</h4><label className="text-sm">Montant (FCFA)<input required type="number" min="1" step="0.01" value={montant} onChange={e=>setMontant(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Période du loyer<input required type="date" value={periode} onChange={e=>setPeriode(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Date du paiement<input required type="date" value={datePaiement} onChange={e=>setDatePaiement(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Référence facultative<input maxLength={500} value={reference} onChange={e=>setReference(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">{espaceProprietaire?'Enregistrer le loyer reçu':'Déclarer mon paiement'}</button></form>
       </div>}
      </article>)}</div>}
    </>
