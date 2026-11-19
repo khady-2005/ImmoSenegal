@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.immosenegal.common.ApiException;
+import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.reservation.Reservation;
 import sn.immosenegal.reservation.ReservationRepository;
 import sn.immosenegal.security.AuthenticatedUser;
@@ -16,8 +17,9 @@ import sn.immosenegal.user.User;
 public class MessagerieService {
     private final ReservationRepository reservations;
     private final MessageConversationRepository messages;
-    public MessagerieService(ReservationRepository reservations, MessageConversationRepository messages) {
-        this.reservations = reservations; this.messages = messages;
+    private final NotificationService notifications;
+    public MessagerieService(ReservationRepository reservations, MessageConversationRepository messages, NotificationService notifications) {
+        this.reservations = reservations; this.messages = messages; this.notifications = notifications;
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +45,13 @@ public class MessagerieService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Le message doit contenir entre 1 et 2000 caractères.");
         User expediteur = reservation.getClient().getId().equals(acteur.id())
             ? reservation.getClient() : reservation.getAnnonce().getProprietaire();
-        return MessageResponse.de(messages.save(new MessageConversation(reservation, expediteur, contenu.trim())));
+        MessageConversation nouveau = messages.save(new MessageConversation(reservation, expediteur, contenu.trim()));
+        User destinataire = expediteur.getId().equals(reservation.getClient().getId())
+            ? reservation.getAnnonce().getProprietaire() : reservation.getClient();
+        notifications.creer(destinataire, "NOUVEAU_MESSAGE", "Nouveau message",
+            expediteur.getNomComplet() + " vous a envoyé un message au sujet de « " + reservation.getAnnonce().getTitre() + " ».",
+            "/messagerie");
+        return MessageResponse.de(nouveau);
     }
 
     private Reservation verifierParticipant(UUID reservationId, AuthenticatedUser acteur) {
