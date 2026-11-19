@@ -73,10 +73,7 @@ export default function Messagerie() {
     } finally { setEnvoi(false) }
   }
 
-  if (utilisateur?.role === 'AGENT') {
-    return <main className="mx-auto max-w-6xl px-4 py-8"><h1 className="font-titre text-3xl font-semibold text-nuit-900">Messagerie professionnelle</h1><MessagerieMandats /></main>
-  }
-  if (utilisateur?.role !== 'CLIENT' && utilisateur?.role !== 'PROPRIETAIRE') {
+  if (utilisateur?.role !== 'CLIENT' && utilisateur?.role !== 'PROPRIETAIRE' && utilisateur?.role !== 'AGENT') {
     return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">La messagerie est réservée aux utilisateurs concernés par une réservation ou un mandat de gestion.</p></main>
   }
 
