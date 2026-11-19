@@ -58,6 +58,8 @@ export default function App() {
           <Route path="mes-reservations" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
+          <Route path="espace-locataire" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
+          <Route path="espace-proprietaire" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
