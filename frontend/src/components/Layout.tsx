@@ -79,7 +79,7 @@ export default function Layout() {
               <>
                 <NavLink to="/mes-favoris" className={lienDesktop}>Mes favoris</NavLink>
                 <NavLink to="/messagerie" className={lienDesktop}>Messagerie</NavLink>
-                <NavLink to={utilisateur.role === "PROPRIETAIRE" ? "/offres-recues" : "/mes-offres"} className={lienDesktop}>Offres</NavLink>
+                <NavLink to={utilisateur.role === "PROPRIETAIRE" || utilisateur.role === "AGENT" ? "/offres-recues" : "/mes-offres"} className={lienDesktop}>Offres</NavLink>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
