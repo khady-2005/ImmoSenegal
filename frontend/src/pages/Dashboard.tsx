@@ -78,6 +78,7 @@ export default function Dashboard() {
     { titre: 'Demandes de rôle', description: 'Consultez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
     { titre: 'Gestion des utilisateurs', description: 'Consultez et gérez les comptes de la plateforme.', lien: '/admin/utilisateurs', icone: Users, action: 'Gérer les comptes' },
     { titre: 'Supervision locative', description: 'Consultez tous les contrats de location et les paiements déclarés sur la plateforme.', lien: '/admin/supervision-locative', icone: FileCheck2, action: 'Superviser les locations' },
+    { titre: 'Litiges locatifs', description: 'Suivez les incidents non clôturés et les désaccords signalés par les parties.', lien: '/admin/litiges-locatifs', icone: ShieldCheck, action: 'Voir les dossiers à suivre' },
     { titre: 'Toutes les demandes de visite', description: 'Consultez les demandes de visite de la plateforme.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir les visites' },
     { titre: 'Toutes les réservations', description: 'Consultez toutes les demandes de réservation associées aux annonces.', lien: '/mes-reservations', icone: BookmarkCheck, action: 'Voir les réservations' },
   ]
