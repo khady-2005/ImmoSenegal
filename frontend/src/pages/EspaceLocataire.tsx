@@ -17,7 +17,7 @@ export default function EspaceLocataire() {
   useEffect(() => {
     if (!jeton) return
     appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton })
-      .then(l => setContrats(l.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE')))
+      .then(l => setContrats(l.filter(c => c.locataireNom === utilisateur?.nomComplet && c.etat !== 'TERMINE' && c.etat !== 'RESILIE')))
       .catch(e => setErreur(e instanceof ApiError ? e.message : 'Impossible de charger vos locations.'))
   }, [jeton])
   const actifs = contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE')
