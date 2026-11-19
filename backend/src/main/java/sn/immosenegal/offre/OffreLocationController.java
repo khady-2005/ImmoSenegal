@@ -31,7 +31,7 @@ public class OffreLocationController {
         return service.recues(acteur);
     }
     @PostMapping("/{id}/decision")
-    public OffreLocationResponse decider(@PathVariable UUID id, @RequestBody DecisionLocationRequest req,
+    public OffreLocationResponse decider(@PathVariable UUID id, @Valid @RequestBody DecisionLocationRequest req,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.decider(id, req.accepter(), req.reponse(), acteur);
     }
