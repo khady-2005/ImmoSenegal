@@ -56,6 +56,16 @@ public class MissionAgence {
     @Column(name = "modifie_le", nullable = false)
     private Instant modifieLe = Instant.now();
 
+    @Column(columnDefinition = "TEXT")
+    private String rapport;
+
+    @Column(name = "rapport_le")
+    private Instant rapportLe;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rapport_par")
+    private User rapportPar;
+
     protected MissionAgence() {}
 
     public MissionAgence(Agence agence, MembreAgence membre, User createur, String titre,
@@ -78,6 +88,16 @@ public class MissionAgence {
     public StatutMissionAgence getStatut() { return statut; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
+    public String getRapport() { return rapport; }
+    public Instant getRapportLe() { return rapportLe; }
+    public User getRapportPar() { return rapportPar; }
+
+    public void soumettreRapport(User auteur, String rapport) {
+        this.rapport = rapport;
+        this.rapportPar = auteur;
+        this.rapportLe = Instant.now();
+        this.modifieLe = Instant.now();
+    }
 
     public void changerStatut(StatutMissionAgence statut) {
         this.statut = statut;
