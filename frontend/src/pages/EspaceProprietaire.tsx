@@ -1,43 +1,103 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
-type Contrat = { id: string; annonceTitre: string; proprietaireNom: string; locataireNom: string; loyerMensuel: number; etat: string; depotGarantie: number }
+type Contrat = {
+  id: string
+  annonceId: string
+  annonceTitre: string
+  proprietaireNom: string
+  locataireNom: string
+  loyerMensuel: number
+  etat: string
+  depotGarantie: number
+  dateDebut: string
+  dateFin: string | null
+  resiliationDemandeeParNom: string | null
+  dateFinSouhaitee: string | null
+}
 const monnaie = (n: number) => Number(n || 0).toLocaleString('fr-FR') + ' FCFA'
-const liens = [
-  { href: '/mes-contrats-location', titre: 'Contrats et loyers', texte: 'Consulter les contrats, déclarer les loyers reçus et suivre les résiliations.' },
-  { href: '/incidents-location', titre: 'Incidents et réparations', texte: 'Prendre en charge les signalements et informer les locataires.' },
-  { href: '/etats-des-lieux', titre: 'États des lieux', texte: 'Établir les constats et recueillir la validation du locataire.' },
-  { href: '/depot-garantie', titre: 'Dépôts de garantie', texte: 'Proposer le bilan du dépôt après la fin du contrat.' },
+const outils = [
+  { href: '/mes-annonces', tag: 'Patrimoine', titre: 'Mes biens et annonces', texte: 'Créer, modifier, retirer vos annonces et suivre leur statut de publication.', action: 'Gérer mes biens' },
+  { href: '/reservations-recues', tag: 'Candidatures', titre: 'Réservations reçues', texte: 'Étudier les demandes, accepter ou refuser et préparer un contrat après accord.', action: 'Traiter les demandes' },
+  { href: '/visites-recues', tag: 'Rendez-vous', titre: 'Visites reçues', texte: 'Consulter les demandes, accepter, refuser ou proposer un autre créneau.', action: 'Organiser les visites' },
+  { href: '/offres-recues', tag: 'Négociation', titre: 'Offres et propositions de loyer', texte: 'Examiner les offres d’achat et les propositions de loyer des candidats.', action: 'Répondre aux offres' },
+  { href: '/messagerie', tag: 'Communication', titre: 'Messagerie propriétaire', texte: 'Échanger avec les locataires et les agences qui gèrent vos biens.', action: 'Ouvrir les messages' },
+  { href: '/mes-contrats-location', tag: 'Gestion locative', titre: 'Contrats et loyers', texte: 'Consulter les contrats, enregistrer les loyers déclarés et suivre les résiliations.', action: 'Gérer les contrats' },
+  { href: '/incidents-location', tag: 'Entretien', titre: 'Incidents et réparations', texte: 'Consulter les signalements et tenir les locataires informés de leur traitement.', action: 'Suivre les incidents' },
+  { href: '/etats-des-lieux', tag: 'Entrée et sortie', titre: 'États des lieux', texte: 'Établir les constats d’entrée et de sortie et recueillir la validation du locataire.', action: 'Gérer les états des lieux' },
+  { href: '/depot-garantie', tag: 'Fin de location', titre: 'Dépôts de garantie', texte: 'Préparer le bilan du dépôt après la fin du contrat et traiter les observations.', action: 'Suivre les dépôts' },
+  { href: '/mes-annonces', tag: 'Délégation', titre: 'Confier un bien à une agence', texte: 'Choisir une agence et suivre les propositions ou mandats de gestion de vos annonces.', action: 'Gérer les mandats' },
 ]
+const nomEtat = (etat: string) => ({ ACTIF: 'Actif', RESILIATION_DEMANDEE: 'Résiliation en attente', RESILIATION_PLANIFIEE: 'Départ planifié', TERMINE: 'Terminé', RESILIE: 'Résilié' }[etat] || etat)
+
 export default function EspaceProprietaire() {
   const { jeton, utilisateur } = useAuth()
   const [contrats, setContrats] = useState<Contrat[]>([])
   const [erreur, setErreur] = useState('')
+  const [chargement, setChargement] = useState(true)
+
   useEffect(() => {
     if (!jeton) return
+    let actif = true
+    setChargement(true)
     appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton })
-       .then(l => setContrats(l.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE')))
-      .catch(e => setErreur(e instanceof ApiError ? e.message : 'Impossible de charger votre portefeuille locatif.'))
+      .then(liste => { if (actif) setContrats(liste.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE')) })
+      .catch(e => { if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de charger votre portefeuille locatif.') })
+      .finally(() => { if (actif) setChargement(false) })
+    return () => { actif = false }
   }, [jeton])
-  const actifs = contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE')
+
+  const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
+  const demandes = contrats.filter(c => c.etat === 'RESILIATION_DEMANDEE')
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
-  return <main className="mx-auto max-w-5xl px-4 py-10">
-    <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Gestion de patrimoine</p>
-    <h1 className="mt-2 text-3xl font-bold text-nuit-900">Espace propriétaire</h1>
-    <p className="mt-2 text-sm text-slate-600">Bienvenue {utilisateur?.nomComplet || ''}. Gérez vos logements loués, vos locataires et le suivi des obligations locatives.</p>
-    {erreur && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
-    <section className="mt-6 grid gap-3 sm:grid-cols-3">
-      <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats suivis</p><p className="mt-1 text-2xl font-bold">{contrats.length}</p></div>
-      <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Locations actives</p><p className="mt-1 text-2xl font-bold">{actifs.length}</p></div>
-      <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-1 text-xl font-bold">{monnaie(loyer)}</p></div>
+
+  return <main className="mx-auto max-w-6xl px-4 py-10">
+    <header className="rounded-3xl bg-nuit-900 p-6 text-white sm:p-8">
+      <p className="text-xs font-bold uppercase tracking-widest text-dore-300">Gestion de patrimoine · Espace propriétaire</p>
+      <h1 className="mt-2 text-3xl font-bold">Bienvenue {utilisateur?.nomComplet || ''}</h1>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">Pilotez vos annonces, les demandes des candidats, vos échanges avec les agences et toutes les étapes de vos locations depuis un seul espace.</p>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Link to="/annonces/nouvelle" className="rounded-full bg-dore-300 px-5 py-2.5 text-sm font-bold text-nuit-900 hover:bg-dore-200">Publier un bien</Link>
+        <Link to="/mes-annonces" className="rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Voir mes annonces</Link>
+      </div>
+    </header>
+
+    {erreur && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+
+    <section aria-label="Résumé du portefeuille locatif" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats en cours de suivi</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : contrats.length}</p></div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Locations actives</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : actifs.length}</p></div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Résiliations à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : demandes.length}</p></div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-2 text-xl font-bold text-nuit-900">{chargement ? '…' : monnaie(loyer)}</p></div>
     </section>
-    <section className="mt-8"><h2 className="text-xl font-bold text-nuit-900">Outils de gestion</h2>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">{liens.map(l => <a key={l.href} href={l.href} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-amber-300 hover:shadow-sm"><h3 className="font-bold text-nuit-900">{l.titre}</h3><p className="mt-2 text-sm text-slate-600">{l.texte}</p><span className="mt-4 inline-block text-sm font-semibold text-amber-800">Accéder →</span></a>)}</div>
+    <p className="mt-3 text-xs text-slate-500">Les montants correspondent aux loyers prévus dans les contrats actifs, pas à des encaissements bancaires vérifiés.</p>
+
+    <section className="mt-9">
+      <div><h2 className="text-xl font-bold text-nuit-900">Tous vos outils de gestion</h2><p className="mt-1 text-sm text-slate-600">Chaque rubrique vous conduit directement à la fonctionnalité correspondante.</p></div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {outils.map(l => <Link key={l.titre} to={l.href} className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-amber-800">{l.tag}</span>
+          <h3 className="mt-2 font-bold text-nuit-900 group-hover:text-amber-800">{l.titre}</h3>
+          <p className="mt-2 text-sm leading-5 text-slate-600">{l.texte}</p>
+          <span className="mt-4 inline-block text-sm font-semibold text-amber-800">{l.action} →</span>
+        </Link>)}
+      </div>
     </section>
-    <section className="mt-8"><h2 className="text-xl font-bold text-nuit-900">Portefeuille locatif</h2>
-      {contrats.length === 0 ? <p className="mt-3 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun contrat de location en cours.</p> :
-        <div className="mt-3 grid gap-3">{contrats.map(c => <article key={c.id} className="rounded-xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap justify-between gap-2"><strong>{c.annonceTitre}</strong><span className="text-xs text-slate-500">{c.etat}</span></div><p className="mt-2 text-sm text-slate-600">Locataire : {c.locataireNom} · Loyer : {monnaie(c.loyerMensuel)} · Dépôt : {monnaie(c.depotGarantie)}</p></article>)}</div>}
+
+    <section className="mt-9">
+      <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-xl font-bold text-nuit-900">Portefeuille locatif</h2><p className="mt-1 text-sm text-slate-600">Les logements actuellement associés à un contrat.</p></div><Link to="/mes-contrats-location" className="text-sm font-semibold text-amber-800 underline">Voir tous les contrats</Link></div>
+      {chargement ? <p className="mt-4 text-sm text-slate-500">Chargement du portefeuille…</p> : contrats.length === 0 ?
+        <p className="mt-4 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun contrat de location en cours. Les contrats apparaîtront ici après acceptation d’une réservation et création du contrat.</p> :
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">{contrats.map(c => <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="font-bold text-nuit-900">{c.annonceTitre}</h3><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{nomEtat(c.etat)}</span></div>
+          <p className="mt-3 text-sm text-slate-600">Locataire : <strong className="text-slate-800">{c.locataireNom}</strong></p>
+          <p className="mt-1 text-sm text-slate-600">Loyer mensuel : <strong className="text-slate-800">{monnaie(c.loyerMensuel)}</strong> · Dépôt : <strong className="text-slate-800">{monnaie(c.depotGarantie)}</strong></p>
+          <p className="mt-2 text-xs text-slate-500">Début : {c.dateDebut}{c.dateFin ? ' · Fin : ' + c.dateFin : ''}</p>
+          {c.etat === 'RESILIATION_DEMANDEE' && <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Demande envoyée par {c.resiliationDemandeeParNom || 'l’autre partie'}. Départ souhaité : {c.dateFinSouhaitee || 'à convenir'}.</p>}
+          <Link to="/mes-contrats-location" className="mt-4 inline-flex text-sm font-semibold text-amber-800 underline">Consulter le contrat et répondre</Link>
+        </article>)}</div>}
     </section>
   </main>
 }
