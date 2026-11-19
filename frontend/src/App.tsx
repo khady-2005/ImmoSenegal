@@ -14,6 +14,7 @@ import MentionsLegales from './pages/MentionsLegales'
 import Visites from './pages/Visites'
 import Reservations from './pages/Reservations'
 import MesContratsLocation from './pages/MesContratsLocation'
+import AdminSupervisionLocative from './pages/AdminSupervisionLocative'
 import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
 import Connexion from './pages/Connexion'
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="admin/demandes" element={<RequireAuth><AdminDemandes /></RequireAuth>} />
           <Route path="admin/annonces" element={<RequireAuth><AdminModeration /></RequireAuth>} />
           <Route path="admin/utilisateurs" element={<RequireAuth><AdminUtilisateurs /></RequireAuth>} />
+          <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mes-favoris" element={<RequireAuth><MesFavoris /></RequireAuth>} />
