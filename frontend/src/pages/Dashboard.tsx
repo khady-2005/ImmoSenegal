@@ -4,6 +4,7 @@ import { ArrowRight, Building2, CalendarDays, ClipboardList, Compass, FileCheck2
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import DemandeRole from '../components/DemandeRole'
+import ProfilCompte from '../components/ProfilCompte'
 import { libelleRole, type Utilisateur } from '../types'
 
 type Acces = { titre: string; description: string; lien: string; icone: typeof Building2; action: string }
@@ -133,6 +134,8 @@ export default function Dashboard() {
           <div><dt className="text-sm text-slate-500">Membre depuis</dt><dd className="mt-1 font-medium text-slate-900">{new Date(affiche.creeLe).toLocaleDateString('fr-FR')}</dd></div>
         </dl>
       </section>
+
+      <ProfilCompte profil={affiche} />
 
       {affiche.role === 'CLIENT' && <DemandeRole />}
     </main>
