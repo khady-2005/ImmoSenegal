@@ -50,7 +50,15 @@ public class MissionAgenceController {
             new MissionAgenceService.ChangementStatut(requete.statut()), acteur);
     }
 
+    @PatchMapping("/{missionId}/rapport")
+    public MissionAgenceService.MissionResume soumettreRapport(@PathVariable UUID agenceId,
+            @PathVariable UUID missionId, @Valid @RequestBody RapportMissionRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.soumettreRapport(agenceId, missionId, requete.rapport(), acteur);
+    }
+
     public record CreationMissionRequest(@NotNull UUID membreId, @NotBlank @Size(max = 160) String titre,
             @Size(max = 2000) String description, java.time.LocalDate dateEcheance) {}
     public record StatutMissionRequest(@NotNull StatutMissionAgence statut) {}
+    public record RapportMissionRequest(@NotBlank @Size(max = 5000) String rapport) {}
 }
