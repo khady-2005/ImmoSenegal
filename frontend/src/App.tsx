@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import APropos from './pages/APropos'
@@ -30,7 +31,16 @@ import AdminUtilisateurs from './pages/AdminUtilisateurs'
 import MesAnnonces from './pages/MesAnnonces'
 import FormulaireAnnonce from './pages/FormulaireAnnonce'
 import RequireAuth from './components/RequireAuth'
-import { AuthProvider } from './auth'
+import { AuthProvider, useAuth } from './auth'
+import type { Role } from './types'
+
+function RequireRole({ roles, children }: { roles: Role[]; children: ReactNode }) {
+  const { utilisateur, pret } = useAuth()
+  if (!pret) return <p role="status" className="p-8 text-center text-slate-500">Chargement…</p>
+  if (!utilisateur) return <Navigate to="/connexion" replace />
+  if (!roles.includes(utilisateur.role)) return <Navigate to="/tableau-de-bord" replace />
+  return <>{children}</>
+}
 
 export default function App() {
   return (
@@ -58,8 +68,8 @@ export default function App() {
           <Route path="mes-reservations" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
-          <Route path="espace-locataire" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
-          <Route path="espace-proprietaire" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
+          <Route path="espace-locataire" element={<RequireRole roles={["CLIENT"]}><MesContratsLocation /></RequireRole>} />
+          <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE"]}><MesContratsLocation /></RequireRole>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
