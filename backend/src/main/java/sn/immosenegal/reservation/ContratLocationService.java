@@ -41,13 +41,33 @@ public class ContratLocationService {
   return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet());
  }
  @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList();}
- public ContratResume resilier(UUID id, AuthenticatedUser a) {
+ public ContratResume demanderResiliation(UUID id, AuthenticatedUser a) {
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   verifierParticipant(c,a);
-  if(c.getEtat()!=EtatContratLocation.ACTIF) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seul un contrat actif peut être résilié.");
-  c.resilier();
+  if(c.getEtat()!=EtatContratLocation.ACTIF) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seul un contrat actif peut faire l'objet d'une demande de résiliation.");
+  User demandeur=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
+  c.demanderResiliation(demandeur);
   User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
-  notifications.creer(autre,"CONTRAT_LOCATION_RESILIE","Contrat de location résilié","L'autre partie a déclaré la résiliation du contrat concernant "+c.getAnnonce().getTitre()+". Prenez contact pour confirmer les modalités de départ et de restitution du dépôt.","/mes-contrats-location");
+  notifications.creer(autre,"CONTRAT_RESILIATION_DEMANDEE","Demande de résiliation","L'autre partie demande la résiliation du contrat concernant "+c.getAnnonce().getTitre()+". Consultez le contrat pour accepter ou refuser cette demande.","/mes-contrats-location");
+  return resume(c);
+ }
+ public ContratResume deciderResiliation(UUID id, boolean accepter, AuthenticatedUser a) {
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  verifierParticipant(c,a);
+  if(c.getEtat()!=EtatContratLocation.RESILIATION_DEMANDEE||c.getResiliationDemandeePar()==null) throw new ResponseStatusException(HttpStatus.CONFLICT,"Aucune demande de résiliation n'est en attente.");
+  if(c.getResiliationDemandeePar().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seule l'autre partie peut répondre à cette demande.");
+  User demandeur=c.getResiliationDemandeePar();
+  c.traiterResiliation(accepter);
+  notifications.creer(demandeur,accepter?"CONTRAT_RESILIATION_ACCEPTEE":"CONTRAT_RESILIATION_REFUSEE",accepter?"Résiliation acceptée":"Résiliation refusée",accepter?"L'autre partie a accepté la résiliation du contrat concernant "+c.getAnnonce().getTitre()+".":"L'autre partie a refusé la demande de résiliation du contrat concernant "+c.getAnnonce().getTitre()+". Le contrat reste actif.","/mes-contrats-location");
+  return resume(c);
+ }
+ public ContratResume annulerDemandeResiliation(UUID id, AuthenticatedUser a) {
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  verifierParticipant(c,a);
+  if(c.getEtat()!=EtatContratLocation.RESILIATION_DEMANDEE||c.getResiliationDemandeePar()==null||!c.getResiliationDemandeePar().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.CONFLICT,"Vous ne pouvez annuler que votre propre demande en attente.");
+  c.annulerDemandeResiliation();
+  User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
+  notifications.creer(autre,"CONTRAT_RESILIATION_ANNULEE","Demande de résiliation annulée","La demande de résiliation du contrat concernant "+c.getAnnonce().getTitre()+" a été annulée. Le contrat reste actif.","/mes-contrats-location");
   return resume(c);
  }
  @Transactional(readOnly=true) public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
@@ -58,10 +78,10 @@ public class ContratLocationService {
   )).toList();
  }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
- private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name());}
+ private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getId(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getNomComplet(),c.getResiliationDemandeeLe());}
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
- public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat){}
+ public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe){}
  public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
 }
