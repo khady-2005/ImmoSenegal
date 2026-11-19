@@ -68,7 +68,12 @@ export default function EtatsDesLieux() {
 
   const typesExistants = new Set(etats.map(e => e.type))
   const entreeAcceptee = etats.some(e => e.type === 'ENTREE' && e.statut === 'ACCEPTE')
-  const peutCreer = contrats.find(c => c.id === selection)?.etat === 'ACTIF' || contrats.find(c => c.id === selection)?.etat === 'RESILIATION_PLANIFIEE'
+  const contratCourant = contrats.find(c => c.id === selection)
+  const peutCreer = (contratCourant?.etat === 'ACTIF' || contratCourant?.etat === 'RESILIATION_PLANIFIEE') && (!typesExistants.has('ENTREE') || (entreeAcceptee && !typesExistants.has('SORTIE')))
+  useEffect(() => {
+    if (!typesExistants.has('ENTREE')) setType('ENTREE')
+    else if (entreeAcceptee && !typesExistants.has('SORTIE')) setType('SORTIE')
+  }, [selection, entreeAcceptee, etats])
 
   return <main className="mx-auto max-w-5xl px-4 py-10">
     <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Gestion locative</p>
