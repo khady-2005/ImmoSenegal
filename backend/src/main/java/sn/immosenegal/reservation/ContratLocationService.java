@@ -40,6 +40,15 @@ public class ContratLocationService {
   return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet());
  }
  @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList();}
+ public ContratResume resilier(UUID id, AuthenticatedUser a) {
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  verifierParticipant(c,a);
+  if(c.getEtat()!=EtatContratLocation.ACTIF) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seul un contrat actif peut être résilié.");
+  c.resilier();
+  User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
+  notifications.creer(autre,"CONTRAT_LOCATION_RESILIE","Contrat de location résilié","L'autre partie a déclaré la résiliation du contrat concernant "+c.getAnnonce().getTitre()+". Prenez contact pour confirmer les modalités de départ et de restitution du dépôt.","/mes-contrats-location");
+  return resume(c);
+ }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
  private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name());}
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
