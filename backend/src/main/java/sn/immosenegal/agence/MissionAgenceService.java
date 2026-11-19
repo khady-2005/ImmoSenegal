@@ -108,6 +108,29 @@ public class MissionAgenceService {
         return resume(mission);
     }
 
+    public MissionResume soumettreRapport(UUID agenceId, UUID missionId, String rapportTexte, AuthenticatedUser acteur) {
+        MembreAgence membre = verifierMembreActif(agenceId, acteur);
+        MissionAgence mission = missions.findByIdAndAgenceId(missionId, agenceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mission introuvable dans cette agence."));
+        if (!mission.getMembre().getId().equals(membre.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul le collaborateur chargé de cette mission peut soumettre son rapport.");
+        }
+        String rapport = propre(rapportTexte);
+        if (rapport == null || rapport.length() > 5000) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le rapport est obligatoire et ne peut dépasser 5 000 caractères.");
+        }
+        User auteur = utilisateurs.findById(acteur.id())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        mission.soumettreRapport(auteur, rapport);
+        membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+            .forEach(r -> notifications.creer(r.getUtilisateur(), "MISSION_AGENCE_RAPPORT",
+                "Rapport d'activité reçu",
+                auteur.getNomComplet() + " a transmis un rapport pour la mission « " + mission.getTitre() + " ».",
+                "/mes-agences/" + agenceId));
+        return resume(mission);
+    }
+
     private MembreAgence verifierMembreActif(UUID agenceId, AuthenticatedUser acteur) {
         Agence agence = agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
@@ -134,7 +157,8 @@ public class MissionAgenceService {
         return new MissionResume(m.getId(), m.getAgence().getId(), m.getMembre().getId(),
             m.getMembre().getUtilisateur().getNomComplet(), m.getMembre().getFonction().name(),
             m.getTitre(), m.getDescription(), m.getDateEcheance(), m.getStatut().name(),
-            m.getCreateur().getNomComplet(), m.getCreeLe(), m.getModifieLe());
+            m.getCreateur().getNomComplet(), m.getCreeLe(), m.getModifieLe(), m.getRapport(),
+            m.getRapportPar() == null ? null : m.getRapportPar().getNomComplet(), m.getRapportLe());
     }
 
     private String propre(String value) { return value == null || value.isBlank() ? null : value.trim(); }
@@ -143,5 +167,6 @@ public class MissionAgenceService {
     public record ChangementStatut(StatutMissionAgence statut) {}
     public record MissionResume(UUID id, UUID agenceId, UUID membreId, String membreNom,
         String fonction, String titre, String description, LocalDate dateEcheance, String statut,
-        String createurNom, java.time.Instant creeLe, java.time.Instant modifieLe) {}
+        String createurNom, java.time.Instant creeLe, java.time.Instant modifieLe, String rapport,
+        String rapportParNom, java.time.Instant rapportLe) {}
 }
