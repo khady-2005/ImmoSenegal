@@ -62,6 +62,7 @@ export default function Dashboard() {
     { titre: 'Mes favoris', description: 'Retrouvez les annonces que vous avez enregistrées avec le cœur.', lien: '/mes-favoris', icone: Heart, action: 'Voir mes favoris' },
     { titre: 'Mes demandes de visite', description: 'Suivez les réponses des propriétaires, confirmez un créneau proposé ou annulez une demande.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir mes visites' },
     { titre: 'Mes réservations', description: 'Suivez les demandes de réservation envoyées pour les logements qui vous intéressent.', lien: '/mes-reservations', icone: BookmarkCheck, action: 'Voir mes réservations' },
+    { titre: 'Mon espace locataire', description: 'Consultez vos contrats de location, les loyers déclarés et les informations de votre logement.', lien: '/espace-locataire', icone: Building2, action: 'Ouvrir mon espace locataire' },
     { titre: 'Découvrir les biens', description: 'Consultez les annonces disponibles et trouvez un logement ou un terrain au Sénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Décrivez votre recherche pour obtenir de l’aide afin de trouver un bien adapté.', lien: '/assistant', icone: ClipboardList, action: 'Parler à l’assistant' },
   ]
@@ -69,6 +70,7 @@ export default function Dashboard() {
     { titre: 'Gérer mes annonces', description: 'Consultez vos biens publiés et suivez leur état de validation.', lien: '/mes-annonces', icone: Building2, action: 'Gérer mes annonces' },
     { titre: 'Demandes de visite reçues', description: 'Consultez les demandes des personnes intéressées et acceptez, refusez ou proposez un autre créneau.', lien: '/visites-recues', icone: CalendarDays, action: 'Traiter les demandes' },
     { titre: 'Réservations reçues', description: 'Consultez les demandes de réservation de vos logements et acceptez ou refusez chaque demande.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Traiter les réservations' },
+    { titre: 'Mon espace propriétaire', description: 'Suivez vos contrats de location, les paiements déclarés et les logements loués.', lien: '/espace-proprietaire', icone: FileCheck2, action: 'Ouvrir mon espace propriétaire' },
     { titre: 'Publier un bien', description: 'Ajoutez une maison, un appartement, une villa, un studio ou un terrain.', lien: '/annonces/nouvelle', icone: FileCheck2, action: 'Créer une annonce' },
   ]
   const accesAdmin: Acces[] = [
@@ -89,7 +91,7 @@ export default function Dashboard() {
   const introduction = affiche.role === 'CLIENT'
     ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'
     : affiche.role === 'PROPRIETAIRE'
-      ? 'Gérez vos annonces et les demandes de visite liées à vos biens.'
+      ? 'Gérez vos annonces, vos demandes et le suivi de vos locations.'
       : affiche.role === 'ADMIN'
         ? 'Accédez aux outils de gestion et de suivi de la plateforme.'
         : 'Retrouvez les principaux outils disponibles sur la plateforme.'
