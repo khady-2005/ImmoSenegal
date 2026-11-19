@@ -35,7 +35,7 @@ public class OffreAchatService {
   notifications.creer(o.getAcheteur(),"OFFRE_REPONSE",req.accepter()?"Votre offre a été acceptée":"Votre offre a été refusée","Le propriétaire a répondu à votre offre pour « "+o.getAnnonce().getTitre()+" ».","/mes-offres");
   audit.enregistrer("OFFRE_ACHAT_TRAITEE",a.id(),"Offre "+id+" : "+o.getStatut());return OffreAchatResponse.de(o);
  }
- @Transactional public void annuler(UUID id,AuthenticatedUser a){exiger(a,Role.CLIENT);OffreAchat o=trouver(id);if(!o.getAcheteur().getId().equals(a.id()))throw new ApiException(HttpStatus.FORBIDDEN,"Cette offre ne vous appartient pas.");if(o.getStatut()!=StatutOffre.EN_ATTENTE)throw new ApiException(HttpStatus.CONFLICT,"Cette offre ne peut plus être annulée.");o.annuler();}
+ @Transactional public void annuler(UUID id,AuthenticatedUser a){exiger(a,Role.CLIENT);OffreAchat o=trouver(id);if(!o.getAcheteur().getId().equals(a.id()))throw new ApiException(HttpStatus.FORBIDDEN,"Cette offre ne vous appartient pas.");if(o.getStatut()!=StatutOffre.EN_ATTENTE)throw new ApiException(HttpStatus.CONFLICT,"Cette offre ne peut plus être annulée.");o.annuler();notifications.creer(o.getAnnonce().getProprietaire(),"OFFRE_ACHAT_ANNULEE","Offre d’achat annulée",o.getAcheteur().getNomComplet()+" a annulé son offre pour « "+o.getAnnonce().getTitre()+" ». ","/offres-recues");audit.enregistrer("OFFRE_ACHAT_ANNULEE",a.id(),"Offre "+id);}
  private OffreAchat trouver(UUID id){return offres.findById(id).orElseThrow(()->new ApiException(HttpStatus.NOT_FOUND,"Offre introuvable."));}
  private void exiger(AuthenticatedUser a,Role... roles){if(a==null||java.util.Arrays.stream(roles).noneMatch(r->r==a.role()))throw new ApiException(HttpStatus.FORBIDDEN,"Vous n'avez pas le droit d'effectuer cette action.");}
 }
