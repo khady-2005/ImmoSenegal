@@ -42,7 +42,7 @@ public class PaiementCommissionAgenceService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                 "Seul le responsable de l'agence peut enregistrer un paiement de commission.");
         }
-        VenteAgence vente = trouverVente(agenceId, venteId);
+        VenteAgence vente = trouverVentePourPaiement(agenceId, venteId);
         BigDecimal du = q.beneficiaire() == BeneficiaireCommission.AGENT
             ? vente.getCommissionAgent() : vente.getCommissionAgence();
         BigDecimal dejaVerse = paiements.totalVerse(venteId, q.beneficiaire());
@@ -67,6 +67,14 @@ public class PaiementCommissionAgenceService {
         return new SoldeResume(
             vente.getCommissionAgence(), verseAgence, vente.getCommissionAgence().subtract(verseAgence),
             vente.getCommissionAgent(), verseAgent, vente.getCommissionAgent().subtract(verseAgent));
+    }
+
+    private VenteAgence trouverVentePourPaiement(UUID agenceId, UUID venteId) {
+        VenteAgence vente = ventes.trouverPourMiseAJour(venteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vente introuvable."));
+        if (!vente.getAgence().getId().equals(agenceId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Vente introuvable dans cette agence.");
+        return vente;
     }
 
     private MembreAgence verifierMembre(UUID agenceId, AuthenticatedUser acteur) {
