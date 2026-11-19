@@ -38,7 +38,7 @@ export default function VentesAgence({ agenceId, fonction }: { agenceId: string;
       const [liste, catalogue, mandats] = await Promise.all([
         appelApi<Vente[]>(`/api/agence/${agenceId}/ventes`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=100', { token: jeton }),
-        appelApi<{ annonceId: string; statut: string }[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
+        appelApi<{ annonceId: string; statut: string }[]>(`/api/agence/${agenceId}/portefeuille`, { token: jeton }),
       ])
       setVentes(liste)
       const biensMandates = new Set(mandats.filter(m => m.statut === 'ACCEPTE').map(m => m.annonceId))
