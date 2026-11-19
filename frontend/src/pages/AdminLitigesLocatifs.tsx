@@ -24,6 +24,18 @@ export default function AdminLitigesLocatifs() {
       .finally(() => setChargement(false))
   }, [jeton])
   const visibles = useMemo(() => filtre === 'TOUS' ? lignes : lignes.filter(l => l.type === filtre), [lignes, filtre])
+  function exporterCsv() {
+    const colonnes = ['Type', 'Annonce', 'Sujet', 'Proprietaire', 'Locataire', 'Details', 'Statut', 'Commentaire', 'Date']
+    const cellules = (v: unknown) => '"' + String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"'
+    const contenu = [colonnes, ...visibles.map(l => [libelles[l.type], l.annonceTitre, l.sujet, l.proprietaireNom, l.locataireNom, l.details, l.statut, l.commentaire, l.dateSignalement ? new Date(l.dateSignalement).toLocaleString('fr-FR') : ''])].map(ligne => ligne.map(cellules).join(';')).join('\r\n')
+    const fichier = new Blob(['\uFEFF' + contenu], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(fichier)
+    const lien = document.createElement('a')
+    lien.href = url
+    lien.download = 'immosenegal-litiges-locatifs.csv'
+    lien.click()
+    URL.revokeObjectURL(url)
+  }
   return <main className="mx-auto max-w-6xl px-4 py-10">
     <p className="text-xs font-bold uppercase tracking-widest text-amber-700">Administration</p>
     <h1 className="mt-2 text-3xl font-bold text-nuit-900">Supervision des litiges locatifs</h1>
@@ -37,6 +49,7 @@ export default function AdminLitigesLocatifs() {
           <option value="ETAT_DES_LIEUX">États des lieux contestés</option><option value="DEPOT_GARANTIE">Dépôts contestés</option>
         </select>
       </label>
+      <button type="button" onClick={exporterCsv} disabled={visibles.length === 0} className="rounded-lg bg-nuit-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-40">Exporter CSV</button>
     </section>
     {chargement ? <p className="mt-6">Chargement des dossiers…</p> : visibles.length === 0 ?
       <p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun dossier à suivre pour ce filtre.</p> :
