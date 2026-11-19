@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
-type Contrat = { id:string; annonceId:string; annonceTitre:string; proprietaireNom:string; locataireNom:string; loyerMensuel:number; depotGarantie:number; dateDebut:string; dateFin:string|null; etat:string }
+type Contrat = { id:string; annonceId:string; annonceTitre:string; proprietaireNom:string; locataireNom:string; loyerMensuel:number; depotGarantie:number; dateDebut:string; dateFin:string|null; etat:string; resiliationDemandeeParId:string|null; resiliationDemandeeParNom:string|null; resiliationDemandeeLe:string|null }
 type Paiement = { id:string; montant:number; periode:string; datePaiement:string; reference:string|null; enregistrePar:string }
-type Filtre = 'TOUS' | 'ACTIF' | 'TERMINE' | 'RESILIE'
+type Filtre = 'TOUS' | 'ACTIF' | 'RESILIATION_DEMANDEE' | 'TERMINE' | 'RESILIE'
 
 const monnaie = (valeur:number) => Number(valeur || 0).toLocaleString('fr-FR') + ' FCFA'
 
@@ -58,11 +58,17 @@ export default function MesContratsLocation(){
   catch(e){setErreur(e instanceof ApiError?e.message:'Impossible de charger les paiements.')}
  }
 
- const resilier=async(id:string)=>{
-  if(!window.confirm('Confirmer la résiliation de ce contrat ?'))return
+ const actionResiliation=async(id:string,action:'demander'|'accepter'|'refuser'|'annuler')=>{
+  const confirmations={demander:'Envoyer une demande de résiliation à l’autre partie ?',accepter:'Accepter la demande ? Le contrat sera alors résilié.',refuser:'Refuser cette demande ? Le contrat restera actif.',annuler:'Annuler votre demande de résiliation ?'}
+  if(!window.confirm(confirmations[action]))return
   setErreur(null);setMessage(null)
-  try{await appelApi(`/api/locations/${id}/resiliation`,{method:'PATCH',token:jeton});setMessage('Résiliation enregistrée. L’autre partie a été notifiée.');await charger()}
-  catch(e){setErreur(e instanceof ApiError?e.message:'Impossible de résilier le contrat.')}
+  try{
+   if(action==='demander') await appelApi(`/api/locations/${id}/resiliation-demande`,{method:'PATCH',token:jeton})
+   else if(action==='annuler') await appelApi(`/api/locations/${id}/resiliation-annulation`,{method:'PATCH',token:jeton})
+   else await appelApi(`/api/locations/${id}/resiliation-decision`,{method:'PATCH',token:jeton,body:{accepter:action==='accepter'}})
+   setMessage(action==='demander'?'Demande envoyée. Le contrat reste actif jusqu’à la réponse de l’autre partie.':action==='accepter'?'Demande acceptée : le contrat est résilié.':action==='refuser'?'Demande refusée : le contrat reste actif.':'Votre demande a été annulée.')
+   await charger()
+  }catch(e){setErreur(e instanceof ApiError?e.message:'Impossible de traiter la demande de résiliation.')}
  }
 
  const ajouter=async(e:FormEvent)=>{
@@ -102,15 +108,15 @@ export default function MesContratsLocation(){
    <>
     <section className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row">
      <label className="flex-1 text-sm font-medium text-slate-700">Rechercher un logement ou une personne<input value={recherche} onChange={e=>setRecherche(e.target.value)} placeholder="Nom du logement, propriétaire, locataire…" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal"/></label>
-     <label className="text-sm font-medium text-slate-700 sm:w-48">État du contrat<select value={filtre} onChange={e=>setFiltre(e.target.value as Filtre)} className="mt-1 w-full rounded-lg border border-slate-300 p-2.5"><option value="TOUS">Tous les contrats</option><option value="ACTIF">Actifs</option><option value="TERMINE">Terminés</option><option value="RESILIE">Résiliés</option></select></label>
+     <label className="text-sm font-medium text-slate-700 sm:w-48">État du contrat<select value={filtre} onChange={e=>setFiltre(e.target.value as Filtre)} className="mt-1 w-full rounded-lg border border-slate-300 p-2.5"><option value="TOUS">Tous les contrats</option><option value="ACTIF">Actifs</option><option value="RESILIATION_DEMANDEE">Résiliation en attente</option><option value="TERMINE">Terminés</option><option value="RESILIE">Résiliés</option></select></label>
     </section>
     {contratsFiltres.length===0?<p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun contrat ne correspond à votre recherche.</p>:
      <div className="mt-5 grid gap-4">{contratsFiltres.map(c=><article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-wrap justify-between gap-2"><div><h2 className="font-bold text-nuit-900">{c.annonceTitre}</h2><p className="mt-1 text-xs text-slate-500">Référence contrat : {c.id.slice(0,8).toUpperCase()}</p></div><span className={`h-fit rounded-full px-3 py-1 text-xs font-semibold ${c.etat==='ACTIF'?'bg-emerald-50 text-emerald-800':c.etat==='RESILIE'?'bg-red-50 text-red-800':'bg-slate-100 text-slate-700'}`}>{c.etat}</span></div>
+      <div className="flex flex-wrap justify-between gap-2"><div><h2 className="font-bold text-nuit-900">{c.annonceTitre}</h2><p className="mt-1 text-xs text-slate-500">Référence contrat : {c.id.slice(0,8).toUpperCase()}</p></div><span className={`h-fit rounded-full px-3 py-1 text-xs font-semibold ${c.etat==='ACTIF'?'bg-emerald-50 text-emerald-800':c.etat==='RESILIE'?'bg-red-50 text-red-800':c.etat==='RESILIATION_DEMANDEE'?'bg-amber-50 text-amber-800':'bg-slate-100 text-slate-700'}`}>{c.etat==='RESILIATION_DEMANDEE'?'Résiliation en attente':c.etat==='ACTIF'?'Actif':c.etat==='RESILIE'?'Résilié':'Terminé'}</span></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Propriétaire</p><p className="mt-1 text-sm font-medium">{c.proprietaireNom}</p></div><div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Locataire</p><p className="mt-1 text-sm font-medium">{c.locataireNom}</p></div></div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2"><p className="text-sm text-slate-700">Loyer mensuel : <strong>{monnaie(c.loyerMensuel)}</strong></p><p className="text-sm text-slate-700">Dépôt de garantie : <strong>{monnaie(c.depotGarantie)}</strong></p></div>
       <p className="mt-2 text-xs text-slate-500">Début : {c.dateDebut}{c.dateFin?' · Fin : '+c.dateFin:''}</p>
-      <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>void ouvrir(c.id)} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">{selection===c.id?'Actualiser les paiements':'Voir les paiements'}</button>{c.etat==='ACTIF'&&<button onClick={()=>void resilier(c.id)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">Résilier le contrat</button>}</div>
+      <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>void ouvrir(c.id)} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">{selection===c.id?'Actualiser les paiements':'Voir les paiements'}</button>{c.etat==='ACTIF'&&<button onClick={()=>void actionResiliation(c.id,'demander')} className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50">Demander la résiliation</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId===utilisateur?.id&&<button onClick={()=>void actionResiliation(c.id,'annuler')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Annuler ma demande</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId!==utilisateur?.id&&<><button onClick={()=>void actionResiliation(c.id,'accepter')} className="rounded-full bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800">Accepter la résiliation</button><button onClick={()=>void actionResiliation(c.id,'refuser')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Refuser</button></>}</div>{c.etat==='RESILIATION_DEMANDEE'&&<p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Demande envoyée par {c.resiliationDemandeeParNom??'une des parties'} le {c.resiliationDemandeeLe?new Date(c.resiliationDemandeeLe).toLocaleString('fr-FR'):'date non disponible'}. {c.resiliationDemandeeParId===utilisateur?.id?'En attente de la réponse de l’autre partie.':'Votre réponse est attendue. Le contrat reste actif tant que vous n’avez pas accepté.'}</p>}
       {selection===c.id&&<div className="mt-5 border-t border-slate-100 pt-4"><h3 className="font-semibold text-nuit-900">Historique des paiements déclarés</h3>{paiements.length===0?<p className="mt-2 text-sm text-slate-500">Aucun paiement déclaré pour ce contrat.</p>:<ul className="mt-3 space-y-2">{paiements.map(p=><li key={p.id} className="rounded-lg bg-slate-50 p-3 text-sm"><strong>{monnaie(p.montant)}</strong> — période {p.periode} · déclaré le {p.datePaiement}<p className="mt-1 text-xs text-slate-500">Déclaré par {p.enregistrePar}{p.reference?' · Référence : '+p.reference:''}</p></li>)}</ul>}
        <form onSubmit={ajouter} className="mt-4 grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-2"><h4 className="font-semibold text-nuit-900 sm:col-span-2">{espaceProprietaire?'Enregistrer un loyer reçu':'Déclarer le paiement de mon loyer'}</h4><label className="text-sm">Montant (FCFA)<input required type="number" min="1" step="0.01" value={montant} onChange={e=>setMontant(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Période du loyer<input required type="date" value={periode} onChange={e=>setPeriode(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Date du paiement<input required type="date" value={datePaiement} onChange={e=>setDatePaiement(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Référence facultative<input maxLength={500} value={reference} onChange={e=>setReference(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">{espaceProprietaire?'Enregistrer le loyer reçu':'Déclarer mon paiement'}</button></form>
       </div>}
