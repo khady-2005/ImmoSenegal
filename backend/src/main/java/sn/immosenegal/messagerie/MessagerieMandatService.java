@@ -59,8 +59,7 @@ public class MessagerieMandatService {
         boolean proprietaire = mandat.getProprietaire().getId().equals(acteur.id());
         if (proprietaire) {
             membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
-                .stream().filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE
-                    || m.getFonction() == FonctionAgence.GESTIONNAIRE)
+                .stream()
                 .forEach(m -> notifications.creer(m.getUtilisateur(), "MESSAGE_MANDAT",
                     "Message du propriétaire", expediteur.getNomComplet() + " vous a écrit au sujet de "
                         + mandat.getAnnonce().getTitre(), "/messagerie"));
