@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IncidentLocationRepository extends JpaRepository<IncidentLocation, UUID> {
     List<IncidentLocation> findAllByContratIdOrderByCreeLeDesc(UUID contratId);
+    List<IncidentLocation> findAllByStatutInOrderByCreeLeDesc(List<StatutIncidentLocation> statuts);
 }
