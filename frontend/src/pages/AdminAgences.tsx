@@ -129,7 +129,7 @@ export default function AdminAgences() {
                   </span>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
-                  {agence.statut !== 'ACTIVE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Valider / activer</button>}
+                  {agence.statut === 'EN_ATTENTE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Valider / activer</button>}
                   {agence.statut === 'ACTIVE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'SUSPENDUE')} className="inline-flex items-center gap-2 rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"><ShieldAlert className="h-4 w-4" /> Suspendre</button>}
                   {agence.statut === 'SUSPENDUE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Réactiver</button>}
                 </div>
