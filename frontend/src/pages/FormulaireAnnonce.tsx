@@ -27,7 +27,6 @@ export default function FormulaireAnnonce() {
   const edition = Boolean(id)
   const { utilisateur, jeton } = useAuth()
   const navigate = useNavigate()
-  const nouvelle = (useLocation().state as { nouvelle?: boolean } | null)?.nouvelle === true
   const [photos, setPhotos] = useState<string[]>([])
   const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
   const [initial, setInitial] = useState<Annonce | null>(null)
