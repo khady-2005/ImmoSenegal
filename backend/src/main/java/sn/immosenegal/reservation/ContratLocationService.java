@@ -31,9 +31,10 @@ public class ContratLocationService {
  }
  public List<ContratResume> mesContrats(AuthenticatedUser a){finaliserResiliationsEchues();List<ContratLocation> l=new ArrayList<>();l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));return l.stream().distinct().map(this::resume).toList();}
  public PaiementResume enregistrerPaiement(UUID id,CreationPaiement q,AuthenticatedUser a){
+  finaliserResiliationsEchues();
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Vous ne participez pas à ce contrat.");
-  if(c.getEtat()!=EtatContratLocation.ACTIF||q.montant()==null||q.montant().signum()<=0||q.periode()==null||q.datePaiement()==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Informations de paiement invalides ou contrat inactif.");
+  if((c.getEtat()!=EtatContratLocation.ACTIF&&c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE)||q.montant()==null||q.montant().signum()<=0||q.periode()==null||q.datePaiement()==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Informations de paiement invalides ou contrat inactif.");
   User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
   PaiementLoyer p=paiements.save(new PaiementLoyer(c,u,q.montant(),q.periode(),q.datePaiement(),q.reference()==null?null:q.reference().trim()));
   User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
