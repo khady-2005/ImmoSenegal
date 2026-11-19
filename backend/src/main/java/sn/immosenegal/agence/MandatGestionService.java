@@ -127,6 +127,11 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà reçu une réponse.");
         }
 
+        if (accepter && mandats.existsByAnnonceIdAndStatutAndIdNot(
+                mandat.getAnnonce().getId(), StatutMandatGestion.ACCEPTE, mandat.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Ce bien est déjà confié à une autre agence. Le mandat existant doit être terminé avant d'en accepter un nouveau.");
+        }
         mandat.decider(accepter ? StatutMandatGestion.ACCEPTE : StatutMandatGestion.REFUSE);
         String decision = accepter ? "acceptée" : "refusée";
         User destinataire = mandat.getProposePar();
