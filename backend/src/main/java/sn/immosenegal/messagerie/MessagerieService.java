@@ -1,10 +1,10 @@
 package sn.immosenegal.messagerie;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sn.immosenegal.agence.*;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.reservation.Reservation;
@@ -18,17 +18,45 @@ public class MessagerieService {
     private final ReservationRepository reservations;
     private final MessageConversationRepository messages;
     private final NotificationService notifications;
-    public MessagerieService(ReservationRepository reservations, MessageConversationRepository messages, NotificationService notifications) {
+    private final MandatGestionRepository mandats;
+    private final MembreAgenceRepository membres;
+
+    public MessagerieService(ReservationRepository reservations, MessageConversationRepository messages,
+            NotificationService notifications, MandatGestionRepository mandats, MembreAgenceRepository membres) {
         this.reservations = reservations; this.messages = messages; this.notifications = notifications;
+        this.mandats = mandats; this.membres = membres;
     }
 
     @Transactional(readOnly = true)
     public List<ConversationResponse> conversations(AuthenticatedUser acteur) {
         List<Reservation> liste;
-        if (acteur.role() == Role.CLIENT) liste = reservations.findByClientIdOrderByCreeLeDesc(acteur.id());
-        else if (acteur.role() == Role.PROPRIETAIRE) liste = reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id());
-        else throw new ApiException(HttpStatus.FORBIDDEN, "La messagerie est réservée aux clients et propriétaires.");
-        return liste.stream().map(r -> ConversationResponse.de(r, acteur.id())).toList();
+        if (acteur.role() == Role.CLIENT) {
+            liste = reservations.findByClientIdOrderByCreeLeDesc(acteur.id());
+        } else if (acteur.role() == Role.PROPRIETAIRE) {
+            liste = reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id());
+        } else if (acteur.role() == Role.AGENT) {
+            List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .flatMap(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+                    m.getAgence().getId(), StatutMandatGestion.ACCEPTE).stream())
+                .map(m -> m.getAnnonce().getId()).distinct().toList();
+            liste = annoncesGerees.isEmpty() ? List.of()
+                : reservations.findAllByAnnonceIdInOrderByCreeLeDesc(annoncesGerees);
+        } else {
+            throw new ApiException(HttpStatus.FORBIDDEN, "La messagerie est réservée aux clients, propriétaires et agents concernés.");
+        }
+        return liste.stream().map(r -> {
+            String interlocuteur;
+            if (acteur.role() == Role.CLIENT) {
+                List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+                    r.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
+                interlocuteur = actifs.isEmpty() ? r.getAnnonce().getProprietaire().getNomComplet()
+                    : actifs.get(0).getAgence().getNom();
+            } else {
+                interlocuteur = r.getClient().getNomComplet();
+            }
+            return ConversationResponse.de(r, acteur.id(), interlocuteur);
+        }).toList();
     }
 
     @Transactional(readOnly = true)
@@ -43,14 +71,35 @@ public class MessagerieService {
         Reservation reservation = verifierParticipant(reservationId, acteur);
         if (contenu == null || contenu.isBlank() || contenu.length() > 2000)
             throw new ApiException(HttpStatus.BAD_REQUEST, "Le message doit contenir entre 1 et 2000 caractères.");
-        User expediteur = reservation.getClient().getId().equals(acteur.id())
-            ? reservation.getClient() : reservation.getAnnonce().getProprietaire();
+        User expediteur;
+        if (reservation.getClient().getId().equals(acteur.id())) expediteur = reservation.getClient();
+        else if (reservation.getAnnonce().getProprietaire().getId().equals(acteur.id())) expediteur = reservation.getAnnonce().getProprietaire();
+        else expediteur = membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+                reservation.getAnnonce().getId(), StatutMandatGestion.ACCEPTE).stream()
+                .anyMatch(g -> g.getAgence().getId().equals(m.getAgence().getId())))
+            .map(MembreAgence::getUtilisateur).findFirst()
+            .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "Vous ne participez pas à cette conversation."));
         MessageConversation nouveau = messages.save(new MessageConversation(reservation, expediteur, contenu.trim()));
-        User destinataire = expediteur.getId().equals(reservation.getClient().getId())
-            ? reservation.getAnnonce().getProprietaire() : reservation.getClient();
-        notifications.creer(destinataire, "NOUVEAU_MESSAGE", "Nouveau message",
-            expediteur.getNomComplet() + " vous a envoyé un message au sujet de « " + reservation.getAnnonce().getTitre() + " ».",
-            "/messagerie");
+
+        List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+            reservation.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
+        boolean client = reservation.getClient().getId().equals(acteur.id());
+        if (client && !actifs.isEmpty()) {
+            for (MandatGestion mandat : actifs) {
+                membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
+                    .forEach(m -> notifications.creer(m.getUtilisateur(), "NOUVEAU_MESSAGE",
+                        "Message concernant un bien géré", expediteur.getNomComplet()
+                            + " vous a écrit au sujet de « " + reservation.getAnnonce().getTitre() + " ».",
+                        "/messagerie"));
+            }
+        } else {
+            User destinataire = client ? reservation.getAnnonce().getProprietaire() : reservation.getClient();
+            notifications.creer(destinataire, "NOUVEAU_MESSAGE", "Nouveau message",
+                expediteur.getNomComplet() + " vous a envoyé un message au sujet de « "
+                    + reservation.getAnnonce().getTitre() + " ».", "/messagerie");
+        }
         return MessageResponse.de(nouveau);
     }
 
@@ -59,7 +108,12 @@ public class MessagerieService {
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Conversation introuvable."));
         boolean client = r.getClient().getId().equals(acteur.id());
         boolean proprietaire = r.getAnnonce().getProprietaire().getId().equals(acteur.id());
-        if (!client && !proprietaire)
+        boolean agent = acteur.role() == Role.AGENT && membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .anyMatch(m -> mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+                r.getAnnonce().getId(), StatutMandatGestion.ACCEPTE).stream()
+                .anyMatch(g -> g.getAgence().getId().equals(m.getAgence().getId())));
+        if (!client && !proprietaire && !agent)
             throw new ApiException(HttpStatus.FORBIDDEN, "Vous ne participez pas à cette conversation.");
         return r;
     }
