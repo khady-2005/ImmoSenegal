@@ -77,7 +77,7 @@ export default function MesContratsLocation(){
   try{
    if(action==='annuler') await appelApi(`/api/locations/${id}/resiliation-annulation`,{method:'PATCH',token:jeton})
    else await appelApi(`/api/locations/${id}/resiliation-decision`,{method:'PATCH',token:jeton,body:{accepter:action==='accepter'}})
-   setMessage(action==='demander'?'Demande envoyée. Le contrat reste actif jusqu’à la réponse de l’autre partie.':action==='accepter'?'Demande acceptée : la résiliation prendra effet à la date convenue.':action==='refuser'?'Demande refusée : le contrat reste actif.':'Votre demande a été annulée.')
+   setMessage(action==='accepter'?'Demande acceptée : la résiliation prendra effet à la date convenue.':action==='refuser'?'Demande refusée : le contrat reste actif.':'Votre demande a été annulée.')
    await charger()
   }catch(e){setErreur(e instanceof ApiError?e.message:'Impossible de traiter la demande de résiliation.')}
  }
