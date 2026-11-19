@@ -95,6 +95,7 @@ public class OffreLocationService {
 
     @Transactional
     public OffreLocationResponse decider(UUID id, boolean accepter, String reponse, AuthenticatedUser acteur) {
+        if (acteur == null) throw new ApiException(HttpStatus.UNAUTHORIZED, "Connexion requise.");
         OffreLocation offre = trouver(id);
         UUID annonceId = offre.getAnnonce().getId();
         boolean proprietaire = offre.getAnnonce().getProprietaire().getId().equals(acteur.id());
