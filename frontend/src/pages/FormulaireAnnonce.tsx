@@ -4,6 +4,7 @@ import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
 import GestionPhotos from '../components/GestionPhotos'
+import GestionVideo from '../components/GestionVideo'
 import CarteSelection from '../components/CarteSelection'
 import { libelleStatut, libelleTypeBien, statutsCommerciaux, type Annonce, type TypeBien, type TypeTransaction } from '../types'
 
@@ -185,9 +186,10 @@ export default function FormulaireAnnonce() {
       <div className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-2xl font-bold">Ajoutez les photos de votre bien</h1>
         <p role="status" className="mt-4 rounded-xl bg-dore-100 p-4 text-sm leading-6 text-nuit-900">
-          Votre annonce est bien enregistrée et transmise à l'administration pour vérification. Vous pouvez maintenant ajouter jusqu'à 8 photos sans quitter cette page. Elle apparaîtra dans le catalogue après validation.
+          Votre annonce est bien enregistrée et transmise à l'administration pour vérification. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation. L'annonce apparaîtra dans le catalogue après validation.
         </p>
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
+        <GestionVideo annonceId={annonceCreeeId} />
         <div className="mt-5 flex flex-wrap gap-3">
           <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-emeraude-600 px-5 py-2.5 font-semibold text-white">
             Terminer et voir mes annonces
@@ -205,7 +207,7 @@ export default function FormulaireAnnonce() {
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
       {!edition && (
         <p className="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-900">
-          Préparez les informations du logement. Juste après l'enregistrement, vous pourrez ajouter ses photos ici, avant de terminer.
+          Préparez les informations du logement. Après l'enregistrement, vous pourrez ajouter plusieurs photos des pièces et une vidéo facultative.
         </p>
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
@@ -322,6 +324,7 @@ export default function FormulaireAnnonce() {
         </div>
       </form>
       {edition && id && <GestionPhotos annonceId={id} photos={photos} onChange={setPhotos} />}
+      {edition && id && <GestionVideo annonceId={id} />}
     </div>
   )
 }
