@@ -11,6 +11,7 @@ import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
+import sn.immosenegal.user.Role;
 
 @Service @Transactional
 public class ContratLocationService {
@@ -49,10 +50,18 @@ public class ContratLocationService {
   notifications.creer(autre,"CONTRAT_LOCATION_RESILIE","Contrat de location résilié","L'autre partie a déclaré la résiliation du contrat concernant "+c.getAnnonce().getTitre()+". Prenez contact pour confirmer les modalités de départ et de restitution du dépôt.","/mes-contrats-location");
   return resume(c);
  }
+ @Transactional(readOnly=true) public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
+  if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
+  return contrats.findAllByOrderByCreeLeDesc().stream().map(c->new SupervisionContratResume(
+   resume(c),paiements.findAllByContratIdOrderByPeriodeDesc(c.getId()).stream()
+    .map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList()
+  )).toList();
+ }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
  private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name());}
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat){}
  public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar){}
+ public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
 }
