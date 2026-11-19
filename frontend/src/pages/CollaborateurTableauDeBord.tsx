@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Building2, CalendarDays, ClipboardList, Compass, MapPinned, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Building2, CalendarDays, ClipboardList, Compass, MapPinned, ShieldCheck, MessageCircle } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import MissionsAgence from '../components/MissionsAgence'
@@ -124,7 +124,7 @@ export default function CollaborateurTableauDeBord() {
             Votre accès est limité à votre compte et à votre appartenance active à cette agence. La gestion de l’équipe et des paramètres de l’agence reste réservée au responsable.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Les missions qui vous sont attribuées sont disponibles dans la rubrique « Missions de l’agence ». Les autres dossiers métier seront intégrés progressivement, avec des contrôles d’accès côté serveur.
+            Les missions, contacts, visites, biens confiés et dossiers de vente affichés dans cet espace dépendent de votre fonction et de votre appartenance active à l’agence. Les actions sensibles sont également vérifiées par le serveur.
           </p>
         </article>
       </section>
@@ -147,6 +147,11 @@ export default function CollaborateurTableauDeBord() {
             <CalendarDays className="h-6 w-6 text-nuit-800" />
             <h3 className="mt-3 font-semibold text-nuit-900">Mes visites</h3>
             <p className="mt-1 text-xs text-slate-500">Retrouver les visites liées à votre compte.</p>
+          </Link>
+          <Link to="/messagerie" className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-dore-400 hover:shadow-sm">
+            <MessageCircle className="h-6 w-6 text-nuit-800" />
+            <h3 className="mt-3 font-semibold text-nuit-900">Messagerie professionnelle</h3>
+            <p className="mt-1 text-xs text-slate-500">Échanger avec les propriétaires et les clients selon vos accès.</p>
           </Link>
           <Link to="/mes-reservations" className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-dore-400 hover:shadow-sm">
             <ClipboardList className="h-6 w-6 text-nuit-800" />
