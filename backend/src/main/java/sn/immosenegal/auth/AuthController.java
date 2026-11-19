@@ -106,6 +106,18 @@ public class AuthController {
         }
     }
 
+    @org.springframework.web.bind.annotation.PutMapping("/me")
+    @Operation(summary = "Modifier le nom et le téléphone du profil connecté", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public UserResponse modifierMonProfil(@Valid @RequestBody ModifierProfilRequest requete,
+                                          @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        var compte = users.findById(utilisateur.id())
+            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        compte.setNomComplet(requete.nomComplet().trim());
+        compte.setTelephone(requete.telephone() == null || requete.telephone().isBlank() ? null : requete.telephone().trim());
+        users.save(compte);
+        return UserResponse.de(compte);
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Profil de l'utilisateur connecté", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public UserResponse moi(@AuthenticationPrincipal AuthenticatedUser utilisateur) {
