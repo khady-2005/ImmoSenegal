@@ -14,6 +14,7 @@ import MentionsLegales from './pages/MentionsLegales'
 import Visites from './pages/Visites'
 import Reservations from './pages/Reservations'
 import Messagerie from './pages/Messagerie'
+import OffresImmobilieres from './pages/OffresImmobilieres'
 import MesContratsLocation from './pages/MesContratsLocation'
 import IncidentsLocation from './pages/IncidentsLocation'
 import EtatsDesLieux from './pages/EtatsDesLieux'
@@ -77,6 +78,8 @@ export default function App() {
           <Route path="visites-recues" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mes-reservations" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="messagerie" element={<RequireAuth><Messagerie /></RequireAuth>} />
+          <Route path="mes-offres" element={<RequireAuth><OffresImmobilieres /></RequireAuth>} />
+          <Route path="offres-recues" element={<RequireAuth><OffresImmobilieres /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
           <Route path="incidents-location" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE"]}><IncidentsLocation /></RequireRole>} />
