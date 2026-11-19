@@ -31,7 +31,10 @@ describe('Catalogue', () => {
     expect(screen.getByLabelText('Prix maximum (FCFA)')).toHaveValue(150000)
     expect(screen.getByLabelText('Trier par')).toHaveValue('prix_asc')
 
-    const p = parametresDe(api.mock.calls[0][0])
+
+    const p = parametresDe(
+  api.mock.calls.find(([url]) => url.startsWith('/api/annonces?'))![0]
+)
     expect(p.get('transaction')).toBe('LOCATION')
     expect(p.get('prixMax')).toBe('150000')
     expect(p.get('quartier')).toBe('Kandé')
