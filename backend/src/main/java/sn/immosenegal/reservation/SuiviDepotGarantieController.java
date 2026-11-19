@@ -2,6 +2,7 @@ package sn.immosenegal.reservation;
 
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sn.immosenegal.security.AuthenticatedUser;
@@ -13,9 +14,10 @@ public class SuiviDepotGarantieController {
     public SuiviDepotGarantieController(SuiviDepotGarantieService service) { this.service = service; }
 
     @GetMapping("/{contratId}/depot-garantie")
-    public SuiviDepotGarantieService.SuiviResume consulter(@PathVariable UUID contratId,
+    public ResponseEntity<SuiviDepotGarantieService.SuiviResume> consulter(@PathVariable UUID contratId,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
-        return service.consulter(contratId, acteur);
+        SuiviDepotGarantieService.SuiviResume suivi = service.consulter(contratId, acteur);
+        return suivi == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(suivi);
     }
 
     @PostMapping("/{contratId}/depot-garantie")
