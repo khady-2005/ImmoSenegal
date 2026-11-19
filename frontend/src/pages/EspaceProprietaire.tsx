@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
-type Contrat = { id: string; annonceTitre: string; loyerMensuel: number; etat: string; locataireNom: string; depotGarantie: number }
+type Contrat = { id: string; annonceTitre: string; proprietaireNom: string; locataireNom: string; loyerMensuel: number; etat: string; depotGarantie: number }
 const monnaie = (n: number) => Number(n || 0).toLocaleString('fr-FR') + ' FCFA'
 const liens = [
   { href: '/mes-contrats-location', titre: 'Contrats et loyers', texte: 'Consulter les contrats, déclarer les loyers reçus et suivre les résiliations.' },
