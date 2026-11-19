@@ -13,6 +13,7 @@ import DemandeReservationForm from '../components/DemandeReservationForm'
 import AvisAnnonce from '../components/AvisAnnonce'
 import OffreAchatForm from '../components/OffreAchatForm'
 import OffreLocationForm from '../components/OffreLocationForm'
+import LecteurVideoAnnonce from '../components/LecteurVideoAnnonce'
 
 /** Biens du même type dans la même ville (sans l'annonce affichée). Rien n'est affiché s'il n'y en a pas, ou en cas d'erreur. */
 function BiensSimilaires({ annonce }: { annonce: Annonce }) {
@@ -95,6 +96,7 @@ export default function DetailAnnonce() {
             </p>
           )}
           <Galerie annonce={a} />
+          <LecteurVideoAnnonce annonceId={a.id} />
 
           <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
             <div>
