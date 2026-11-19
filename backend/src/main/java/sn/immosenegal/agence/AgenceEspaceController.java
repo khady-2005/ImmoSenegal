@@ -105,8 +105,24 @@ public class AgenceEspaceController {
         return service.definirResponsable(agenceId, requete.email(), admin);
     }
 
+    @GetMapping("/api/admin/agences")
+    @Operation(summary = "Lister toutes les agences pour la supervision administrative")
+    public List<AgenceEspaceService.AgenceAdminResume> agencesAdmin(
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.listerAgencesAdmin(admin);
+    }
+
+    @PatchMapping("/api/admin/agences/{agenceId}/statut")
+    @Operation(summary = "Activer ou suspendre une agence")
+    public AgenceEspaceService.AgenceAdminResume modifierStatutAgence(
+            @PathVariable UUID agenceId, @Valid @RequestBody StatutAgenceRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.modifierStatutAgence(agenceId, requete.statut(), admin);
+    }
+
     public record InvitationRequest(@NotBlank @Email String email, @NotNull FonctionAgence fonction) {}
     public record FonctionRequest(@NotNull FonctionAgence fonction) {}
     public record StatutRequest(@NotNull StatutMembreAgence statut) {}
     public record ResponsableRequest(@NotBlank @Email String email) {}
+    public record StatutAgenceRequest(@NotNull StatutAgence statut) {}
 }
