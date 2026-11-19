@@ -79,6 +79,7 @@ export default function Layout() {
               <>
                 <NavLink to="/mes-favoris" className={lienDesktop}>Mes favoris</NavLink>
                 <NavLink to="/messagerie" className={lienDesktop}>Messagerie</NavLink>
+                <NavLink to={utilisateur.role === "PROPRIETAIRE" ? "/offres-recues" : "/mes-offres"} className={lienDesktop}>Offres</NavLink>
                 <NavLink to="/tableau-de-bord" className={lienDesktop}>
                   Mon espace
                 </NavLink>
@@ -151,6 +152,7 @@ export default function Layout() {
                 <>
                   <li><NavLink to="/mes-favoris" className={lienMobile} onClick={fermerMenu}>Mes favoris</NavLink></li>
                   <li><NavLink to="/messagerie" className={lienMobile} onClick={fermerMenu}>Messagerie</NavLink></li>
+                  <li><NavLink to={utilisateur.role === "PROPRIETAIRE" ? "/offres-recues" : "/mes-offres"} className={lienMobile} onClick={fermerMenu}>Offres</NavLink></li>
                   <li>
                     <NavLink to="/tableau-de-bord" className={lienMobile} onClick={fermerMenu}>
                       Mon espace
