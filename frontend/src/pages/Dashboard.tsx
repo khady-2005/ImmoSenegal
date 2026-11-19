@@ -82,7 +82,14 @@ export default function Dashboard() {
     { titre: 'Toutes les réservations', description: 'Consultez toutes les demandes de réservation associées aux annonces.', lien: '/mes-reservations', icone: BookmarkCheck, action: 'Voir les réservations' },
   ]
 
-  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'PROPRIETAIRE' ? accesProprietaire : affiche.role === 'ADMIN' ? accesAdmin : [
+  const accesAgent: Acces[] = [
+    { titre: 'Rejoindre une agence', description: 'Découvrez les agences immobilières et déposez votre candidature pour collaborer avec elles.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
+    { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences qui vous ont invité et les espaces auxquels vous appartenez.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
+    { titre: 'Mes visites', description: 'Consultez les demandes de visite associées à votre compte.', lien: '/mes-visites', icone: CalendarDays, action: 'Suivre les visites' },
+    { titre: 'Catalogue des biens', description: 'Explorez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
+    { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour orienter une recherche immobilière.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
+  ]
+  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'PROPRIETAIRE' ? accesProprietaire : affiche.role === 'ADMIN' ? accesAdmin : affiche.role === 'AGENT' ? accesAgent : [
     { titre: 'Explorer les annonces', description: 'Consultez les biens disponibles sur ImmoSénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
@@ -126,7 +133,6 @@ export default function Dashboard() {
       </section>
 
       {affiche.role === 'CLIENT' && <DemandeRole />}
-      {affiche.role === 'AGENT' && <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">L’espace dédié aux agents immobiliers sera complété avec les fonctions de gestion qui leur seront attribuées.</p>}
     </main>
   )
 }
