@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface VideoRepository extends JpaRepository<VideoAnnonce, UUID> {
     Optional<VideoAnnonce> findByAnnonceId(UUID annonceId);
     void deleteByAnnonceId(UUID annonceId);
+    boolean existsByAnnonceId(UUID annonceId);
 }
