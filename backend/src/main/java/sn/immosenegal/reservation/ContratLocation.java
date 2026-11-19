@@ -24,7 +24,7 @@ public class ContratLocation {
  @Column(name="depot_garantie",nullable=false,precision=14,scale=2) private BigDecimal depotGarantie;
  @Column(name="date_debut",nullable=false) private LocalDate dateDebut;
  @Column(name="date_fin") private LocalDate dateFin;
- @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private EtatContratLocation etat=EtatContratLocation.ACTIF;
+ @Enumerated(EnumType.STRING) @Column(nullable=false,length=24) private EtatContratLocation etat=EtatContratLocation.ACTIF;
  @Column(name="cree_le",nullable=false,updatable=false) private Instant creeLe=Instant.now();
  protected ContratLocation(){}
  public ContratLocation(Annonce a,User p,User l,Reservation r,BigDecimal loyer,BigDecimal depot,LocalDate debut,LocalDate fin){annonce=a;proprietaire=p;locataire=l;reservation=r;loyerMensuel=loyer;depotGarantie=depot;dateDebut=debut;dateFin=fin;}
