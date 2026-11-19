@@ -14,8 +14,8 @@ import sn.immosenegal.security.AuthenticatedUser;
 @Transactional
 public class VenteAgenceService {
  private final AgenceRepository agences; private final MembreAgenceRepository membres;
- private final AnnonceRepository annonces; private final VenteAgenceRepository ventes;
- public VenteAgenceService(AgenceRepository a,MembreAgenceRepository m,AnnonceRepository n,VenteAgenceRepository v){agences=a;membres=m;annonces=n;ventes=v;}
+ private final AnnonceRepository annonces; private final VenteAgenceRepository ventes; private final MandatGestionRepository mandats;
+ public VenteAgenceService(AgenceRepository a,MembreAgenceRepository m,AnnonceRepository n,VenteAgenceRepository v,MandatGestionRepository mandats){agences=a;membres=m;annonces=n;ventes=v;this.mandats=mandats;}
 
  public VenteResume creer(UUID agenceId, VenteRequest q, AuthenticatedUser acteur){
   MembreAgence membre=verifierMembre(agenceId,acteur);
@@ -23,6 +23,8 @@ public class VenteAgenceService {
   Annonce annonce=annonces.findById(q.annonceId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Annonce introuvable."));
   if(annonce.getTypeTransaction()!=TypeTransaction.VENTE) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Cette annonce n'est pas une annonce de vente.");
   if(annonce.isExemple()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Une annonce de démonstration ne peut pas être enregistrée comme vente.");
+  if(annonce.getStatut()!=StatutAnnonce.PUBLIEE) throw new ResponseStatusException(HttpStatus.CONFLICT,"Seule une annonce publiée peut être enregistrée comme vente.");
+  if(!mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId,annonce.getId(),StatutMandatGestion.ACCEPTE)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Cette agence doit disposer d’un mandat de gestion accepté pour ce bien.");
   if(ventes.existsByAnnonceId(annonce.getId())) throw new ResponseStatusException(HttpStatus.CONFLICT,"Une vente est déjà enregistrée pour ce bien.");
   if(q.agentMembreId()!=null && membre.getFonction()==FonctionAgence.RESPONSABLE){
    membre=membres.findById(q.agentMembreId()).filter(x->x.getAgence().getId().equals(agenceId)&&x.getStatut()==StatutMembreAgence.ACTIF&&x.getFonction()==FonctionAgence.AGENT)
