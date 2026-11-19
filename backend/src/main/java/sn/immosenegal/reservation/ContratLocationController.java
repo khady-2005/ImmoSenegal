@@ -15,6 +15,7 @@ public class ContratLocationController{
  @PostMapping("/reservations/{reservationId}/contrat") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.ContratResume creer(@PathVariable UUID reservationId,@Valid @RequestBody ContratRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.creer(reservationId,new ContratLocationService.CreationContrat(q.loyerMensuel(),q.depotGarantie(),q.dateDebut(),q.dateFin()),a);}
  @GetMapping("/mes-contrats") public List<ContratLocationService.ContratResume> mesContrats(@AuthenticationPrincipal AuthenticatedUser a){return service.mesContrats(a);}
+ @GetMapping("/admin/supervision") public List<ContratLocationService.SupervisionContratResume> supervisionAdmin(@AuthenticationPrincipal AuthenticatedUser a){return service.supervisionAdmin(a);}
  @PostMapping("/{contratId}/paiements") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.PaiementResume paiement(@PathVariable UUID contratId,@Valid @RequestBody PaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.enregistrerPaiement(contratId,new ContratLocationService.CreationPaiement(q.montant(),q.periode(),q.datePaiement(),q.reference()),a);}
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
