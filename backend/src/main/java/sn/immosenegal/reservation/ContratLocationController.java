@@ -18,6 +18,8 @@ public class ContratLocationController{
  @PostMapping("/{contratId}/paiements") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.PaiementResume paiement(@PathVariable UUID contratId,@Valid @RequestBody PaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.enregistrerPaiement(contratId,new ContratLocationService.CreationPaiement(q.montant(),q.periode(),q.datePaiement(),q.reference()),a);}
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
+ @PatchMapping("/{contratId}/resiliation")
+ public ContratLocationService.ContratResume resilier(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.resilier(contratId,a);}
  public record ContratRequest(@NotNull @DecimalMin("0.01") BigDecimal loyerMensuel,@NotNull @DecimalMin("0.00") BigDecimal depotGarantie,@NotNull LocalDate dateDebut,LocalDate dateFin){}
  public record PaiementRequest(@NotNull @DecimalMin("0.01") BigDecimal montant,@NotNull LocalDate periode,@NotNull LocalDate datePaiement,@Size(max=500) String reference){}
 }
