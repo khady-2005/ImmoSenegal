@@ -35,12 +35,14 @@ export default function VentesAgence({ agenceId, fonction }: { agenceId: string;
     if (!jeton) return
     setChargement(true)
     try {
-      const [liste, catalogue] = await Promise.all([
+      const [liste, catalogue, mandats] = await Promise.all([
         appelApi<Vente[]>(`/api/agence/${agenceId}/ventes`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=100', { token: jeton }),
+        appelApi<{ annonceId: string; statut: string }[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
       ])
       setVentes(liste)
-      setAnnonces(catalogue.contenu.filter(a => a.transaction === 'VENTE' && a.statut === 'PUBLIEE' && !a.exemple))
+      const biensMandates = new Set(mandats.filter(m => m.statut === 'ACCEPTE').map(m => m.annonceId))
+      setAnnonces(catalogue.contenu.filter(a => a.transaction === 'VENTE' && a.statut === 'PUBLIEE' && !a.exemple && biensMandates.has(a.id)))
       if (fonction === 'RESPONSABLE') {
         const equipe = await appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton })
         setMembres(equipe.filter(m => m.fonction === 'AGENT' && m.statut === 'ACTIF'))
