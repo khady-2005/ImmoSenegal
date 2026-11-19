@@ -44,7 +44,7 @@ public class LitigeLocatifService {
                 "Restitution proposée : " + d.getMontantRestitue() + " FCFA ; retenue : " + d.getMontantRetenu()
                     + " FCFA. Motif : " + (d.getMotifRetenue() == null ? "Non précisé" : d.getMotifRetenue()),
                 d.getStatut().name(), d.getCommentaireLocataire(), d.getDecideLe() == null ? d.getCreeLe() : d.getDecideLe())));
-        resultats.sort(Comparator.comparing(LitigeResume::dateSignalement, Comparator.nullsLast(Comparator.reverseOrder())));
+        resultats.sort((a, b) -> b.dateSignalement().compareTo(a.dateSignalement()));
         return resultats;
     }
 
