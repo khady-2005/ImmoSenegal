@@ -8,6 +8,7 @@ import MissionsAgence from '../components/MissionsAgence'
 import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import CRMAgence from '../components/CRMAgence'
+import VentesAgence from '../components/VentesAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -256,6 +257,7 @@ export default function AgenceTableauDeBord() {
       {agence && <CRMAgence agenceId={agenceId} fonction="RESPONSABLE" />}
       {agence && <VisitesAgence agenceId={agenceId} />}
       <PortefeuilleAgence agenceId={agenceId} />
+      {agence && <VentesAgence agenceId={agenceId} fonction="RESPONSABLE" />}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-xl font-bold text-nuit-900">Proposer la gestion d’un bien</h2>
