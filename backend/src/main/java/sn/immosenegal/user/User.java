@@ -64,6 +64,8 @@ public class User {
     public Instant getCreeLe() { return creeLe; }
 
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setNomComplet(String nomComplet) { this.nomComplet = nomComplet; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
     public void setRole(Role role) { this.role = role; }
     public void setActif(boolean actif) { this.actif = actif; }
 }
