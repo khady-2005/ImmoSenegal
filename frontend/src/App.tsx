@@ -14,6 +14,7 @@ import MentionsLegales from './pages/MentionsLegales'
 import Visites from './pages/Visites'
 import Reservations from './pages/Reservations'
 import MesContratsLocation from './pages/MesContratsLocation'
+import IncidentsLocation from './pages/IncidentsLocation'
 import AdminSupervisionLocative from './pages/AdminSupervisionLocative'
 import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="mes-reservations" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
+          <Route path="incidents-location" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE"]}><IncidentsLocation /></RequireRole>} />
           <Route path="espace-locataire" element={<RequireRole roles={["CLIENT"]}><MesContratsLocation /></RequireRole>} />
           <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE"]}><MesContratsLocation /></RequireRole>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
