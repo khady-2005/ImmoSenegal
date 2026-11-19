@@ -29,6 +29,7 @@ export default function FormulaireAnnonce() {
   const navigate = useNavigate()
   const nouvelle = (useLocation().state as { nouvelle?: boolean } | null)?.nouvelle === true
   const [photos, setPhotos] = useState<string[]>([])
+  const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
   const [initial, setInitial] = useState<Annonce | null>(null)
   const [chargement, setChargement] = useState(edition)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -129,9 +130,13 @@ export default function FormulaireAnnonce() {
         body: corps,
         token: jeton,
       })
-      // Après une publication, on ouvre la page de l'annonce pour y ajouter des photos.
-      if (edition) navigate('/mes-annonces')
-      else navigate(`/annonces/${reponse.id}/modifier`, { replace: true, state: { nouvelle: true } })
+      if (edition) {
+        navigate('/mes-annonces')
+      } else {
+        // On conserve l'utilisateur sur cette page pour qu'il ajoute immédiatement les photos.
+        setAnnonceCreeeId(reponse.id)
+        setPhotos(reponse.photos ?? [])
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         setErreur(err.message)
@@ -176,12 +181,32 @@ export default function FormulaireAnnonce() {
     Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude)) &&
     Number(latitude) >= -90 && Number(latitude) <= 90 &&
     Number(longitude) >= -180 && Number(longitude) <= 180
+  if (annonceCreeeId) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        <h1 className="text-2xl font-bold">Ajoutez les photos de votre bien</h1>
+        <p role="status" className="mt-4 rounded-xl bg-dore-100 p-4 text-sm leading-6 text-nuit-900">
+          Votre annonce est bien enregistrée et transmise à l'administration pour vérification. Vous pouvez maintenant ajouter jusqu'à 8 photos sans quitter cette page. Elle apparaîtra dans le catalogue après validation.
+        </p>
+        <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-emeraude-600 px-5 py-2.5 font-semibold text-white">
+            Terminer et voir mes annonces
+          </button>
+          <button type="button" onClick={() => navigate(`/annonces/${annonceCreeeId}/modifier`)} className="rounded-lg border border-slate-300 px-5 py-2.5 font-medium text-slate-700">
+            Modifier les informations
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
-      {nouvelle && (
-        <p role="status" className="mt-4 rounded-lg bg-dore-100 p-3 text-sm text-nuit-900">
-          Annonce enregistrée : elle sera visible dans le catalogue après validation par un administrateur. Ajoutez maintenant des photos, puis cliquez sur « Terminer ».
+      {!edition && (
+        <p className="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+          Préparez les informations du logement. Juste après l'enregistrement, vous pourrez ajouter ses photos ici, avant de terminer.
         </p>
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
@@ -290,7 +315,7 @@ export default function FormulaireAnnonce() {
         )}
         <div className="flex flex-wrap gap-3">
           <button type="submit" disabled={envoi} className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60">
-            {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Envoyer pour validation'}
+            {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Enregistrer et ajouter les photos'}
           </button>
           <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
             {nouvelle ? 'Terminer' : 'Annuler'}
