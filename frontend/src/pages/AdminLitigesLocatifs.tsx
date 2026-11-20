@@ -18,6 +18,7 @@ export default function AdminLitigesLocatifs() {
   const [chargement, setChargement] = useState(true)
   const [notesAdmin, setNotesAdmin] = useState<Record<string, string>>({})
   const [actionEnCours, setActionEnCours] = useState<string | null>(null)
+  const [notesDossiers, setNotesDossiers] = useState<Record<string, string>>({})
   useEffect(() => {
     if (!jeton) return
     appelApi<Litige[]>('/api/admin/locations/litiges', { token: jeton })
@@ -40,6 +41,18 @@ export default function AdminLitigesLocatifs() {
       setNotesAdmin(v => ({ ...v, [litige.id]: '' }))
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de mettre à jour ce dossier.')
+    } finally { setActionEnCours(null) }
+  }
+  async function ajouterNoteDossier(litige: Litige) {
+    const note = (notesDossiers[litige.id] || '').trim()
+    if (!note) { setErreur('Ajoutez une note avant de l’envoyer.'); return }
+    setErreur(''); setActionEnCours(litige.id)
+    try {
+      await appelApi(`/api/admin/locations/litiges/${litige.type}/${litige.id}/note`, { method: 'PATCH', token: jeton, body: { note } })
+      const actualises = await appelApi<Litige[]>('/api/admin/locations/litiges', { token: jeton })
+      setLignes(actualises); setNotesDossiers(v => ({ ...v, [litige.id]: '' }))
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible d’enregistrer la note administrative.')
     } finally { setActionEnCours(null) }
   }
   function exporterCsv() {
@@ -78,6 +91,13 @@ export default function AdminLitigesLocatifs() {
         <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{l.details}</p>
         {l.commentaire && <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-900"><strong>Désaccord signalé :</strong> {l.commentaire}</p>}
         <p className="mt-3 text-xs text-slate-500">Contrat : {l.contratId.slice(0, 8).toUpperCase()} · Statut : {l.statut}</p>
+        {l.type !== 'INCIDENT' && <div className="mt-4 border-t border-slate-100 pt-4">
+          <label className="block text-sm font-medium text-slate-700">Note de médiation administrative
+            <textarea rows={3} maxLength={1500} value={notesDossiers[l.id] || ''} onChange={e => setNotesDossiers(v => ({ ...v, [l.id]: e.target.value }))} placeholder="Consignez les échanges, pièces à fournir ou prochaines étapes convenues…" className="mt-1 w-full rounded-lg border border-slate-300 p-3 font-normal" />
+          </label>
+          <button type="button" disabled={actionEnCours === l.id} onClick={() => void ajouterNoteDossier(l)} className="mt-3 rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Envoyer la note aux deux parties</button>
+          <p className="mt-2 text-xs text-slate-500">La note est ajoutée au dossier et transmise aux deux parties. Elle ne remplace pas leur accord ni une décision juridique.</p>
+        </div>}
         {l.type === 'INCIDENT' && l.statut !== 'CLOTURE' && <div className="mt-4 border-t border-slate-100 pt-4">
           <label className="block text-sm font-medium text-slate-700">Note de suivi administratif
             <textarea rows={3} maxLength={1500} value={notesAdmin[l.id] || ''} onChange={e => setNotesAdmin(v => ({ ...v, [l.id]: e.target.value }))} placeholder="Notez les démarches effectuées ou les prochaines étapes convenues avec les parties…" className="mt-1 w-full rounded-lg border border-slate-300 p-3 font-normal" />
