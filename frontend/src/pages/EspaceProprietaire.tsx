@@ -37,15 +37,37 @@ export default function EspaceProprietaire() {
   const [contrats, setContrats] = useState<Contrat[]>([])
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
+  const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, offres: 0 })
+  const [suiviPartiel, setSuiviPartiel] = useState(false)
 
   useEffect(() => {
     if (!jeton) return
     let actif = true
     setChargement(true)
-    appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton })
-      .then(liste => { if (actif) setContrats(liste.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE')) })
-      .catch(e => { if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de charger votre portefeuille locatif.') })
-      .finally(() => { if (actif) setChargement(false) })
+    Promise.allSettled([
+      appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/visites/recues', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/reservations/recues', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/offres/recues', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),
+    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult]) => {
+      if (!actif) return
+      if (contratsResult.status === 'fulfilled') {
+        setContrats(contratsResult.value.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE'))
+      } else {
+        setErreur(contratsResult.reason instanceof ApiError ? contratsResult.reason.message : 'Impossible de charger votre portefeuille locatif.')
+      }
+      const visites = visitesResult.status === 'fulfilled' ? visitesResult.value : []
+      const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
+      const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
+      const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
+      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult].some(result => result.status === 'rejected'))
+      setSuivi({
+        visites: visites.filter(x => x.statut === 'EN_ATTENTE').length,
+        reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
+        offres: [...achats, ...loyers].filter(x => x.statut === 'EN_ATTENTE').length,
+      })
+    }).finally(() => { if (actif) setChargement(false) })
     return () => { actif = false }
   }, [jeton])
 
@@ -65,12 +87,13 @@ export default function EspaceProprietaire() {
     </header>
 
     {erreur && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+    {suiviPartiel && <p role="status" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Certaines demandes reçues n’ont pas pu être chargées. Ouvrez les rubriques concernées pour vérifier leur état complet.</p>}
 
     <section aria-label="Résumé du portefeuille locatif" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats en cours de suivi</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : contrats.length}</p></div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Locations actives</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : actifs.length}</p></div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Résiliations à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : demandes.length}</p></div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-2 text-xl font-bold text-nuit-900">{chargement ? '…' : monnaie(loyer)}</p></div>
+      <Link to="/reservations-recues" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300 hover:shadow-sm"><p className="text-xs text-slate-500">Réservations à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : suivi.reservations}</p><span className="mt-1 block text-xs text-amber-800">Consulter →</span></Link>
+      <Link to="/visites-recues" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300 hover:shadow-sm"><p className="text-xs text-slate-500">Visites à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : suivi.visites}</p><span className="mt-1 block text-xs text-amber-800">Consulter →</span></Link>
+      <Link to="/offres-recues" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300 hover:shadow-sm"><p className="text-xs text-slate-500">Offres sans réponse</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : suivi.offres}</p><span className="mt-1 block text-xs text-amber-800">Consulter →</span></Link>
+      <Link to="/mes-contrats-location" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300 hover:shadow-sm"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-2 text-xl font-bold text-nuit-900">{chargement ? '…' : monnaie(loyer)}</p><span className="mt-1 block text-xs text-amber-800">Gérer les contrats →</span></Link>
     </section>
     <p className="mt-3 text-xs text-slate-500">Les montants correspondent aux loyers prévus dans les contrats actifs, pas à des encaissements bancaires vérifiés.</p>
 
