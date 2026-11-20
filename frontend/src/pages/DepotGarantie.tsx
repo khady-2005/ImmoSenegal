@@ -97,6 +97,23 @@ export default function DepotGarantie() {
           </div>
           {suivi.motifRetenue && <p className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-900"><strong>Motif des retenues :</strong> {suivi.motifRetenue}</p>}
           {suivi.commentaireLocataire && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700"><strong>Réponse du locataire :</strong> {suivi.commentaireLocataire}</p>}
+          {estProprietaire && suivi.statut === 'CONTESTE' && <form onSubmit={proposer} className="mt-5 border-t border-slate-100 pt-4">
+            <h3 className="font-semibold text-nuit-900">Réviser la proposition</h3>
+            <p className="mt-1 text-sm text-slate-600">Le locataire a signalé un désaccord. Vous pouvez modifier les montants et transmettre une nouvelle proposition. L’accord des deux parties reste nécessaire.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="text-sm font-medium">Montant à restituer (FCFA)
+                <input required type="number" min="0" step="0.01" max={contrat?.depotGarantie} value={restitue} onChange={e => setRestitue(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-3"/>
+              </label>
+              <label className="text-sm font-medium">Montant retenu (FCFA)
+                <input required type="number" min="0" step="0.01" max={contrat?.depotGarantie} value={retenu} onChange={e => setRetenu(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-3"/>
+              </label>
+              <label className="text-sm font-medium sm:col-span-2">Motif des retenues (si applicable)
+                <textarea rows={3} maxLength={1500} value={motif} onChange={e => setMotif(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-3"/>
+              </label>
+            </div>
+            <p className={`mt-3 text-sm ${total === Number(contrat?.depotGarantie) ? 'text-emerald-700' : 'text-red-700'}`}>Total : {monnaie(total)} / {monnaie(Number(contrat?.depotGarantie))}</p>
+            <button disabled={total !== Number(contrat?.depotGarantie)} className="mt-4 rounded-full bg-nuit-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Envoyer une nouvelle proposition</button>
+          </form>}
           {!estProprietaire && suivi.statut === 'A_CONFIRMER' && <div className="mt-5 border-t border-slate-100 pt-4">
             <label className="block text-sm font-medium">Commentaire (obligatoire en cas de désaccord)
               <textarea rows={3} maxLength={1500} value={commentaire} onChange={e => setCommentaire(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-3"/>
