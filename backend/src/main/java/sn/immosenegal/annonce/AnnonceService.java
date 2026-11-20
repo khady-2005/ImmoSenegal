@@ -137,7 +137,7 @@ public class AnnonceService {
             annonce.setStatut(demande);
             audit.enregistrer("ANNONCE_STATUT_MODIFIE", auteur.id(), "Annonce " + id + " : " + avant + " -> " + demande);
         } else if (changeLeContenu && !admin) {
-            audit.enregistrer("ANNONNE_CONTENU_MODIFIE_PAR_PROPRIETAIRE", auteur.id(), "Annonce " + id + " : contenu mis à jour sans blocage de publication");
+            audit.enregistrer("ANNONCE_CONTENU_MODIFIE_PAR_PROPRIETAIRE", auteur.id(), "Annonce " + id + " : contenu mis à jour sans blocage de publication");
         }
         audit.enregistrer("ANNONCE_MODIFIEE", auteur.id(), "Annonce " + id);
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
