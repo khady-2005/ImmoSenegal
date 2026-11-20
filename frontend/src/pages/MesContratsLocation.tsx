@@ -27,9 +27,9 @@ export default function MesContratsLocation(){
  const [chargement,setChargement]=useState(true)
  const [impressionId,setImpressionId]=useState('')
 
- const charger=useCallback(async()=>{
+ const charger=useCallback(async(silencieux=false)=>{
   if(!jeton)return
-  setChargement(true)
+  if(!silencieux)setChargement(true)
   setErreur(null)
   try{
    const liste=await appelApi<Contrat[]>('/api/locations/mes-contrats',{token:jeton})
@@ -45,6 +45,12 @@ export default function MesContratsLocation(){
  },[jeton,selection])
 
  useEffect(()=>{void charger()},[charger])
+
+ // Synchronise les confirmations et décisions de résiliation prises par l'autre partie.
+ useEffect(()=>{
+  const intervalle=window.setInterval(()=>{void charger(true)},15000)
+  return ()=>window.clearInterval(intervalle)
+ },[charger])
 
  const contratImprimable=contrats.find(c=>c.id===impressionId)
 
