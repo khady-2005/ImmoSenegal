@@ -29,6 +29,8 @@ public class EtatDesLieux {
     private String commentaireDecision;
     @Column(name = "decide_par")
     private UUID decidePar;
+    @Column(name = "commentaire_admin", length = 1500)
+    private String commentaireAdmin;
     @Column(name = "cree_le", nullable = false, updatable = false)
     private Instant creeLe = Instant.now();
     @Column(name = "modifie_le", nullable = false)
@@ -49,6 +51,8 @@ public class EtatDesLieux {
     public StatutEtatDesLieux getStatut() { return statut; }
     public String getCommentaireDecision() { return commentaireDecision; }
     public UUID getDecidePar() { return decidePar; }
+    public String getCommentaireAdmin() { return commentaireAdmin; }
+    public void ajouterNoteAdmin(String note) { this.commentaireAdmin = note; this.modifieLe = Instant.now(); }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
     public void decider(UUID auteur, boolean accepte, String commentaire) {
