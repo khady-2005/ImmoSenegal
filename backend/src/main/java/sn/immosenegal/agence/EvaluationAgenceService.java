@@ -19,6 +19,11 @@ public class EvaluationAgenceService {
  private final MandatGestionRepository mandats; private final EvaluationAgenceRepository evaluations;
  private final UserRepository utilisateurs; private final AgenceRepository agences; private final AuditService audit;
  public EvaluationAgenceService(MandatGestionRepository mandats,EvaluationAgenceRepository evaluations,UserRepository utilisateurs,AgenceRepository agences,AuditService audit){this.mandats=mandats;this.evaluations=evaluations;this.utilisateurs=utilisateurs;this.agences=agences;this.audit=audit;}
+ @Transactional(readOnly=true) public EvaluationResume monEvaluation(UUID mandatId,AuthenticatedUser acteur){
+  MandatGestion m=mandats.findById(mandatId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Mandat introuvable."));
+  if(acteur==null||!m.getProprietaire().getId().equals(acteur.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé au propriétaire du bien.");
+  return evaluations.findByMandatId(mandatId).map(this::resume).orElse(null);
+ }
  public EvaluationResume creer(UUID mandatId,int note,String commentaire,AuthenticatedUser acteur){
   MandatGestion m=mandats.findById(mandatId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Mandat introuvable."));
   if(acteur==null||!m.getProprietaire().getId().equals(acteur.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le propriétaire du bien peut évaluer l'agence.");
