@@ -29,3 +29,15 @@ services:
         value: "true"
       - key: REFRESH_COOKIE_SAMESITE
         value: Strict                # le site appelle /api via Vercel (même origine), donc Strict convient
+      - key: PAYDUNYA_MASTER_KEY
+        sync: false                  # clé secrète du compte marchand, jamais dans Git
+      - key: PAYDUNYA_PRIVATE_KEY
+        sync: false
+      - key: PAYDUNYA_PUBLIC_KEY
+        sync: false
+      - key: PAYDUNYA_TOKEN
+        sync: false
+      - key: PAYDUNYA_MODE
+        value: test                   # passer à live seulement après validation du compte marchand
+      - key: PAYDUNYA_CALLBACK_URL
+        sync: false                  # URL Render publique + /api/abonnements/paydunya/callback
