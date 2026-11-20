@@ -100,7 +100,7 @@ public class AnnonceService {
         annonces.save(annonce);
         audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinPublication() == null
             ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
-            : "Annonce " + annonce.getId() + " publiée gratuitement jusqu'au " + annonce.getDateFinPublication());
+            : "Annonce " + annonce.getId() + " couverte jusqu'au " + annonce.getDateFinPublication());
         return AnnonceResponse.pourGestion(annonce, List.of());
     }
 
