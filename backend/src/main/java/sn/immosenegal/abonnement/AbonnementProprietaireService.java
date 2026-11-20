@@ -30,6 +30,12 @@ public class AbonnementProprietaireService {
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(LocalDate.now()))
             .ifPresent(a -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Votre abonnement est déjà actif."); });
 
+        if ("PAYDUNYA".equalsIgnoreCase(q.modePaiement().trim()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Les paiements PayDunya doivent être initiés depuis le bouton « Payer en ligne ».");
+        if (!List.of("WAVE", "ORANGE_MONEY", "VIREMENT", "ESPECES").contains(q.modePaiement().trim().toUpperCase()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mode de paiement non pris en charge.");
+
         BigDecimal montant = tarif(q.forfait());
         var a = abonnements.save(new AbonnementProprietaire(acteur.id(), q.forfait(), montant,
             q.modePaiement().trim(), nettoyer(q.referencePaiement()), nettoyer(q.note())));
@@ -54,6 +60,9 @@ public class AbonnementProprietaireService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande introuvable."));
         if (a.getStatut() != StatutAbonnement.EN_ATTENTE)
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà été traitée.");
+        if ("PAYDUNYA".equalsIgnoreCase(a.getModePaiement()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Un paiement PayDunya ne peut être activé que par confirmation automatique du fournisseur.");
         if (q.accepter()) a.activer(acteur.id(), LocalDate.now());
         else a.refuser(acteur.id(), q.motif());
         return resume(abonnements.save(a));
