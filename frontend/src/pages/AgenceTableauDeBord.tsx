@@ -321,14 +321,14 @@ export default function AgenceTableauDeBord() {
             <h2 className="text-xl font-bold text-nuit-900">Suivi des commissions locatives</h2>
             <p className="mt-1 text-sm text-slate-600">Estimation calculée sur chaque paiement de loyer déclaré pour un bien sous mandat accepté. Les déclarations ne constituent pas une vérification bancaire.</p>
           </div>
-          <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-900">{commissions.reduce((total, item) => total + Number(item.montantCommission), 0).toLocaleString('fr-FR')} FCFA</span>
+          <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-900">{commissions.reduce((total, item) => total + Number(item.montantCommission), 0).toLocaleString('fr-FR')} FCFA estimés</span>
         </div>
         {commissions.length === 0 ? (
           <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucune commission locative enregistrée pour le moment.</p>
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[620px] text-left text-sm">
-              <thead><tr className="border-b border-slate-200 text-slate-500"><th className="py-2 pr-3">Bien</th><th className="py-2 pr-3">Période</th><th className="py-2 pr-3">Loyer encaissé</th><th className="py-2 pr-3">Taux</th><th className="py-2">Commission estimée</th></tr></thead>
+              <thead><tr className="border-b border-slate-200 text-slate-500"><th className="py-2 pr-3">Bien</th><th className="py-2 pr-3">Période</th><th className="py-2 pr-3">Loyer déclaré</th><th className="py-2 pr-3">Taux</th><th className="py-2">Commission estimée</th></tr></thead>
               <tbody>{commissions.map((item) => <tr key={item.id} className="border-b border-slate-100"><td className="py-3 pr-3 font-medium text-nuit-900">{item.annonceTitre}</td><td className="py-3 pr-3">{new Date(item.periode).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</td><td className="py-3 pr-3">{Number(item.baseCalcul).toLocaleString('fr-FR')} FCFA</td><td className="py-3 pr-3">{Number(item.tauxApplique).toLocaleString('fr-FR')} %</td><td className="py-3 font-semibold text-nuit-900">{Number(item.montantCommission).toLocaleString('fr-FR')} FCFA</td></tr>)}</tbody>
             </table>
           </div>
