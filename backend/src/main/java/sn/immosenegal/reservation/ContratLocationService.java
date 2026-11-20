@@ -1,5 +1,6 @@
 package sn.immosenegal.reservation;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Instant;
 import java.util.*;
@@ -21,8 +22,8 @@ import sn.immosenegal.user.Role;
 
 @Service @Transactional
 public class ContratLocationService {
- private final ReservationRepository reservations; private final ContratLocationRepository contrats; private final PaiementLoyerRepository paiements; private final UserRepository users; private final NotificationService notifications; private final MandatGestionRepository mandats; private final MembreAgenceRepository membres;
- public ContratLocationService(ReservationRepository r,ContratLocationRepository c,PaiementLoyerRepository p,UserRepository u,NotificationService n,MandatGestionRepository g,MembreAgenceRepository m){reservations=r;contrats=c;paiements=p;users=u;notifications=n;mandats=g;membres=m;}
+ private final ReservationRepository reservations; private final ContratLocationRepository contrats; private final PaiementLoyerRepository paiements; private final UserRepository users; private final NotificationService notifications; private final MandatGestionRepository mandats; private final MembreAgenceRepository membres; private final CommissionLocationAgenceRepository commissions;
+ public ContratLocationService(ReservationRepository r,ContratLocationRepository c,PaiementLoyerRepository p,UserRepository u,NotificationService n,MandatGestionRepository g,MembreAgenceRepository m,CommissionLocationAgenceRepository commissions){reservations=r;contrats=c;paiements=p;users=u;notifications=n;mandats=g;membres=m;this.commissions=commissions;}
  public ContratResume creer(UUID reservationId,CreationContrat q,AuthenticatedUser a){
   Reservation r=reservations.findById(reservationId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Réservation introuvable."));
   if(!autoriseCreationContrat(r,a)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le propriétaire ou un agent de l’agence mandatée peut préparer ce contrat.");
@@ -44,11 +45,16 @@ public class ContratLocationService {
   if((c.getEtat()!=EtatContratLocation.ACTIF&&c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE)||q.montant()==null||q.montant().signum()<=0||q.periode()==null||q.datePaiement()==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Informations de paiement invalides ou contrat inactif.");
   User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
   PaiementLoyer p=paiements.save(new PaiementLoyer(c,u,q.montant(),q.periode(),q.datePaiement(),q.reference()==null?null:q.reference().trim()));
+  mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE)
+   .filter(m->m.getTauxCommissionMensuel()!=null)
+   .ifPresent(m->{BigDecimal commission=q.montant().multiply(m.getTauxCommissionMensuel())
+      .divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+    commissions.save(new CommissionLocationAgence(m.getAgence(),m,c,p,m.getTauxCommissionMensuel(),q.montant(),commission));});
   User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
   notifications.creer(autre,"PAIEMENT_LOYER_ENREGISTRE","Paiement de loyer enregistré","Un paiement de "+q.montant()+" FCFA pour la période "+q.periode()+" a été déclaré. Vérifiez-le avec l'autre partie.","/mes-contrats-location");
-  return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet());
+  return versPaiementResume(p);
  }
- @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList();}
+ @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(this::versPaiementResume).toList();}
  public ContratResume confirmerLecture(UUID id, AuthenticatedUser a) {
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   verifierParticipant(c,a);
@@ -89,12 +95,32 @@ public class ContratLocationService {
   notifications.creer(autre,"CONTRAT_RESILIATION_ANNULEE","Demande de résiliation annulée","La demande de résiliation du contrat concernant "+c.getAnnonce().getTitre()+" a été annulée. Le contrat reste actif.","/mes-contrats-location");
   return resume(c);
  }
+ @Transactional(readOnly=true)
+ public List<CommissionLocationResume> commissionsAgence(UUID agenceId, AuthenticatedUser a) {
+  if(a==null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide.");
+  if(a.role()!=Role.ADMIN && membres.findByAgenceIdAndUtilisateurId(agenceId,a.id())
+      .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
+      .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE).isEmpty()) {
+   throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé au responsable de l'agence.");
+  }
+  return commissions.findAllByAgenceIdOrderByCreeLeDesc(agenceId).stream()
+   .map(x->new CommissionLocationResume(x.getId(),x.getAgence().getId(),x.getAgence().getNom(),
+    x.getContrat().getId(),x.getContrat().getAnnonce().getTitre(),x.getPaiementLoyer().getPeriode(),
+    x.getTauxApplique(),x.getBaseCalcul(),x.getMontantCommission(),x.getCreeLe())).toList();
+ }
+ private PaiementResume versPaiementResume(PaiementLoyer p) {
+  CommissionLocationAgence commission=commissions.findByPaiementLoyerId(p.getId()).orElse(null);
+  return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),
+   p.getReference(),p.getEnregistrePar().getNomComplet(),
+   commission==null?null:commission.getTauxApplique(),
+   commission==null?null:commission.getMontantCommission());
+ }
  public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
   finaliserResiliationsEchues();
   return contrats.findAllByOrderByCreeLeDesc().stream().map(c->new SupervisionContratResume(
    resume(c),paiements.findAllByContratIdOrderByPeriodeDesc(c.getId()).stream()
-    .map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList()
+    .map(this::versPaiementResume).toList()
   )).toList();
  }
  @Scheduled(fixedDelayString = "${app.locations.termination-check-delay-ms:60000}")
@@ -112,6 +138,7 @@ public class ContratLocationService {
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe){}
- public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar){}
+ public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence){}
+ public record CommissionLocationResume(UUID id,UUID agenceId,String agenceNom,UUID contratId,String annonceTitre,LocalDate periode,BigDecimal tauxApplique,BigDecimal baseCalcul,BigDecimal montantCommission,Instant creeLe){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
 }
