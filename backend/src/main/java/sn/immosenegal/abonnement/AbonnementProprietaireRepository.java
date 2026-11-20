@@ -1,5 +1,6 @@
 package sn.immosenegal.abonnement;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,5 +10,6 @@ public interface AbonnementProprietaireRepository extends JpaRepository<Abonneme
     List<AbonnementProprietaire> findAllByProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     Optional<AbonnementProprietaire> findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(UUID proprietaireId, StatutAbonnement statut);
     List<AbonnementProprietaire> findAllByStatutOrderByCreeLeAsc(StatutAbonnement statut);
+    List<AbonnementProprietaire> findAllByStatutAndDateFinBefore(StatutAbonnement statut, LocalDate date);
     Optional<AbonnementProprietaire> findByPaydunyaToken(String paydunyaToken);
 }
