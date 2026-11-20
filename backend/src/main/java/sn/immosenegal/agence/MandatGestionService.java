@@ -1,5 +1,6 @@
 package sn.immosenegal.agence;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -113,6 +114,21 @@ public class MandatGestionService {
         return mandats.findAllByProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(this::versResume).toList();
     }
 
+    /** Le proposant fixe le taux mensuel qui sera accepté ou refusé avec le mandat. */
+    public MandatResume definirTauxCommission(UUID mandatId, BigDecimal taux, AuthenticatedUser acteur) {
+        MandatGestion mandat = mandats.findById(mandatId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
+        if (!mandat.getProposePar().getId().equals(acteur.id())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Seule la partie qui a proposé le mandat peut fixer le taux initial.");
+        }
+        try { mandat.definirTauxCommissionMensuel(taux); }
+        catch (IllegalArgumentException | IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        return versResume(mandat);
+    }
+
     /** La partie qui reçoit la demande est seule autorisée à répondre. */
     public MandatResume repondre(UUID mandatId, boolean accepter, AuthenticatedUser acteur) {
         MandatGestion mandat = mandats.findById(mandatId)
@@ -132,6 +148,10 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà reçu une réponse.");
         }
 
+        if (accepter && mandat.getTauxCommissionMensuel() == null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Le taux de commission mensuel doit être proposé avant l'acceptation du mandat.");
+        }
         if (accepter && (mandats.existsByAnnonceIdAndStatutAndIdNot(
                 mandat.getAnnonce().getId(), StatutMandatGestion.ACCEPTE, mandat.getId())
                 || mandats.existsByAnnonceIdAndStatutAndIdNot(
@@ -284,10 +304,11 @@ public class MandatGestionService {
             m.getAnnonce().getId(), m.getAnnonce().getTitre(), m.getAnnonce().getVille(),
             m.getProprietaire().getId(), m.getProprietaire().getNomComplet(),
             m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe(),
-            m.getResiliationDemandeePar() == null ? null : m.getResiliationDemandeePar().getId());
+            m.getResiliationDemandeePar() == null ? null : m.getResiliationDemandeePar().getId(),
+            m.getTauxCommissionMensuel());
     }
 
     public record MandatResume(UUID id, UUID agenceId, String agenceNom, UUID annonceId,
             String annonceTitre, String ville, UUID proprietaireId, String proprietaireNom,
-            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId) {}
+            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId, BigDecimal tauxCommissionMensuel) {}
 }
