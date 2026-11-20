@@ -301,10 +301,10 @@ public class MandatGestionService {
             m.getProprietaire().getId(), m.getProprietaire().getNomComplet(),
             m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe(),
             m.getResiliationDemandeePar() == null ? null : m.getResiliationDemandeePar().getId(),
-            m.getTauxCommissionMensuel());
+            m.getTauxCommissionMensuel(), m.getProposePar().getId());
     }
 
     public record MandatResume(UUID id, UUID agenceId, String agenceNom, UUID annonceId,
             String annonceTitre, String ville, UUID proprietaireId, String proprietaireNom,
-            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId, BigDecimal tauxCommissionMensuel) {}
+            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId, BigDecimal tauxCommissionMensuel, UUID proposeParId) {}
 }
