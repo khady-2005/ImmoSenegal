@@ -2,6 +2,7 @@ package sn.immosenegal.annonce;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.CacheControl;
@@ -10,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +46,16 @@ public class PhotoController {
                                                      @AuthenticationPrincipal AuthenticatedUser utilisateur) {
         UUID id = service.ajouter(annonceId, utilisateur, fichier);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", id));
+    }
+
+    @PutMapping("/ordre")
+    @Operation(summary = "Réorganiser les photos (propriétaire de l'annonce ou ADMIN)",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public ResponseEntity<Void> reordonner(@PathVariable UUID annonceId,
+            @RequestBody List<UUID> ordre,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        service.reordonner(annonceId, utilisateur, ordre);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{photoId}")
