@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
-import { LogOut, MapPin, Menu, PlusCircle, X } from 'lucide-react'
+import { LogOut, MapPin, Menu, MoreHorizontal, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
 import { LogoComplet, Marque } from './Logo'
 import CentreNotifications from './CentreNotifications'
@@ -25,6 +25,7 @@ export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
   const peutPublier = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN'
   const [menuOuvert, setMenuOuvert] = useState(false)
+  const [menuPlusOuvert, setMenuPlusOuvert] = useState(false)
   const [defile, setDefile] = useState(false)
   const { pathname } = useLocation()
 
@@ -37,11 +38,15 @@ export default function Layout() {
 
   useEffect(() => {
     setMenuOuvert(false)
+    setMenuPlusOuvert(false)
     document.body.classList.toggle('fond-pages', pathname !== '/')
     window.scrollTo?.(0, 0)
   }, [pathname])
 
-  const fermerMenu = () => setMenuOuvert(false)
+  const fermerMenu = () => {
+    setMenuOuvert(false)
+    setMenuPlusOuvert(false)
+  }
   const deconnecterEtFermer = () => {
     fermerMenu()
     deconnecter()
@@ -66,53 +71,80 @@ export default function Layout() {
           <Link to="/" onClick={fermerMenu} aria-label="ImmoSénégal : accueil" className="shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dore-400">
             <Marque taille="md" sombre />
           </Link>
-          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 xl:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-1 xl:flex">
             <NavLink to="/" end className={lienDesktop}>Accueil</NavLink>
             <NavLink to="/catalogue" className={lienDesktop}>Catalogue</NavLink>
             <NavLink to="/carte" className={lienDesktop}>Carte</NavLink>
-            <NavLink to="/assistant" className={lienDesktop}>Assistant</NavLink>
-            {utilisateur && <NavLink to="/rejoindre-agence" className={lienDesktop}>Rejoindre une agence</NavLink>}
-            <Link to="/a-propos" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">À propos</Link>
-            <Link to="/faq" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">FAQ</Link>
-            <Link to="/contact" className="rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition hover:text-dore-300">Contact</Link>
-            {utilisateur ? (
+            {utilisateur && (
+              <NavLink to="/tableau-de-bord" className={lienDesktop}>
+                Mon espace
+              </NavLink>
+            )}
+            {utilisateur && <CentreNotifications />}
+            {peutPublier && (
+              <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-1`}>
+                <PlusCircle aria-hidden className="h-4 w-4" />
+                Publier
+              </Link>
+            )}
+            {!utilisateur && (
               <>
-                <NavLink to="/mes-favoris" className={lienDesktop}>Mes favoris</NavLink>
-                <NavLink to="/messagerie" className={lienDesktop}>Messagerie</NavLink>
-                <NavLink to={utilisateur.role === "PROPRIETAIRE" || utilisateur.role === "AGENT" ? "/offres-recues" : "/mes-offres"} className={lienDesktop}>Offres</NavLink>
-                <NavLink to="/tableau-de-bord" className={lienDesktop}>
-                  Mon espace
-                </NavLink>
-                <CentreNotifications />
-                {peutPublier && (
-                  <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-2`}>
-                    <PlusCircle aria-hidden className="h-4 w-4" />
-                    Publier une annonce
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={deconnecter}
-                  className="ml-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[0.95rem] font-medium text-white/85 transition-colors hover:bg-white/10 hover:text-dore-300"
-                >
-                  <LogOut aria-hidden className="h-4 w-4" />
-                  Déconnexion
-                </button>
-              </>
-            ) : (
-              <>
-                <NavLink to="/connexion" className={lienDesktop}>
-                  Connexion
-                </NavLink>
+                <NavLink to="/connexion" className={lienDesktop}>Connexion</NavLink>
                 <NavLink
                   to="/inscription"
                   className="ml-1 rounded-full border-2 border-[#ffe28a] bg-[#ffc928] px-4 py-2 text-[0.95rem] font-extrabold text-[#102b49] shadow-[0_2px_10px_rgba(0,0,0,0.22)] transition-colors hover:bg-[#ffdc72] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   Inscription
                 </NavLink>
-
               </>
             )}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMenuPlusOuvert((ouvert) => !ouvert)}
+                aria-expanded={menuPlusOuvert}
+                aria-haspopup="menu"
+                aria-label="Afficher les autres rubriques"
+                className={`ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/90 transition hover:border-dore-400/60 hover:bg-white/10 hover:text-dore-300 ${menuPlusOuvert ? 'bg-white/10 text-dore-300' : ''}`}
+              >
+                <MoreHorizontal aria-hidden className="h-6 w-6" />
+              </button>
+              {menuPlusOuvert && (
+                <div
+                  role="menu"
+                  aria-label="Autres rubriques"
+                  className="absolute right-0 top-full z-50 mt-3 w-64 rounded-2xl border border-dore-500/25 bg-nuit-900 p-2 shadow-[0_18px_45px_-15px_rgba(0,0,0,0.7)]"
+                >
+                  <p className="px-3 pb-2 pt-2 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-dore-400">
+                    Explorer
+                  </p>
+                  <NavLink to="/assistant" role="menuitem" onClick={fermerMenu} className={lienMobile}>Assistant immobilier</NavLink>
+                  {utilisateur && (
+                    <>
+                      <NavLink to="/mes-favoris" role="menuitem" onClick={fermerMenu} className={lienMobile}>Mes favoris</NavLink>
+                      <NavLink to="/messagerie" role="menuitem" onClick={fermerMenu} className={lienMobile}>Messagerie</NavLink>
+                      <NavLink to={utilisateur.role === 'PROPRIETAIRE' || utilisateur.role === 'AGENT' ? '/offres-recues' : '/mes-offres'} role="menuitem" onClick={fermerMenu} className={lienMobile}>Offres immobilières</NavLink>
+                      <NavLink to="/rejoindre-agence" role="menuitem" onClick={fermerMenu} className={lienMobile}>Rejoindre une agence</NavLink>
+                    </>
+                  )}
+                  <div className="my-2 border-t border-white/10" />
+                  <Link to="/a-propos" role="menuitem" onClick={fermerMenu} className={lienMobile}>À propos</Link>
+                  <Link to="/faq" role="menuitem" onClick={fermerMenu} className={lienMobile}>FAQ</Link>
+                  <Link to="/contact" role="menuitem" onClick={fermerMenu} className={lienMobile}>Contact</Link>
+                  {utilisateur && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={deconnecterEtFermer}
+                      className="mt-1 flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-base font-medium text-white/90 transition hover:bg-white/10 hover:text-dore-300"
+                    >
+                      <LogOut aria-hidden className="h-4 w-4" />
+                      Déconnexion
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </nav>
 
           <button
@@ -223,11 +255,11 @@ export default function Layout() {
                 <Link to="/catalogue" className="transition-colors hover:text-white hover:underline">
                   Tous les logements
                 </Link>
+              </li>
               <li>
                 <Link to="/carte" className="transition-colors hover:text-white hover:underline">
                   Carte des biens
                 </Link>
-              </li>
               </li>
               <li>
                 <Link to="/catalogue?transaction=LOCATION" className="transition-colors hover:text-white hover:underline">
