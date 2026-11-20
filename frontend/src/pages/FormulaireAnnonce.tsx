@@ -30,6 +30,7 @@ export default function FormulaireAnnonce() {
   const navigate = useNavigate()
   const [photos, setPhotos] = useState<string[]>([])
   const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
+  const [annonceCreeeStatut, setAnnonceCreeeStatut] = useState<Annonce['statut'] | null>(null)
   const [initial, setInitial] = useState<Annonce | null>(null)
   const [chargement, setChargement] = useState(edition)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -135,6 +136,7 @@ export default function FormulaireAnnonce() {
       } else {
         // On conserve l'utilisateur sur cette page pour qu'il ajoute immédiatement les photos.
         setAnnonceCreeeId(reponse.id)
+        setAnnonceCreeeStatut(reponse.statut)
         setPhotos(reponse.photos ?? [])
       }
     } catch (err) {
@@ -186,7 +188,9 @@ export default function FormulaireAnnonce() {
       <div className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-2xl font-bold">Ajoutez les photos de votre bien</h1>
         <p role="status" className="mt-4 rounded-xl bg-dore-100 p-4 text-sm leading-6 text-nuit-900">
-          Votre annonce est publiée dans le catalogue. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation. Vous gardez la main sur votre annonce ; l’administration peut intervenir en cas de signalement ou de non-respect des règles.
+          {annonceCreeeStatut === 'PUBLIEE'
+            ? "Votre annonce est publiée dans le catalogue. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation."
+            : "Votre bien est enregistré, mais reste invisible du catalogue. Vous pouvez ajouter ses photos et sa vidéo, puis demander sa prise en charge à une agence depuis « Mes annonces » sans souscrire d’abonnement."} Vous gardez la main sur votre bien ; l’administration peut intervenir en cas de signalement ou de non-respect des règles.
         </p>
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
         <GestionVideo annonceId={annonceCreeeId} />
