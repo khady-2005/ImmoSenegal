@@ -9,13 +9,16 @@ import sn.immosenegal.security.AuthenticatedUser;
 @RequestMapping("/api/admin/locations")
 public class LitigeLocatifController {
     private final LitigeLocatifService service;
-    public LitigeLocatifController(LitigeLocatifService service) { this.service = service; }
+    private final IncidentLocationService incidents;
+    public LitigeLocatifController(LitigeLocatifService service, IncidentLocationService incidents) {
+        this.service = service; this.incidents = incidents;
+    }
 
     @PatchMapping("/litiges/incidents/{incidentId}")
     public IncidentLocationService.IncidentResume traiterIncident(@PathVariable java.util.UUID incidentId,
             @RequestBody IncidentLocationService.MiseAJourIncident q,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
-        return service.traiterParAdmin(incidentId, q, acteur);
+        return incidents.traiterParAdmin(incidentId, q, acteur);
     }
 
     @GetMapping("/litiges")
