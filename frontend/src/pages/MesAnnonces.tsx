@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
@@ -35,6 +35,9 @@ export default function MesAnnonces() {
   const [aSupprimer, setASupprimer] = useState<string | null>(null)
   const [demandeEnCours, setDemandeEnCours] = useState<string | null>(null)
   const [tauxCommission, setTauxCommission] = useState<Record<string, string>>({})
+  const [recherche, setRecherche] = useState('')
+  const [filtreStatut, setFiltreStatut] = useState('TOUS')
+  const [filtreTransaction, setFiltreTransaction] = useState('TOUTES')
 
   const charger = useCallback(async () => {
     setErreur(null)
@@ -146,6 +149,15 @@ export default function MesAnnonces() {
   }
 
   const mandatParAnnonce = new Map(mandats.map((m) => [m.annonceId, m]))
+  const annoncesFiltrees = useMemo(() => (annonces ?? []).filter((a) => {
+    const terme = recherche.trim().toLocaleLowerCase()
+    const correspondTexte = !terme || [a.titre, a.ville, a.quartier, a.adresse ?? ''].some(v => v.toLocaleLowerCase().includes(terme))
+    const correspondStatut = filtreStatut === 'TOUS' || a.statut === filtreStatut
+    const correspondTransaction = filtreTransaction === 'TOUTES' || a.transaction === filtreTransaction
+    return correspondTexte && correspondStatut && correspondTransaction
+  }), [annonces, recherche, filtreStatut, filtreTransaction])
+  const nombrePubliees = (annonces ?? []).filter(a => a.statut === 'PUBLIEE').length
+  const nombreEnAttente = (annonces ?? []).filter(a => a.statut === 'EN_ATTENTE').length
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -202,10 +214,34 @@ export default function MesAnnonces() {
         )}
       </section>
 
+      {annonces && annonces.length > 0 && <>
+        <section className="mt-7 grid gap-3 sm:grid-cols-3" aria-label="Résumé de mes biens">
+          <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total des biens affichés</p><p className="mt-1 text-2xl font-bold text-nuit-900">{annonces.length}</p></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">En ligne</p><p className="mt-1 text-2xl font-bold text-nuit-900">{nombrePubliees}</p></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">À renouveler</p><p className="mt-1 text-2xl font-bold text-nuit-900">{nombreEnAttente}</p></div>
+        </section>
+        <section className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-3" aria-label="Filtres des annonces">
+          <label className="text-sm font-medium text-slate-700">Rechercher un bien
+            <input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Titre, ville, quartier…" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 font-normal"/>
+          </label>
+          <label className="text-sm font-medium text-slate-700">État de l’annonce
+            <select value={filtreStatut} onChange={e => setFiltreStatut(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5">
+              <option value="TOUS">Tous les états</option><option value="PUBLIEE">Publiées</option><option value="EN_ATTENTE">À renouveler</option><option value="A_CORRIGER">À corriger</option><option value="SUSPENDUE">Suspendues</option><option value="REFUSEE">Refusées</option><option value="RESERVE">Réservées</option><option value="LOUE">Louées</option><option value="VENDU">Vendues</option>
+            </select>
+          </label>
+          <label className="text-sm font-medium text-slate-700">Type d’opération
+            <select value={filtreTransaction} onChange={e => setFiltreTransaction(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5">
+              <option value="TOUTES">Vente et location</option><option value="LOCATION">Location</option><option value="VENTE">Vente</option>
+            </select>
+          </label>
+        </section>
+        <p className="mt-4 text-sm text-slate-500">{annoncesFiltrees.length} bien(s) correspondent aux filtres.</p>
+      </>}
       {!annonces && !erreur && <p role="status" className="mt-6 text-slate-500">Chargement…</p>}
       {annonces && annonces.length === 0 && <p className="mt-6 text-slate-600">Vous n'avez publié aucune annonce.</p>}
+      {annonces && annonces.length > 0 && annoncesFiltrees.length === 0 && <p className="mt-6 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun bien ne correspond à votre recherche. Modifiez les filtres pour retrouver vos annonces.</p>}
       <ul className="mt-6 space-y-3">
-        {annonces?.map((a) => {
+        {annoncesFiltrees.map((a) => {
           const mandat = mandatParAnnonce.get(a.id)
           return (
             <li key={a.id} className="rounded-2xl bg-white p-4 shadow">
