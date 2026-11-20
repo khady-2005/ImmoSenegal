@@ -12,4 +12,5 @@ public interface AbonnementProprietaireRepository extends JpaRepository<Abonneme
     List<AbonnementProprietaire> findAllByStatutOrderByCreeLeAsc(StatutAbonnement statut);
     List<AbonnementProprietaire> findAllByStatutAndDateFinBefore(StatutAbonnement statut, LocalDate date);
     Optional<AbonnementProprietaire> findByPaydunyaToken(String paydunyaToken);
+    Optional<AbonnementProprietaire> findByPaytechRefCommand(String paytechRefCommand);
 }
