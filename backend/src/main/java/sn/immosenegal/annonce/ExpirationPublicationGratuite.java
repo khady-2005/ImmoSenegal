@@ -51,7 +51,7 @@ public class ExpirationPublicationGratuite {
             .forEach(a -> serviceNotifications.creer(a.getProprietaire(), TYPE_RAPPEL,
                 "Votre couverture de publication se termine bientôt",
                 "La couverture de votre annonce « " + a.getTitre()
-                    + " ». se termine dans cinq jours. Renouvelez votre abonnement ou confiez votre bien à une agence pour maintenir sa publication.",
+                    + " » se termine dans cinq jours. Renouvelez votre abonnement ou confiez votre bien à une agence pour maintenir sa publication.",
                 lien(a)));
     }
 
@@ -84,16 +84,6 @@ public class ExpirationPublicationGratuite {
                     }
                 }
             });
-    }
-
-    private boolean couvertParAbonnementOuMandat(Annonce annonce) {
-        boolean abonnementActif = abonnements
-            .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
-                annonce.getProprietaire().getId(), StatutAbonnement.ACTIF)
-            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(LocalDate.now()))
-            .isPresent();
-        return abonnementActif || mandats.existsByAnnonceIdAndStatut(
-            annonce.getId(), StatutMandatGestion.ACCEPTE);
     }
 
     private static String lien(Annonce annonce) {
