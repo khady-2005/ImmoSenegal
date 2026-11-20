@@ -13,7 +13,7 @@ import sn.immosenegal.common.ApiException;
 import sn.immosenegal.security.AuthenticatedUser;
 
 /**
- * Photos d'annonces. Règles : seul le propriétaire de l'annonce (ou un ADMIN) ajoute/supprime (un ajout renvoie une annonce validée en modération) ; le type réel du fichier
+ * Photos d'annonces. Règles : seul le propriétaire de l'annonce (ou un ADMIN) ajoute/supprime ; le type réel du fichier
  * est reconnu par son contenu (jamais par son nom ni par l'en-tête envoyé), l'image est ré-encodée (métadonnées supprimées) ;
  * 5 Mo et 8 photos au maximum.
  */
@@ -35,7 +35,7 @@ public class PhotoService {
 
     @Transactional
     public UUID ajouter(UUID annonceId, AuthenticatedUser auteur, MultipartFile fichier) {
-        // Ajouter une photo = ajouter du contenu : sur une annonce déjà validée, elle repasse en modération.
+        // Le propriétaire peut compléter une annonce publiée sans validation préalable.
         annonces.annonceAvecAjoutDeContenu(annonceId, auteur);
         if (fichier == null || fichier.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Aucun fichier reçu.");
