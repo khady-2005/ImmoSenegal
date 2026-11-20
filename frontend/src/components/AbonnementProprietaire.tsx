@@ -40,7 +40,7 @@ export default function AbonnementProprietaire() {
   useEffect(() => { void charger() }, [charger])
 
   useEffect(() => {
-    const referencePayDunya = searchParams.get('token') || searchParams.get('token')
+    const referencePayDunya = searchParams.get('token')
     if (!jeton || !referencePayDunya) return
     let actif = true
     setErreur('')
