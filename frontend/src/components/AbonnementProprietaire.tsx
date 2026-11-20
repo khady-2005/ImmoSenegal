@@ -41,8 +41,9 @@ export default function AbonnementProprietaire() {
 
   useEffect(() => {
     const token = searchParams.get('token')
-    const retour = searchParams.get('paiement')
-    if (!jeton || !token || !retour) return
+    // PayDunya ajoute automatiquement ?token=... aux URL de retour et d'annulation.
+    // Le statut réel est ensuite vérifié côté serveur, sans faire confiance à l'URL.
+    if (!jeton || !token) return
     let actif = true
     setErreur('')
     setMessage('Vérification du paiement auprès de PayDunya…')
