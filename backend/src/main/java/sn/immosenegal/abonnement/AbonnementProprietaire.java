@@ -40,6 +40,15 @@ public class AbonnementProprietaire {
     @Column(name = "reference_paiement", length = 150)
     private String referencePaiement;
 
+    @Column(name = "paydunya_token", length = 120, unique = true)
+    private String paydunyaToken;
+
+    @Column(name = "reference_fournisseur", length = 150)
+    private String referenceFournisseur;
+
+    @Column(name = "paiement_confirme_le")
+    private Instant paiementConfirmeLe;
+
     @Column(columnDefinition = "text")
     private String note;
 
@@ -76,6 +85,27 @@ public class AbonnementProprietaire {
     public String getReferencePaiement() { return referencePaiement; }
     public String getNote() { return note; }
     public UUID getValidePar() { return validePar; }
+    public String getPaydunyaToken() { return paydunyaToken; }
+    public String getReferenceFournisseur() { return referenceFournisseur; }
+    public Instant getPaiementConfirmeLe() { return paiementConfirmeLe; }
+
+    public void associerPaydunya(String invoiceToken) { this.paydunyaToken = invoiceToken; this.modifieLe = Instant.now(); }
+
+    public void confirmerPaiement(String reference) {
+        if (this.statut == StatutAbonnement.EN_ATTENTE) {
+            this.referenceFournisseur = reference;
+            this.paiementConfirmeLe = Instant.now();
+            this.statut = StatutAbonnement.ACTIF;
+            LocalDate debut = LocalDate.now();
+            this.dateDebut = debut;
+            this.dateFin = switch (forfait) {
+                case MENSUEL -> debut.plusMonths(1).minusDays(1);
+                case TRIMESTRIEL -> debut.plusMonths(3).minusDays(1);
+                case ANNUEL -> debut.plusYears(1).minusDays(1);
+            };
+            this.modifieLe = Instant.now();
+        }
+    }
     public Instant getCreeLe() { return creeLe; }
 
     public void activer(UUID admin, LocalDate debut) {
