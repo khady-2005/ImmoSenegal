@@ -48,6 +48,8 @@ export interface Annonce {
   proprietaire: { id: string; nomComplet: string }
   creeLe: string
   modifieLe: string
+  /** Date de fin de la période gratuite de 30 jours, absente si abonnement actif. */
+  dateFinGratuite?: string | null
   /** Identifiants des photos, la première sert de couverture. */
   photos: string[]
   /** Motif de la dernière décision de modération : fourni seulement au propriétaire et aux administrateurs. */
@@ -73,7 +75,7 @@ export const libelleTypeBien: Record<TypeBien, string> = {
 }
 
 export const libelleStatut: Record<StatutAnnonce, string> = {
-  EN_ATTENTE: 'En attente de validation',
+  EN_ATTENTE: 'En attente d’abonnement ou de mandat',
   PUBLIEE: 'Publiée',
   A_CORRIGER: 'À corriger',
   REFUSEE: 'Refusée',
