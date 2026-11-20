@@ -21,6 +21,14 @@ public class LitigeLocatifController {
         return incidents.traiterParAdmin(incidentId, q, acteur);
     }
 
+    @PatchMapping("/litiges/{type}/{id}/note")
+    public LitigeLocatifService.LitigeResume ajouterNote(@PathVariable String type, @PathVariable java.util.UUID id,
+            @RequestBody NoteAdministrative q, @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.ajouterNoteAdministrative(type, id, q == null ? null : q.note(), acteur);
+    }
+
+    public record NoteAdministrative(String note) {}
+
     @GetMapping("/litiges")
     public List<LitigeLocatifService.LitigeResume> supervision(@AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.supervision(acteur);
