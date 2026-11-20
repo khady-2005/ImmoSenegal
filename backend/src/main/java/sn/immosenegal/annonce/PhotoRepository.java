@@ -23,6 +23,8 @@ public interface PhotoRepository extends JpaRepository<PhotoAnnonce, UUID> {
 
     long countByAnnonceId(UUID annonceId);
 
+    List<PhotoAnnonce> findAllByAnnonceIdOrderByOrdreAscCreeLeAsc(UUID annonceId);
+
     Optional<PhotoAnnonce> findByIdAndAnnonceId(UUID id, UUID annonceId);
 
     @Query("select coalesce(max(p.ordre), 0) from PhotoAnnonce p where p.annonceId = :annonceId")
