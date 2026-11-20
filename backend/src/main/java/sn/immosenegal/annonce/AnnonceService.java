@@ -131,7 +131,7 @@ public class AnnonceService {
         boolean changeLeContenu = contenuDifferent(annonce, requete);
 
         if (changeLeStatut) {
-            // Seuls les statuts commerciaux se choisissent ici ; EN_ATTENTE, PUBLIEE (après validation), A_CORRIGER,
+            // Seuls les statuts commerciaux se choisissent ici ; EN_ATTENTE, PUBLIEE, A_CORRIGER,
             // REFUSEE et SUSPENDUE relèvent de la modération (endpoints /api/admin/annonces/...).
             if (!avant.estCommercial() || !demande.estCommercial()) {
                 throw new ApiException(HttpStatus.CONFLICT, "Le statut de cette annonce est géré par la modération.");
