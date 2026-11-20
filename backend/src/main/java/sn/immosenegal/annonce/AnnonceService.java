@@ -32,7 +32,7 @@ import sn.immosenegal.user.UserRepository;
 /**
  * Règles des annonces.
  * <ul>
- *   <li>Le propriétaire publie directement avec un abonnement actif ; sans abonnement, le bien reste en attente et peut être publié après acceptation d'un mandat d'agence.</li>
+ *   <li>Tout propriétaire publie immédiatement ; sans abonnement actif, une période gratuite de 30 jours est appliquée. À son terme, l'annonce est suspendue jusqu'à un abonnement ou un mandat accepté.</li>
  *   <li>Le public ne voit que les annonces PUBLIEE (liste, fiche). Le propriétaire et les administrateurs voient les autres.</li>
  *   <li>Le propriétaire ne choisit lui-même que les statuts commerciaux (RESERVE, VENDU, LOUE, ou remettre PUBLIEE) d'une annonce déjà validée.</li>
  *   <li>Le propriétaire peut modifier le contenu et les photos sans repasser par une validation préalable ; les annonces refusées ou suspendues restent verrouillées.</li>
@@ -89,19 +89,17 @@ public class AnnonceService {
         }
         Annonce annonce = new Annonce(proprietaire);
         appliquer(annonce, requete);
-        // Une publication directe exige un abonnement actif. Sans abonnement, le bien est enregistré
-        // en attente afin que son propriétaire puisse demander un mandat à une agence ; l'agence
-        // le publiera après acceptation du mandat. Les créations administrateur restent publiées.
         boolean abonnementActif = abonnements
             .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(proprietaire.getId(), StatutAbonnement.ACTIF)
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
             .isPresent();
-        annonce.setStatut(auteur.role() == Role.ADMIN || abonnementActif
-            ? StatutAnnonce.PUBLIEE : StatutAnnonce.EN_ATTENTE);
+        annonce.setStatut(StatutAnnonce.PUBLIEE);
+        annonce.setDateFinGratuite(auteur.role() == Role.ADMIN || abonnementActif
+            ? null : java.time.LocalDate.now().plusDays(30));
         annonces.save(annonce);
-        audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getStatut() == StatutAnnonce.PUBLIEE
-            ? "Annonce " + annonce.getId() + " publiée directement"
-            : "Annonce " + annonce.getId() + " enregistrée en attente d’un mandat d’agence ou d’un abonnement");
+        audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinGratuite() == null
+            ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
+            : "Annonce " + annonce.getId() + " publiée gratuitement jusqu'au " + annonce.getDateFinGratuite());
         return AnnonceResponse.pourGestion(annonce, List.of());
     }
 
@@ -173,6 +171,7 @@ public class AnnonceService {
         if (!abonnementActif) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Un abonnement actif est nécessaire pour publier directement ce bien. Vous pouvez aussi le confier à une agence.");
         }
+        annonce.setDateFinGratuite(null);
         annonce.setStatut(StatutAnnonce.PUBLIEE);
         audit.enregistrer("ANNONCE_PUBLIEE_AVEC_ABONNEMENT", auteur.id(), "Annonce " + id + " publiée avec un abonnement actif");
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
