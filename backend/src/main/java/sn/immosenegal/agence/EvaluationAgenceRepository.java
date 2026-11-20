@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface EvaluationAgenceRepository extends JpaRepository<EvaluationAgence,UUID>{
  List<EvaluationAgence> findAllByMandatAgenceIdOrderByCreeLeDesc(UUID agenceId);
  boolean existsByMandatId(UUID mandatId);
+ java.util.Optional<EvaluationAgence> findByMandatId(UUID mandatId);
 }
