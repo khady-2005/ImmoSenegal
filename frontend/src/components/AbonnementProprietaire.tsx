@@ -27,6 +27,7 @@ export default function AbonnementProprietaire() {
   const [message, setMessage] = useState('')
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState(false)
+  const [paiementEnCours, setPaiementEnCours] = useState(false)
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -56,6 +57,21 @@ export default function AbonnementProprietaire() {
     finally { setEnvoi(false) }
   }
 
+  async function payerEnLigne() {
+    if (!jeton) return
+    setErreur(''); setMessage(''); setPaiementEnCours(true)
+    try {
+      const resultat = await appelApi<{ url: string }>('/api/abonnements/payer', {
+        method: 'POST', token: jeton, body: { forfait },
+      })
+      if (!resultat.url || !resultat.url.startsWith('https://')) throw new Error('Lien de paiement invalide.')
+      window.location.assign(resultat.url)
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : e instanceof Error ? e.message : 'Impossible de démarrer le paiement en ligne.')
+      setPaiementEnCours(false)
+    }
+  }
+
   return <section className="mt-9 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
     <div><p className="text-xs font-bold uppercase tracking-widest text-amber-800">Services propriétaires</p><h2 className="mt-2 text-2xl font-bold text-nuit-900">Abonnement de publication</h2><p className="mt-2 max-w-2xl text-sm text-slate-600">Choisissez une durée et transmettez les informations de paiement. L’équipe administrative vérifiera la transaction avant activation.</p></div>
     {actif && <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900"><strong>Abonnement actif</strong> — {actif.forfait.toLowerCase()} jusqu’au {actif.dateFin}. Vous pouvez renouveler après son expiration.</div>}
@@ -67,8 +83,8 @@ export default function AbonnementProprietaire() {
       <label className="text-sm font-semibold text-slate-700">Mode de paiement<select value={mode} onChange={e => setMode(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 font-normal"><option value="WAVE">Wave</option><option value="ORANGE_MONEY">Orange Money</option><option value="VIREMENT">Virement bancaire</option><option value="ESPECES">Espèces à l’agence</option></select></label>
       <label className="text-sm font-semibold text-slate-700">Référence de transaction (facultatif)<input value={reference} onChange={e => setReference(e.target.value)} maxLength={150} className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 font-normal" placeholder="Numéro ou référence"/></label>
       <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Précisions (facultatif)<textarea value={note} onChange={e => setNote(e.target.value)} maxLength={1000} rows={2} className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 font-normal" placeholder="Informations utiles pour vérifier votre paiement…"/></label>
-      <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2"><p className="text-sm text-slate-600">Total : <strong className="text-nuit-900">{monnaie(choisi.prix)}</strong></p><button disabled={envoi || attente || !!actif} className="rounded-full bg-nuit-900 px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{envoi ? 'Envoi…' : 'Soumettre ma demande'}</button></div>
-      <p className="text-xs text-slate-500 sm:col-span-2">Cette demande ne déclenche aucun prélèvement automatique. N’envoyez pas d’argent avant d’avoir vérifié les coordonnées officielles de paiement communiquées par ImmoSénégal.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2"><p className="text-sm text-slate-600">Total : <strong className="text-nuit-900">{monnaie(choisi.prix)}</strong></p><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void payerEnLigne()} disabled={paiementEnCours || envoi || attente || !!actif} className="rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{paiementEnCours ? 'Connexion…' : 'Payer en ligne (Orange Money / Wave)'}</button><button disabled={envoi || paiementEnCours || attente || !!actif} className="rounded-full bg-nuit-900 px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{envoi ? 'Envoi…' : 'Déclarer un paiement manuel'}</button></div></div>
+      <p className="text-xs text-slate-500 sm:col-span-2">Le paiement en ligne est confirmé automatiquement par PayDunya avant l’activation. Le bouton de déclaration manuelle reste réservé aux paiements reçus hors ligne.</p>
     </form>
     <div className="mt-7"><h3 className="font-bold text-nuit-900">Historique des abonnements</h3>{chargement ? <p className="mt-3 text-sm text-slate-500">Chargement…</p> : historique.length === 0 ? <p className="mt-3 text-sm text-slate-500">Aucun abonnement enregistré.</p> : <div className="mt-3 space-y-2">{historique.map(a => <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><div><p className="text-sm font-semibold text-nuit-900">{a.forfait} · {monnaie(a.montant)}</p><p className="mt-1 text-xs text-slate-500">{new Date(a.creeLe).toLocaleDateString('fr-FR')} · {a.modePaiement}{a.referencePaiement ? ' · ' + a.referencePaiement : ''}</p><p className="mt-1 text-xs text-slate-500">{a.dateFin ? 'Valable jusqu’au ' + a.dateFin : 'Dates à confirmer après validation'}</p></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{statuts[a.statut]}</span></div>)}</div>}</div>
   </section>
