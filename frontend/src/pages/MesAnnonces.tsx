@@ -152,13 +152,13 @@ export default function MesAnnonces() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Mes annonces</h1>
         {peutPublier(utilisateur?.role) && (
-          <Link to="/annonces/nouvelle" className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700">
+          <Link to="/annonces/nouvelle" className="rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-800">
             Publier une annonce
           </Link>
         )}
       </div>
       {erreur && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
-      {message && <p role="status" className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{message}</p>}
+      {message && <p role="status" className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">{message}</p>}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-lg font-bold text-nuit-900">Suivi des demandes de gestion</h2>
@@ -175,7 +175,7 @@ export default function MesAnnonces() {
                     <p className="text-sm text-slate-600">{mandat.agenceNom} · {libelleOrigine(mandat.origine)}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-blue-100 text-blue-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
                       {libelleMandat(mandat.statut)}
                     </span>
                     {mandat.statut === 'EN_ATTENTE' && mandat.proposeParId === utilisateur?.id && mandat.tauxCommissionMensuel == null && (
@@ -216,9 +216,10 @@ export default function MesAnnonces() {
                 </div>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
+              {a.statut === 'PUBLIEE' && a.dateFinGratuite && <p className="mt-2 rounded-lg border border-dore-200 bg-dore-50 p-2 text-sm text-nuit-900">Publication gratuite jusqu’au <strong>{new Date(a.dateFinGratuite + 'T00:00:00').toLocaleDateString('fr-FR')}</strong>. Pour continuer après cette date, choisissez un abonnement ou un mandat d’agence.</p>}
               {a.statut === 'EN_ATTENTE' && (
                 <div className="mt-2">
-                  <p className="text-sm text-slate-600">Cette annonce n’est pas encore visible du public. Vous pouvez souscrire un abonnement pour la publier directement, ou demander à une agence de prendre le bien en gestion sans abonnement.</p>
+                  <p className="text-sm text-slate-600">La période gratuite de cette annonce est terminée : elle reste dans votre espace, mais n’est plus visible dans le catalogue. Vous pouvez souscrire un abonnement pour la republier ou négocier un mandat de gestion avec une agence.</p>
                   <button type="button" onClick={() => void publierAvecAbonnement(a)} disabled={demandeEnCours === a.id} className="mt-2 rounded-lg border border-nuit-900 px-3 py-1.5 text-sm font-semibold text-nuit-900 disabled:opacity-50">
                     {demandeEnCours === a.id ? 'Publication…' : 'Publier avec mon abonnement'}
                   </button>
