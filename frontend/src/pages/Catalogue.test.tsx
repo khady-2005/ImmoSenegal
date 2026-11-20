@@ -8,7 +8,9 @@ import { annonceTest, json, pageTest, parametresDe, reponseConnexion, simulerApi
 function afficher(chemin: string) {
   const fetchOriginal = globalThis.fetch
   vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
-    url === '/api/auth/refresh' ? Promise.resolve(reponseConnexion()) : fetchOriginal(url, init),
+    new URL(url, 'http://localhost').pathname === '/api/auth/refresh'
+      ? Promise.resolve(reponseConnexion())
+      : fetchOriginal(url, init),
   )
   return render(
     <MemoryRouter initialEntries={[chemin]}>
