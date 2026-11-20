@@ -53,13 +53,13 @@ describe('Publication et gestion des annonces', () => {
     await user.type(screen.getByLabelText('Superficie (m²)'), '300')
     await user.type(screen.getByLabelText('Quartier'), 'Néma')
     await user.type(screen.getByLabelText('Équipements'), 'wifi, parking')
-    await user.click(screen.getByRole('button', { name: /envoyer pour validation/i }))
+    await user.click(screen.getByRole('button', { name: /enregistrer et ajouter les photos/i }))
 
-    // Après la publication, on arrive sur la page de l'annonce pour ajouter des photos.
-    expect(await screen.findByRole('heading', { name: "Modifier l'annonce" })).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Annonce enregistrée')
+    // Après l'enregistrement, le propriétaire reste sur l'étape d'ajout des médias.
+    expect(await screen.findByRole('heading', { name: 'Ajoutez les photos de votre bien' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Votre bien est enregistré')
     expect(screen.getByLabelText('Ajouter des photos')).toBeInTheDocument()
-    await user.click(screen.getByRole('link', { name: 'Terminer' }))
+    await user.click(screen.getByRole('button', { name: /terminer et voir mes annonces/i }))
     await screen.findByRole('heading', { name: 'Mes annonces' })
     const appel = api.mock.calls.find(([u, i]) => u === '/api/annonces' && i?.method === 'POST')!
     const corps = JSON.parse(String(appel[1]!.body))
@@ -81,7 +81,7 @@ describe('Publication et gestion des annonces', () => {
     // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on vise celui de la page.
     await user.click(await within(screen.getByRole('main')).findByRole('link', { name: /publier une annonce/i }))
     await user.type(screen.getByLabelText('Titre'), 'X')
-    await user.click(screen.getByRole('button', { name: /envoyer pour validation/i }))
+    await user.click(screen.getByRole('button', { name: /enregistrer et ajouter les photos/i }))
     expect(await screen.findByText('doit être positif')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('Données invalides.')
   })
