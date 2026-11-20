@@ -27,14 +27,14 @@ const ACTIONS_PAR_STATUT: Partial<Record<StatutAnnonce, Action[]>> = {
 }
 
 const LIBELLE_ACTION: Record<Action, string> = {
-  valider: 'Valider',
+  valider: 'Réactiver',
   refuser: 'Refuser',
   suspendre: 'Suspendre',
   'demander-correction': 'Demander une correction',
 }
 
 const CONFIRMATION: Record<Action, string> = {
-  valider: 'Annonce validée : elle est maintenant publiée.',
+  valider: 'Publication rétablie après contrôle.',
   refuser: 'Annonce refusée. Le motif est visible par son propriétaire.',
   suspendre: 'Annonce suspendue : elle ne figure plus au catalogue.',
   'demander-correction': 'Correction demandée au propriétaire.',
@@ -125,7 +125,7 @@ export default function AdminModeration() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-bold">Modération des annonces</h1>
       <p className="mt-1 text-sm text-slate-600">
-        Seules les annonces publiées apparaissent dans le catalogue. Les plus anciennes sont affichées en premier.
+        Les propriétaires publient directement leurs annonces pendant 30 jours. Cet espace sert à traiter les signalements et les non-conformités. Une annonce arrivée à échéance doit être couverte par un abonnement ou un mandat accepté ; elle ne peut pas être validée par l’administration.
       </p>
 
       <div role="group" aria-label="Filtrer par statut" className="mt-5 flex flex-wrap gap-2">
