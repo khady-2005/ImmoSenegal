@@ -76,9 +76,11 @@ app:
     api-key: ${OPENAI_API_KEY:}
     model: ${OPENAI_MODEL:gpt-4o-mini}
 
-  paytech:
-    # Les identifiants restent uniquement dans les variables privées du serveur.
-    api-key: ${PAYTECH_API_KEY:}
-    api-secret: ${PAYTECH_API_SECRET:}
-    environment: ${PAYTECH_ENV:test}
-    ipn-url: ${PAYTECH_IPN_URL:}
+  paydunya:
+    # Les clés PayDunya restent uniquement dans les variables privées du serveur.
+    master-key: ${PAYDUNYA_MASTER_KEY:}
+    private-key: ${PAYDUNYA_PRIVATE_KEY:}
+    public-key: ${PAYDUNYA_PUBLIC_KEY:}
+    token: ${PAYDUNYA_TOKEN:}
+    mode: ${PAYDUNYA_MODE:test}
+    callback-url: ${PAYDUNYA_CALLBACK_URL:}
