@@ -19,6 +19,8 @@ public class ContratLocationController{
  @PostMapping("/{contratId}/paiements") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.PaiementResume paiement(@PathVariable UUID contratId,@Valid @RequestBody PaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.enregistrerPaiement(contratId,new ContratLocationService.CreationPaiement(q.montant(),q.periode(),q.datePaiement(),q.reference()),a);}
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
+ @PatchMapping("/{contratId}/confirmation-lecture")
+ public ContratLocationService.ContratResume confirmerLecture(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerLecture(contratId,a);}
  @PatchMapping("/{contratId}/resiliation-demande")
  public ContratLocationService.ContratResume demanderResiliation(@PathVariable UUID contratId,@Valid @RequestBody DemandeResiliationRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.demanderResiliation(contratId,q.motif(),q.dateFinSouhaitee(),a);}
  @PatchMapping("/{contratId}/resiliation-decision")
