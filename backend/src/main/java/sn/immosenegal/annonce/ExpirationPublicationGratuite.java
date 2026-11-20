@@ -13,7 +13,7 @@ import sn.immosenegal.agence.StatutMandatGestion;
 import sn.immosenegal.notification.NotificationRepository;
 import sn.immosenegal.notification.NotificationService;
 
-/** Rappels avant échéance et retrait des annonces dont les 30 jours gratuits sont terminés. */
+/** Rappels avant échéance et retrait des annonces dont la couverture gratuite ou payante est terminée. */
 @Component
 public class ExpirationPublicationGratuite {
     private static final String TYPE_RAPPEL = "FIN_GRATUITE_ANNONCE";
