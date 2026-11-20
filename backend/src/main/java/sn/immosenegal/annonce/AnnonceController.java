@@ -27,7 +27,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/annonces")
-@Tag(name = "Annonces", description = "Publication directe avec abonnement propriétaire ; sans abonnement, le bien reste en attente jusqu’à l’acceptation d’un mandat d’agence")
+@Tag(name = "Annonces", description = "Publication immédiate avec 30 jours gratuits ; ensuite abonnement ou mandat d’agence")
 public class AnnonceController {
 
     private final AnnonceService service;
@@ -75,7 +75,7 @@ public class AnnonceController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication directe si abonnement actif, sinon attente d’un mandat d’agence ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication immédiate avec 30 jours gratuits sans abonnement ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @RequestParam(required = false) UUID proprietaireId,
@@ -95,7 +95,7 @@ public class AnnonceController {
     public record ReattributionProprietaire(@jakarta.validation.constraints.NotNull UUID proprietaireId) {}
 
     @PostMapping("/{id}/publier")
-    @Operation(summary = "Publier une annonce en attente avec un abonnement propriétaire actif",
+    @Operation(summary = "Réactiver une annonce expirée avec un abonnement propriétaire actif",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public AnnonceResponse publierAvecAbonnement(@PathVariable UUID id,
             @AuthenticationPrincipal AuthenticatedUser utilisateur) {
