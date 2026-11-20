@@ -38,8 +38,6 @@ public class SuiviDepotGarantieService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul le propriétaire peut proposer le bilan du dépôt.");
         if (contrat.getEtat() != EtatContratLocation.RESILIE && contrat.getEtat() != EtatContratLocation.TERMINE)
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Le contrat doit être terminé avant le bilan du dépôt.");
-        if (suivis.findByContratId(contratId).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une proposition existe déjà pour ce dépôt de garantie.");
         if (q == null || q.montantRestitue() == null || q.montantRetenu() == null
                 || q.montantRestitue().signum() < 0 || q.montantRetenu().signum() < 0
                 || q.montantRestitue().add(q.montantRetenu()).compareTo(contrat.getDepotGarantie()) != 0
@@ -47,10 +45,22 @@ public class SuiviDepotGarantieService {
                 || (q.motifRetenue() != null && q.motifRetenue().length() > 1500))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La somme restituée et retenue doit correspondre exactement au dépôt. Toute retenue doit être expliquée.");
         User proprietaire = users.findById(acteur.id()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
-        SuiviDepotGarantie suivi = suivis.save(new SuiviDepotGarantie(contrat, proprietaire,
-                q.montantRestitue(), q.montantRetenu(), q.motifRetenue() == null ? null : q.motifRetenue().trim()));
-        notifications.creer(contrat.getLocataire(), "DEPOT_GARANTIE_PROPOSE", "Bilan du dépôt de garantie",
-                "Le propriétaire a proposé le bilan du dépôt de garantie pour " + contrat.getAnnonce().getTitre() + ". Vérifiez les montants et répondez.",
+        String motif = q.motifRetenue() == null ? null : q.motifRetenue().trim();
+        SuiviDepotGarantie suivi = suivis.findByContratId(contratId).orElse(null);
+        boolean nouvelleProposition = suivi != null;
+        if (suivi == null) {
+            suivi = suivis.save(new SuiviDepotGarantie(contrat, proprietaire,
+                    q.montantRestitue(), q.montantRetenu(), motif));
+        } else {
+            if (suivi.getStatut() != StatutDepotGarantie.CONTESTE)
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Une proposition existe déjà et attend une réponse ou a été confirmée.");
+            suivi.reproposer(q.montantRestitue(), q.montantRetenu(), motif);
+        }
+        notifications.creer(contrat.getLocataire(), "DEPOT_GARANTIE_PROPOSE",
+                nouvelleProposition ? "Nouvelle proposition de dépôt de garantie" : "Bilan du dépôt de garantie",
+                nouvelleProposition
+                    ? "Après votre contestation, le propriétaire a transmis une nouvelle proposition pour " + contrat.getAnnonce().getTitre() + ". Vérifiez les montants et répondez."
+                    : "Le propriétaire a proposé le bilan du dépôt de garantie pour " + contrat.getAnnonce().getTitre() + ". Vérifiez les montants et répondez.",
                 "/depot-garantie");
         return resume(suivi);
     }
