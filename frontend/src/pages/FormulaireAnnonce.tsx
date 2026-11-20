@@ -31,7 +31,7 @@ export default function FormulaireAnnonce() {
   const [photos, setPhotos] = useState<string[]>([])
   const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
   const [annonceCreeeStatut, setAnnonceCreeeStatut] = useState<Annonce['statut'] | null>(null)
-  const [dateFinGratuite, setDateFinGratuite] = useState<string | null>(null)
+  const [dateFinPublication, setDateFinPublication] = useState<string | null>(null)
   const [initial, setInitial] = useState<Annonce | null>(null)
   const [chargement, setChargement] = useState(edition)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -138,7 +138,7 @@ export default function FormulaireAnnonce() {
         // On conserve l'utilisateur sur cette page pour qu'il ajoute immédiatement les photos.
         setAnnonceCreeeId(reponse.id)
         setAnnonceCreeeStatut(reponse.statut)
-        setDateFinGratuite(reponse.dateFinGratuite ?? null)
+        setDateFinPublication(reponse.dateFinPublication ?? null)
         setPhotos(reponse.photos ?? [])
       }
     } catch (err) {
@@ -191,8 +191,8 @@ export default function FormulaireAnnonce() {
         <h1 className="text-2xl font-bold">Ajoutez les photos de votre bien</h1>
         <p role="status" className="mt-4 rounded-xl bg-dore-100 p-4 text-sm leading-6 text-nuit-900">
           {annonceCreeeStatut === 'PUBLIEE'
-            ? dateFinGratuite
-              ? "Votre annonce est publiée immédiatement et bénéficie de 30 jours gratuits, jusqu’au " + new Date(dateFinGratuite + 'T00:00:00').toLocaleDateString('fr-FR') + ". Avant cette date, choisissez un abonnement ou négociez un mandat avec une agence pour maintenir la publication."
+            ? dateFinPublication
+              ? "Votre annonce est publiée immédiatement et bénéficie de 30 jours gratuits, jusqu’au " + new Date(dateFinPublication + 'T00:00:00').toLocaleDateString('fr-FR') + ". Avant cette date, choisissez un abonnement ou négociez un mandat avec une agence pour maintenir la publication."
               : "Votre annonce est publiée dans le catalogue et sa publication est couverte par votre abonnement ou sa prise en charge. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation."
             : "Votre bien est enregistré, mais reste invisible du catalogue. Vous pouvez ajouter ses photos et sa vidéo, puis demander sa prise en charge à une agence depuis « Mes annonces »."} Vous gardez la main sur votre bien ; l’administration peut intervenir en cas de signalement ou de non-respect des règles.
         </p>
