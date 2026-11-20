@@ -112,6 +112,12 @@ export default function AssistantImmobilier() {
       reponse = "Pour demander la résiliation, ouvrez « Mes contrats de location », sélectionnez le contrat actif et envoyez une demande avec un motif et une date souhaitée. L’autre partie doit répondre. En cas de désaccord, vous pouvez signaler un incident ou demander un suivi à l’administration."
     } else if (/litige|desaccord|incident|reparation|probleme dans le logement/.test(bas)) {
       reponse = "Pendant une location, ouvrez « Incidents et réparations » pour décrire le problème. L’autre partie sera notifiée et pourra suivre son traitement. L’administration dispose aussi d’un espace de supervision des dossiers."
+    } else if (/avis|evaluation|note|etoile/.test(bas)) {
+      reponse = "Les avis sont affichés sur la fiche de chaque annonce. Pour en publier un, connectez-vous avec un compte client et assurez-vous d’avoir effectué une visite acceptée dont la date est passée. Un seul avis est autorisé par annonce."
+    } else if (/photo|video|image/.test(bas)) {
+      reponse = "Lors de la création ou de la modification d’une annonce, le propriétaire peut ajouter jusqu’à 8 photos et une vidéo facultative au format MP4 ou WebM, limitée à 30 Mo."
+    } else if (/contrat|bail/.test(bas)) {
+      reponse = "Les contrats préparés à la suite d’une réservation acceptée sont consultables dans « Mes contrats de location ». Les deux parties peuvent confirmer leur lecture, suivre les paiements déclarés et demander une résiliation concertée."
     } else if (/abonnement|publier|publication|commission|mandat|agence/.test(bas)) {
       reponse = "Un propriétaire peut publier avec un abonnement actif. S’il confie plutôt le bien à ImmoSénégal ou à une agence et que le mandat est accepté, il n’a pas besoin d’abonnement pour ce bien. Le taux de commission mensuel doit être convenu et enregistré dans le mandat avant son acceptation."
     } else if (/paiement|loyer|payer/.test(bas)) {
