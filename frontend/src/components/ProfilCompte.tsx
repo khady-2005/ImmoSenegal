@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Save, UserRound } from 'lucide-react'
+import { KeyRound, Save, UserRound } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import type { Utilisateur } from '../types'
@@ -11,6 +11,12 @@ export default function ProfilCompte({ profil }: { profil: Utilisateur }) {
   const [envoi, setEnvoi] = useState(false)
   const [erreur, setErreur] = useState('')
   const [message, setMessage] = useState('')
+  const [motDePasseActuel, setMotDePasseActuel] = useState('')
+  const [nouveauMotDePasse, setNouveauMotDePasse] = useState('')
+  const [confirmation, setConfirmation] = useState('')
+  const [motDePasseMessage, setMotDePasseMessage] = useState('')
+  const [motDePasseErreur, setMotDePasseErreur] = useState('')
+  const [changementEnCours, setChangementEnCours] = useState(false)
 
   useEffect(() => {
     setNomComplet(profil.nomComplet)
@@ -38,6 +44,33 @@ export default function ProfilCompte({ profil }: { profil: Utilisateur }) {
     }
   }
 
+  async function changerMotDePasse(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!jeton) return
+    if (nouveauMotDePasse !== confirmation) {
+      setMotDePasseErreur('La confirmation ne correspond pas au nouveau mot de passe.')
+      return
+    }
+    setChangementEnCours(true)
+    setMotDePasseErreur('')
+    setMotDePasseMessage('')
+    try {
+      await appelApi<void>('/api/auth/changer-mot-de-passe', {
+        method: 'POST',
+        token: jeton,
+        body: { motDePasseActuel, nouveauMotDePasse },
+      })
+      setMotDePasseActuel('')
+      setNouveauMotDePasse('')
+      setConfirmation('')
+      setMotDePasseMessage('Votre mot de passe a été modifié.')
+    } catch (e) {
+      setMotDePasseErreur(e instanceof ApiError ? e.message : 'Impossible de modifier le mot de passe.')
+    } finally {
+      setChangementEnCours(false)
+    }
+  }
+
   return (
     <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
@@ -60,6 +93,31 @@ export default function ProfilCompte({ profil }: { profil: Utilisateur }) {
           </button>
         </div>
       </form>
+      <div className="mt-8 border-t border-slate-200 pt-6">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-5 w-5 text-nuit-800" />
+          <h3 className="text-lg font-semibold text-nuit-900">Sécurité du compte</h3>
+        </div>
+        <p className="mt-1 text-sm text-slate-600">Pour changer votre mot de passe, confirmez d'abord celui que vous utilisez actuellement.</p>
+        {motDePasseErreur && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{motDePasseErreur}</p>}
+        {motDePasseMessage && <p role="status" className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">{motDePasseMessage}</p>}
+        <form onSubmit={changerMotDePasse} className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="text-sm font-medium text-slate-700 sm:col-span-2">Mot de passe actuel
+            <input required type="password" autoComplete="current-password" maxLength={72} value={motDePasseActuel} onChange={e => setMotDePasseActuel(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5" />
+          </label>
+          <label className="text-sm font-medium text-slate-700">Nouveau mot de passe
+            <input required type="password" autoComplete="new-password" minLength={8} maxLength={72} value={nouveauMotDePasse} onChange={e => setNouveauMotDePasse(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5" />
+          </label>
+          <label className="text-sm font-medium text-slate-700">Confirmer le nouveau mot de passe
+            <input required type="password" autoComplete="new-password" minLength={8} maxLength={72} value={confirmation} onChange={e => setConfirmation(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5" />
+          </label>
+          <div className="sm:col-span-2">
+            <button type="submit" disabled={changementEnCours || motDePasseActuel.length === 0 || nouveauMotDePasse.length < 8 || confirmation.length < 8} className="inline-flex items-center gap-2 rounded-full border border-nuit-900 px-5 py-2.5 text-sm font-semibold text-nuit-900 hover:bg-slate-50 disabled:opacity-50">
+              <KeyRound className="h-4 w-4" /> {changementEnCours ? 'Modification…' : 'Changer le mot de passe'}
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   )
 }
