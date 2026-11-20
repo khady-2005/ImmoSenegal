@@ -75,7 +75,7 @@ public class AnnonceController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication immédiate pour le propriétaire ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication directe si abonnement actif, sinon attente d’un mandat d’agence ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @RequestParam(required = false) UUID proprietaireId,
