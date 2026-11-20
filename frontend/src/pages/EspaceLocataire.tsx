@@ -43,15 +43,32 @@ export default function EspaceLocataire() {
   const [contrats, setContrats] = useState<Contrat[]>([])
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
+  const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, propositions: 0 })
 
   useEffect(() => {
     if (!jeton) return
     let actif = true
     setChargement(true)
-    appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton })
-      .then(liste => { if (actif) setContrats(liste) })
-      .catch(e => { if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de charger vos locations.') })
-      .finally(() => { if (actif) setChargement(false) })
+    Promise.allSettled([
+      appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/visites/mes-demandes', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/reservations/mes-demandes', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/offres/envoyees', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/offres-location/envoyees', { token: jeton }),
+    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult]) => {
+      if (!actif) return
+      if (contratsResult.status === 'fulfilled') setContrats(contratsResult.value)
+      else setErreur(contratsResult.reason instanceof ApiError ? contratsResult.reason.message : 'Impossible de charger vos locations.')
+      const visites = visitesResult.status === 'fulfilled' ? visitesResult.value : []
+      const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
+      const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
+      const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
+      setSuivi({
+        visites: visites.filter(x => x.statut === 'EN_ATTENTE' || x.statut === 'PROPOSEE').length,
+        reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
+        propositions: [...achats, ...loyers].filter(x => x.statut === 'EN_ATTENTE').length,
+      })
+    }).finally(() => { if (actif) setChargement(false) })
     return () => { actif = false }
   }, [jeton])
 
@@ -67,6 +84,11 @@ export default function EspaceLocataire() {
       <p className="text-xs font-bold uppercase tracking-widest text-dore-300">Espace personnel · Locataire</p>
       <h1 className="mt-2 text-3xl font-bold">Bonjour {utilisateur?.nomComplet || ''}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">Retrouvez au même endroit vos démarches avant la location, le suivi de vos contrats, vos échanges avec le propriétaire ou l’agence et les formalités de départ.</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Visites en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.visites}</p></div>
+        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Réservations en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.reservations}</p></div>
+        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Propositions sans réponse</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.propositions}</p></div>
+      </div>
       <div className="mt-5 flex flex-wrap gap-3">
         <Link to="/catalogue?transaction=LOCATION" className="rounded-full bg-dore-300 px-5 py-2.5 text-sm font-bold text-nuit-900 hover:bg-dore-200">Trouver un logement</Link>
         <Link to="/messagerie" className="rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Ouvrir la messagerie</Link>
