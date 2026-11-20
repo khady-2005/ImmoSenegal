@@ -124,7 +124,7 @@ export default function EspaceLocataire() {
       {chargement ? <p className="mt-3 text-sm text-slate-500">Chargement de vos contrats…</p> : actifs.length === 0 ?
         <p className="mt-3 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucune location active pour le moment. Vos futurs contrats apparaîtront ici après leur création par le propriétaire.</p> :
         <div className="mt-4 grid gap-3 sm:grid-cols-2">{actifs.map(c => <article key={c.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-          <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="font-bold text-nuit-900">{c.annonceTitre}</h3><span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">{libelleEtat[c.etat] || c.etat}</span></div>
+          <div className="flex flex-wrap items-start justify-between gap-2"><h3 className="font-bold text-nuit-900">{c.annonceTitre}</h3><span className="rounded-full bg-dore-100 px-3 py-1 text-xs font-semibold text-nuit-900">{libelleEtat[c.etat] || c.etat}</span></div>
           <p className="mt-3 text-sm text-slate-600">Propriétaire : <strong className="text-slate-800">{c.proprietaireNom}</strong></p>
           <p className="mt-1 text-sm text-slate-600">Loyer mensuel : <strong className="text-slate-800">{monnaie(c.loyerMensuel)}</strong></p>
           <p className="mt-1 text-sm text-slate-600">Dépôt de garantie : <strong className="text-slate-800">{monnaie(c.depotGarantie)}</strong></p>
