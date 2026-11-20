@@ -66,9 +66,11 @@ class ModerationTest extends AbstractApiTest {
         Map<String, Object> donnees = annonce("Villa publiée directement");
         String id = creer(proprio, donnees);
 
-        mvc.perform(get("/api/annonces?ville=Ziguinchor"))
+        mvc.perform(get("/api/annonces?quartier=" + donnees.get("quartier")))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.contenu[?(@.id == '" + id + "')].statut").value("PUBLIEE"));
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.contenu[0].id").value(id))
+            .andExpect(jsonPath("$.contenu[0].statut").value("PUBLIEE"));
 
         mvc.perform(get("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(proprio)))
             .andExpect(status().isOk())
