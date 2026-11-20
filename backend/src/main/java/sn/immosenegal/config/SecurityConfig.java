@@ -44,6 +44,7 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health", "/api/ping").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/assistant/conversation").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/abonnements/paydunya/callback").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login",
                     "/api/auth/refresh", "/api/auth/logout",
