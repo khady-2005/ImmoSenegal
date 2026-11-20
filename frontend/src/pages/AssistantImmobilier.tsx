@@ -106,8 +106,20 @@ export default function AssistantImmobilier() {
     let reponse: string
     if (/\b(bonjour|salut|bonsoir)\b/.test(bas) && changements.length === 0) {
       reponse = "Bonjour ! Je peux vous accompagner pour louer ou acheter un logement au Sénégal. Décrivez-moi votre projet avec vos mots."
-    } else if (/conseil|dossier|document|contrat|visite|arnaque|frais/.test(bas)) {
-      reponse = "Voici quelques précautions utiles : visitez le logement, vérifiez l’identité de votre interlocuteur et demandez un document écrit indiquant le prix, les frais et les conditions. Ne versez pas d’argent avant d’avoir vérifié l’annonce et les documents. Pour une question juridique précise, demandez l’avis d’un professionnel."
+    } else if (/mot de passe|mot de passe oublie|connexion|compte bloque/.test(bas)) {
+      reponse = "Pour récupérer votre compte, ouvrez « Connexion », puis « Mot de passe oublié ? ». Vous recevrez un lien temporaire par e-mail si votre compte est actif. Pensez à vérifier les courriers indésirables."
+    } else if (/resiliation|resilier|fin du contrat/.test(bas)) {
+      reponse = "Pour demander la résiliation, ouvrez « Mes contrats de location », sélectionnez le contrat actif et envoyez une demande avec un motif et une date souhaitée. L’autre partie doit répondre. En cas de désaccord, vous pouvez signaler un incident ou demander un suivi à l’administration."
+    } else if (/litige|desaccord|incident|reparation|probleme dans le logement/.test(bas)) {
+      reponse = "Pendant une location, ouvrez « Incidents et réparations » pour décrire le problème. L’autre partie sera notifiée et pourra suivre son traitement. L’administration dispose aussi d’un espace de supervision des dossiers."
+    } else if (/abonnement|publier|publication|commission|mandat|agence/.test(bas)) {
+      reponse = "Un propriétaire peut publier avec un abonnement actif. S’il confie plutôt le bien à ImmoSénégal ou à une agence et que le mandat est accepté, il n’a pas besoin d’abonnement pour ce bien. Le taux de commission mensuel doit être convenu et enregistré dans le mandat avant son acceptation."
+    } else if (/paiement|loyer|payer/.test(bas)) {
+      reponse = "Dans « Mes contrats de location », les parties peuvent déclarer les paiements de loyer et consulter leur historique. Une déclaration de paiement n’est pas une confirmation bancaire : vérifiez toujours le règlement avec l’autre partie."
+    } else if (/visite|visiter/.test(bas)) {
+      reponse = "Ouvrez la fiche du logement dans le catalogue et envoyez une demande de visite. Le propriétaire ou l’agence chargée du bien pourra la consulter et vous répondre."
+    } else if (/conseil|dossier|document|arnaque|frais/.test(bas)) {
+      reponse = "Quelques précautions utiles : visitez le logement, vérifiez l’identité de votre interlocuteur et demandez un document écrit indiquant le prix, les frais et les conditions. Ne versez pas d’argent avant d’avoir vérifié l’annonce et les documents. Pour une question juridique précise, demandez l’avis d’un professionnel."
     } else if (/\bmerci\b/.test(bas) && changements.length === 0) {
       reponse = "Avec plaisir ! Vous pouvez me décrire votre recherche, même en une seule phrase."
     } else {
