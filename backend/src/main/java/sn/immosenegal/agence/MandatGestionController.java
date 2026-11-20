@@ -2,12 +2,15 @@ package sn.immosenegal.agence;
 
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.DecimalMax;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +65,14 @@ public class MandatGestionController {
         return service.mesPropositions(acteur);
     }
 
+    @PatchMapping("/mandats/{mandatId}/commission")
+    @Operation(summary = "Proposer le taux de commission mensuel du mandat")
+    public MandatGestionService.MandatResume definirTauxCommission(@PathVariable UUID mandatId,
+            @Valid @RequestBody CommissionRequest request,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.definirTauxCommission(mandatId, request.tauxCommissionMensuel(), acteur);
+    }
+
     @PostMapping("/mandats/{mandatId}/reponse")
     public MandatGestionService.MandatResume repondre(@PathVariable UUID mandatId,
             @Valid @RequestBody ReponseRequest request,
@@ -86,4 +97,5 @@ public class MandatGestionController {
 
     public record PropositionRequest(@NotNull UUID annonceId) {}
     public record ReponseRequest(@NotNull Boolean accepter) {}
+    public record CommissionRequest(@NotNull @DecimalMin("0.01") @DecimalMax("100.00") BigDecimal tauxCommissionMensuel) {}
 }
