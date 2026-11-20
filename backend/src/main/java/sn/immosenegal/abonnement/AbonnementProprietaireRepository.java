@@ -9,4 +9,5 @@ public interface AbonnementProprietaireRepository extends JpaRepository<Abonneme
     List<AbonnementProprietaire> findAllByProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     Optional<AbonnementProprietaire> findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(UUID proprietaireId, StatutAbonnement statut);
     List<AbonnementProprietaire> findAllByStatutOrderByCreeLeAsc(StatutAbonnement statut);
+    Optional<AbonnementProprietaire> findByPaydunyaToken(String paydunyaToken);
 }
