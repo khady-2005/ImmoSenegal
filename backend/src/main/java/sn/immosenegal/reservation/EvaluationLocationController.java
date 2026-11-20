@@ -17,8 +17,6 @@ import sn.immosenegal.security.AuthenticatedUser;
 public class EvaluationLocationController {
     private final EvaluationLocationService service;
     public EvaluationLocationController(EvaluationLocationService service){this.service=service;}
-    @GetMapping("/mon-resume")
-    public EvaluationLocationService.ResumeProfil monResume(@AuthenticationPrincipal AuthenticatedUser acteur){return service.monResume(acteur);}
     @GetMapping public List<EvaluationLocationService.EvaluationResume> lister(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser acteur){return service.lister(contratId,acteur);}
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     public EvaluationLocationService.EvaluationResume creer(@PathVariable UUID contratId,@Valid @RequestBody Requete q,@AuthenticationPrincipal AuthenticatedUser acteur){return service.creer(contratId,new EvaluationLocationService.CreationEvaluation(q.note(),q.commentaire()),acteur);}
