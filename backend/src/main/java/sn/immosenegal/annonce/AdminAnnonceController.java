@@ -45,7 +45,7 @@ public class AdminAnnonceController {
     }
 
     @PostMapping("/{id}/valider")
-    @Operation(summary = "Valider : l'annonce devient PUBLIEE (depuis EN_ATTENTE ou SUSPENDUE)")
+    @Operation(summary = "Réactiver une annonce suspendue ; les annonces expirées nécessitent un abonnement ou un mandat accepté")
     public AnnonceResponse valider(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser admin) {
         return service.moderer(id, admin, ActionModeration.VALIDER, null);
     }
