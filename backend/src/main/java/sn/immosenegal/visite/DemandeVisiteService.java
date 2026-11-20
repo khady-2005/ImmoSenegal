@@ -78,14 +78,14 @@ public class DemandeVisiteService {
         if (acteur.role() == Role.ADMIN) return toutes(acteur);
         if (acteur.role() == Role.PROPRIETAIRE)
             return demandes.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(DemandeVisiteResponse::de).toList();
-        java.util.Map<UUID, DemandeVisite> uniques = new java.util.LinkedHashMap<>();
-        membres.findAllByUtilisateurId(acteur.id()).stream()
+        java.util.List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .forEach(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(m.getAgence().getId(), StatutMandatGestion.ACCEPTE)
-                .forEach(g -> demandes.findAllByAgenceMandatAccepte(m.getAgence().getId()).stream()
-                    .filter(d -> d.getAnnonce().getId().equals(g.getAnnonce().getId()))
-                    .forEach(d -> uniques.put(d.getId(), d))));
-        return uniques.values().stream().map(DemandeVisiteResponse::de).toList();
+            .flatMap(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+                m.getAgence().getId(), StatutMandatGestion.ACCEPTE).stream())
+            .map(g -> g.getAnnonce().getId()).distinct().toList();
+        if (annoncesGerees.isEmpty()) return List.of();
+        return demandes.findAllByAnnonceIdInOrderByCreeLeDesc(annoncesGerees)
+            .stream().map(DemandeVisiteResponse::de).toList();
     }
 
     @Transactional(readOnly = true)
