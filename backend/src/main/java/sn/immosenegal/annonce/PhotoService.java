@@ -2,6 +2,8 @@ package sn.immosenegal.annonce;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.List;
+import java.util.HashSet;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -66,6 +68,25 @@ public class PhotoService {
         PhotoAnnonce photo = photos.save(new PhotoAnnonce(annonceId, propre.octets(), propre.typeMime(), photos.ordreMax(annonceId) + 1));
         audit.enregistrer("PHOTO_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return photo.getId();
+    }
+
+    @Transactional
+    public void reordonner(UUID annonceId, AuthenticatedUser auteur, List<UUID> ordre) {
+        annonces.annonceModifiable(annonceId, auteur);
+        if (ordre == null || ordre.size() != photos.countByAnnonceId(annonceId)
+                || ordre.size() > PHOTOS_MAX || new HashSet<>(ordre).size() != ordre.size()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La liste des photos est invalide.");
+        }
+        List<PhotoAnnonce> existantes = photos.findAllByAnnonceIdOrderByOrdreAscCreeLeAsc(annonceId);
+        var parId = existantes.stream().collect(java.util.stream.Collectors.toMap(PhotoAnnonce::getId, p -> p));
+        if (!parId.keySet().equals(new HashSet<>(ordre))) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "La liste doit contenir exactement les photos de cette annonce.");
+        }
+        for (int i = 0; i < ordre.size(); i++) {
+            parId.get(ordre.get(i)).setOrdre(i + 1);
+        }
+        photos.saveAll(existantes);
+        audit.enregistrer("PHOTOS_REORDONNEES", auteur.id(), "Ordre des photos modifié pour l’annonce " + annonceId);
     }
 
     @Transactional(readOnly = true)
