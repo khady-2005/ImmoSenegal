@@ -84,10 +84,11 @@ public class AnnonceService {
         }
         Annonce annonce = new Annonce(proprietaire);
         appliquer(annonce, requete);
-        // Le statut demandé par le client est ignoré : toute nouvelle annonce attend la validation d'un administrateur.
-        annonce.setStatut(StatutAnnonce.EN_ATTENTE);
+        // Publication immédiate : le propriétaire reste autonome pour ses annonces ordinaires.
+        // Les administrateurs conservent les outils de signalement, suspension et modération a posteriori.
+        annonce.setStatut(StatutAnnonce.PUBLIEE);
         annonces.save(annonce);
-        audit.enregistrer("ANNONCE_CREEE", auteur.id(), "Annonce " + annonce.getId() + " (en attente de validation)");
+        audit.enregistrer("ANNONCE_CREEE", auteur.id(), "Annonce " + annonce.getId() + " publiée directement par son propriétaire");
         return AnnonceResponse.pourGestion(annonce, List.of());
     }
 
