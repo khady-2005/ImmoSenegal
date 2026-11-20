@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/annonces/mes-annonces").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/annonces").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/annonces/*/avis").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/agence/*/evaluations").permitAll()
                 // Les fiches publiques ne révèlent que les annonces publiées ; les autres statuts restent protégés dans le service.
                 .requestMatchers(HttpMethod.GET, "/api/annonces/*/photos/*", "/api/annonces/*/video", "/api/annonces/*/video/info").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/annonces/*").permitAll()
