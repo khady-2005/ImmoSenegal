@@ -148,11 +148,12 @@ public class ReservationService {
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
         java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
             annonce.getId(), StatutMandatGestion.ACCEPTE);
-        if (actifs.isEmpty()) {
-            notifications.creer(annonce.getProprietaire(), type, titre, message, "/reservations-recues");
-            return;
-        }
+        // Le propriétaire conserve toujours une visibilité sur les demandes, même lorsqu'il délègue la gestion.
         java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
+        User proprietaire = annonce.getProprietaire();
+        if (proprietaire != null && dejaNotifies.add(proprietaire.getId())) {
+            notifications.creer(proprietaire, type, titre, message, "/reservations-recues");
+        }
         for (MandatGestion mandat : actifs) {
             membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
                 .forEach(m -> {
