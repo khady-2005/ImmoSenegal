@@ -48,6 +48,13 @@ public class SuiviDepotGarantie {
     public String getCommentaireLocataire() { return commentaireLocataire; }
     public Instant getDecideLe() { return decideLe; }
     public Instant getCreeLe() { return creeLe; }
+    public void reproposer(BigDecimal restitue, BigDecimal retenu, String motif) {
+        this.montantRestitue = restitue;
+        this.montantRetenu = retenu;
+        this.motifRetenue = motif;
+        this.statut = StatutDepotGarantie.A_CONFIRMER;
+        this.decideLe = null;
+    }
     public void decider(boolean accepter, String commentaire) {
         statut = accepter ? StatutDepotGarantie.CONFIRME : StatutDepotGarantie.CONTESTE;
         commentaireLocataire = commentaire;
