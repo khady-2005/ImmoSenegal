@@ -4,7 +4,8 @@ import { useAuth } from '../auth'
 
 type Demande = {
   id: string; forfait: 'MENSUEL' | 'TRIMESTRIEL' | 'ANNUEL'; montant: number;
-  modePaiement: string; referencePaiement: string | null; note: string | null; creeLe: string
+  modePaiement: string; referencePaiement: string | null; note: string | null; creeLe: string;
+  proprietaireNom: string; proprietaireEmail: string | null; proprietaireTelephone: string | null
 }
 const monnaie = (n: number) => Number(n).toLocaleString('fr-FR') + ' FCFA'
 
@@ -48,6 +49,12 @@ export default function AdminAbonnements() {
     {chargement ? <p className="mt-6 text-sm text-slate-500">Chargement…</p> : demandes.length === 0 ? <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-600">Aucune demande d’abonnement en attente.</p> :
       <div className="mt-6 space-y-4">{demandes.map(d => <article key={d.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-nuit-900">{d.forfait} · {monnaie(d.montant)}</h2><p className="mt-1 text-xs text-slate-500">Demande du {new Date(d.creeLe).toLocaleString('fr-FR')}</p></div><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">À vérifier</span></div>
+        <div className="mt-4 rounded-xl bg-slate-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Propriétaire demandeur</p>
+          <p className="mt-1 font-semibold text-nuit-900">{d.proprietaireNom}</p>
+          {d.proprietaireEmail && <p className="mt-1 text-sm text-slate-600">E-mail : {d.proprietaireEmail}</p>}
+          {d.proprietaireTelephone && <p className="mt-1 text-sm text-slate-600">Téléphone : {d.proprietaireTelephone}</p>}
+        </div>
         <p className="mt-3 text-sm text-slate-700">Mode déclaré : <strong>{d.modePaiement}</strong></p>
         <p className="mt-1 text-sm text-slate-700">Référence : <strong>{d.referencePaiement || 'Non renseignée'}</strong></p>
         {d.note && <p className="mt-2 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">{d.note}</p>}
