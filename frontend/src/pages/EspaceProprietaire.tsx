@@ -135,6 +135,51 @@ export default function EspaceProprietaire() {
     </section>
 
     <section className="mt-9">
+      <div>
+        <h2 className="text-xl font-bold text-nuit-900">Mandats confiés aux agences</h2>
+        <p className="mt-1 text-sm text-slate-600">Suivez les propositions de gestion et les demandes de résiliation de vos biens.</p>
+      </div>
+      {chargement ? <p className="mt-4 text-sm text-slate-500">Chargement des mandats…</p> : mandats.length === 0 ? (
+        <p className="mt-4 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun mandat de gestion pour le moment. Vous pourrez retrouver ici les propositions des agences et vos demandes.</p>
+      ) : (
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {mandats.map(m => {
+            const enAttenteAgence = m.statut === 'EN_ATTENTE' && m.origine === 'INITIATIVE_PROPRIETAIRE'
+            const propositionAgence = m.statut === 'EN_ATTENTE' && m.origine === 'INITIATIVE_AGENCE'
+            const reponseResiliationPossible = m.statut === 'RESILIATION_DEMANDEE' && m.resiliationDemandeeParId !== utilisateur?.id
+            const statutLabel: Record<string, string> = {
+              EN_ATTENTE: enAttenteAgence ? 'En attente de réponse de l’agence' : 'Proposition à examiner',
+              ACCEPTE: 'Mandat actif',
+              REFUSE: 'Proposition refusée',
+              RESILIATION_DEMANDEE: 'Résiliation en attente de votre réponse',
+              RESILIE: 'Mandat résilié',
+            }
+            return <article key={m.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h3 className="font-bold text-nuit-900">{m.annonceTitre}</h3>
+                <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">{statutLabel[m.statut] || m.statut}</span>
+              </div>
+              <p className="mt-2 text-sm text-slate-600">Agence : <strong className="text-slate-800">{m.agenceNom}</strong></p>
+              <p className="mt-1 text-sm text-slate-600">Bien situé à {m.ville}</p>
+              {propositionAgence && <div className="mt-4 flex flex-wrap gap-2">
+                <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'accepter-proposition')} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Accepter</button>
+                <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'refuser-proposition')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">Refuser</button>
+              </div>}
+              {m.statut === 'ACCEPTE' && <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'resilier')} className="mt-4 rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">Demander la résiliation</button>}
+              {m.statut === 'RESILIATION_DEMANDEE' && (reponseResiliationPossible ? <div className="mt-4">
+                <p className="text-sm text-slate-600">L’autre partie demande la fin du mandat. Vous devez répondre.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'accepter')} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Confirmer la résiliation</button>
+                  <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'refuser')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">Refuser</button>
+                </div>
+              </div> : <p className="mt-3 text-sm text-slate-600">Votre demande de résiliation a été envoyée. En attente de la réponse de l’agence.</p>)}
+            </article>
+          })}
+        </div>
+      )}
+    </section>
+
+    <section className="mt-9">
       <div className="flex flex-wrap items-end justify-between gap-2"><div><h2 className="text-xl font-bold text-nuit-900">Portefeuille locatif</h2><p className="mt-1 text-sm text-slate-600">Les logements actuellement associés à un contrat.</p></div><Link to="/mes-contrats-location" className="text-sm font-semibold text-amber-800 underline">Voir tous les contrats</Link></div>
       {chargement ? <p className="mt-4 text-sm text-slate-500">Chargement du portefeuille…</p> : contrats.length === 0 ?
         <p className="mt-4 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucun contrat de location en cours. Les contrats apparaîtront ici après acceptation d’une réservation et création du contrat.</p> :
