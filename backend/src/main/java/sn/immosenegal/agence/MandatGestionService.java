@@ -162,8 +162,15 @@ public class MandatGestionService {
         User demandeur = utilisateurActeur(acteur);
         try { mandat.demanderResiliation(demandeur); }
         catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
-        User autrePartie = proprietaire ? mandat.getProposePar() : mandat.getProprietaire();
-        if (autrePartie.getId().equals(demandeur.getId())) autrePartie = mandat.getProprietaire();
+        User autrePartie;
+        if (proprietaire) {
+            autrePartie = membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
+                .stream().filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .map(MembreAgence::getUtilisateur).findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Aucun responsable actif dans cette agence."));
+        } else {
+            autrePartie = mandat.getProprietaire();
+        }
         notifications.creer(autrePartie, "DEMANDE_RESILIATION_MANDAT",
             "Demande de résiliation du mandat",
             demandeur.getNomComplet() + " demande la fin du mandat concernant : " + mandat.getAnnonce().getTitre(),
@@ -186,9 +193,9 @@ public class MandatGestionService {
         if (!proprietaire && !responsable && !acteur.role().name().equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé à répondre.");
         }
+        User demandeur = mandat.getResiliationDemandeePar();
         try { mandat.deciderResiliation(accepter); }
         catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
-        User demandeur = mandat.getResiliationDemandeePar();
         if (demandeur != null) notifications.creer(demandeur, "REPONSE_RESILIATION_MANDAT",
             accepter ? "Résiliation confirmée" : "Résiliation refusée",
             accepter ? "Le mandat concernant " + mandat.getAnnonce().getTitre() + " est terminé."
