@@ -69,6 +69,21 @@ public class MandatGestionController {
         return service.repondre(mandatId, request.accepter(), acteur);
     }
 
+    @PostMapping("/mandats/{mandatId}/resiliation")
+    @Operation(summary = "Demander la résiliation concertée d'un mandat")
+    public MandatGestionService.MandatResume demanderResiliation(@PathVariable UUID mandatId,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.demanderResiliation(mandatId, acteur);
+    }
+
+    @PostMapping("/mandats/{mandatId}/resiliation/reponse")
+    @Operation(summary = "Accepter ou refuser une demande de résiliation")
+    public MandatGestionService.MandatResume repondreResiliation(@PathVariable UUID mandatId,
+            @Valid @RequestBody ReponseRequest request,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.repondreResiliation(mandatId, request.accepter(), acteur);
+    }
+
     public record PropositionRequest(@NotNull UUID annonceId) {}
     public record ReponseRequest(@NotNull Boolean accepter) {}
 }
