@@ -27,6 +27,13 @@ public class EvaluationLocationService {
         ContratLocation contrat=contrat(contratId); verifierParticipant(contrat,acteur);
         return evaluations.findAllByContratIdOrderByCreeLeDesc(contratId).stream().map(this::resume).toList();
     }
+    @Transactional(readOnly = true)
+    public ResumeProfil monResume(AuthenticatedUser acteur) {
+        if (acteur == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide.");
+        List<EvaluationLocation> recues = evaluations.findAllByEvalueIdOrderByCreeLeDesc(acteur.id());
+        double moyenne = recues.stream().mapToInt(EvaluationLocation::getNote).average().orElse(0.0);
+        return new ResumeProfil(java.math.BigDecimal.valueOf(moyenne).setScale(1, java.math.RoundingMode.HALF_UP), recues.size());
+    }
     public EvaluationResume creer(UUID contratId, CreationEvaluation q, AuthenticatedUser acteur) {
         ContratLocation contrat=contrat(contratId); verifierParticipant(contrat,acteur);
         if (contrat.getEtat()!=EtatContratLocation.TERMINE && contrat.getEtat()!=EtatContratLocation.RESILIE)
@@ -44,6 +51,6 @@ public class EvaluationLocationService {
     private ContratLocation contrat(UUID id){return contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));}
     private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(a==null||(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id())))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
     private EvaluationResume resume(EvaluationLocation e){return new EvaluationResume(e.getId(),e.getContrat().getId(),e.getAuteur().getNomComplet(),e.getEvalue().getNomComplet(),e.getNote(),e.getCommentaire(),e.getCreeLe());}
-    public record CreationEvaluation(int note,String commentaire){}
+    public record ResumeProfil(java.math.BigDecimal moyenne, long nombreAvis){}\n    public record CreationEvaluation(int note,String commentaire){}
     public record EvaluationResume(UUID id,UUID contratId,String auteurNom,String evalueNom,int note,String commentaire,java.time.Instant creeLe){}
 }
