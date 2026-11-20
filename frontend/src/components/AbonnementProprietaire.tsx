@@ -52,7 +52,7 @@ export default function AbonnementProprietaire() {
       if (!actif) return
       if (resultat.status === 'completed') setMessage('Paiement confirmé. Votre abonnement est maintenant actif.')
       else if (resultat.status === 'cancelled') setMessage('Le paiement a été annulé. Vous pouvez recommencer.')
-      else setMessage('Paiement en attente de confirmation. Votre historique sera actualisé automatiquement.')
+      else setMessage('Paiement en attente de confirmation. Consultez votre historique dans quelques instants.')
       void charger()
     }).catch(e => {
       if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de vérifier le paiement pour le moment.')
