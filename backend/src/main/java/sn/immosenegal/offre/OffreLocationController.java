@@ -30,6 +30,11 @@ public class OffreLocationController {
     public List<OffreLocationResponse> recues(@AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.recues(acteur);
     }
+    @GetMapping("/toutes")
+    public List<OffreLocationResponse> toutes(@AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.toutes(acteur);
+    }
+
     @PostMapping("/{id}/decision")
     public OffreLocationResponse decider(@PathVariable UUID id, @Valid @RequestBody DecisionLocationRequest req,
             @AuthenticationPrincipal AuthenticatedUser acteur) {

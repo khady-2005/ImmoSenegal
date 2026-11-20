@@ -13,6 +13,7 @@ public class OffreAchatController {
  @PostMapping("/annonces/{annonceId}") public ResponseEntity<OffreAchatResponse> creer(@PathVariable UUID annonceId,@Valid @RequestBody CreerOffreRequest r,@AuthenticationPrincipal AuthenticatedUser a){return ResponseEntity.status(HttpStatus.CREATED).body(service.creer(annonceId,r,a));}
  @GetMapping("/envoyees") public List<OffreAchatResponse> envoyees(@AuthenticationPrincipal AuthenticatedUser a){return service.envoyees(a);}
  @GetMapping("/recues") public List<OffreAchatResponse> recues(@AuthenticationPrincipal AuthenticatedUser a){return service.recues(a);}
+ @GetMapping("/toutes") public List<OffreAchatResponse> toutes(@AuthenticationPrincipal AuthenticatedUser a){return service.toutes(a);}
  @PostMapping("/{id}/decision") public OffreAchatResponse decider(@PathVariable UUID id,@Valid @RequestBody DecisionOffreRequest r,@AuthenticationPrincipal AuthenticatedUser a){return service.decider(id,r,a);}
  @PostMapping("/{id}/annuler") public ResponseEntity<Void> annuler(@PathVariable UUID id,@AuthenticationPrincipal AuthenticatedUser a){service.annuler(id,a);return ResponseEntity.noContent().build();}
 }

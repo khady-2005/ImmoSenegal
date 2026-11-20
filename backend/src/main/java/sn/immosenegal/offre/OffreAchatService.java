@@ -27,6 +27,10 @@ public class OffreAchatService {
  }
  @Transactional(readOnly=true) public List<OffreAchatResponse> envoyees(AuthenticatedUser a){exiger(a,Role.CLIENT);return offres.findByAcheteurIdOrderByCreeLeDesc(a.id()).stream().map(OffreAchatResponse::de).toList();}
  @Transactional(readOnly=true) public List<OffreAchatResponse> recues(AuthenticatedUser a){exiger(a,Role.PROPRIETAIRE);return offres.findByAnnonceProprietaireIdOrderByCreeLeDesc(a.id()).stream().map(OffreAchatResponse::de).toList();}
+ @Transactional(readOnly=true) public List<OffreAchatResponse> toutes(AuthenticatedUser a){
+  exiger(a,Role.ADMIN);
+  return offres.findAllByOrderByCreeLeDesc().stream().map(OffreAchatResponse::de).toList();
+ }
  @Transactional public OffreAchatResponse decider(UUID id,DecisionOffreRequest req,AuthenticatedUser a){
   exiger(a,Role.PROPRIETAIRE);OffreAchat o=trouver(id);
   if(!o.getAnnonce().getProprietaire().getId().equals(a.id()))throw new ApiException(HttpStatus.FORBIDDEN,"Cette offre ne concerne pas vos annonces.");

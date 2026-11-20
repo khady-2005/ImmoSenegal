@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OffreLocationRepository extends JpaRepository<OffreLocation, UUID> {
     List<OffreLocation> findByLocataireIdOrderByCreeLeDesc(UUID locataireId);
+    List<OffreLocation> findAllByOrderByCreeLeDesc();
     List<OffreLocation> findByAnnonceProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     List<OffreLocation> findByAnnonceIdInOrderByCreeLeDesc(List<UUID> annonceIds);
     boolean existsByAnnonceIdAndLocataireIdAndStatut(UUID annonceId, UUID locataireId, StatutOffre statut);

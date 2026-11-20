@@ -4,6 +4,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 public interface OffreAchatRepository extends JpaRepository<OffreAchat, UUID> {
     List<OffreAchat> findByAcheteurIdOrderByCreeLeDesc(UUID acheteurId);
+    List<OffreAchat> findAllByOrderByCreeLeDesc();
     List<OffreAchat> findByAnnonceProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     boolean existsByAnnonceIdAndAcheteurIdAndStatut(UUID annonceId, UUID acheteurId, StatutOffre statut);
 }

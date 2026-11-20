@@ -93,6 +93,13 @@ public class OffreLocationService {
         return uniques.values().stream().map(OffreLocationResponse::de).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<OffreLocationResponse> toutes(AuthenticatedUser acteur) {
+        exiger(acteur, Role.ADMIN);
+        return offres.findAllByOrderByCreeLeDesc().stream()
+            .map(OffreLocationResponse::de).toList();
+    }
+
     @Transactional
     public OffreLocationResponse decider(UUID id, boolean accepter, String reponse, AuthenticatedUser acteur) {
         if (acteur == null) throw new ApiException(HttpStatus.UNAUTHORIZED, "Connexion requise.");

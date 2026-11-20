@@ -22,6 +22,7 @@ export default function OffresImmobilieres() {
   const { utilisateur, jeton } = useAuth()
   const client = utilisateur?.role === 'CLIENT'
   const decideur = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'AGENT'
+  const admin = utilisateur?.role === 'ADMIN'
   const [achats, setAchats] = useState<OffreAchat[]>([])
   const [locations, setLocations] = useState<OffreLocation[]>([])
   const [chargement, setChargement] = useState(true)
@@ -33,7 +34,9 @@ export default function OffresImmobilieres() {
     setChargement(true)
     const chemins = client
       ? ['/api/offres/envoyees', '/api/offres-location/envoyees']
-      : ['/api/offres/recues', '/api/offres-location/recues']
+      : admin
+        ? ['/api/offres/toutes', '/api/offres-location/toutes']
+        : ['/api/offres/recues', '/api/offres-location/recues']
     const [a, l] = await Promise.allSettled([
       appelApi<OffreAchat[]>(chemins[0], { token: jeton }),
       appelApi<OffreLocation[]>(chemins[1], { token: jeton }),
@@ -45,7 +48,7 @@ export default function OffresImmobilieres() {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les offres.')
     } else setErreur('')
     setChargement(false)
-  }, [client, jeton])
+  }, [client, admin, jeton])
 
   useEffect(() => { void charger() }, [charger])
 
@@ -71,18 +74,18 @@ export default function OffresImmobilieres() {
     finally { setActionEnCours(null) }
   }
 
-  if (!client && !decideur) return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires et agents mandatés.</p></main>
+  if (!client && !decideur && !admin) return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Accès non autorisé.</p></main>
 
   const vide = achats.length === 0 && locations.length === 0
   return <main className="mx-auto max-w-5xl px-4 py-10">
     <p className="text-sm font-semibold uppercase tracking-wider text-emeraude-700">Transactions immobilières</p>
-    <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{client ? 'Mes propositions' : 'Propositions reçues'}</h1>
-    <p className="mt-2 mb-7 text-slate-600">{client ? 'Suivez vos offres d’achat et vos propositions de loyer.' : 'Répondez aux offres d’achat et aux propositions de loyer concernant vos biens ou ceux confiés à votre agence.'}</p>
+    <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{client ? 'Mes propositions' : admin ? 'Supervision des propositions' : 'Propositions reçues'}</h1>
+    <p className="mt-2 mb-7 text-slate-600">{client ? 'Suivez vos offres d’achat et vos propositions de loyer.' : admin ? 'Consultez toutes les offres d’achat et propositions de loyer. Les décisions restent réservées aux personnes autorisées.' : 'Répondez aux offres d’achat et aux propositions de loyer concernant vos biens ou ceux confiés à votre agence.'}</p>
     {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
     {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des propositions…</p>}
     {!chargement && vide && <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center"><HandCoins className="mx-auto h-10 w-10 text-emeraude-700"/><h2 className="mt-3 font-semibold text-nuit-900">Aucune proposition pour le moment</h2><p className="mt-1 text-sm text-slate-600">Vos propositions apparaîtront ici.</p></div>}
 
-    {achats.length > 0 && <section className="mb-10"><h2 className="mb-4 text-xl font-semibold text-nuit-900">{client ? 'Offres d’achat envoyées' : 'Offres d’achat reçues'}</h2><div className="space-y-4">{achats.map(o => <article key={o.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    {achats.length > 0 && <section className="mb-10"><h2 className="mb-4 text-xl font-semibold text-nuit-900">{client ? 'Offres d’achat envoyées' : admin ? 'Toutes les offres d’achat' : 'Offres d’achat reçues'}</h2><div className="space-y-4">{achats.map(o => <article key={o.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-lg font-semibold text-nuit-900">{o.annonceTitre}</h3><p className="mt-1 text-sm text-slate-600">{o.quartier}, {o.ville}</p></div><span className={'rounded-full px-3 py-1 text-xs font-semibold '+statutStyle(o.statut)}>{libelles[o.statut]}</span></div>
       <div className="mt-4 grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-2"><div><p className="text-xs text-slate-500">Prix affiché</p><p className="font-semibold text-nuit-900">{formatFcfa(o.prixAnnonce)}</p></div><div><p className="text-xs text-slate-500">Offre d’achat</p><p className="text-lg font-bold text-emeraude-800">{formatFcfa(o.montantPropose)}</p></div></div>
       <p className="mt-3 text-sm text-slate-600">{client ? 'Propriétaire' : 'Acheteur'} : <strong>{client ? o.proprietaireNom : o.acheteurNom}</strong></p>
@@ -93,7 +96,7 @@ export default function OffresImmobilieres() {
       <p className="mt-4 text-xs text-slate-500">L’acceptation ne remplace pas la signature d’un acte de vente et ne déclenche aucun paiement.</p>
     </article>)}</div></section>}
 
-    {locations.length > 0 && <section><h2 className="mb-4 text-xl font-semibold text-nuit-900">{client ? 'Propositions de loyer envoyées' : 'Propositions de loyer reçues'}</h2><div className="space-y-4">{locations.map(o => <article key={o.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    {locations.length > 0 && <section><h2 className="mb-4 text-xl font-semibold text-nuit-900">{client ? 'Propositions de loyer envoyées' : admin ? 'Toutes les propositions de loyer' : 'Propositions de loyer reçues'}</h2><div className="space-y-4">{locations.map(o => <article key={o.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-lg font-semibold text-nuit-900">{o.annonceTitre}</h3><p className="mt-1 text-sm text-slate-600">{o.quartier}, {o.ville}</p></div><span className={'rounded-full px-3 py-1 text-xs font-semibold '+statutStyle(o.statut)}>{libelles[o.statut]}</span></div>
       <div className="mt-4 grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-2"><div><p className="text-xs text-slate-500">Loyer affiché / mois</p><p className="font-semibold text-nuit-900">{formatFcfa(o.loyerAffiche)}</p></div><div><p className="text-xs text-slate-500">Loyer proposé / mois</p><p className="text-lg font-bold text-emeraude-800">{formatFcfa(o.loyerPropose)}</p></div></div>
       <p className="mt-3 text-sm text-slate-600">{client ? 'Propriétaire' : 'Candidat locataire'} : <strong>{client ? o.proprietaireNom : o.locataireNom}</strong></p>
