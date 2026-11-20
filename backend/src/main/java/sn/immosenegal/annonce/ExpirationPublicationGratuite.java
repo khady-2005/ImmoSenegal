@@ -87,6 +87,6 @@ public class ExpirationPublicationGratuite {
     }
 
     private static String lien(Annonce annonce) {
-        return "/mes-annonces/" + annonce.getId();
+        return "/mes-annonces?annonceId=" + annonce.getId();
     }
 }
