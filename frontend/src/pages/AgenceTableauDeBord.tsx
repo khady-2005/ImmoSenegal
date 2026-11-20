@@ -92,13 +92,13 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe, demandes, catalogue, demandesEquipe] = await Promise.all([
+      const [espaces, equipe, demandes, catalogue, demandesEquipe, relevéCommissions] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=50', { token: jeton }),
         appelApi<Candidature[]>(`/api/agence/${agenceId}/candidatures`, { token: jeton }),
-        appelApi<CommissionLocation[]>(`/api/agence/${agenceId}/commissions`, { token: jeton }),
+        appelApi<CommissionLocation[]>(`/api/locations/agence/${agenceId}/commissions`, { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
