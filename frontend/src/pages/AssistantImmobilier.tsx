@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Bot, Search, Sparkles } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
+import { useAuth } from '../auth'
 import AnnonceCard from '../components/AnnonceCard'
 import type { Annonce, PagePaginee, TypeBien, TypeTransaction } from '../types'
 
@@ -27,6 +28,7 @@ const initial: Criteres = {
 }
 
 export default function AssistantImmobilier() {
+  const { jeton } = useAuth()
   const [criteres, setCriteres] = useState<Criteres>(initial)
   const [annonces, setAnnonces] = useState<Annonce[]>([])
   const [rechercheFaite, setRechercheFaite] = useState(false)
@@ -37,7 +39,7 @@ export default function AssistantImmobilier() {
   ])
   const [message, setMessage] = useState('')
 
-  function envoyerMessage(e: FormEvent<HTMLFormElement>) {
+  async function envoyerMessage(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const texte = message.trim()
     if (!texte) return
@@ -143,6 +145,17 @@ export default function AssistantImmobilier() {
       }
     }
 
+    if (jeton) {
+      try {
+        const resultat = await appelApi<{ reponse: string }>('/api/assistant/conversation', {
+          method: 'POST', token: jeton, body: { message: texte },
+        })
+        if (resultat.reponse?.trim()) reponse = resultat.reponse.trim()
+      } catch {
+        // Le mode guidé local reste disponible si la clé IA n'est pas configurée ou si le fournisseur est indisponible.
+      }
+    }
+
     setMessages((anciens) => [...anciens, { role: 'user', content: texte }, { role: 'assistant', content: reponse }])
     setMessage('')
   }
@@ -199,14 +212,14 @@ export default function AssistantImmobilier() {
         </p>
         <div className="mt-5 flex items-center gap-2 text-sm text-[#ffdc72]">
           <Sparkles aria-hidden className="h-4 w-4" />
-          Recherche basée sur les annonces réelles du catalogue
+          Recherche basée sur les annonces réelles du catalogue · réponses IA selon disponibilité
         </div>
       </section>
 
       <section className="mt-8 overflow-hidden rounded-3xl border border-white/70 bg-white/95 shadow-xl backdrop-blur-sm" aria-label="Conversation avec l’assistant immobilier">
         <div className="border-b border-slate-200 bg-slate-50 px-5 py-4 sm:px-7">
           <div className="flex items-center justify-between gap-3">
-            <div><h2 className="font-titre text-xl font-semibold text-[#102b49]">Discutons de votre projet</h2><p className="text-xs text-slate-500">Assistant gratuit · réponses guidées, sans clé API</p></div>
+            <div><h2 className="font-titre text-xl font-semibold text-[#102b49]">Discutons de votre projet</h2><p className="text-xs text-slate-500">Assistant guidé · IA activée si le service est configuré</p></div>
             <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Disponible</span>
           </div>
         </div>
