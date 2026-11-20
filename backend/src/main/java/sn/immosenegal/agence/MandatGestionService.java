@@ -163,8 +163,12 @@ public class MandatGestionService {
         mandat.decider(accepter ? StatutMandatGestion.ACCEPTE : StatutMandatGestion.REFUSE);
         // Un bien enregistré sans abonnement reste invisible jusqu'à l'accord de l'agence.
         // L'acceptation du mandat autorise alors sa publication sans abonnement propriétaire.
-        if (accepter && mandat.getAnnonce().getStatut() == StatutAnnonce.EN_ATTENTE) {
-            mandat.getAnnonce().setStatut(StatutAnnonce.PUBLIEE);
+        if (accepter) {
+            // Un mandat accepté prend le relais de l'abonnement et couvre la publication du bien.
+            mandat.getAnnonce().setDateFinGratuite(null);
+            if (mandat.getAnnonce().getStatut() == StatutAnnonce.EN_ATTENTE) {
+                mandat.getAnnonce().setStatut(StatutAnnonce.PUBLIEE);
+            }
         }
         String decision = accepter ? "acceptée" : "refusée";
         User destinataire = mandat.getProposePar();
@@ -238,7 +242,13 @@ public class MandatGestionService {
                 .filter(a -> a.getDateFin() != null
                     && !a.getDateFin().isBefore(java.time.LocalDate.now()))
                 .isPresent();
-            if (!abonnementActif) {
+            if (abonnementActif) {
+                abonnements.findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
+                    mandat.getProprietaire().getId(), StatutAbonnement.ACTIF)
+                    .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+                    .ifPresent(a -> mandat.getAnnonce().setDateFinGratuite(a.getDateFin()));
+            } else {
+                mandat.getAnnonce().setDateFinGratuite(null);
                 mandat.getAnnonce().setStatut(StatutAnnonce.EN_ATTENTE);
             }
         }
