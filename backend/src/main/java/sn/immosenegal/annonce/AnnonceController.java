@@ -27,7 +27,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/annonces")
-@Tag(name = "Annonces", description = "Catalogue des annonces publiées ; le propriétaire publie et met à jour ses annonces, l'administration conserve la modération a posteriori")
+@Tag(name = "Annonces", description = "Publication directe avec abonnement propriétaire ; sans abonnement, le bien reste en attente jusqu’à l’acceptation d’un mandat d’agence")
 public class AnnonceController {
 
     private final AnnonceService service;
