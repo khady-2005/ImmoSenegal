@@ -16,8 +16,8 @@ import sn.immosenegal.notification.NotificationService;
 /** Rappels avant échéance et retrait des annonces dont la couverture gratuite ou payante est terminée. */
 @Component
 public class ExpirationPublicationGratuite {
-    private static final String TYPE_RAPPEL = "FIN_GRATUITE_ANNONCE";
-    private static final String TYPE_EXPIRATION = "ANNONCE_GRATUITE_EXPIREE";
+    private static final String TYPE_RAPPEL = "FIN_COUVERTURE_PUBLICATION";
+    private static final String TYPE_EXPIRATION = "COUVERTURE_PUBLICATION_TERMINEE";
 
     private final AnnonceRepository annonces;
     private final AbonnementProprietaireRepository abonnements;
@@ -37,7 +37,7 @@ public class ExpirationPublicationGratuite {
         this.serviceNotifications = serviceNotifications;
     }
 
-    /** Préviens le propriétaire cinq jours avant la fin de la période gratuite. */
+    /** Préviens le propriétaire cinq jours avant la fin de sa couverture de publication. */
     @Scheduled(cron = "0 0 9 * * *", zone = "Africa/Dakar")
     @Transactional
     public void rappelerFinGratuite() {
@@ -45,13 +45,13 @@ public class ExpirationPublicationGratuite {
         annonces.findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce.PUBLIEE, echeance)
             .stream()
             .filter(a -> echeance.equals(a.getDateFinPublication()))
-            .filter(a -> !couvertParAbonnementOuMandat(a))
+            .filter(a -> !mandats.existsByAnnonceIdAndStatut(a.getId(), StatutMandatGestion.ACCEPTE))
             .filter(a -> !notifications.existsByDestinataireIdAndTypeAndLien(
                 a.getProprietaire().getId(), TYPE_RAPPEL, lien(a)))
             .forEach(a -> serviceNotifications.creer(a.getProprietaire(), TYPE_RAPPEL,
-                "Votre période gratuite se termine bientôt",
-                "Il reste cinq jours pour votre annonce « " + a.getTitre()
-                    + " ». Souscrivez un abonnement ou confiez votre bien à une agence pour maintenir sa publication.",
+                "Votre couverture de publication se termine bientôt",
+                "La couverture de votre annonce « " + a.getTitre()
+                    + " ». se termine dans cinq jours. Renouvelez votre abonnement ou confiez votre bien à une agence pour maintenir sa publication.",
                 lien(a)));
     }
 
@@ -77,9 +77,9 @@ public class ExpirationPublicationGratuite {
                     if (!notifications.existsByDestinataireIdAndTypeAndLien(
                             a.getProprietaire().getId(), TYPE_EXPIRATION, lien(a))) {
                         serviceNotifications.creer(a.getProprietaire(), TYPE_EXPIRATION,
-                            "Période gratuite terminée",
-                            "La période gratuite de votre annonce « " + a.getTitre()
-                                + " » est terminée. Elle reste dans votre espace, mais n'est plus visible dans le catalogue. Souscrivez un abonnement ou acceptez un mandat d'agence pour la republier.",
+                            "Couverture de publication terminée",
+                            "La couverture de votre annonce « " + a.getTitre()
+                                + " » est terminée. Elle reste dans votre espace, mais n'est plus visible dans le catalogue. Renouvelez votre abonnement ou faites accepter un mandat d'agence pour la republier.",
                             lien(a));
                     }
                 }
