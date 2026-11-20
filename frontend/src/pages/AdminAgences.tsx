@@ -30,6 +30,8 @@ export default function AdminAgences() {
   const [action, setAction] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [recherche, setRecherche] = useState('')
+  const [filtreStatut, setFiltreStatut] = useState('TOUTES')
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -67,6 +69,11 @@ export default function AdminAgences() {
     }
   }
 
+  const agencesFiltrees = agences.filter(a => {
+    const q = recherche.trim().toLocaleLowerCase()
+    const correspondTexte = !q || [a.nom, a.slug, a.adresse ?? '', a.emailContact ?? '', a.telephoneContact ?? ''].some(v => v.toLocaleLowerCase().includes(q))
+    return correspondTexte && (filtreStatut === 'TOUTES' || a.statut === filtreStatut)
+  })
   const enAttente = agences.filter(a => a.statut === 'EN_ATTENTE').length
   const actives = agences.filter(a => a.statut === 'ACTIVE').length
   const suspendues = agences.filter(a => a.statut === 'SUSPENDUE').length
@@ -85,14 +92,14 @@ export default function AdminAgences() {
       </section>
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
-      {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
+      {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-blue-50 p-4 text-sm text-blue-800">{message}</p>}
 
       <section className="mt-7 grid gap-3 sm:grid-cols-3">
         <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
           <p className="text-sm text-amber-800">À valider</p><p className="mt-1 text-2xl font-bold text-amber-950">{enAttente}</p>
         </article>
-        <article className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-800">Agences actives</p><p className="mt-1 text-2xl font-bold text-emerald-950">{actives}</p>
+        <article className="rounded-2xl border border-emerald-200 bg-blue-50 p-4">
+          <p className="text-sm text-blue-800">Agences actives</p><p className="mt-1 text-2xl font-bold text-blue-950">{actives}</p>
         </article>
         <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm text-slate-600">Suspendues</p><p className="mt-1 text-2xl font-bold text-slate-900">{suspendues}</p>
@@ -106,11 +113,23 @@ export default function AdminAgences() {
         </button>
       </div>
 
+      <section className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2">
+        <label className="text-sm font-medium text-slate-700">Rechercher une agence
+          <input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Nom, adresse, e-mail ou téléphone…" className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal"/>
+        </label>
+        <label className="text-sm font-medium text-slate-700">État de l’agence
+          <select value={filtreStatut} onChange={e => setFiltreStatut(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5">
+            <option value="TOUTES">Tous les états</option><option value="EN_ATTENTE">À valider</option><option value="ACTIVE">Actives</option><option value="SUSPENDUE">Suspendues</option>
+          </select>
+        </label>
+      </section>
       {chargement ? <p role="status" className="mt-5 text-sm text-slate-500">Chargement des agences…</p> : agences.length === 0 ? (
         <p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucune agence enregistrée pour le moment.</p>
+      ) : agencesFiltrees.length === 0 ? (
+        <p className="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">Aucune agence ne correspond à votre recherche.</p>
       ) : (
         <div className="mt-5 space-y-4">
-          {agences.map(agence => (
+          {agencesFiltrees.map(agence => (
             <article key={agence.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
@@ -124,14 +143,14 @@ export default function AdminAgences() {
                     <p>Téléphone : {agence.telephoneContact || 'Non renseigné'}</p>
                     <p>Membres actifs : {agence.membresActifs}</p>
                   </div>
-                  <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${agence.statut === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : agence.statut === 'EN_ATTENTE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}`}>
+                  <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${agence.statut === 'ACTIVE' ? 'bg-emerald-100 text-blue-800' : agence.statut === 'EN_ATTENTE' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'}`}>
                     {libelles[agence.statut]}
                   </span>
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
-                  {agence.statut === 'EN_ATTENTE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Valider / activer</button>}
+                  {agence.statut === 'EN_ATTENTE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Valider / activer</button>}
                   {agence.statut === 'ACTIVE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'SUSPENDUE')} className="inline-flex items-center gap-2 rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"><ShieldAlert className="h-4 w-4" /> Suspendre</button>}
-                  {agence.statut === 'SUSPENDUE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Réactiver</button>}
+                  {agence.statut === 'SUSPENDUE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Réactiver</button>}
                 </div>
               </div>
             </article>
