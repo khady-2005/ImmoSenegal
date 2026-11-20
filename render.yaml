@@ -22,7 +22,7 @@ services:
       - key: CORS_ALLOWED_ORIGINS
         sync: false                  # adresse exacte du site (https://....vercel.app)
       - key: EXEMPLES_ACTIFS
-        value: "true"               # crée les annonces de démonstration dans PostgreSQL
+        value: "false"              # aucune annonce fictive en production
       - key: FORWARD_HEADERS_STRATEGY
         value: native                # lit la vraie IP du client derrière le proxy Render
       - key: REFRESH_COOKIE_SECURE
@@ -32,6 +32,11 @@ services:
       # URL publique du frontend : utilisée dans les liens de réinitialisation du mot de passe.
       - key: FRONTEND_URL
         sync: false                  # ex. https://votre-site.vercel.app
+      # Assistant IA : la clé est saisie uniquement dans le tableau de bord Render.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
       # Configuration SMTP : nécessaire pour envoyer les liens de réinitialisation par e-mail.
       - key: MAIL_HOST
         sync: false                  # serveur SMTP du fournisseur de messagerie
