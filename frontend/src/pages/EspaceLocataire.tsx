@@ -57,6 +57,8 @@ export default function EspaceLocataire() {
 
   const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
   const demandes = contrats.filter(c => c.etat === 'RESILIATION_DEMANDEE')
+  const demandesARepondre = demandes.filter(c => c.resiliationDemandeeParId !== utilisateur?.id)
+  const mesDemandesResiliation = demandes.filter(c => c.resiliationDemandeeParId === utilisateur?.id)
   const historique = contrats.filter(c => c.etat === 'TERMINE' || c.etat === 'RESILIE')
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
 
@@ -75,7 +77,7 @@ export default function EspaceLocataire() {
 
     <section aria-label="Résumé de mes locations" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats actifs ou départ planifié</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : actifs.length}</p></div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Demandes de résiliation à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : demandes.length}</p></div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Demandes de résiliation à traiter</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : demandesARepondre.length}</p></div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Historique des locations</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : historique.length}</p></div>
       <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-2 text-xl font-bold text-nuit-900">{chargement ? '…' : monnaie(loyer)}</p></div>
     </section>
@@ -111,9 +113,16 @@ export default function EspaceLocataire() {
     </section>
 
     {demandes.length > 0 && <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
-      <h2 className="font-bold text-amber-950">Demandes de résiliation en attente</h2>
-      <ul className="mt-3 space-y-2">{demandes.map(c => <li key={c.id} className="text-sm text-amber-950"><strong>{c.annonceTitre}</strong> — demande de {c.resiliationDemandeeParNom || 'l’autre partie'} · départ souhaité : {c.dateFinSouhaitee || 'à convenir'}</li>)}</ul>
-      <Link to="/mes-contrats-location" className="mt-3 inline-block text-sm font-bold text-amber-900 underline">Répondre ou suivre la demande</Link>
+      <h2 className="font-bold text-amber-950">Suivi des demandes de résiliation</h2>
+      {demandesARepondre.length > 0 && <>
+        <p className="mt-2 text-sm text-amber-950">Une réponse de votre part est attendue pour :</p>
+        <ul className="mt-2 space-y-2">{demandesARepondre.map(c => <li key={c.id} className="text-sm text-amber-950"><strong>{c.annonceTitre}</strong> — demande de {c.resiliationDemandeeParNom || "l’autre partie"} · départ souhaité : {c.dateFinSouhaitee || "à convenir"}</li>)}</ul>
+      </>}
+      {mesDemandesResiliation.length > 0 && <>
+        <p className="mt-4 text-sm text-amber-950">Vos demandes qui attendent une réponse de l’autre partie :</p>
+        <ul className="mt-2 space-y-2">{mesDemandesResiliation.map(c => <li key={c.id} className="text-sm text-amber-950"><strong>{c.annonceTitre}</strong> · départ souhaité : {c.dateFinSouhaitee || "à convenir"}</li>)}</ul>
+      </>}
+      <Link to="/mes-contrats-location" className="mt-3 inline-block text-sm font-bold text-amber-900 underline">Consulter les contrats et répondre</Link>
     </section>}
 
     {historique.length > 0 && <section className="mt-8">
