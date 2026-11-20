@@ -113,7 +113,6 @@ export default function EspaceProprietaire() {
   const annoncesPubliees = annonces.filter(a => a.statut === 'PUBLIEE').length
   const annoncesEnAttente = annonces.filter(a => a.statut === 'EN_ATTENTE').length
   const annoncesModerees = annonces.filter(a => ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut)).length
-  const aujourdHui = new Date().toISOString().slice(0, 10)
   const publicationsAExpirer = annonces.filter(a => a.statut === 'PUBLIEE' && a.dateFinPublication && a.dateFinPublication <= new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)).length
 
   return <main className="mx-auto max-w-6xl px-4 py-10">
