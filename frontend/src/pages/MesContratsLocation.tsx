@@ -25,6 +25,7 @@ export default function MesContratsLocation(){
  const [erreur,setErreur]=useState<string|null>(null)
  const [message,setMessage]=useState<string|null>(null)
  const [chargement,setChargement]=useState(true)
+ const [impressionId,setImpressionId]=useState('')
 
  const charger=useCallback(async()=>{
   if(!jeton)return
@@ -44,6 +45,8 @@ export default function MesContratsLocation(){
  },[jeton,selection])
 
  useEffect(()=>{void charger()},[charger])
+
+ const contratImprimable=contrats.find(c=>c.id===impressionId)
 
  const contratsFiltres=useMemo(()=>contrats.filter(c=>{
   const statutOk=filtre==='TOUS'||c.etat===filtre
@@ -130,12 +133,47 @@ export default function MesContratsLocation(){
       <div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Propriétaire</p><p className="mt-1 text-sm font-medium">{c.proprietaireNom}</p></div><div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Locataire</p><p className="mt-1 text-sm font-medium">{c.locataireNom}</p></div></div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2"><p className="text-sm text-slate-700">Loyer mensuel : <strong>{monnaie(c.loyerMensuel)}</strong></p><p className="text-sm text-slate-700">Dépôt de garantie : <strong>{monnaie(c.depotGarantie)}</strong></p></div>
       <p className="mt-2 text-xs text-slate-500">Début : {c.dateDebut}{c.dateFin?' · Fin : '+c.dateFin:''}</p>{c.etat==='RESILIATION_PLANIFIEE'&&<p className="mt-3 rounded-lg bg-blue-50 p-3 text-sm text-blue-900">Résiliation acceptée par les deux parties. Le contrat prendra fin le {c.dateFinSouhaitee||c.dateFin}. Les obligations contractuelles continuent jusqu’à cette date.</p>}
-      <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>void ouvrir(c.id)} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">{selection===c.id?'Actualiser les paiements':'Voir les paiements'}</button>{c.etat==='ACTIF'&&<button onClick={()=>void actionResiliation(c.id,'demander')} className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50">Demander la résiliation</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId===utilisateur?.id&&<button onClick={()=>void actionResiliation(c.id,'annuler')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Annuler ma demande</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId!==utilisateur?.id&&<><button onClick={()=>void actionResiliation(c.id,'accepter')} className="rounded-full bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800">Accepter la résiliation</button><button onClick={()=>void actionResiliation(c.id,'refuser')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Refuser</button></>}</div>{c.etat==='RESILIATION_DEMANDEE'&&<p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Demande envoyée par {c.resiliationDemandeeParNom??'une des parties'} le {c.resiliationDemandeeLe?new Date(c.resiliationDemandeeLe).toLocaleString('fr-FR'):'date non disponible'}. {c.resiliationDemandeeParId===utilisateur?.id?'En attente de la réponse de l’autre partie.' :'Votre réponse est attendue. Le contrat reste actif tant que vous n’avez pas accepté.'}<br/>Motif : {c.resiliationMotif||'Non renseigné'} · Départ souhaité : {c.dateFinSouhaitee||'Non précisée'}</p>}
+      <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>void ouvrir(c.id)} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">{selection===c.id?'Actualiser les paiements':'Voir les paiements'}</button><button onClick={()=>setImpressionId(c.id)} className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-50">Préparer le document</button>{c.etat==='ACTIF'&&<button onClick={()=>void actionResiliation(c.id,'demander')} className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50">Demander la résiliation</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId===utilisateur?.id&&<button onClick={()=>void actionResiliation(c.id,'annuler')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Annuler ma demande</button>}{c.etat==='RESILIATION_DEMANDEE'&&c.resiliationDemandeeParId!==utilisateur?.id&&<><button onClick={()=>void actionResiliation(c.id,'accepter')} className="rounded-full bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800">Accepter la résiliation</button><button onClick={()=>void actionResiliation(c.id,'refuser')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50">Refuser</button></>}</div>{c.etat==='RESILIATION_DEMANDEE'&&<p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Demande envoyée par {c.resiliationDemandeeParNom??'une des parties'} le {c.resiliationDemandeeLe?new Date(c.resiliationDemandeeLe).toLocaleString('fr-FR'):'date non disponible'}. {c.resiliationDemandeeParId===utilisateur?.id?'En attente de la réponse de l’autre partie.' :'Votre réponse est attendue. Le contrat reste actif tant que vous n’avez pas accepté.'}<br/>Motif : {c.resiliationMotif||'Non renseigné'} · Départ souhaité : {c.dateFinSouhaitee||'Non précisée'}</p>}
       {selection===c.id&&<div className="mt-5 border-t border-slate-100 pt-4"><h3 className="font-semibold text-nuit-900">Historique des paiements déclarés</h3>{paiements.length===0?<p className="mt-2 text-sm text-slate-500">Aucun paiement déclaré pour ce contrat.</p>:<ul className="mt-3 space-y-2">{paiements.map(p=><li key={p.id} className="rounded-lg bg-slate-50 p-3 text-sm"><strong>{monnaie(p.montant)}</strong> — période {p.periode} · déclaré le {p.datePaiement}<p className="mt-1 text-xs text-slate-500">Déclaré par {p.enregistrePar}{p.reference?' · Référence : '+p.reference:''}</p></li>)}</ul>}
        <form onSubmit={ajouter} className="mt-4 grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-2"><h4 className="font-semibold text-nuit-900 sm:col-span-2">{espaceProprietaire?'Enregistrer un loyer reçu':'Déclarer le paiement de mon loyer'}</h4><label className="text-sm">Montant (FCFA)<input required type="number" min="1" step="0.01" value={montant} onChange={e=>setMontant(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Période du loyer<input required type="date" value={periode} onChange={e=>setPeriode(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Date du paiement<input required type="date" value={datePaiement} onChange={e=>setDatePaiement(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Référence facultative<input maxLength={500} value={reference} onChange={e=>setReference(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">{espaceProprietaire?'Enregistrer le loyer reçu':'Déclarer mon paiement'}</button></form>
       </div>}
      </article>)}</div>}
    </>
   }
+
+  {contratImprimable&&<section className="contrat-impression mx-auto mt-8 max-w-3xl rounded-2xl border border-slate-300 bg-white p-8 text-slate-900 shadow-sm">
+   <div className="flex flex-wrap items-start justify-between gap-4">
+    <div><p className="text-xs font-bold uppercase tracking-widest text-amber-700">ImmoSénégal</p><h2 className="mt-2 text-2xl font-bold">Document récapitulatif du contrat de location</h2><p className="mt-1 text-sm text-slate-500">Référence : {contratImprimable.id}</p></div>
+    <button type="button" onClick={()=>window.print()} className="print-hidden rounded-full bg-nuit-900 px-5 py-2.5 text-sm font-semibold text-white">Imprimer / enregistrer en PDF</button>
+   </div>
+   <p className="mt-6 text-sm text-slate-700">Établi le {new Date().toLocaleDateString('fr-FR')} à partir des informations enregistrées sur la plateforme.</p>
+   <h3 className="mt-7 border-b border-slate-300 pb-2 text-lg font-bold">1. Désignation du logement</h3>
+   <p className="mt-3 text-sm"><strong>Logement :</strong> {contratImprimable.annonceTitre}</p>
+   <p className="mt-2 text-sm"><strong>Référence de l'annonce :</strong> {contratImprimable.annonceId}</p>
+   <h3 className="mt-7 border-b border-slate-300 pb-2 text-lg font-bold">2. Parties concernées</h3>
+   <p className="mt-3 text-sm"><strong>Propriétaire :</strong> {contratImprimable.proprietaireNom}</p>
+   <p className="mt-2 text-sm"><strong>Locataire :</strong> {contratImprimable.locataireNom}</p>
+   <h3 className="mt-7 border-b border-slate-300 pb-2 text-lg font-bold">3. Conditions financières</h3>
+   <p className="mt-3 text-sm"><strong>Loyer mensuel :</strong> {monnaie(contratImprimable.loyerMensuel)}</p>
+   <p className="mt-2 text-sm"><strong>Dépôt de garantie enregistré :</strong> {monnaie(contratImprimable.depotGarantie)}</p>
+   <h3 className="mt-7 border-b border-slate-300 pb-2 text-lg font-bold">4. Durée</h3>
+   <p className="mt-3 text-sm"><strong>Date de début :</strong> {new Date(contratImprimable.dateDebut+'T00:00:00').toLocaleDateString('fr-FR')}</p>
+   <p className="mt-2 text-sm"><strong>Date de fin :</strong> {contratImprimable.dateFin?new Date(contratImprimable.dateFin+'T00:00:00').toLocaleDateString('fr-FR'):'Non précisée'}</p>
+   <p className="mt-2 text-sm"><strong>État enregistré :</strong> {contratImprimable.etat}</p>
+   <h3 className="mt-7 border-b border-slate-300 pb-2 text-lg font-bold">5. Validation par les parties</h3>
+   <p className="mt-3 text-sm leading-6">Les parties déclarent avoir pris connaissance des informations ci-dessus et doivent vérifier ensemble les clauses complémentaires, les obligations, les annexes et les formalités applicables avant de signer le contrat définitif.</p>
+   <div className="mt-10 grid gap-10 sm:grid-cols-2">
+    <div><p className="font-semibold">Signature du propriétaire</p><p className="mt-1 text-sm">{contratImprimable.proprietaireNom}</p><div className="mt-16 border-b border-slate-400"></div><p className="mt-2 text-xs text-slate-500">Date et signature</p></div>
+    <div><p className="font-semibold">Signature du locataire</p><p className="mt-1 text-sm">{contratImprimable.locataireNom}</p><div className="mt-16 border-b border-slate-400"></div><p className="mt-2 text-xs text-slate-500">Date et signature</p></div>
+   </div>
+   <p className="mt-10 border-t border-slate-200 pt-4 text-xs leading-5 text-slate-500">Important : ce document est un récapitulatif imprimable des données de la plateforme. Il ne constitue pas une signature électronique ni une attestation de conformité juridique. Les parties doivent compléter et vérifier le contrat et ses annexes avant toute signature.</p>
+  </section>}
+  <style>{`@media print {
+   @page { size: A4; margin: 16mm; }
+   body * { visibility: hidden !important; }
+   .contrat-impression, .contrat-impression * { visibility: visible !important; }
+   .contrat-impression { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; }
+   .print-hidden { display: none !important; }
+  }`}</style>
  </main>
 }
