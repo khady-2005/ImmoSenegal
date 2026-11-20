@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface EvaluationLocationRepository extends JpaRepository<EvaluationLocation, UUID> {
     List<EvaluationLocation> findAllByContratIdOrderByCreeLeDesc(UUID contratId);
     boolean existsByContratIdAndAuteurId(UUID contratId, UUID auteurId);
+    List<EvaluationLocation> findAllByEvalueIdOrderByCreeLeDesc(UUID evalueId);
 }
