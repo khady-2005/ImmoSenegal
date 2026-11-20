@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Building2, Send } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
@@ -29,6 +29,7 @@ export default function MessagerieMandats() {
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState(false)
+  const [recherche, setRecherche] = useState('')
 
   const chargerConversations = useCallback(async () => {
     try {
@@ -80,18 +81,22 @@ export default function MessagerieMandats() {
     } finally { setEnvoi(false) }
   }
 
+  const conversationsFiltrees = useMemo(() => conversations.filter(c => {
+    const q = recherche.trim().toLocaleLowerCase()
+    return !q || [c.annonceTitre, c.agenceNom, c.interlocuteurNom, c.proprietaireNom].some(v => v.toLocaleLowerCase().includes(q))
+  }), [conversations, recherche])
   const active = conversations.find(c => c.mandatId === selection)
   return (
     <section className="mt-8">
       <div className="mb-4 flex items-center gap-3">
-        <span className="rounded-xl bg-emeraude-50 p-3 text-emeraude-800"><Building2 className="h-6 w-6" /></span>
+        <span className="rounded-xl bg-amber-50 p-3 text-amber-900"><Building2 className="h-6 w-6" /></span>
         <div><h2 className="text-xl font-semibold text-nuit-900">Échanges avec les agences</h2><p className="text-sm text-slate-600">Conversations privées liées aux mandats de gestion acceptés.</p></div>
       </div>
       {erreur && <p role="alert" className="mb-3 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       <div className="grid min-h-[24rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:grid-cols-[17rem_1fr]">
         <aside className="border-b border-slate-200 md:border-b-0 md:border-r">
-          <h3 className="border-b border-slate-100 px-4 py-3 font-semibold text-nuit-900">Mandats</h3>
-          {chargement ? <p className="p-4 text-sm text-slate-500">Chargement…</p> : conversations.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucune conversation. Un échange apparaît lorsqu'un mandat de gestion est accepté.</p> : conversations.map(c => (
+          <h3 className="border-b border-slate-100 px-4 py-3 font-semibold text-nuit-900">Mandats</h3><div className="border-b border-slate-100 p-3"><label htmlFor="recherche-mandat-message" className="sr-only">Rechercher un mandat</label><input id="recherche-mandat-message" value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Rechercher…" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"/></div>
+          {chargement ? <p className="p-4 text-sm text-slate-500">Chargement…</p> : conversations.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucune conversation. Un échange apparaît lorsqu'un mandat de gestion est accepté.</p> : conversationsFiltrees.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucun résultat.</p> : conversationsFiltrees.map(c => (
             <button key={c.mandatId} type="button" onClick={() => setSelection(c.mandatId)} className={'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 ' + (selection === c.mandatId ? 'bg-amber-50' : '')}>
               <span className="block truncate text-sm font-semibold text-nuit-900">{c.annonceTitre}</span>
               <span className="mt-1 block text-xs text-slate-600">{c.interlocuteurNom}</span>
@@ -110,8 +115,8 @@ export default function MessagerieMandats() {
             </div>
             <form onSubmit={envoyer} className="flex items-end gap-2 border-t border-slate-100 p-3">
               <label className="sr-only" htmlFor="message-mandat">Votre message à l'agence ou au propriétaire</label>
-              <textarea id="message-mandat" value={contenu} onChange={e => setContenu(e.target.value)} maxLength={2000} rows={2} placeholder="Écrire un message…" className="min-h-12 flex-1 resize-y rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emeraude-600 focus:ring-2 focus:ring-emeraude-100" />
-              <button type="submit" disabled={!contenu.trim() || envoi} className="inline-flex items-center gap-2 rounded-xl bg-emeraude-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emeraude-800 disabled:opacity-50"><Send className="h-4 w-4" />Envoyer</button>
+              <textarea id="message-mandat" value={contenu} onChange={e => setContenu(e.target.value)} maxLength={2000} rows={2} placeholder="Écrire un message…" className="min-h-12 flex-1 resize-y rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
+              <button type="submit" disabled={!contenu.trim() || envoi} className="inline-flex items-center gap-2 rounded-xl bg-nuit-900 px-4 py-3 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><Send className="h-4 w-4" />Envoyer</button>
             </form>
           </> : <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-slate-500">Sélectionnez un mandat pour consulter les échanges.</div>}
         </div>
