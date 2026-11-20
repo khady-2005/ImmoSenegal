@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import EvaluationContrat from '../components/EvaluationContrat'
+import ResumeEvaluations from '../components/ResumeEvaluations'
 
 type Contrat = { id:string; annonceId:string; annonceTitre:string; proprietaireNom:string; locataireNom:string; loyerMensuel:number; depotGarantie:number; dateDebut:string; dateFin:string|null; etat:string; resiliationDemandeeParId:string|null; resiliationDemandeeParNom:string|null; resiliationDemandeeLe:string|null; resiliationMotif?:string|null; dateFinSouhaitee?:string|null; proprietaireConfirmeLe:string|null; locataireConfirmeLe:string|null }
 type Paiement = { id:string; montant:number; periode:string; datePaiement:string; reference:string|null; enregistrePar:string; tauxCommissionAgence:number|null; commissionAgence:number|null }
@@ -125,6 +126,8 @@ export default function MesContratsLocation(){
    <a href="/etats-des-lieux" className="ml-2 mt-3 inline-flex rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50">États des lieux</a>
    <a href="/depot-garantie" className="ml-2 mt-3 inline-flex rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50">Dépôt de garantie</a>
   </header>
+
+  <ResumeEvaluations />
 
   {!chargement&&<section aria-label="Résumé des contrats" className="mt-6 grid gap-3 sm:grid-cols-3">
    <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats suivis</p><p className="mt-1 text-2xl font-bold text-nuit-900">{contrats.length}</p></div>
