@@ -27,7 +27,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @RestController
 @RequestMapping("/api/annonces")
-@Tag(name = "Annonces", description = "Catalogue (annonces PUBLIEE) ; publication réservée aux propriétaires et administrateurs ; toute nouvelle annonce attend la validation d'un administrateur")
+@Tag(name = "Annonces", description = "Catalogue des annonces publiées ; le propriétaire publie et met à jour ses annonces, l'administration conserve la modération a posteriori")
 public class AnnonceController {
 
     private final AnnonceService service;
@@ -75,7 +75,7 @@ public class AnnonceController {
     }
 
     @PostMapping
-    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : elle est EN_ATTENTE de validation",
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication immédiate pour le propriétaire ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @RequestParam(required = false) UUID proprietaireId,
@@ -96,8 +96,7 @@ public class AnnonceController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Modifier une annonce (son propriétaire ou un ADMIN) ; statut : seulement RESERVE, VENDU, LOUE ou PUBLIEE",
-        description = "Une modification du contenu par le propriétaire d'une annonce déjà validée la renvoie EN_ATTENTE. "
-            + "Le contenu et le statut se modifient en deux enregistrements séparés.",
+        description = "Le propriétaire peut modifier le contenu sans validation préalable. Le contenu et le statut commercial se modifient en deux enregistrements séparés.",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public AnnonceResponse modifier(@PathVariable UUID id, @Valid @RequestBody AnnonceRequest requete,
                                     @AuthenticationPrincipal AuthenticatedUser utilisateur) {
