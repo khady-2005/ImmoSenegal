@@ -191,7 +191,7 @@ export default function FormulaireAnnonce() {
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
         <GestionVideo annonceId={annonceCreeeId} />
         <div className="mt-5 flex flex-wrap gap-3">
-          <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-emeraude-600 px-5 py-2.5 font-semibold text-white">
+          <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-nuit-900 px-5 py-2.5 font-semibold text-white">
             Terminer et voir mes annonces
           </button>
           <button type="button" onClick={() => navigate(`/annonces/${annonceCreeeId}/modifier`)} className="rounded-lg border border-slate-300 px-5 py-2.5 font-medium text-slate-700">
@@ -298,8 +298,7 @@ export default function FormulaireAnnonce() {
               ))}
             </select>
             <p className="mt-1 text-sm text-slate-600">
-              Seule une annonce « Publiée » apparaît dans le catalogue. Si vous modifiez le contenu ou ajoutez une photo,
-              l'annonce doit être vérifiée à nouveau avant de redevenir visible du public. Changez le statut et le contenu en deux enregistrements séparés.
+              Seule une annonce « Publiée » apparaît dans le catalogue. Vous pouvez modifier son contenu et ses photos sans interrompre sa publication. L’administration peut toutefois intervenir en cas de signalement ou de non-respect des règles.
             </p>
           </div>
         )}
@@ -315,7 +314,7 @@ export default function FormulaireAnnonce() {
           </div>
         )}
         <div className="flex flex-wrap gap-3">
-          <button type="submit" disabled={envoi} className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60">
+          <button type="submit" disabled={envoi} className="rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-800 disabled:opacity-60">
             {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Enregistrer et ajouter les photos'}
           </button>
           <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
