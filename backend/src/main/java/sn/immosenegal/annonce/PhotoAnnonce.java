@@ -47,4 +47,6 @@ public class PhotoAnnonce {
     public UUID getId() { return id; }
     public byte[] getContenu() { return contenu; }
     public String getTypeMime() { return typeMime; }
+    public int getOrdre() { return ordre; }
+    public void setOrdre(int ordre) { this.ordre = ordre; }
 }
