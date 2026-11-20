@@ -199,7 +199,7 @@ describe("Page d'accueil", () => {
     afficher()
     expect(screen.queryByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })).not.toBeInTheDocument()
     await userEvent.setup().click(screen.getByRole('button', { name: 'Afficher les autres rubriques' }))
-    expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
+    expect(screen.getByRole('menuitem', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     expect(screen.getByRole('heading', { name: 'Comment ça marche ?' })).toBeInTheDocument()
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
