@@ -27,12 +27,12 @@ public class PayDunyaService {
     private final String frontendUrl;
 
     public PayDunyaService(ObjectMapper json,
-            @Value("${PAYDUNYA_MASTER_KEY:}") String masterKey,
-            @Value("${PAYDUNYA_PRIVATE_KEY:}") String privateKey,
-            @Value("${PAYDUNYA_PUBLIC_KEY:}") String publicKey,
-            @Value("${PAYDUNYA_TOKEN:}") String token,
-            @Value("${PAYDUNYA_MODE:test}") String mode,
-            @Value("${PAYDUNYA_CALLBACK_URL:}") String callbackUrl,
+            @Value("${app.paydunya.master-key:}") String masterKey,
+            @Value("${app.paydunya.private-key:}") String privateKey,
+            @Value("${app.paydunya.public-key:}") String publicKey,
+            @Value("${app.paydunya.token:}") String token,
+            @Value("${app.paydunya.mode:test}") String mode,
+            @Value("${app.paydunya.callback-url:}") String callbackUrl,
             @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl) {
         this.json = json;
         this.masterKey = masterKey;
@@ -56,7 +56,6 @@ public class PayDunyaService {
         invoice.put("total_amount", montant.intValueExact());
         invoice.put("description", description);
         invoice.put("customer", Map.of("name", nom, "email", email));
-        invoice.put("custom_data", Map.of("abonnement_id", abonnementId.toString()));
         Map<String,Object> actions = Map.of(
             "callback_url", callbackUrl,
             "return_url", frontendUrl + "/espace-proprietaire?paiement=retour",
