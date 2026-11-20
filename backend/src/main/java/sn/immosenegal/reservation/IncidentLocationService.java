@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import sn.immosenegal.notification.NotificationService;
+import sn.immosenegal.audit.AuditService;
+import sn.immosenegal.user.Role;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
@@ -18,10 +20,12 @@ public class IncidentLocationService {
     private final IncidentLocationRepository incidents;
     private final UserRepository users;
     private final NotificationService notifications;
+    private final AuditService audit;
 
     public IncidentLocationService(ContratLocationRepository contrats, IncidentLocationRepository incidents,
-                                   UserRepository users, NotificationService notifications) {
-        this.contrats = contrats; this.incidents = incidents; this.users = users; this.notifications = notifications;
+                                   UserRepository users, NotificationService notifications, AuditService audit) {
+        this.contrats = contrats; this.incidents = incidents; this.users = users;
+        this.notifications = notifications; this.audit = audit;
     }
 
     public List<IncidentResume> lister(UUID contratId, AuthenticatedUser acteur) {
@@ -70,6 +74,27 @@ public class IncidentLocationService {
         notifications.creer(autre, "INCIDENT_LOCATION_MAJ", "Mise à jour d'un incident",
                 "L'incident concernant " + contrat.getAnnonce().getTitre() + " est maintenant au statut " + q.statut().name() + ".",
                 "/mes-contrats-location");
+        return resume(incident);
+    }
+
+    /** L'administration peut faciliter le suivi d'un incident, sans imposer une décision juridique. */
+    public IncidentResume traiterParAdmin(UUID incidentId, MiseAJourIncident q, AuthenticatedUser acteur) {
+        if (acteur == null || acteur.role() != Role.ADMIN)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé à l'administrateur.");
+        IncidentLocation incident = incidents.findById(incidentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Incident introuvable."));
+        if (q == null || (q.statut() != StatutIncidentLocation.EN_COURS && q.statut() != StatutIncidentLocation.RESOLU))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'administration peut mettre le dossier en cours ou proposer sa résolution.");
+        String commentaire = q.commentaire() == null ? "" : q.commentaire().trim();
+        if (commentaire.isBlank() || commentaire.length() > 1500)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ajoutez une note de suivi (1 500 caractères maximum).");
+        incident.actualiser(q.statut(), "Suivi administratif : " + commentaire);
+        ContratLocation contrat = incident.getContrat();
+        String message = "L'administration a mis à jour le suivi de l'incident concernant "
+                + contrat.getAnnonce().getTitre() + " : " + commentaire;
+        notifications.creer(contrat.getProprietaire(), "INCIDENT_SUIVI_ADMIN", "Suivi administratif d'un incident", message, "/incidents-location");
+        notifications.creer(contrat.getLocataire(), "INCIDENT_SUIVI_ADMIN", "Suivi administratif d'un incident", message, "/incidents-location");
+        audit.enregistrer("INCIDENT_SUIVI_ADMIN", acteur.id(), "Incident " + incidentId + " : " + q.statut().name());
         return resume(incident);
     }
 
