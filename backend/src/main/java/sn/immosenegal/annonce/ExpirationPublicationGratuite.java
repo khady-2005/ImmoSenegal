@@ -62,9 +62,17 @@ public class ExpirationPublicationGratuite {
         LocalDate aujourdHui = LocalDate.now();
         annonces.findAllByStatutAndDateFinGratuiteLessThanEqual(StatutAnnonce.PUBLIEE, aujourdHui)
             .forEach(a -> {
-                if (couvertParAbonnementOuMandat(a)) {
+                if (mandats.existsByAnnonceIdAndStatut(a.getId(), StatutMandatGestion.ACCEPTE)) {
                     a.setDateFinGratuite(null);
                 } else {
+                    var abonnementActif = abonnements
+                        .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
+                            a.getProprietaire().getId(), StatutAbonnement.ACTIF)
+                        .filter(ab -> ab.getDateFin() != null && !ab.getDateFin().isBefore(aujourdHui));
+                    if (abonnementActif.isPresent()) {
+                        a.setDateFinGratuite(abonnementActif.get().getDateFin());
+                        return;
+                    }
                     a.setStatut(StatutAnnonce.EN_ATTENTE);
                     if (!notifications.existsByDestinataireIdAndTypeAndLien(
                             a.getProprietaire().getId(), TYPE_EXPIRATION, lien(a))) {
