@@ -199,12 +199,12 @@ class AnnonceTest extends AbstractApiTest {
             .andExpect(status().isForbidden());
         mvc.perform(delete("/api/annonces/" + id)).andExpect(status().isUnauthorized());
 
-        // Le propriétaire peut modifier le contenu : l'annonce repasse EN_ATTENTE (elle doit être revalidée), puis la supprimer.
+        // Le propriétaire peut modifier le contenu sans interrompre la publication.
         mvc.perform(put("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonProprio))
                 .contentType(MediaType.APPLICATION_JSON).content(corps(annonce("Titre modifié", "Kandé"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.titre").value("Titre modifié"))
-            .andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
+            .andExpect(jsonPath("$.statut").value("PUBLIEE"));
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonProprio)))
             .andExpect(status().isNoContent());
         lire(id, jetonProprio).andExpect(status().isNotFound());
