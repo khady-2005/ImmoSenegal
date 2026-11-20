@@ -27,6 +27,8 @@ public class SuiviDepotGarantie {
     private StatutDepotGarantie statut = StatutDepotGarantie.A_CONFIRMER;
     @Column(name = "commentaire_locataire", length = 1500)
     private String commentaireLocataire;
+    @Column(name = "commentaire_admin", length = 1500)
+    private String commentaireAdmin;
     @Column(name = "decide_le")
     private Instant decideLe;
     @Column(name = "cree_le", nullable = false, updatable = false)
@@ -46,6 +48,8 @@ public class SuiviDepotGarantie {
     public String getMotifRetenue() { return motifRetenue; }
     public StatutDepotGarantie getStatut() { return statut; }
     public String getCommentaireLocataire() { return commentaireLocataire; }
+    public String getCommentaireAdmin() { return commentaireAdmin; }
+    public void ajouterNoteAdmin(String note) { this.commentaireAdmin = note; }
     public Instant getDecideLe() { return decideLe; }
     public Instant getCreeLe() { return creeLe; }
     public void reproposer(BigDecimal restitue, BigDecimal retenu, String motif) {
