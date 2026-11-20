@@ -43,6 +43,9 @@ public class AbonnementProprietaire {
     @Column(name = "paydunya_token", length = 120, unique = true)
     private String paydunyaToken;
 
+    @Column(name = "paytech_ref_command", length = 80, unique = true)
+    private String paytechRefCommand;
+
     @Column(name = "reference_fournisseur", length = 150)
     private String referenceFournisseur;
 
@@ -86,10 +89,19 @@ public class AbonnementProprietaire {
     public String getNote() { return note; }
     public UUID getValidePar() { return validePar; }
     public String getPaydunyaToken() { return paydunyaToken; }
+    public String getPaytechRefCommand() { return paytechRefCommand; }
     public String getReferenceFournisseur() { return referenceFournisseur; }
     public Instant getPaiementConfirmeLe() { return paiementConfirmeLe; }
 
-    public void associerPaydunya(String invoiceToken) { this.paydunyaToken = invoiceToken; this.modifieLe = Instant.now(); }
+    public void associerPaydunya(String invoiceToken) {
+        this.paydunyaToken = invoiceToken;
+        this.modifieLe = Instant.now();
+    }
+
+    public void associerPaytech(String reference) {
+        this.paytechRefCommand = reference;
+        this.modifieLe = Instant.now();
+    }
 
     public void confirmerPaiement(String reference) {
         if (this.statut == StatutAbonnement.EN_ATTENTE) {
@@ -106,6 +118,7 @@ public class AbonnementProprietaire {
             this.modifieLe = Instant.now();
         }
     }
+
     public Instant getCreeLe() { return creeLe; }
 
     public void activer(UUID admin, LocalDate debut) {
@@ -128,7 +141,8 @@ public class AbonnementProprietaire {
     }
 
     public void annulerPaiement() {
-        if (this.statut == StatutAbonnement.EN_ATTENTE && this.paydunyaToken != null) {
+        if (this.statut == StatutAbonnement.EN_ATTENTE
+                && (this.paydunyaToken != null || this.paytechRefCommand != null)) {
             this.statut = StatutAbonnement.ANNULE;
             this.modifieLe = Instant.now();
         }
