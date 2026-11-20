@@ -216,7 +216,7 @@ export default function MesAnnonces() {
                 </div>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
-              {a.statut === 'PUBLIEE' && a.dateFinGratuite && <p className="mt-2 rounded-lg border border-dore-200 bg-dore-50 p-2 text-sm text-nuit-900">Publication gratuite jusqu’au <strong>{new Date(a.dateFinGratuite + 'T00:00:00').toLocaleDateString('fr-FR')}</strong>. Pour continuer après cette date, choisissez un abonnement ou un mandat d’agence.</p>}
+              {a.statut === 'PUBLIEE' && a.dateFinPublication && <p className="mt-2 rounded-lg border border-dore-200 bg-dore-50 p-2 text-sm text-nuit-900">Publication gratuite jusqu’au <strong>{new Date(a.dateFinPublication + 'T00:00:00').toLocaleDateString('fr-FR')}</strong>. Pour continuer après cette date, choisissez un abonnement ou un mandat d’agence.</p>}
               {a.statut === 'EN_ATTENTE' && (
                 <div className="mt-2">
                   <p className="text-sm text-slate-600">La période gratuite de cette annonce est terminée : elle reste dans votre espace, mais n’est plus visible dans le catalogue. Vous pouvez souscrire un abonnement pour la republier ou négocier un mandat de gestion avec une agence.</p>
