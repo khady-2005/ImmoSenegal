@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,16 +19,14 @@ import sn.immosenegal.notification.NotificationService;
 public class PayDunyaAbonnementController {
     private final AbonnementProprietaireRepository abonnements;
     private final UserRepository users;
-    private final PayDunyaService payDunya;
-    private final ObjectMapper json;
+    private final PayTechService payTech;
     private final NotificationService notifications;
 
     public PayDunyaAbonnementController(AbonnementProprietaireRepository abonnements,
-            UserRepository users, PayDunyaService payDunya, ObjectMapper json, NotificationService notifications) {
+            UserRepository users, PayTechService payTech, NotificationService notifications) {
         this.abonnements = abonnements;
         this.users = users;
-        this.payDunya = payDunya;
-        this.json = json;
+        this.payTech = payTech;
         this.notifications = notifications;
     }
 
@@ -47,97 +43,49 @@ public class PayDunyaAbonnementController {
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
             .ifPresent(a -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Votre abonnement est déjà actif."); });
 
-        var user = users.findById(acteur.id())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Compte introuvable."));
-        BigDecimal montant = switch (request.forfait()) {
-            case MENSUEL -> new BigDecimal("5000");
-            case TRIMESTRIEL -> new BigDecimal("13500");
-            case ANNUEL -> new BigDecimal("50000");
-        };
         var abonnement = abonnements.save(new AbonnementProprietaire(
-            acteur.id(), request.forfait(), montant, "PAYDUNYA", null, null));
+            acteur.id(), request.forfait(), tarif(request.forfait()), "PAYTECH", null, null));
         try {
-            var facture = payDunya.creerFacture(abonnement.getId(), montant,
-                "Abonnement propriétaire ImmoSénégal - " + request.forfait(),
-                user.getNomComplet(), user.getEmail());
-            abonnement.associerPaydunya(facture.token());
+            var paiement = payTech.creerPaiement(abonnement.getId(), abonnement.getMontant(),
+                request.forfait().name());
+            abonnement.associerPaytech(paiement.reference());
             abonnements.save(abonnement);
-            return new PaiementResponse(facture.url(), facture.token(), montant, "XOF");
+            return new PaiementResponse(paiement.url(), paiement.reference(), abonnement.getMontant(), "XOF");
         } catch (RuntimeException e) {
             abonnements.delete(abonnement);
             throw e;
         }
     }
 
-    @PostMapping(value = "/paydunya/callback", consumes = "application/x-www-form-urlencoded")
-    @ResponseStatus(HttpStatus.OK)
-    public Map<String,String> callback(@RequestParam Map<String,String> formulaire) {
-        try {
-            JsonNode notification;
-            String donnees = formulaire.get("data");
-            if (donnees != null && !donnees.isBlank()) {
-                notification = json.readTree(donnees);
-            } else {
-                // Certains encodeurs de formulaires transmettent le tableau PHP sous forme de clés imbriquées.
-                var objet = json.createObjectNode();
-                String hash = formulaire.getOrDefault("data[hash]", "");
-                String tokenForm = formulaire.getOrDefault("data[token]", "");
-                String tokenFacture = formulaire.getOrDefault("data[invoice][token]", "");
-                objet.put("hash", hash);
-                objet.put("token", tokenForm);
-                if (!tokenFacture.isBlank()) objet.putObject("invoice").put("token", tokenFacture);
-                notification = objet;
-            }
-            if (!payDunya.hashValide(notification.path("hash").asText()))
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Signature PayDunya invalide.");
-            String token = notification.path("invoice").path("token").asText();
-            if (token.isBlank()) token = notification.path("token").asText();
-            if (token.isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token de facture absent.");
-            return synchroniser(token, null);
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notification PayDunya invalide.");
-        }
-    }
-
     /**
-     * Retour navigateur : le token n'est jamais considéré comme une preuve de paiement.
-     * Le serveur vérifie la facture directement auprès de PayDunya et contrôle son propriétaire.
+     * IPN PayTech : seule une notification authentifiée et dont le montant correspond
+     * au forfait peut activer l'abonnement. Les notifications répétées sont sans effet.
      */
-    @GetMapping("/paydunya/retour")
-    public Map<String,String> retour(@RequestParam("token") String token,
-            @AuthenticationPrincipal AuthenticatedUser acteur) {
-        if (acteur == null || acteur.role() != Role.PROPRIETAIRE)
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Réservé aux propriétaires.");
-        return synchroniser(token, acteur.id());
-    }
+    @PostMapping("/paytech/callback")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, String> callback(@RequestParam Map<String, String> formulaire) {
+        if (!payTech.verifierNotification(formulaire))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Signature PayTech invalide.");
 
-    private Map<String,String> synchroniser(String token, UUID proprietaireId) {
-        var abonnement = abonnements.findByPaydunyaToken(token)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Facture introuvable."));
-        if (proprietaireId != null && !proprietaireId.equals(abonnement.getProprietaireId()))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Facture introuvable.");
+        String reference = formulaire.getOrDefault("ref_command", "");
+        var abonnement = abonnements.findByPaytechRefCommand(reference)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Abonnement introuvable."));
+        String evenement = formulaire.getOrDefault("type_event", "");
+        if ("sale_complete".equals(evenement)) {
+            String montantTexte = formulaire.getOrDefault("final_item_price", "");
+            if (montantTexte.isBlank()) montantTexte = formulaire.getOrDefault("item_price", "");
+            BigDecimal montant;
+            try {
+                montant = new BigDecimal(montantTexte);
+            } catch (NumberFormatException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Montant PayTech invalide.");
+            }
+            if (montant.compareTo(abonnement.getMontant()) != 0)
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Le montant PayTech ne correspond pas au forfait.");
 
-        JsonNode confirmation = payDunya.verifierFacture(token);
-        if (!"00".equals(confirmation.path("response_code").asText()))
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Vérification PayDunya impossible.");
-        if (!payDunya.hashValide(confirmation.path("hash").asText()))
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Signature de confirmation PayDunya invalide.");
-
-        String statut = confirmation.path("status").asText("").toLowerCase(java.util.Locale.ROOT);
-        if ("completed".equals(statut)) {
-            JsonNode montantNode = confirmation.path("invoice").path("total_amount");
-            if (montantNode.isMissingNode() || montantNode.isNull())
-                montantNode = confirmation.path("total_amount");
-            if (montantNode.isMissingNode() || montantNode.isNull() || montantNode.asText().isBlank())
-                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Montant de facture absent de la confirmation PayDunya.");
-            BigDecimal montantConfirme = montantNode.decimalValue();
-            if (montantConfirme.compareTo(abonnement.getMontant()) != 0)
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Le montant confirmé ne correspond pas au forfait.");
-            String reference = confirmation.path("transaction_id").asText("");
             boolean etaitEnAttente = abonnement.getStatut() == StatutAbonnement.EN_ATTENTE;
-            abonnement.confirmerPaiement(reference.isBlank() ? token : reference);
+            String referenceTransaction = formulaire.getOrDefault("token", reference);
+            abonnement.confirmerPaiement(referenceTransaction.isBlank() ? reference : referenceTransaction);
             abonnements.save(abonnement);
             if (etaitEnAttente && abonnement.getStatut() == StatutAbonnement.ACTIF) {
                 users.findById(abonnement.getProprietaireId()).ifPresent(proprietaire ->
@@ -145,16 +93,45 @@ public class PayDunyaAbonnementController {
                         "Votre abonnement " + abonnement.getForfait() + " est actif jusqu'au " + abonnement.getDateFin() + ".",
                         "/espace-proprietaire"));
             }
-            return Map.of("status", "completed");
+            return Map.of("status", "ok");
         }
-        if ("cancelled".equals(statut) || "canceled".equals(statut) || "failed".equals(statut)) {
+        if ("sale_canceled".equals(evenement)) {
             abonnement.annulerPaiement();
             abonnements.save(abonnement);
-            return Map.of("status", "cancelled");
+            return Map.of("status", "ok");
         }
-        return Map.of("status", "pending");
+        // Les autres événements (remboursement, transfert) ne doivent pas activer l'abonnement.
+        return Map.of("status", "ignored");
+    }
+
+    /**
+     * Le retour navigateur n'est jamais une preuve de paiement.
+     * Il ne fait que lire l'état enregistré après validation de l'IPN.
+     */
+    @GetMapping("/paytech/retour")
+    public Map<String, String> retour(@RequestParam("ref") String reference,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        if (acteur == null || acteur.role() != Role.PROPRIETAIRE)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Réservé aux propriétaires.");
+        var abonnement = abonnements.findByPaytechRefCommand(reference)
+            .filter(a -> acteur.id().equals(a.getProprietaireId()))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Paiement introuvable."));
+        String statut = switch (abonnement.getStatut()) {
+            case ACTIF -> "completed";
+            case ANNULE, REFUSE, EXPIRE -> "cancelled";
+            default -> "pending";
+        };
+        return Map.of("status", statut);
+    }
+
+    private BigDecimal tarif(ForfaitAbonnement forfait) {
+        return switch (forfait) {
+            case MENSUEL -> new BigDecimal("5000");
+            case TRIMESTRIEL -> new BigDecimal("13500");
+            case ANNUEL -> new BigDecimal("50000");
+        };
     }
 
     public record PaiementRequest(ForfaitAbonnement forfait) {}
-    public record PaiementResponse(String url, String token, BigDecimal montant, String devise) {}
+    public record PaiementResponse(String url, String reference, BigDecimal montant, String devise) {}
 }
