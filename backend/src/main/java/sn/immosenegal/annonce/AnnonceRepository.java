@@ -13,5 +13,5 @@ public interface AnnonceRepository extends JpaRepository<Annonce, UUID>, JpaSpec
 
     boolean existsByExempleTrue();
 
-    java.util.List<Annonce> findAllByStatutAndDateFinGratuiteLessThanEqual(StatutAnnonce statut, java.time.LocalDate date);
+    java.util.List<Annonce> findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce statut, java.time.LocalDate date);
 }
