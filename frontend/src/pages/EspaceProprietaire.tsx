@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
 import AbonnementProprietaire from '../components/AbonnementProprietaire'
+import EvaluationAgenceMandat from '../components/EvaluationAgenceMandat'
 import { useAuth } from '../auth'
 
 type Mandat = {
@@ -169,6 +170,7 @@ export default function EspaceProprietaire() {
                 <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'refuser-proposition')} className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50">Refuser</button>
               </div>}
               {m.statut === 'ACCEPTE' && <button type="button" disabled={actionMandat === m.id} onClick={() => void agirMandat(m, 'resilier')} className="mt-4 rounded-full border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">Demander la résiliation</button>}
+              {m.statut === 'RESILIE' && <EvaluationAgenceMandat mandatId={m.id} />}
               {m.statut === 'RESILIATION_DEMANDEE' && (reponseResiliationPossible ? <div className="mt-4">
                 <p className="text-sm text-slate-600">L’autre partie demande la fin du mandat. Vous devez répondre.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
