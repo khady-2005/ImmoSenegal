@@ -1,5 +1,6 @@
 package sn.immosenegal.agence;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -44,6 +45,9 @@ public class MandatGestion {
     @Column(name = "decide_le")
     private Instant decideLe;
 
+    @Column(name = "taux_commission_mensuel", precision = 5, scale = 2)
+    private BigDecimal tauxCommissionMensuel;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resiliation_demandee_par")
     private User resiliationDemandeePar;
@@ -68,6 +72,18 @@ public class MandatGestion {
     public StatutMandatGestion getStatut() { return statut; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getDecideLe() { return decideLe; }
+    public BigDecimal getTauxCommissionMensuel() { return tauxCommissionMensuel; }
+
+    public void definirTauxCommissionMensuel(BigDecimal taux) {
+        if (taux == null || taux.compareTo(new BigDecimal("0.01")) < 0
+                || taux.compareTo(new BigDecimal("100.00")) > 0) {
+            throw new IllegalArgumentException("Le taux de commission doit être compris entre 0,01 % et 100 %.");
+        }
+        if (statut != StatutMandatGestion.EN_ATTENTE) {
+            throw new IllegalStateException("Le taux ne peut être défini que pendant la négociation du mandat.");
+        }
+        this.tauxCommissionMensuel = taux;
+    }
     public User getResiliationDemandeePar() { return resiliationDemandeePar; }
 
     public void demanderResiliation(User demandeur) {
