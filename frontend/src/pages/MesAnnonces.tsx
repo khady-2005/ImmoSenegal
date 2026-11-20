@@ -190,7 +190,7 @@ export default function MesAnnonces() {
                     {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission proposée : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
                     {mandat.origine === 'INITIATIVE_AGENCE' && mandat.statut === 'EN_ATTENTE' && (
                       <>
-                        <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, true)} className="rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Accepter</button>
+                        <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, true)} className="rounded-full bg-nuit-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Accepter</button>
                         <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, false)} className="rounded-full border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50">Refuser</button>
                       </>
                     )}
