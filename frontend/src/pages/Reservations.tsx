@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { BookmarkCheck, Check, X } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
@@ -43,6 +43,8 @@ export default function Reservations() {
   const [depot, setDepot] = useState('0')
   const [debut, setDebut] = useState(new Date().toISOString().slice(0,10))
   const [fin, setFin] = useState('')
+  const [recherche, setRecherche] = useState('')
+  const [filtre, setFiltre] = useState<'TOUS' | StatutReservation>('TOUS')
 
   const charger = useCallback(async () => {
     setErreur('')
@@ -101,6 +103,15 @@ export default function Reservations() {
     return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agents mandatés et administrateurs.</p></div>
   }
 
+  const demandesFiltrees = useMemo(() => demandes.filter(d => {
+    const q = recherche.trim().toLocaleLowerCase()
+    const correspond = !q || [d.annonceTitre, d.ville, d.quartier, d.clientNom, d.proprietaireNom].some(v => v.toLocaleLowerCase().includes(q))
+    return correspond && (filtre === 'TOUS' || d.statut === filtre)
+  }), [demandes, recherche, filtre])
+  const enAttente = demandes.filter(d => d.statut === 'EN_ATTENTE').length
+  const acceptees = demandes.filter(d => d.statut === 'ACCEPTEE').length
+  const refusees = demandes.filter(d => d.statut === 'REFUSEE').length
+
   const titre = admin ? 'Toutes les réservations' : client ? 'Mes demandes de réservation' : 'Réservations reçues'
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -112,8 +123,22 @@ export default function Reservations() {
       {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des réservations…</p>}
       {!chargement && demandes.length === 0 && <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center"><BookmarkCheck className="mx-auto h-9 w-9 text-amber-800" /><h2 className="mt-3 text-lg font-semibold text-nuit-900">Aucune réservation pour le moment</h2><p className="mt-1 text-sm text-slate-600">Les demandes liées à vos annonces ou à votre compte apparaîtront ici.</p></div>}
+      {!chargement && <section className="mb-5 grid gap-3 sm:grid-cols-3" aria-label="Résumé des réservations">
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">En attente</p><p className="mt-1 text-2xl font-bold text-nuit-900">{enAttente}</p></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Acceptées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{acceptees}</p></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Refusées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{refusees}</p></div>
+      </section>}
+      {!chargement && demandes.length > 0 && <section className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-[1fr_220px]">
+        <label className="text-sm font-medium text-slate-700">Rechercher une réservation
+          <input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Logement, ville, demandeur…" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal"/>
+        </label>
+        <label className="text-sm font-medium text-slate-700">État
+          <select value={filtre} onChange={e => setFiltre(e.target.value as 'TOUS' | StatutReservation)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5"><option value="TOUS">Tous les états</option>{Object.entries(libelles).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
+        </label>
+      </section>}
+      {!chargement && demandes.length > 0 && demandesFiltrees.length === 0 && <p className="mb-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucune réservation ne correspond à votre recherche.</p>}
       <div className="space-y-4">
-        {demandes.map(d => (
+        {demandesFiltrees.map(d => (
           <article key={d.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div><h2 className="text-lg font-semibold text-nuit-900">{d.annonceTitre}</h2><p className="mt-1 text-sm text-slate-600">{d.quartier}, {d.ville}</p></div>
