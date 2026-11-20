@@ -313,7 +313,7 @@ export default function FormulaireAnnonce() {
         {edition && a && !statutsCommerciaux.includes(a.statut) && (
           <div role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-slate-800">
             <p><strong>Statut : {libelleStatut[a.statut]}.</strong>{' '}
-              {a.statut === 'EN_ATTENTE' && "Cette annonce est en cours de vérification et n'est pas visible du public."}
+              {a.statut === 'EN_ATTENTE' && "La période de couverture est terminée. L'annonce reste dans votre espace, mais n'est plus visible dans le catalogue. Souscrivez un abonnement ou faites accepter un mandat par une agence pour la republier."}
               {a.statut === 'A_CORRIGER' && "Corrigez ce qui est demandé : en enregistrant, elle repart en attente de validation."}
               {a.statut === 'REFUSEE' && "Elle ne peut plus être modifiée : créez une nouvelle annonce."}
               {a.statut === 'SUSPENDUE' && "Elle est retirée du catalogue : contactez l'administration."}
