@@ -161,11 +161,11 @@ public class MandatGestionService {
                 "Ce bien est déjà confié à une autre agence. Le mandat existant doit être terminé avant d'en accepter un nouveau.");
         }
         mandat.decider(accepter ? StatutMandatGestion.ACCEPTE : StatutMandatGestion.REFUSE);
-        // Un bien enregistré sans abonnement reste invisible jusqu'à l'accord de l'agence.
+        // Un bien confié à l'agence est couvert par le mandat accepté.
         // L'acceptation du mandat autorise alors sa publication sans abonnement propriétaire.
         if (accepter) {
             // Un mandat accepté prend le relais de l'abonnement et couvre la publication du bien.
-            mandat.getAnnonce().setDateFinGratuite(null);
+            mandat.getAnnonce().setDateFinPublication(null);
             if (mandat.getAnnonce().getStatut() == StatutAnnonce.EN_ATTENTE) {
                 mandat.getAnnonce().setStatut(StatutAnnonce.PUBLIEE);
             }
@@ -233,7 +233,7 @@ public class MandatGestionService {
         User demandeur = mandat.getResiliationDemandeePar();
         try { mandat.deciderResiliation(accepter); }
         catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
-        // À la fin du mandat, le bien ne peut rester publié sans abonnement direct actif.
+        // À la fin du mandat, le bien ne reste publié que si un abonnement propriétaire est encore actif.
         // Le propriétaire pourra le republier après souscription ou signer un nouveau mandat.
         if (accepter && mandat.getAnnonce().getStatut() == StatutAnnonce.PUBLIEE) {
             boolean abonnementActif = abonnements
@@ -246,9 +246,9 @@ public class MandatGestionService {
                 abonnements.findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
                     mandat.getProprietaire().getId(), StatutAbonnement.ACTIF)
                     .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
-                    .ifPresent(a -> mandat.getAnnonce().setDateFinGratuite(a.getDateFin()));
+                    .ifPresent(a -> mandat.getAnnonce().setDateFinPublication(a.getDateFin()));
             } else {
-                mandat.getAnnonce().setDateFinGratuite(null);
+                mandat.getAnnonce().setDateFinPublication(null);
                 mandat.getAnnonce().setStatut(StatutAnnonce.EN_ATTENTE);
             }
         }
