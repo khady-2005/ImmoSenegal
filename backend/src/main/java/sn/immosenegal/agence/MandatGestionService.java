@@ -148,10 +148,6 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà reçu une réponse.");
         }
 
-        if (accepter && mandat.getTauxCommissionMensuel() == null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                "Le taux de commission mensuel doit être proposé avant l'acceptation du mandat.");
-        }
         if (accepter && (mandats.existsByAnnonceIdAndStatutAndIdNot(
                 mandat.getAnnonce().getId(), StatutMandatGestion.ACCEPTE, mandat.getId())
                 || mandats.existsByAnnonceIdAndStatutAndIdNot(
