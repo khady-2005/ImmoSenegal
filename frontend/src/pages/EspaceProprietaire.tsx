@@ -43,7 +43,9 @@ export default function EspaceProprietaire() {
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
   const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, offres: 0 })
-  const [suiviPartiel, setSuiviPartiel] = useState(false)\n  const [mandats, setMandats] = useState<Mandat[]>([])\n  const [actionMandat, setActionMandat] = useState<string | null>(null)
+  const [suiviPartiel, setSuiviPartiel] = useState(false)
+  const [mandats, setMandats] = useState<Mandat[]>([])
+  const [actionMandat, setActionMandat] = useState<string | null>(null)
 
   useEffect(() => {
     if (!jeton) return
@@ -54,7 +56,8 @@ export default function EspaceProprietaire() {
       appelApi<{ statut: string }[]>('/api/visites/recues', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/reservations/recues', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/offres/recues', { token: jeton }),
-      appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),\n      appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }),
+      appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),
+      appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }),
     ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult]) => {
       if (!actif) return
       if (contratsResult.status === 'fulfilled') {
@@ -66,7 +69,8 @@ export default function EspaceProprietaire() {
       const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
       const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
       const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
-      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult].some(result => result.status === 'rejected'))\n      if (mandatsResult.status === 'fulfilled') setMandats(mandatsResult.value)
+      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult].some(result => result.status === 'rejected'))
+      if (mandatsResult.status === 'fulfilled') setMandats(mandatsResult.value)
       setSuivi({
         visites: visites.filter(x => x.statut === 'EN_ATTENTE').length,
         reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
