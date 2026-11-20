@@ -76,11 +76,13 @@ export default function EspaceProprietaire() {
     return () => { actif = false }
   }, [jeton])
 
-  const agirMandat = async (mandat: Mandat, action: 'resilier' | 'accepter' | 'refuser') => {
+  const agirMandat = async (mandat: Mandat, action: 'resilier' | 'accepter' | 'refuser' | 'accepter-proposition' | 'refuser-proposition') => {
     if (!jeton) return
     setActionMandat(mandat.id); setErreur('')
     try {
-      if (action === 'resilier') {
+      if (action === 'accepter-proposition' || action === 'refuser-proposition') {
+        await appelApi(`/api/mandats/${mandat.id}/reponse`, { method: 'POST', token: jeton, body: { accepter: action === 'accepter-proposition' } })
+      } else if (action === 'resilier') {
         await appelApi(`/api/mandats/${mandat.id}/resiliation`, { method: 'POST', token: jeton })
       } else {
         await appelApi(`/api/mandats/${mandat.id}/resiliation/reponse`, { method: 'POST', token: jeton, body: { accepter: action === 'accepter' } })
