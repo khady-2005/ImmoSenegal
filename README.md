@@ -5,24 +5,20 @@ Elle combine les projets 2 (ImmoSénégal) et 14 (E-Courtier) des briefs de proj
 
 **Stack :** Java 21, Spring Boot 3.4, Spring Security, PostgreSQL 16, Flyway, Swagger/OpenAPI. Frontend : React, TypeScript, Vite, Tailwind, carte Leaflet/OpenStreetMap (sans clé API).
 
-## État du projet
+## Fonctionnalités de l'application
 
-| Élément | État |
+| Espace / module | Fonctionnalités présentes dans le dépôt |
 |---|---|
-| Squelette backend (sécurité, CORS, Swagger, Flyway, `/api/health`) | **Vérifié par la CI** (compilation + 3 tests, le 28/10/2026) |
-| Authentification JWT (inscription CLIENT, connexion, profil), rôles, premier ADMIN, demandes de rôle validées par ADMIN, journal d'audit | **Vérifié par la CI** (tests backend) |
-| Limitation des tentatives de connexion (5 échecs/email, 20/IP, 15 min → 429 + Retry-After) | **Vérifié par la CI** |
-| Session longue : cookie HttpOnly de rafraîchissement (jeton à usage unique, rotation, détection de réutilisation), déconnexion côté serveur | **Vérifié par la CI** (62 tests backend, 0 échec ; rechargement de page vérifié en bout en bout) |
-| Mot de passe oublié | À faire |
-| Annonces (backend) : publication (PROPRIETAIRE/AGENT/ADMIN), modification/suppression par le propriétaire ou un ADMIN, catalogue public, recherche filtrée + pagination + tri | **Vérifié par la CI** (51 tests backend au total, 0 échec, le 29/10/2026) |
-| Photos des annonces : envoi par le propriétaire (JPEG/PNG, 5 Mo, 8 max), nettoyage des métadonnées dont le GPS, couverture dans le catalogue, galerie dans le détail | **Vérifié par la CI** (76 tests backend, 53 tests frontend, parcours de bout en bout avec une vraie image) |
-| Annonces : carte | À faire |
-| Visites, offres, paiements simulés, messagerie, assistant, vérification des annonces | À faire |
-| Frontend : accueil, catalogue réel (filtres, tri, pagination), détail d'une annonce, publication / modification / suppression par le propriétaire (« Mes annonces »), demande de rôle par le Client et validation par l'administrateur | **Vérifié par la CI** (compilation + 53 tests) — 40 tests avec API simulée **et** un parcours de bout en bout (navigateur réel + vrai backend + PostgreSQL) en CI : inscription → demande de rôle → validation admin → publication → catalogue → modification → suppression |
-| Frontend : pages Connexion, Inscription, Tableau de bord (profil vérifié par `/api/auth/me`), navigation selon la session | Testé avec une API **simulée** (19 tests) ; **pas encore testé contre le vrai backend** |
-| Frontend : carte | À faire |
+| Visiteur | Accueil, catalogue public, recherche et filtres, carte, fiche détaillée des annonces publiées, contact et FAQ |
+| Authentification | Inscription, connexion, sessions sécurisées, mot de passe oublié et changement de mot de passe |
+| Client / locataire | Favoris, demandes de visite et réservation, propositions de loyer et d'achat, contrats, messagerie, incidents, états des lieux et suivi du dépôt de garantie |
+| Propriétaire | Publication autonome des annonces, gestion des photos et vidéo, suivi des visites, réservations, offres, contrats, incidents et échanges |
+| Agence | Équipe, invitations, candidatures, collaborateurs, mandats de gestion, portefeuille, missions, visites, CRM et suivi des ventes |
+| Collaborateur | Espace dédié selon la fonction (agent immobilier ou gestionnaire), avec accès contrôlés par l'appartenance active à l'agence |
+| Administration | Gestion des comptes et rôles, modération a posteriori, supervision des agences, suivi des litiges et journal d'audit |
+| Sécurité | Rôles vérifiés côté serveur, contrôle de propriété, validation des données, limitation des tentatives de connexion et sessions HttpOnly |
 
-Un élément n'est marqué « vérifié » que lorsque la CI (onglet « Actions » de GitHub) est verte.
+**Important :** cette liste décrit les fonctionnalités présentes dans le code, pas une certification de leur fonctionnement en production. Les compilations, tests automatisés, migrations et déploiements doivent être vérifiés sur la version finale. Les vérifications GitHub récentes sont actuellement en échec et doivent être corrigées avant de déclarer le projet validé.
 
 **Photos :** stockées dans la base PostgreSQL (aucun disque à gérer, sauvegardées avec les données). Chaque photo est décodée puis ré-encodée à l'envoi : un fichier qui n'est pas une vraie image est refusé, les métadonnées (position GPS, appareil) sont supprimées, l'image est réduite à 1600 px. WebP et SVG sont refusés. Limite connue : pas de réorganisation des photos (la plus ancienne sert de couverture ; pour changer, supprimer et renvoyer).
 
