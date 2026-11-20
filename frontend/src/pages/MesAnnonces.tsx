@@ -184,6 +184,7 @@ export default function MesAnnonces() {
                         <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void definirCommission(mandat)} className="rounded-lg bg-nuit-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">Enregistrer le taux</button>
                       </div>
                     )}
+                    {mandat.statut === 'EN_ATTENTE' && mandat.tauxCommissionMensuel == null && mandat.proposeParId !== utilisateur?.id && <p className="mt-2 text-xs text-slate-500">En attente de la proposition du taux de commission par l’autre partie avant acceptation.</p>}
                     {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission proposée : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
                     {mandat.origine === 'INITIATIVE_AGENCE' && mandat.statut === 'EN_ATTENTE' && (
                       <>
