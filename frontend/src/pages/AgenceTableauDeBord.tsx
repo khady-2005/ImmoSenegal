@@ -398,7 +398,7 @@ export default function AgenceTableauDeBord() {
                   <p className="font-semibold text-nuit-900">{mandat.annonceTitre}</p>
                   <p className="text-sm text-slate-600">{mandat.ville} · Propriétaire : {mandat.proprietaireNom}</p>
                   <p className="mt-1 text-xs text-slate-500">{mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Demande reçue du propriétaire' : 'Proposition envoyée par votre agence'}</p>
-                  <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                  <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-blue-100 text-blue-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
                     {mandat.statut === 'EN_ATTENTE' ? (mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Votre réponse est attendue' : 'En attente du propriétaire') : mandat.statut === 'ACCEPTE' ? 'Mandat accepté' : mandat.statut === 'RESILIATION_DEMANDEE' ? 'Résiliation à confirmer' : mandat.statut === 'RESILIE' ? 'Mandat résilié' : 'Demande refusée'}
                   </span>
                 </div>
@@ -424,7 +424,7 @@ export default function AgenceTableauDeBord() {
                 )}
                 {mandat.origine === 'INITIATIVE_PROPRIETAIRE' && mandat.statut === 'EN_ATTENTE' && (
                   <div className="flex shrink-0 gap-2">
-                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, true)} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">Accepter</button>
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, true)} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50">Accepter</button>
                     <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, false)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">Refuser</button>
                   </div>
                 )}
@@ -459,7 +459,7 @@ export default function AgenceTableauDeBord() {
                 <div className="flex shrink-0 gap-2">
                   <button type="button" disabled={membreEnCours === candidature.id}
                     onClick={() => void deciderCandidature(candidature, true)}
-                    className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">
+                    className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50">
                     Accepter
                   </button>
                   <button type="button" disabled={membreEnCours === candidature.id}
@@ -486,11 +486,21 @@ export default function AgenceTableauDeBord() {
             </button>
           </div>
 
-          {chargement ? <p role="status" className="mt-5 text-sm text-slate-500">Chargement de l’équipe…</p> : membres.length === 0 ? (
-            <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucun membre actif à afficher.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <label className="text-sm font-medium text-slate-700">Rechercher un membre
+              <input value={rechercheMembre} onChange={e => setRechercheMembre(e.target.value)} placeholder="Nom, e-mail ou fonction…" className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm font-normal"/>
+            </label>
+            <label className="text-sm font-medium text-slate-700">Filtrer l’équipe
+              <select value={filtreMembre} onChange={e => setFiltreMembre(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm">
+                <option value="TOUS">Tous les membres</option><option value="ACTIF">Accès actifs</option><option value="SUSPENDU">Accès suspendus</option><option value="AGENT">Agents immobiliers</option><option value="GESTIONNAIRE">Gestionnaires</option>
+              </select>
+            </label>
+          </div>
+          {chargement ? <p role="status" className="mt-5 text-sm text-slate-500">Chargement de l’équipe…</p> : membresFiltres.length === 0 ? (
+            <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">{membres.length === 0 ? 'Aucun membre enregistré.' : 'Aucun membre ne correspond à cette recherche.'}</p>
           ) : (
             <div className="mt-5 divide-y divide-slate-100">
-              {membres.map((membre) => (
+              {membresFiltres.map((membre) => (
                 <article key={membre.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="font-semibold text-nuit-900">{membre.nom}</p>
@@ -499,7 +509,7 @@ export default function AgenceTableauDeBord() {
                       {membre.fonction === 'RESPONSABLE' && <ShieldCheck className="h-3.5 w-3.5" />}
                       {fonctions[membre.fonction] ?? membre.fonction}
                     </span>
-                    <span className={`ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${membre.statut === 'ACTIF' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                    <span className={`ml-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${membre.statut === 'ACTIF' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'}`}>
                       {membre.statut === 'ACTIF' ? 'Accès actif' : 'Accès suspendu'}
                     </span>
                   </div>
@@ -519,7 +529,7 @@ export default function AgenceTableauDeBord() {
                         type="button"
                         disabled={membreEnCours === membre.id}
                         onClick={() => void changerStatut(membre, membre.statut === 'ACTIF' ? 'SUSPENDU' : 'ACTIF')}
-                        className={`rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${membre.statut === 'ACTIF' ? 'border border-red-200 text-red-700 hover:bg-red-50' : 'bg-emerald-700 text-white hover:bg-emerald-800'}`}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${membre.statut === 'ACTIF' ? 'border border-red-200 text-red-700 hover:bg-red-50' : 'bg-nuit-900 text-white hover:bg-nuit-800'}`}
                       >
                         {membre.statut === 'ACTIF' ? 'Suspendre l’accès' : 'Réactiver l’accès'}
                       </button>
