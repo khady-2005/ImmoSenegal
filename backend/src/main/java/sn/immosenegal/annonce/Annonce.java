@@ -99,8 +99,8 @@ public class Annonce {
     private boolean exemple;
 
     /** Fin de la période gratuite de 30 jours ; null si la publication repose sur un abonnement. */
-    @Column(name = "date_fin_gratuite")
-    private java.time.LocalDate dateFinGratuite;
+    @Column(name = "date_fin_publication")
+    private java.time.LocalDate dateFinPublication;
 
     @Column(name = "cree_le", nullable = false, updatable = false)
     private Instant creeLe = Instant.now();
@@ -136,7 +136,7 @@ public class Annonce {
     public Instant getModereLe() { return modereLe; }
     public Set<String> getEquipements() { return equipements; }
     public boolean isExemple() { return exemple; }
-    public java.time.LocalDate getDateFinGratuite() { return dateFinGratuite; }
+    public java.time.LocalDate getDateFinPublication() { return dateFinPublication; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
 
@@ -154,7 +154,7 @@ public class Annonce {
     public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
     public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
     public void setStatut(StatutAnnonce statut) { this.statut = statut; }
-    public void setDateFinGratuite(java.time.LocalDate date) { this.dateFinGratuite = date; }
+    public void setDateFinPublication(java.time.LocalDate date) { this.dateFinPublication = date; }
     public void setModifieLe(Instant modifieLe) { this.modifieLe = modifieLe; }
 
     /** Enregistre une décision de modération (statut, motif, auteur, date). */
