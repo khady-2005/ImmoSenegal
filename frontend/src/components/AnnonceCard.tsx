@@ -11,7 +11,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const disponible = annonce.statut === 'PUBLIEE'
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emeraude-900 to-emeraude-700">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-nuit-900 to-nuit-700">
         <BoutonFavori annonceId={annonce.id} />
         {annonce.photos.length > 0 ? (
           <img
@@ -25,7 +25,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
         )}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-nuit-950/80 to-transparent" />
 
-        <span className="absolute left-3 top-3 rounded-full bg-emeraude-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+        <span className="absolute left-3 top-3 rounded-full bg-dore-300 px-3 py-1 text-xs font-bold text-nuit-900 shadow-sm">
           {location ? 'À louer' : 'À vendre'}
         </span>
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
@@ -43,7 +43,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <p className="text-sm font-medium text-emeraude-700">{libelleTypeBien[annonce.typeBien]}</p>
+        <p className="text-sm font-medium text-amber-800">{libelleTypeBien[annonce.typeBien]}</p>
         <h3 className="font-titre text-lg font-semibold leading-snug text-nuit-900">
           {/* Le lien couvre toute la carte : un clic n'importe où ouvre la fiche. */}
           <Link to={`/annonces/${annonce.id}`} className="after:absolute after:inset-0 after:content-[''] hover:underline">
@@ -51,7 +51,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           </Link>
         </h3>
         <p className="flex items-center gap-1.5 text-sm text-slate-600">
-          <MapPin aria-hidden className="h-4 w-4 shrink-0 text-emeraude-600" />
+          <MapPin aria-hidden className="h-4 w-4 shrink-0 text-amber-600" />
           {annonce.quartier}, {annonce.ville}
         </p>
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-sm text-slate-700">
@@ -67,7 +67,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
               </span>
             )}
           </p>
-          <span aria-hidden className="flex items-center gap-1 font-semibold text-emeraude-700 transition-all group-hover:gap-2">
+          <span aria-hidden className="flex items-center gap-1 font-semibold text-amber-800 transition-all group-hover:gap-2">
             Voir le détail
             <ArrowRight className="h-4 w-4" />
           </span>
