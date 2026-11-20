@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sn.immosenegal.audit.AuditService;
+import sn.immosenegal.abonnement.AbonnementProprietaireRepository;
+import sn.immosenegal.abonnement.StatutAbonnement;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
@@ -47,12 +49,15 @@ public class AnnonceService {
     private final UserRepository users;
     private final AuditService audit;
     private final PhotoRepository photos;
+    private final AbonnementProprietaireRepository abonnements;
 
-    public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos) {
+    public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos,
+            AbonnementProprietaireRepository abonnements) {
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
         this.photos = photos;
+        this.abonnements = abonnements;
     }
 
     @Transactional
@@ -84,11 +89,19 @@ public class AnnonceService {
         }
         Annonce annonce = new Annonce(proprietaire);
         appliquer(annonce, requete);
-        // Publication immédiate : le propriétaire reste autonome pour ses annonces ordinaires.
-        // Les administrateurs conservent les outils de signalement, suspension et modération a posteriori.
-        annonce.setStatut(StatutAnnonce.PUBLIEE);
+        // Une publication directe exige un abonnement actif. Sans abonnement, le bien est enregistré
+        // en attente afin que son propriétaire puisse demander un mandat à une agence ; l'agence
+        // le publiera après acceptation du mandat. Les créations administrateur restent publiées.
+        boolean abonnementActif = abonnements
+            .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(proprietaire.getId(), StatutAbonnement.ACTIF)
+            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+            .isPresent();
+        annonce.setStatut(auteur.role() == Role.ADMIN || abonnementActif
+            ? StatutAnnonce.PUBLIEE : StatutAnnonce.EN_ATTENTE);
         annonces.save(annonce);
-        audit.enregistrer("ANNONCE_CREEE", auteur.id(), "Annonce " + annonce.getId() + " publiée directement par son propriétaire");
+        audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getStatut() == StatutAnnonce.PUBLIEE
+            ? "Annonce " + annonce.getId() + " publiée directement"
+            : "Annonce " + annonce.getId() + " enregistrée en attente d’un mandat d’agence ou d’un abonnement");
         return AnnonceResponse.pourGestion(annonce, List.of());
     }
 
