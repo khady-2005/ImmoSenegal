@@ -59,7 +59,7 @@ public class MandatGestionService {
     /** Le propriétaire demande à une agence précise de prendre en charge son annonce. */
     public MandatResume demander(UUID agenceId, UUID annonceId, AuthenticatedUser acteur) {
         Agence agence = agenceActive(agenceId);
-        Annonce annonce = annoncePubliee(annonceId);
+        Annonce annonce = annoncePourDemandeProprietaire(annonceId);
         if (!annonce.getProprietaire().getId().equals(acteur.id())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez demander la gestion que de votre propre bien.");
         }
@@ -135,6 +135,11 @@ public class MandatGestionService {
                 "Ce bien est déjà confié à une autre agence. Le mandat existant doit être terminé avant d'en accepter un nouveau.");
         }
         mandat.decider(accepter ? StatutMandatGestion.ACCEPTE : StatutMandatGestion.REFUSE);
+        // Un bien enregistré sans abonnement reste invisible jusqu'à l'accord de l'agence.
+        // L'acceptation du mandat autorise alors sa publication sans abonnement propriétaire.
+        if (accepter && mandat.getAnnonce().getStatut() == StatutAnnonce.EN_ATTENTE) {
+            mandat.getAnnonce().setStatut(StatutAnnonce.PUBLIEE);
+        }
         String decision = accepter ? "acceptée" : "refusée";
         User destinataire = mandat.getProposePar();
         String titre = mandat.getOrigine() == OrigineMandatGestion.INITIATIVE_AGENCE
@@ -216,7 +221,19 @@ public class MandatGestionService {
         Annonce annonce = annonces.findById(annonceId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
         if (annonce.isExemple() || annonce.getStatut() != StatutAnnonce.PUBLIEE) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Seules les annonces publiées peuvent faire l'objet d'une demande de gestion.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Seules les annonces publiées peuvent faire l'objet d'une proposition d'agence.");
+        }
+        return annonce;
+    }
+
+    /** Le propriétaire peut confier un bien publié ou encore en attente d'abonnement. */
+    private Annonce annoncePourDemandeProprietaire(UUID annonceId) {
+        Annonce annonce = annonces.findById(annonceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
+        if (annonce.isExemple() || (annonce.getStatut() != StatutAnnonce.PUBLIEE
+                && annonce.getStatut() != StatutAnnonce.EN_ATTENTE)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                "Seules vos annonces publiées ou en attente d'abonnement peuvent être confiées à une agence.");
         }
         return annonce;
     }
