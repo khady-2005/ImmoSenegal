@@ -94,13 +94,13 @@ public class AnnonceService {
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()));
         annonce.setStatut(StatutAnnonce.PUBLIEE);
         // La date sert de limite de couverture : 30 jours gratuits, ou date de fin du forfait actif.
-        annonce.setDateFinGratuite(abonnementActif
+        annonce.setDateFinPublication(abonnementActif
             .map(a -> a.getDateFin())
             .orElseGet(() -> java.time.LocalDate.now().plusDays(30)));
         annonces.save(annonce);
-        audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinGratuite() == null
+        audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinPublication() == null
             ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
-            : "Annonce " + annonce.getId() + " publiée gratuitement jusqu'au " + annonce.getDateFinGratuite());
+            : "Annonce " + annonce.getId() + " publiée gratuitement jusqu'au " + annonce.getDateFinPublication());
         return AnnonceResponse.pourGestion(annonce, List.of());
     }
 
@@ -177,7 +177,7 @@ public class AnnonceService {
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
             .map(a -> a.getDateFin())
             .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "Votre abonnement n'est plus actif."));
-        annonce.setDateFinGratuite(finForfait);
+        annonce.setDateFinPublication(finForfait);
         annonce.setStatut(StatutAnnonce.PUBLIEE);
         audit.enregistrer("ANNONCE_PUBLIEE_AVEC_ABONNEMENT", auteur.id(), "Annonce " + id + " publiée avec un abonnement actif");
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
@@ -242,8 +242,8 @@ public class AnnonceService {
             throw new ApiException(HttpStatus.CONFLICT,
                 "Action impossible : l'annonce est actuellement au statut " + annonce.getStatut() + ".");
         }
-        if (action == ActionModeration.VALIDER && annonce.getDateFinGratuite() != null
-                && annonce.getDateFinGratuite().isBefore(java.time.LocalDate.now())) {
+        if (action == ActionModeration.VALIDER && annonce.getDateFinPublication() != null
+                && annonce.getDateFinPublication().isBefore(java.time.LocalDate.now())) {
             boolean abonnementActif = abonnements
                 .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
                     annonce.getProprietaire().getId(), StatutAbonnement.ACTIF)
