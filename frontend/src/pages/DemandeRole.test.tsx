@@ -38,7 +38,7 @@ describe('Demande de rôle', () => {
       'POST /api/auth/role-requests': () => json(409, { message: 'Une demande est déjà en attente de validation.' }),
     })
     await user.click(screen.getByRole('button', { name: /envoyer la demande/i }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('déjà en attente')
+    expect(await screen.findByText('Une demande est déjà en attente de validation.')).toHaveAttribute('role', 'alert')
   })
 
   it("un administrateur approuve une demande ; un Client ne voit pas le lien d'administration", async () => {
