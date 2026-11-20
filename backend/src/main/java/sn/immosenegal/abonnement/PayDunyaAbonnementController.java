@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.UserRepository;
+import sn.immosenegal.notification.NotificationService;
 
 @RestController
 @RequestMapping("/api/abonnements")
@@ -22,13 +23,15 @@ public class PayDunyaAbonnementController {
     private final UserRepository users;
     private final PayDunyaService payDunya;
     private final ObjectMapper json;
+    private final NotificationService notifications;
 
     public PayDunyaAbonnementController(AbonnementProprietaireRepository abonnements,
-            UserRepository users, PayDunyaService payDunya, ObjectMapper json) {
+            UserRepository users, PayDunyaService payDunya, ObjectMapper json, NotificationService notifications) {
         this.abonnements = abonnements;
         this.users = users;
         this.payDunya = payDunya;
         this.json = json;
+        this.notifications = notifications;
     }
 
     @PostMapping("/payer")
@@ -133,8 +136,15 @@ public class PayDunyaAbonnementController {
             if (montantConfirme.compareTo(abonnement.getMontant()) != 0)
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Le montant confirmé ne correspond pas au forfait.");
             String reference = confirmation.path("transaction_id").asText("");
+            boolean etaitEnAttente = abonnement.getStatut() == StatutAbonnement.EN_ATTENTE;
             abonnement.confirmerPaiement(reference.isBlank() ? token : reference);
             abonnements.save(abonnement);
+            if (etaitEnAttente && abonnement.getStatut() == StatutAbonnement.ACTIF) {
+                users.findById(abonnement.getProprietaireId()).ifPresent(proprietaire ->
+                    notifications.creer(proprietaire, "ABONNEMENT_ACTIVE", "Votre abonnement est activé",
+                        "Votre abonnement " + abonnement.getForfait() + " est actif jusqu'au " + abonnement.getDateFin() + ".",
+                        "/espace-proprietaire"));
+            }
             return Map.of("status", "completed");
         }
         if ("cancelled".equals(statut) || "canceled".equals(statut) || "failed".equals(statut)) {
