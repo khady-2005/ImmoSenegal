@@ -58,8 +58,9 @@ public class PayDunyaService {
         invoice.put("customer", Map.of("name", nom, "email", email));
         Map<String,Object> actions = Map.of(
             "callback_url", callbackUrl,
-            "return_url", frontendUrl + "/espace-proprietaire?paiement=retour",
-            "cancel_url", frontendUrl + "/espace-proprietaire?paiement=annule"
+            // PayDunya ajoute lui-même ?token=... : ne pas mettre de query string ici.
+            "return_url", frontendUrl + "/espace-proprietaire",
+            "cancel_url", frontendUrl + "/espace-proprietaire"
         );
         Map<String,Object> payload = Map.of(
             "invoice", invoice,
