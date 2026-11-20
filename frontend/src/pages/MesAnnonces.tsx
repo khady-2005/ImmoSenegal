@@ -17,6 +17,8 @@ type Mandat = {
   statut: string
   creeLe: string
   decideLe: string | null
+  tauxCommissionMensuel: number | null
+  proposeParId: string
 }
 
 const libelleOrigine = (origine: string) => origine === 'INITIATIVE_PROPRIETAIRE' ? 'Demande envoyée à l’agence' : 'Proposition reçue de l’agence'
@@ -32,6 +34,7 @@ export default function MesAnnonces() {
   const [message, setMessage] = useState<string | null>(null)
   const [aSupprimer, setASupprimer] = useState<string | null>(null)
   const [demandeEnCours, setDemandeEnCours] = useState<string | null>(null)
+  const [tauxCommission, setTauxCommission] = useState<Record<string, string>>({})
 
   const charger = useCallback(async () => {
     setErreur(null)
@@ -79,6 +82,23 @@ export default function MesAnnonces() {
     } finally {
       setDemandeEnCours(null)
     }
+  }
+
+  async function definirCommission(mandat: Mandat) {
+    const taux = Number(tauxCommission[mandat.id])
+    if (!Number.isFinite(taux) || taux < 0.01 || taux > 100) {
+      setErreur('Indiquez un taux compris entre 0,01 % et 100 %.')
+      return
+    }
+    setDemandeEnCours(mandat.id); setErreur(null); setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/commission`, {
+        method: 'PATCH', token: jeton, body: { tauxCommissionMensuel: taux },
+      })
+      setMessage('Le taux de commission a été enregistré dans le mandat.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible d’enregistrer le taux.') }
+    finally { setDemandeEnCours(null) }
   }
 
   async function demanderGestion(annonce: Annonce) {
@@ -156,6 +176,15 @@ export default function MesAnnonces() {
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
                       {libelleMandat(mandat.statut)}
                     </span>
+                    {mandat.statut === 'EN_ATTENTE' && mandat.proposeParId === utilisateur?.id && mandat.tauxCommissionMensuel == null && (
+                      <div className="mt-3 flex flex-wrap items-end gap-2">
+                        <label className="text-xs font-medium text-slate-600">Commission mensuelle (%)
+                          <input type="number" min="0.01" max="100" step="0.01" value={tauxCommission[mandat.id] ?? ''} onChange={(event) => setTauxCommission((prev) => ({ ...prev, [mandat.id]: event.target.value }))} className="mt-1 block w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Ex. 8" />
+                        </label>
+                        <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void definirCommission(mandat)} className="rounded-lg bg-nuit-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">Enregistrer le taux</button>
+                      </div>
+                    )}
+                    {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission proposée : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
                     {mandat.origine === 'INITIATIVE_AGENCE' && mandat.statut === 'EN_ATTENTE' && (
                       <>
                         <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, true)} className="rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Accepter</button>
