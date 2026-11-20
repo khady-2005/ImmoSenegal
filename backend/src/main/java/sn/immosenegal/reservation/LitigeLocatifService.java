@@ -27,7 +27,7 @@ public class LitigeLocatifService {
         if (acteur == null || acteur.role() != Role.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé à l'administrateur.");
         List<LitigeResume> resultats = new ArrayList<>();
-        incidents.findAllByStatutInOrderByCreeLeDesc(List.of(StatutIncidentLocation.OUVERT, StatutIncidentLocation.EN_COURS))
+        incidents.findAllByStatutInOrderByCreeLeDesc(List.of(StatutIncidentLocation.OUVERT, StatutIncidentLocation.EN_COURS, StatutIncidentLocation.RESOLU))
             .forEach(i -> resultats.add(new LitigeResume("INCIDENT", i.getId(), i.getContrat().getId(),
                 i.getContrat().getAnnonce().getTitre(), i.getContrat().getProprietaire().getNomComplet(),
                 i.getContrat().getLocataire().getNomComplet(), i.getCategorie(), i.getDescription(),
