@@ -89,13 +89,14 @@ public class AnnonceService {
         }
         Annonce annonce = new Annonce(proprietaire);
         appliquer(annonce, requete);
-        boolean abonnementActif = abonnements
+        var abonnementActif = abonnements
             .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(proprietaire.getId(), StatutAbonnement.ACTIF)
-            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
-            .isPresent();
+            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()));
         annonce.setStatut(StatutAnnonce.PUBLIEE);
-        annonce.setDateFinGratuite(auteur.role() == Role.ADMIN || abonnementActif
-            ? null : java.time.LocalDate.now().plusDays(30));
+        // La date sert de limite de couverture : 30 jours gratuits, ou date de fin du forfait actif.
+        annonce.setDateFinGratuite(abonnementActif
+            .map(a -> a.getDateFin())
+            .orElseGet(() -> java.time.LocalDate.now().plusDays(30)));
         annonces.save(annonce);
         audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinGratuite() == null
             ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
@@ -171,7 +172,12 @@ public class AnnonceService {
         if (!abonnementActif) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Un abonnement actif est nécessaire pour publier directement ce bien. Vous pouvez aussi le confier à une agence.");
         }
-        annonce.setDateFinGratuite(null);
+        java.time.LocalDate finForfait = abonnements
+            .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(auteur.id(), StatutAbonnement.ACTIF)
+            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+            .map(a -> a.getDateFin())
+            .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "Votre abonnement n'est plus actif."));
+        annonce.setDateFinGratuite(finForfait);
         annonce.setStatut(StatutAnnonce.PUBLIEE);
         audit.enregistrer("ANNONCE_PUBLIEE_AVEC_ABONNEMENT", auteur.id(), "Annonce " + id + " publiée avec un abonnement actif");
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
@@ -235,6 +241,18 @@ public class AnnonceService {
         if (!action.depuis().contains(annonce.getStatut())) {
             throw new ApiException(HttpStatus.CONFLICT,
                 "Action impossible : l'annonce est actuellement au statut " + annonce.getStatut() + ".");
+        }
+        if (action == ActionModeration.VALIDER && annonce.getDateFinGratuite() != null
+                && annonce.getDateFinGratuite().isBefore(java.time.LocalDate.now())) {
+            boolean abonnementActif = abonnements
+                .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
+                    annonce.getProprietaire().getId(), StatutAbonnement.ACTIF)
+                .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+                .isPresent();
+            if (!abonnementActif) {
+                throw new ApiException(HttpStatus.CONFLICT,
+                    "La période de publication est terminée. Le propriétaire doit souscrire un abonnement ou faire accepter un mandat d'agence.");
+            }
         }
         String motifPropre = motif == null || motif.isBlank() ? null : motif.trim();
         if (action.motifObligatoire() && motifPropre == null) {
