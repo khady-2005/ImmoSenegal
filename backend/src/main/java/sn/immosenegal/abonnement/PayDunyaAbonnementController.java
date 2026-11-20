@@ -68,9 +68,23 @@ public class PayDunyaAbonnementController {
 
     @PostMapping(value = "/paydunya/callback", consumes = "application/x-www-form-urlencoded")
     @ResponseStatus(HttpStatus.OK)
-    public Map<String,String> callback(@RequestParam("data") String data) {
+    public Map<String,String> callback(@RequestParam Map<String,String> formulaire) {
         try {
-            JsonNode notification = json.readTree(data);
+            JsonNode notification;
+            String donnees = formulaire.get("data");
+            if (donnees != null && !donnees.isBlank()) {
+                notification = json.readTree(donnees);
+            } else {
+                // Certains encodeurs de formulaires transmettent le tableau PHP sous forme de clés imbriquées.
+                var objet = json.createObjectNode();
+                String hash = formulaire.getOrDefault("data[hash]", "");
+                String tokenForm = formulaire.getOrDefault("data[token]", "");
+                String tokenFacture = formulaire.getOrDefault("data[invoice][token]", "");
+                objet.put("hash", hash);
+                objet.put("token", tokenForm);
+                if (!tokenFacture.isBlank()) objet.putObject("invoice").put("token", tokenFacture);
+                notification = objet;
+            }
             if (!payDunya.hashValide(notification.path("hash").asText()))
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Signature PayDunya invalide.");
             String token = notification.path("invoice").path("token").asText();
@@ -105,10 +119,17 @@ public class PayDunyaAbonnementController {
         JsonNode confirmation = payDunya.verifierFacture(token);
         if (!"00".equals(confirmation.path("response_code").asText()))
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Vérification PayDunya impossible.");
+        if (!payDunya.hashValide(confirmation.path("hash").asText()))
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Signature de confirmation PayDunya invalide.");
 
         String statut = confirmation.path("status").asText("").toLowerCase(java.util.Locale.ROOT);
         if ("completed".equals(statut)) {
-            BigDecimal montantConfirme = confirmation.path("invoice").path("total_amount").decimalValue();
+            JsonNode montantNode = confirmation.path("invoice").path("total_amount");
+            if (montantNode.isMissingNode() || montantNode.isNull())
+                montantNode = confirmation.path("total_amount");
+            if (montantNode.isMissingNode() || montantNode.isNull() || montantNode.asText().isBlank())
+                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Montant de facture absent de la confirmation PayDunya.");
+            BigDecimal montantConfirme = montantNode.decimalValue();
             if (montantConfirme.compareTo(abonnement.getMontant()) != 0)
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Le montant confirmé ne correspond pas au forfait.");
             String reference = confirmation.path("transaction_id").asText("");
