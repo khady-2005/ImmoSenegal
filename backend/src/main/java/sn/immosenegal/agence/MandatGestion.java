@@ -44,6 +44,10 @@ public class MandatGestion {
     @Column(name = "decide_le")
     private Instant decideLe;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resiliation_demandee_par")
+    private User resiliationDemandeePar;
+
     protected MandatGestion() {}
 
     public MandatGestion(Agence agence, Annonce annonce, User proprietaire, User proposePar,
@@ -64,6 +68,20 @@ public class MandatGestion {
     public StatutMandatGestion getStatut() { return statut; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getDecideLe() { return decideLe; }
+    public User getResiliationDemandeePar() { return resiliationDemandeePar; }
+
+    public void demanderResiliation(User demandeur) {
+        if (statut != StatutMandatGestion.ACCEPTE) throw new IllegalStateException("Seul un mandat accepté peut faire l'objet d'une demande de résiliation.");
+        this.resiliationDemandeePar = demandeur;
+        this.statut = StatutMandatGestion.RESILIATION_DEMANDEE;
+    }
+
+    public void deciderResiliation(boolean accepter) {
+        if (statut != StatutMandatGestion.RESILIATION_DEMANDEE) throw new IllegalStateException("Aucune demande de résiliation en attente.");
+        this.statut = accepter ? StatutMandatGestion.RESILIE : StatutMandatGestion.ACCEPTE;
+        this.decideLe = Instant.now();
+        this.resiliationDemandeePar = null;
+    }
 
     public void decider(StatutMandatGestion decision) {
         if (decision != StatutMandatGestion.ACCEPTE && decision != StatutMandatGestion.REFUSE) {
