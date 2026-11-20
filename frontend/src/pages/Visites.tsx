@@ -44,6 +44,7 @@ export default function Visites() {
   const { utilisateur, jeton } = useAuth()
   const role = utilisateur?.role as Role | undefined
   const admin = role === 'ADMIN'
+  const agent = role === 'AGENT'
   const client = role === 'CLIENT'
   const [demandes, setDemandes] = useState<DemandeVisite[]>([])
   const [chargement, setChargement] = useState(true)
@@ -98,8 +99,8 @@ export default function Visites() {
   }
 
   const titre = admin ? 'Toutes les demandes de visite' : client ? 'Mes demandes de visite' : 'Demandes de visite reçues'
-  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'ADMIN') {
-    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires et administrateurs.</p></div>
+  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT' && role !== 'ADMIN') {
+    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agents mandatés et administrateurs.</p></div>
   }
 
   return (
@@ -107,7 +108,7 @@ export default function Visites() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-wider text-emeraude-700">Espace personnel</p>
         <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{titre}</h1>
-        <p className="mt-2 text-slate-600">{client ? 'Retrouvez ici les réponses des propriétaires et gérez vos rendez-vous.' : 'Consultez les demandes et répondez aux personnes intéressées par vos biens.'}</p>
+        <p className="mt-2 text-slate-600">{client ? 'Retrouvez ici les réponses des propriétaires et gérez vos rendez-vous.' : 'Consultez les demandes et répondez aux personnes intéressées par les biens que vous gérez.'}</p>
       </div>
       {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des demandes…</p>}
