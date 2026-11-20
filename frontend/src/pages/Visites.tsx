@@ -44,7 +44,6 @@ export default function Visites() {
   const { utilisateur, jeton } = useAuth()
   const role = utilisateur?.role as Role | undefined
   const admin = role === 'ADMIN'
-  const agent = role === 'AGENT'
   const client = role === 'CLIENT'
   const [demandes, setDemandes] = useState<DemandeVisite[]>([])
   const [chargement, setChargement] = useState(true)
