@@ -118,6 +118,15 @@ public class AuthController {
         return UserResponse.de(compte);
     }
 
+
+    @PostMapping("/changer-mot-de-passe")
+    @Operation(summary = "Changer le mot de passe après vérification de l'ancien", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public ResponseEntity<Void> changerMotDePasse(@Valid @RequestBody ChangerMotDePasseRequest requete,
+                                                   @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        service.changerMotDePasse(utilisateur.id(), requete);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Profil de l'utilisateur connecté", security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public UserResponse moi(@AuthenticationPrincipal AuthenticatedUser utilisateur) {
