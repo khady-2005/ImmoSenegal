@@ -24,6 +24,20 @@ type Mandat = {
   creeLe: string
   decideLe: string | null
   resiliationDemandeeParId?: string | null
+  tauxCommissionMensuel: number | null
+  proposeParId: string
+}
+type CommissionLocation = {
+  id: string
+  agenceId: string
+  agenceNom: string
+  contratId: string
+  annonceTitre: string
+  periode: string
+  tauxApplique: number
+  baseCalcul: number
+  montantCommission: number
+  creeLe: string
 }
 type Candidature = {
   id: string
@@ -60,6 +74,8 @@ export default function AgenceTableauDeBord() {
   const [agence, setAgence] = useState<Agence | null>(null)
   const [membres, setMembres] = useState<Membre[]>([])
   const [mandats, setMandats] = useState<Mandat[]>([])
+  const [commissions, setCommissions] = useState<CommissionLocation[]>([])
+  const [tauxCommission, setTauxCommission] = useState<Record<string, string>>({})
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
   const [annonceChoisie, setAnnonceChoisie] = useState('')
@@ -82,6 +98,7 @@ export default function AgenceTableauDeBord() {
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=50', { token: jeton }),
         appelApi<Candidature[]>(`/api/agence/${agenceId}/candidatures`, { token: jeton }),
+        appelApi<CommissionLocation[]>(`/api/agence/${agenceId}/commissions`, { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -95,6 +112,7 @@ export default function AgenceTableauDeBord() {
       setAgence(espace ?? { id: agenceId, nom: 'Agence', slug: '', fonction: 'ADMIN' })
       setMembres(equipe)
       setMandats(demandes)
+      setCommissions(relevéCommissions)
       setCandidatures(demandesEquipe)
       setAnnoncesDisponibles(catalogue.contenu)
     } catch (e) {
@@ -127,6 +145,23 @@ export default function AgenceTableauDeBord() {
     } finally {
       setMembreEnCours(null)
     }
+  }
+
+  const definirCommission = async (mandat: Mandat) => {
+    const taux = Number(tauxCommission[mandat.id])
+    if (!Number.isFinite(taux) || taux < 0.01 || taux > 100) {
+      setErreur('Indiquez un taux compris entre 0,01 % et 100 %.')
+      return
+    }
+    setMembreEnCours(mandat.id); setErreur(null); setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/commission`, {
+        method: 'PATCH', token: jeton, body: { tauxCommissionMensuel: taux },
+      })
+      setMessage('Le taux de commission a été enregistré dans le mandat.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible d’enregistrer le taux.') }
+    finally { setMembreEnCours(null) }
   }
 
   const demanderResiliation = async (mandat: Mandat) => {
@@ -281,6 +316,26 @@ export default function AgenceTableauDeBord() {
       {agence && <VentesAgence agenceId={agenceId} fonction="RESPONSABLE" />}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-nuit-900">Commissions sur les locations</h2>
+            <p className="mt-1 text-sm text-slate-600">Commission calculée sur chaque loyer enregistré pour un bien sous mandat accepté.</p>
+          </div>
+          <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-900">{commissions.reduce((total, item) => total + Number(item.montantCommission), 0).toLocaleString('fr-FR')} FCFA</span>
+        </div>
+        {commissions.length === 0 ? (
+          <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucune commission locative enregistrée pour le moment.</p>
+        ) : (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[620px] text-left text-sm">
+              <thead><tr className="border-b border-slate-200 text-slate-500"><th className="py-2 pr-3">Bien</th><th className="py-2 pr-3">Période</th><th className="py-2 pr-3">Loyer encaissé</th><th className="py-2 pr-3">Taux</th><th className="py-2">Commission</th></tr></thead>
+              <tbody>{commissions.map((item) => <tr key={item.id} className="border-b border-slate-100"><td className="py-3 pr-3 font-medium text-nuit-900">{item.annonceTitre}</td><td className="py-3 pr-3">{new Date(item.periode).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</td><td className="py-3 pr-3">{Number(item.baseCalcul).toLocaleString('fr-FR')} FCFA</td><td className="py-3 pr-3">{Number(item.tauxApplique).toLocaleString('fr-FR')} %</td><td className="py-3 font-semibold text-nuit-900">{Number(item.montantCommission).toLocaleString('fr-FR')} FCFA</td></tr>)}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-xl font-bold text-nuit-900">Proposer la gestion d’un bien</h2>
         <p className="mt-1 text-sm leading-relaxed text-slate-600">
           Sélectionnez une annonce publiée appartenant à un propriétaire. Celui-ci recevra votre proposition et restera libre de l’accepter ou de la refuser.
@@ -347,6 +402,15 @@ export default function AgenceTableauDeBord() {
                     {mandat.statut === 'EN_ATTENTE' ? (mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Votre réponse est attendue' : 'En attente du propriétaire') : mandat.statut === 'ACCEPTE' ? 'Mandat accepté' : mandat.statut === 'RESILIATION_DEMANDEE' ? 'Résiliation à confirmer' : mandat.statut === 'RESILIE' ? 'Mandat résilié' : 'Demande refusée'}
                   </span>
                 </div>
+                {mandat.statut === 'EN_ATTENTE' && mandat.proposeParId === utilisateur?.id && mandat.tauxCommissionMensuel == null && (
+                  <div className="mt-2 flex flex-wrap items-end gap-2">
+                    <label className="text-xs font-medium text-slate-600">Commission mensuelle (%)
+                      <input type="number" min="0.01" max="100" step="0.01" value={tauxCommission[mandat.id] ?? ''} onChange={(event) => setTauxCommission((prev) => ({ ...prev, [mandat.id]: event.target.value }))} className="mt-1 block w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Ex. 8" />
+                    </label>
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void definirCommission(mandat)} className="rounded-lg bg-nuit-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">Enregistrer le taux</button>
+                  </div>
+                )}
+                {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission convenue : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
                 {mandat.statut === 'ACCEPTE' && (
                   <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void demanderResiliation(mandat)}
                     className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-50">Demander la résiliation</button>
