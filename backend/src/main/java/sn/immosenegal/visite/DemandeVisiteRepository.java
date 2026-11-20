@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface DemandeVisiteRepository extends JpaRepository<DemandeVisite, UUID> {
     List<DemandeVisite> findByClientIdOrderByCreeLeDesc(UUID clientId);
     List<DemandeVisite> findByAnnonceProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
+    List<DemandeVisite> findAllByAnnonceIdInOrderByCreeLeDesc(List<UUID> annonceIds);
     List<DemandeVisite> findAllByOrderByCreeLeDesc();
     @Query("""
         select d from DemandeVisite d
