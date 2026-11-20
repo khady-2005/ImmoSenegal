@@ -4,7 +4,8 @@ import { ArrowLeft, Building2, CheckCircle2, Send } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
-type Agence = { id: string; nom: string; slug: string; description?: string; adresse?: string; logoUrl?: string; moyenne?: number; nombreAvis?: number }
+type AvisAgence = { id: string; agenceId: string; auteurNom: string; note: number; commentaire: string; creeLe: string }
+type Agence = { id: string; nom: string; slug: string; description?: string; adresse?: string; logoUrl?: string; moyenne?: number; nombreAvis?: number; avis?: AvisAgence[] }
 type EspaceAgence = { id: string; nom: string; fonction: string }
 type Candidature = { id: string; agenceId: string; agenceNom: string; fonction: string; statut: string; creeLe: string; traiteeLe?: string | null }
 
@@ -39,8 +40,8 @@ export default function AnnuaireAgences() {
       ])
       const agencesNotees = await Promise.all(liste.map(async agence => {
         try {
-          const resume = await appelApi<{ moyenne: number; nombreAvis: number }>(`/api/agence/${agence.id}/evaluations`, { token: jeton })
-          return { ...agence, moyenne: resume.moyenne, nombreAvis: resume.nombreAvis }
+          const resume = await appelApi<{ moyenne: number; nombreAvis: number; avis: AvisAgence[] }>(`/api/agence/${agence.id}/evaluations`, { token: jeton })
+          return { ...agence, moyenne: resume.moyenne, nombreAvis: resume.nombreAvis, avis: resume.avis }
         } catch { return agence }
       }))
       setAgences(agencesNotees)
@@ -113,6 +114,7 @@ export default function AnnuaireAgences() {
                       {typeof agence.nombreAvis === 'number' && agence.nombreAvis > 0 && <p className="mt-1 text-sm font-semibold text-amber-700">★ {agence.moyenne?.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})}/5 <span className="font-normal text-slate-500">· {agence.nombreAvis} avis</span></p>}
                       {agence.adresse && <p className="mt-1 text-sm text-slate-500">{agence.adresse}</p>}
                       {agence.description && <p className="mt-2 text-sm leading-relaxed text-slate-600">{agence.description}</p>}
+                      {agence.avis && agence.avis.length > 0 && <div className="mt-3 space-y-2">{agence.avis.slice(0, 2).map(avis => <blockquote key={avis.id} className="rounded-lg bg-slate-50 p-3"><p className="text-xs font-semibold text-amber-700">{'★'.repeat(avis.note)}{'☆'.repeat(5-avis.note)} · {avis.auteurNom}</p><p className="mt-1 text-sm text-slate-600">{avis.commentaire}</p></blockquote>)}</div>}
                     </div>
                   </div>
                   {dejaMembre ? (
