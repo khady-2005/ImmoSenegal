@@ -11,6 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import sn.immosenegal.annonce.Annonce;
 import sn.immosenegal.annonce.AnnonceRepository;
 import sn.immosenegal.annonce.StatutAnnonce;
+import sn.immosenegal.agence.MandatGestion;
+import sn.immosenegal.agence.MandatGestionRepository;
+import sn.immosenegal.agence.MembreAgenceRepository;
+import sn.immosenegal.agence.StatutMandatGestion;
+import sn.immosenegal.agence.StatutMembreAgence;
 import sn.immosenegal.audit.AuditService;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.security.AuthenticatedUser;
@@ -26,14 +31,19 @@ public class DemandeVisiteService {
     private final UserRepository users;
     private final AuditService audit;
     private final NotificationService notifications;
+    private final MandatGestionRepository mandats;
+    private final MembreAgenceRepository membres;
 
     public DemandeVisiteService(DemandeVisiteRepository demandes, AnnonceRepository annonces,
-                                UserRepository users, AuditService audit, NotificationService notifications) {
+                                UserRepository users, AuditService audit, NotificationService notifications,
+                                MandatGestionRepository mandats, MembreAgenceRepository membres) {
         this.demandes = demandes;
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
         this.notifications = notifications;
+        this.mandats = mandats;
+        this.membres = membres;
     }
 
     @Transactional
@@ -50,8 +60,8 @@ public class DemandeVisiteService {
         User client = users.findById(acteur.id())
             .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
         DemandeVisite demande = demandes.save(new DemandeVisite(annonce, client, requete.dateVisite(), propre(requete.message())));
-        notifications.creer(annonce.getProprietaire(), "VISITE_NOUVELLE", "Nouvelle demande de visite",
-            client.getNomComplet() + " souhaite visiter « " + annonce.getTitre() + " ».", "/visites-recues");
+        notifierInterlocuteurs(annonce, "VISITE_NOUVELLE", "Nouvelle demande de visite",
+            client.getNomComplet() + " souhaite visiter « " + annonce.getTitre() + " ».");
         audit.enregistrer("DEMANDE_VISITE_CREEE", acteur.id(), "Demande de visite " + demande.getId());
         return DemandeVisiteResponse.de(demande);
     }
@@ -64,8 +74,18 @@ public class DemandeVisiteService {
 
     @Transactional(readOnly = true)
     public List<DemandeVisiteResponse> demandesRecues(AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.ADMIN);
-        return demandes.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(DemandeVisiteResponse::de).toList();
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        if (acteur.role() == Role.ADMIN) return toutes(acteur);
+        if (acteur.role() == Role.PROPRIETAIRE)
+            return demandes.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(DemandeVisiteResponse::de).toList();
+        java.util.Map<UUID, DemandeVisite> uniques = new java.util.LinkedHashMap<>();
+        membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .forEach(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(m.getAgence().getId(), StatutMandatGestion.ACCEPTE)
+                .forEach(g -> demandes.findAllByAgenceMandatAccepte(m.getAgence().getId()).stream()
+                    .filter(d -> d.getAnnonce().getId().equals(g.getAnnonce().getId()))
+                    .forEach(d -> uniques.put(d.getId(), d))));
+        return uniques.values().stream().map(DemandeVisiteResponse::de).toList();
     }
 
     @Transactional(readOnly = true)
@@ -76,9 +96,9 @@ public class DemandeVisiteService {
 
     @Transactional
     public DemandeVisiteResponse decider(UUID id, DecisionVisite requete, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
         DemandeVisite demande = trouver(id);
-        if (acteur.role() != Role.ADMIN && !demande.getAnnonce().getProprietaire().getId().equals(acteur.id())) {
+        if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(demande.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette demande ne concerne pas vos annonces.");
         }
         if (demande.getStatut() != StatutVisite.EN_ATTENTE) {
@@ -103,7 +123,7 @@ public class DemandeVisiteService {
             default -> "Mise à jour de votre demande de visite";
         };
         notifications.creer(demande.getClient(), "VISITE_REPONSE", titreNotification,
-            "Le propriétaire a répondu pour « " + demande.getAnnonce().getTitre() + " ».", "/mes-visites");
+            "Le gestionnaire du logement a répondu pour « " + demande.getAnnonce().getTitre() + " ».", "/mes-visites");
         audit.enregistrer("DEMANDE_VISITE_TRAITEE", acteur.id(), "Demande de visite " + id + " : " + requete.action());
         return DemandeVisiteResponse.de(demande);
     }
@@ -120,8 +140,8 @@ public class DemandeVisiteService {
             throw new ApiException(HttpStatus.CONFLICT, "La date proposée est passée. Contactez le propriétaire.");
         }
         demande.confirmer();
-        notifications.creer(demande.getAnnonce().getProprietaire(), "VISITE_CONFIRMEE", "Créneau de visite confirmé",
-            demande.getClient().getNomComplet() + " a confirmé le créneau proposé pour « " + demande.getAnnonce().getTitre() + " ».", "/visites-recues");
+        notifierInterlocuteurs(demande.getAnnonce(), "VISITE_CONFIRMEE", "Créneau de visite confirmé",
+            demande.getClient().getNomComplet() + " a confirmé le créneau proposé pour « " + demande.getAnnonce().getTitre() + " ».");
         return DemandeVisiteResponse.de(demande);
     }
 
@@ -134,9 +154,35 @@ public class DemandeVisiteService {
             throw new ApiException(HttpStatus.CONFLICT, "Cette demande ne peut plus être annulée.");
         }
         demande.annuler();
-        notifications.creer(demande.getAnnonce().getProprietaire(), "VISITE_ANNULEE", "Demande de visite annulée",
-            demande.getClient().getNomComplet() + " a annulé sa demande pour « " + demande.getAnnonce().getTitre() + " ».", "/visites-recues");
+        notifierInterlocuteurs(demande.getAnnonce(), "VISITE_ANNULEE", "Demande de visite annulée",
+            demande.getClient().getNomComplet() + " a annulé sa demande pour « " + demande.getAnnonce().getTitre() + " ».");
         audit.enregistrer("DEMANDE_VISITE_ANNULEE", acteur.id(), "Demande de visite " + id);
+    }
+
+    private boolean estInterlocuteurAutorise(Annonce annonce, AuthenticatedUser acteur) {
+        if (annonce.getProprietaire().getId().equals(acteur.id())) return true;
+        if (acteur.role() != Role.AGENT) return false;
+        return membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .anyMatch(m -> mandats.existsByAgenceIdAndAnnonceIdAndStatut(
+                m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
+    }
+
+    private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
+        java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+            annonce.getId(), StatutMandatGestion.ACCEPTE);
+        if (actifs.isEmpty()) {
+            notifications.creer(annonce.getProprietaire(), type, titre, message, "/visites-recues");
+            return;
+        }
+        java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
+        for (MandatGestion mandat : actifs) {
+            membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
+                .forEach(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId()))
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/visites-recues");
+                });
+        }
     }
 
     private DemandeVisite trouver(UUID id) {
