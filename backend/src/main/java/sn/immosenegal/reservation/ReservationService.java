@@ -13,6 +13,11 @@ import sn.immosenegal.annonce.StatutAnnonce;
 import sn.immosenegal.audit.AuditService;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.notification.NotificationService;
+import sn.immosenegal.agence.MandatGestion;
+import sn.immosenegal.agence.MandatGestionRepository;
+import sn.immosenegal.agence.MembreAgenceRepository;
+import sn.immosenegal.agence.StatutMandatGestion;
+import sn.immosenegal.agence.StatutMembreAgence;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
@@ -25,14 +30,19 @@ public class ReservationService {
     private final UserRepository users;
     private final AuditService audit;
     private final NotificationService notifications;
+    private final MandatGestionRepository mandats;
+    private final MembreAgenceRepository membres;
 
     public ReservationService(ReservationRepository reservations, AnnonceRepository annonces,
-            UserRepository users, AuditService audit, NotificationService notifications) {
+            UserRepository users, AuditService audit, NotificationService notifications,
+            MandatGestionRepository mandats, MembreAgenceRepository membres) {
         this.reservations = reservations;
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
         this.notifications = notifications;
+        this.mandats = mandats;
+        this.membres = membres;
     }
 
     @Transactional
@@ -51,8 +61,8 @@ public class ReservationService {
             .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
         String message = requete.message() == null || requete.message().isBlank() ? null : requete.message().trim();
         Reservation reservation = reservations.save(new Reservation(annonce, client, message));
-        notifications.creer(annonce.getProprietaire(), "RESERVATION_NOUVELLE", "Nouvelle demande de réservation",
-            client.getNomComplet() + " souhaite réserver « " + annonce.getTitre() + " ».", "/reservations-recues");
+        notifierInterlocuteurs(annonce, "RESERVATION_NOUVELLE", "Nouvelle demande de réservation",
+            client.getNomComplet() + " souhaite réserver « " + annonce.getTitre() + " ».");
         audit.enregistrer("RESERVATION_CREEE", acteur.id(), "Réservation " + reservation.getId() + " pour l'annonce " + annonceId);
         return ReservationResponse.de(reservation);
     }
@@ -65,8 +75,17 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<ReservationResponse> demandesRecues(AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.ADMIN);
-        return reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(ReservationResponse::de).toList();
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        if (acteur.role() == Role.ADMIN) return toutes(acteur);
+        if (acteur.role() == Role.PROPRIETAIRE)
+            return reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(ReservationResponse::de).toList();
+        java.util.List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .flatMap(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+                m.getAgence().getId(), StatutMandatGestion.ACCEPTE).stream())
+            .map(g -> g.getAnnonce().getId()).distinct().toList();
+        return annoncesGerees.isEmpty() ? java.util.List.of()
+            : reservations.findAllByAnnonceIdInOrderByCreeLeDesc(annoncesGerees).stream().map(ReservationResponse::de).toList();
     }
 
     @Transactional(readOnly = true)
@@ -77,9 +96,9 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse decider(UUID id, DecisionReservation requete, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
         Reservation reservation = trouver(id);
-        if (acteur.role() != Role.ADMIN && !reservation.getAnnonce().getProprietaire().getId().equals(acteur.id())) {
+        if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(reservation.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette réservation ne concerne pas vos annonces.");
         }
         if (reservation.getStatut() != StatutReservation.EN_ATTENTE) {
@@ -96,7 +115,7 @@ public class ReservationService {
         String titre = requete.action() == StatutReservation.ACCEPTEE
             ? "Votre réservation a été acceptée" : "Votre demande de réservation a reçu une réponse";
         notifications.creer(reservation.getClient(), "RESERVATION_REPONSE", titre,
-            "Le propriétaire a répondu pour « " + reservation.getAnnonce().getTitre() + " ».", "/mes-reservations");
+            "Le gestionnaire du logement a répondu pour « " + reservation.getAnnonce().getTitre() + " ».", "/mes-reservations");
         audit.enregistrer("RESERVATION_TRAITEE", acteur.id(), "Réservation " + id + " : " + requete.action());
         return ReservationResponse.de(reservation);
     }
@@ -112,9 +131,35 @@ public class ReservationService {
             throw new ApiException(HttpStatus.CONFLICT, "Cette demande ne peut plus être annulée.");
         }
         reservation.annuler();
-        notifications.creer(reservation.getAnnonce().getProprietaire(), "RESERVATION_ANNULEE", "Demande de réservation annulée",
-            reservation.getClient().getNomComplet() + " a annulé sa demande pour « " + reservation.getAnnonce().getTitre() + " ».", "/reservations-recues");
+        notifierInterlocuteurs(reservation.getAnnonce(), "RESERVATION_ANNULEE", "Demande de réservation annulée",
+            reservation.getClient().getNomComplet() + " a annulé sa demande pour « " + reservation.getAnnonce().getTitre() + " ».");
         audit.enregistrer("RESERVATION_ANNULEE", acteur.id(), "Réservation " + id);
+    }
+
+    private boolean estInterlocuteurAutorise(Annonce annonce, AuthenticatedUser acteur) {
+        if (annonce.getProprietaire().getId().equals(acteur.id())) return true;
+        if (acteur.role() != Role.AGENT) return false;
+        return membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .anyMatch(m -> mandats.existsByAgenceIdAndAnnonceIdAndStatut(
+                m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
+    }
+
+    private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
+        java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
+            annonce.getId(), StatutMandatGestion.ACCEPTE);
+        if (actifs.isEmpty()) {
+            notifications.creer(annonce.getProprietaire(), type, titre, message, "/reservations-recues");
+            return;
+        }
+        java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
+        for (MandatGestion mandat : actifs) {
+            membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
+                .forEach(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId()))
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/reservations-recues");
+                });
+        }
     }
 
     private Reservation trouver(UUID id) {
