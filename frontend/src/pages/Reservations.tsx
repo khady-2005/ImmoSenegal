@@ -33,6 +33,7 @@ export default function Reservations() {
   const { utilisateur, jeton } = useAuth()
   const role = utilisateur?.role as Role | undefined
   const admin = role === 'ADMIN'
+  const agent = role === 'AGENT'
   const client = role === 'CLIENT'
   const [demandes, setDemandes] = useState<Reservation[]>([])
   const [chargement, setChargement] = useState(true)
@@ -97,8 +98,8 @@ export default function Reservations() {
     } finally { setEnCours(null) }
   }
 
-  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'ADMIN') {
-    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires et administrateurs.</p></div>
+  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT' && role !== 'ADMIN') {
+    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agents mandatés et administrateurs.</p></div>
   }
 
   const titre = admin ? 'Toutes les réservations' : client ? 'Mes demandes de réservation' : 'Réservations reçues'
@@ -107,7 +108,7 @@ export default function Reservations() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-wider text-emeraude-700">Espace personnel</p>
         <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{titre}</h1>
-        <p className="mt-2 text-slate-600">{client ? 'Suivez les réponses des propriétaires pour les logements qui vous intéressent.' : 'Chaque demande est associée au logement concerné et à son propriétaire.'}</p>
+        <p className="mt-2 text-slate-600">{client ? 'Suivez les réponses des propriétaires pour les logements qui vous intéressent.' : 'Chaque demande est associée au logement concerné et à son propriétaire ou à son agence gestionnaire.'}</p>
       </div>
       {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des réservations…</p>}
@@ -124,7 +125,7 @@ export default function Reservations() {
             {d.message && <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">« {d.message} »</p>}
             {d.reponseProprietaire && <p className="mt-3 rounded-xl bg-dore-100 p-3 text-sm text-nuit-900">Réponse : {d.reponseProprietaire}</p>}
             {!client && !admin && d.statut === 'EN_ATTENTE' && <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4"><button disabled={enCours === d.id} onClick={() => void decider(d.id, 'ACCEPTEE')} className="inline-flex items-center gap-2 rounded-lg bg-emeraude-700 px-4 py-2 text-sm font-semibold text-white"><Check className="h-4 w-4" /> Accepter</button><button disabled={enCours === d.id} onClick={() => void decider(d.id, 'REFUSEE')} className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-700"><X className="h-4 w-4" /> Refuser</button></div>}
-            {!client && !admin && d.statut === 'ACCEPTEE' && <div className="mt-4 border-t border-slate-100 pt-4">
+            {!client && !admin && !agent && d.statut === 'ACCEPTEE' && <div className="mt-4 border-t border-slate-100 pt-4">
               <button type="button" onClick={() => setContratOuvert(contratOuvert === d.id ? null : d.id)} className="rounded-lg border border-emeraude-700 px-4 py-2 text-sm font-semibold text-emeraude-800">Préparer un contrat de location</button>
               {contratOuvert === d.id && <form onSubmit={e => void creerContrat(e,d.id)} className="mt-3 grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-2">
                 <label className="text-sm">Loyer mensuel (FCFA)<input required type="number" min="1" step="0.01" value={loyer} onChange={e=>setLoyer(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label>
