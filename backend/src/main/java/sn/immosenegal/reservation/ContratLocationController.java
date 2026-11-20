@@ -15,6 +15,7 @@ public class ContratLocationController{
  @PostMapping("/reservations/{reservationId}/contrat") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.ContratResume creer(@PathVariable UUID reservationId,@Valid @RequestBody ContratRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.creer(reservationId,new ContratLocationService.CreationContrat(q.loyerMensuel(),q.depotGarantie(),q.dateDebut(),q.dateFin()),a);}
  @GetMapping("/mes-contrats") public List<ContratLocationService.ContratResume> mesContrats(@AuthenticationPrincipal AuthenticatedUser a){return service.mesContrats(a);}
+ @GetMapping("/agence/{agenceId}/commissions") public List<ContratLocationService.CommissionLocationResume> commissionsAgence(@PathVariable UUID agenceId,@AuthenticationPrincipal AuthenticatedUser a){return service.commissionsAgence(agenceId,a);}
  @GetMapping("/admin/supervision") public List<ContratLocationService.SupervisionContratResume> supervisionAdmin(@AuthenticationPrincipal AuthenticatedUser a){return service.supervisionAdmin(a);}
  @PostMapping("/{contratId}/paiements") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.PaiementResume paiement(@PathVariable UUID contratId,@Valid @RequestBody PaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.enregistrerPaiement(contratId,new ContratLocationService.CreationPaiement(q.montant(),q.periode(),q.datePaiement(),q.reference()),a);}
