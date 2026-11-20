@@ -12,14 +12,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
+import sn.immosenegal.user.User;
+import sn.immosenegal.user.UserRepository;
 
 @Service
 @Transactional
 public class AbonnementProprietaireService {
     private final AbonnementProprietaireRepository abonnements;
+    private final UserRepository utilisateurs;
 
-    public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements) {
+    public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements, UserRepository utilisateurs) {
         this.abonnements = abonnements;
+        this.utilisateurs = utilisateurs;
     }
 
     public Resume demander(Demande q, AuthenticatedUser acteur) {
@@ -84,8 +88,12 @@ public class AbonnementProprietaireService {
     private String nettoyer(String s) { return s == null || s.isBlank() ? null : s.trim(); }
 
     private Resume resume(AbonnementProprietaire a) {
+        User proprietaire = utilisateurs.findById(a.getProprietaireId()).orElse(null);
         return new Resume(a.getId(), a.getForfait(), a.getMontant(), a.getDateDebut(), a.getDateFin(),
-            a.getStatut(), a.getModePaiement(), a.getReferencePaiement(), a.getNote(), a.getCreeLe());
+            a.getStatut(), a.getModePaiement(), a.getReferencePaiement(), a.getNote(), a.getCreeLe(),
+            proprietaire == null ? "Compte propriétaire introuvable" : proprietaire.getNomComplet(),
+            proprietaire == null ? null : proprietaire.getEmail(),
+            proprietaire == null ? null : proprietaire.getTelephone());
     }
 
     public record Demande(ForfaitAbonnement forfait, String modePaiement, String referencePaiement, String note) {
@@ -101,5 +109,6 @@ public class AbonnementProprietaireService {
     public record Decision(boolean accepter, String motif) {}
     public record Resume(UUID id, ForfaitAbonnement forfait, BigDecimal montant, LocalDate dateDebut,
         LocalDate dateFin, StatutAbonnement statut, String modePaiement, String referencePaiement,
-        String note, java.time.Instant creeLe) {}
+        String note, java.time.Instant creeLe, String proprietaireNom, String proprietaireEmail,
+        String proprietaireTelephone) {}
 }
