@@ -32,7 +32,7 @@ import sn.immosenegal.user.UserRepository;
 /**
  * Règles des annonces.
  * <ul>
- *   <li>Tout propriétaire publie immédiatement ; sans abonnement actif, une période gratuite de 30 jours est appliquée. À son terme, l'annonce est suspendue jusqu'à un abonnement ou un mandat accepté.</li>
+ *   <li>Tout propriétaire publie immédiatement ; sans abonnement actif, une période gratuite de 15 jours est appliquée. À son terme, l'annonce est suspendue jusqu'à un abonnement ou un mandat accepté.</li>
  *   <li>Le public ne voit que les annonces PUBLIEE (liste, fiche). Le propriétaire et les administrateurs voient les autres.</li>
  *   <li>Le propriétaire ne choisit lui-même que les statuts commerciaux (RESERVE, VENDU, LOUE, ou remettre PUBLIEE) d'une annonce déjà validée.</li>
  *   <li>Le propriétaire peut modifier le contenu et les photos sans repasser par une validation préalable ; les annonces refusées ou suspendues restent verrouillées.</li>
@@ -93,10 +93,10 @@ public class AnnonceService {
             .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(proprietaire.getId(), StatutAbonnement.ACTIF)
             .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()));
         annonce.setStatut(StatutAnnonce.PUBLIEE);
-        // La date sert de limite de couverture : 30 jours gratuits, ou date de fin du forfait actif.
+        // La date sert de limite de couverture : 15 jours gratuits, ou date de fin du forfait actif.
         annonce.setDateFinPublication(abonnementActif
             .map(a -> a.getDateFin())
-            .orElseGet(() -> java.time.LocalDate.now().plusDays(30)));
+            .orElseGet(() -> java.time.LocalDate.now().plusDays(15)));
         annonces.save(annonce);
         audit.enregistrer("ANNONCE_CREEE", auteur.id(), annonce.getDateFinPublication() == null
             ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
