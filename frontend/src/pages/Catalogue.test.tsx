@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
-import { annonceTest, json, pageTest, parametresDe, simulerApi } from '../test/apiSimulee'
+import { annonceTest, json, pageTest, parametresDe, reponseConnexion, simulerApi } from '../test/apiSimulee'
 
 function afficher(chemin: string) {
   return render(
@@ -99,6 +99,7 @@ describe('Catalogue', () => {
 
   it('la pagination demande la page suivante', async () => {
     const api = simulerApi({
+      'POST /api/auth/refresh': () => reponseConnexion(),
       'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 25, totalPages: 3 })),
     })
     const user = userEvent.setup()
