@@ -147,6 +147,56 @@ public class MandatGestionService {
         return versResume(mandat);
     }
 
+
+    /** Une des deux parties peut demander la fin du mandat ; l'autre doit confirmer. */
+    public MandatResume demanderResiliation(UUID mandatId, AuthenticatedUser acteur) {
+        MandatGestion mandat = mandats.findById(mandatId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
+        boolean proprietaire = mandat.getProprietaire().getId().equals(acteur.id());
+        boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
+        if (!proprietaire && !responsable && !acteur.role().name().equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul le propriétaire ou le responsable de l'agence peut demander la résiliation.");
+        }
+        User demandeur = utilisateurActeur(acteur);
+        try { mandat.demanderResiliation(demandeur); }
+        catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
+        User autrePartie = proprietaire ? mandat.getProposePar() : mandat.getProprietaire();
+        if (autrePartie.getId().equals(demandeur.getId())) autrePartie = mandat.getProprietaire();
+        notifications.creer(autrePartie, "DEMANDE_RESILIATION_MANDAT",
+            "Demande de résiliation du mandat",
+            demandeur.getNomComplet() + " demande la fin du mandat concernant : " + mandat.getAnnonce().getTitre(),
+            "/mes-annonces");
+        return versResume(mandat);
+    }
+
+    /** Seule l'autre partie peut confirmer ou refuser la résiliation demandée. */
+    public MandatResume repondreResiliation(UUID mandatId, boolean accepter, AuthenticatedUser acteur) {
+        MandatGestion mandat = mandats.findById(mandatId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
+        UUID demandeurId = mandat.getResiliationDemandeePar() == null ? null : mandat.getResiliationDemandeePar().getId();
+        if (demandeurId == null || demandeurId.equals(acteur.id())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seule l'autre partie peut répondre à cette demande.");
+        }
+        boolean proprietaire = mandat.getProprietaire().getId().equals(acteur.id());
+        boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
+        if (!proprietaire && !responsable && !acteur.role().name().equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé à répondre.");
+        }
+        try { mandat.deciderResiliation(accepter); }
+        catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
+        User demandeur = mandat.getResiliationDemandeePar();
+        if (demandeur != null) notifications.creer(demandeur, "REPONSE_RESILIATION_MANDAT",
+            accepter ? "Résiliation confirmée" : "Résiliation refusée",
+            accepter ? "Le mandat concernant " + mandat.getAnnonce().getTitre() + " est terminé."
+                : "La demande de résiliation du mandat concernant " + mandat.getAnnonce().getTitre() + " a été refusée.",
+            "/mes-annonces");
+        return versResume(mandat);
+    }
+
     private Agence agenceActive(UUID agenceId) {
         return agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
@@ -163,8 +213,11 @@ public class MandatGestionService {
     }
 
     private void verifierAbsenceMandat(UUID agenceId, UUID annonceId) {
-        if (mandats.existsByAgenceIdAndAnnonceId(agenceId, annonceId)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une demande ou un mandat existe déjà pour ce bien auprès de cette agence.");
+        boolean bloquant = mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId, annonceId, StatutMandatGestion.EN_ATTENTE)
+            || mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId, annonceId, StatutMandatGestion.ACCEPTE)
+            || mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId, annonceId, StatutMandatGestion.RESILIATION_DEMANDEE);
+        if (bloquant) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une demande ou un mandat actif existe déjà pour ce bien auprès de cette agence.");
         }
     }
 
