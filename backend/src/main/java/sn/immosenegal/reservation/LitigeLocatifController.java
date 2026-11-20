@@ -11,6 +11,13 @@ public class LitigeLocatifController {
     private final LitigeLocatifService service;
     public LitigeLocatifController(LitigeLocatifService service) { this.service = service; }
 
+    @PatchMapping("/litiges/incidents/{incidentId}")
+    public IncidentLocationService.IncidentResume traiterIncident(@PathVariable java.util.UUID incidentId,
+            @RequestBody IncidentLocationService.MiseAJourIncident q,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.traiterParAdmin(incidentId, q, acteur);
+    }
+
     @GetMapping("/litiges")
     public List<LitigeLocatifService.LitigeResume> supervision(@AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.supervision(acteur);
