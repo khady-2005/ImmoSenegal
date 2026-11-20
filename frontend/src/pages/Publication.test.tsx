@@ -57,7 +57,7 @@ describe('Publication et gestion des annonces', () => {
 
     // Après l'enregistrement, le propriétaire reste sur l'étape d'ajout des médias.
     expect(await screen.findByRole('heading', { name: 'Ajoutez les photos de votre bien' })).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent('Votre bien est enregistré')
+    expect(screen.getByRole('status')).toHaveTextContent('Votre annonce est publiée dans le catalogue')
     expect(screen.getByLabelText('Ajouter des photos')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /terminer et voir mes annonces/i }))
     await screen.findByRole('heading', { name: 'Mes annonces' })
