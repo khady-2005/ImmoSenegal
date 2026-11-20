@@ -29,6 +29,20 @@ services:
         value: "true"
       - key: REFRESH_COOKIE_SAMESITE
         value: Strict                # le site appelle /api via Vercel (même origine), donc Strict convient
+      # URL publique du frontend : utilisée dans les liens de réinitialisation du mot de passe.
+      - key: FRONTEND_URL
+        sync: false                  # ex. https://votre-site.vercel.app
+      # Configuration SMTP : nécessaire pour envoyer les liens de réinitialisation par e-mail.
+      - key: MAIL_HOST
+        sync: false                  # serveur SMTP du fournisseur de messagerie
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false                  # mot de passe ou clé SMTP, jamais dans Git
+      - key: MAIL_FROM
+        sync: false                  # adresse expéditrice autorisée par le fournisseur SMTP
       - key: PAYDUNYA_MASTER_KEY
         sync: false                  # clé secrète du compte marchand, jamais dans Git
       - key: PAYDUNYA_PRIVATE_KEY
