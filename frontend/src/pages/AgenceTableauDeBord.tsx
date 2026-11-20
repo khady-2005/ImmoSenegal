@@ -23,6 +23,7 @@ type Mandat = {
   statut: string
   creeLe: string
   decideLe: string | null
+  resiliationDemandeeParId?: string | null
 }
 type Candidature = {
   id: string
@@ -126,6 +127,26 @@ export default function AgenceTableauDeBord() {
     } finally {
       setMembreEnCours(null)
     }
+  }
+
+  const demanderResiliation = async (mandat: Mandat) => {
+    setMembreEnCours(mandat.id); setErreur(null); setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/resiliation`, { method: 'POST', token: jeton })
+      setMessage('La demande de résiliation a été envoyée au propriétaire.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible de demander la résiliation.') }
+    finally { setMembreEnCours(null) }
+  }
+
+  const repondreResiliation = async (mandat: Mandat, accepter: boolean) => {
+    setMembreEnCours(mandat.id); setErreur(null); setMessage(null)
+    try {
+      await appelApi(`/api/mandats/${mandat.id}/resiliation/reponse`, { method: 'POST', token: jeton, body: { accepter } })
+      setMessage(accepter ? 'La résiliation du mandat est confirmée.' : 'La demande de résiliation a été refusée.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible de répondre à la demande.') }
+    finally { setMembreEnCours(null) }
   }
 
   const proposerGestion = async (event: FormEvent<HTMLFormElement>) => {
@@ -265,7 +286,7 @@ export default function AgenceTableauDeBord() {
           Sélectionnez une annonce publiée appartenant à un propriétaire. Celui-ci recevra votre proposition et restera libre de l’accepter ou de la refuser.
         </p>
         {(() => {
-          const dejaTraitees = new Set(mandats.map((mandat) => mandat.annonceId))
+          const dejaTraitees = new Set(mandats.filter((mandat) => ['EN_ATTENTE', 'ACCEPTE', 'RESILIATION_DEMANDEE'].includes(mandat.statut)).map((mandat) => mandat.annonceId))
           const disponibles = annoncesDisponibles.filter((annonce) =>
             !annonce.exemple &&
             annonce.proprietaire.id !== utilisateur?.id &&
@@ -323,9 +344,19 @@ export default function AgenceTableauDeBord() {
                   <p className="text-sm text-slate-600">{mandat.ville} · Propriétaire : {mandat.proprietaireNom}</p>
                   <p className="mt-1 text-xs text-slate-500">{mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Demande reçue du propriétaire' : 'Proposition envoyée par votre agence'}</p>
                   <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-emerald-100 text-emerald-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
-                    {mandat.statut === 'EN_ATTENTE' ? (mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Votre réponse est attendue' : 'En attente du propriétaire') : mandat.statut === 'ACCEPTE' ? 'Mandat accepté' : 'Demande refusée'}
+                    {mandat.statut === 'EN_ATTENTE' ? (mandat.origine === 'INITIATIVE_PROPRIETAIRE' ? 'Votre réponse est attendue' : 'En attente du propriétaire') : mandat.statut === 'ACCEPTE' ? 'Mandat accepté' : mandat.statut === 'RESILIATION_DEMANDEE' ? 'Résiliation à confirmer' : mandat.statut === 'RESILIE' ? 'Mandat résilié' : 'Demande refusée'}
                   </span>
                 </div>
+                {mandat.statut === 'ACCEPTE' && (
+                  <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void demanderResiliation(mandat)}
+                    className="rounded-full border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-50 disabled:opacity-50">Demander la résiliation</button>
+                )}
+                {mandat.statut === 'RESILIATION_DEMANDEE' && mandat.resiliationDemandeeParId !== utilisateur?.id && (
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreResiliation(mandat, true)} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Confirmer</button>
+                    <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreResiliation(mandat, false)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">Refuser</button>
+                  </div>
+                )}
                 {mandat.origine === 'INITIATIVE_PROPRIETAIRE' && mandat.statut === 'EN_ATTENTE' && (
                   <div className="flex shrink-0 gap-2">
                     <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, true)} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">Accepter</button>
