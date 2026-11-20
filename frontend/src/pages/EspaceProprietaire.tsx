@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
+type Mandat = {
+  id: string; agenceId: string; agenceNom: string; annonceId: string; annonceTitre: string;
+  ville: string; proprietaireId: string; proprietaireNom: string; origine: string; statut: string;
+  creeLe: string; decideLe: string | null; resiliationDemandeeParId?: string | null
+}
 type Contrat = {
   id: string
   annonceId: string
@@ -38,7 +43,7 @@ export default function EspaceProprietaire() {
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
   const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, offres: 0 })
-  const [suiviPartiel, setSuiviPartiel] = useState(false)
+  const [suiviPartiel, setSuiviPartiel] = useState(false)\n  const [mandats, setMandats] = useState<Mandat[]>([])\n  const [actionMandat, setActionMandat] = useState<string | null>(null)
 
   useEffect(() => {
     if (!jeton) return
@@ -49,8 +54,8 @@ export default function EspaceProprietaire() {
       appelApi<{ statut: string }[]>('/api/visites/recues', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/reservations/recues', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/offres/recues', { token: jeton }),
-      appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),
-    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult]) => {
+      appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),\n      appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }),
+    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult]) => {
       if (!actif) return
       if (contratsResult.status === 'fulfilled') {
         setContrats(contratsResult.value.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE'))
@@ -61,7 +66,7 @@ export default function EspaceProprietaire() {
       const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
       const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
       const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
-      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult].some(result => result.status === 'rejected'))
+      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult].some(result => result.status === 'rejected'))\n      if (mandatsResult.status === 'fulfilled') setMandats(mandatsResult.value)
       setSuivi({
         visites: visites.filter(x => x.statut === 'EN_ATTENTE').length,
         reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
@@ -70,6 +75,21 @@ export default function EspaceProprietaire() {
     }).finally(() => { if (actif) setChargement(false) })
     return () => { actif = false }
   }, [jeton])
+
+  const agirMandat = async (mandat: Mandat, action: 'resilier' | 'accepter' | 'refuser') => {
+    if (!jeton) return
+    setActionMandat(mandat.id); setErreur('')
+    try {
+      if (action === 'resilier') {
+        await appelApi(`/api/mandats/${mandat.id}/resiliation`, { method: 'POST', token: jeton })
+      } else {
+        await appelApi(`/api/mandats/${mandat.id}/resiliation/reponse`, { method: 'POST', token: jeton, body: { accepter: action === 'accepter' } })
+      }
+      const actualises = await appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton })
+      setMandats(actualises)
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible de traiter ce mandat.') }
+    finally { setActionMandat(null) }
+  }
 
   const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
