@@ -16,6 +16,8 @@ export default function AdminLitigesLocatifs() {
   const [filtre, setFiltre] = useState('TOUS')
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
+  const [notesAdmin, setNotesAdmin] = useState<Record<string, string>>({})
+  const [actionEnCours, setActionEnCours] = useState<string | null>(null)
   useEffect(() => {
     if (!jeton) return
     appelApi<Litige[]>('/api/admin/locations/litiges', { token: jeton })
@@ -24,6 +26,22 @@ export default function AdminLitigesLocatifs() {
       .finally(() => setChargement(false))
   }, [jeton])
   const visibles = useMemo(() => filtre === 'TOUS' ? lignes : lignes.filter(l => l.type === filtre), [lignes, filtre])
+  async function traiterIncident(litige: Litige, statut: 'EN_COURS' | 'RESOLU') {
+    const commentaire = (notesAdmin[litige.id] || '').trim()
+    if (!commentaire) { setErreur('Ajoutez une note avant de mettre à jour le dossier.'); return }
+    setErreur('')
+    setActionEnCours(litige.id)
+    try {
+      await appelApi(`/api/admin/locations/litiges/incidents/${litige.id}`, {
+        method: 'PATCH', token: jeton, body: { statut, commentaire },
+      })
+      const actualises = await appelApi<Litige[]>('/api/admin/locations/litiges', { token: jeton })
+      setLignes(actualises)
+      setNotesAdmin(v => ({ ...v, [litige.id]: '' }))
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de mettre à jour ce dossier.')
+    } finally { setActionEnCours(null) }
+  }
   function exporterCsv() {
     const colonnes = ['Type', 'Annonce', 'Sujet', 'Proprietaire', 'Locataire', 'Details', 'Statut', 'Commentaire', 'Date']
     const cellules = (v: unknown) => '"' + String(v ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"'
@@ -60,6 +78,16 @@ export default function AdminLitigesLocatifs() {
         <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{l.details}</p>
         {l.commentaire && <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-900"><strong>Désaccord signalé :</strong> {l.commentaire}</p>}
         <p className="mt-3 text-xs text-slate-500">Contrat : {l.contratId.slice(0, 8).toUpperCase()} · Statut : {l.statut}</p>
+        {l.type === 'INCIDENT' && l.statut !== 'CLOTURE' && <div className="mt-4 border-t border-slate-100 pt-4">
+          <label className="block text-sm font-medium text-slate-700">Note de suivi administratif
+            <textarea rows={3} maxLength={1500} value={notesAdmin[l.id] || ''} onChange={e => setNotesAdmin(v => ({ ...v, [l.id]: e.target.value }))} placeholder="Notez les démarches effectuées ou les prochaines étapes convenues avec les parties…" className="mt-1 w-full rounded-lg border border-slate-300 p-3 font-normal" />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {l.statut !== 'EN_COURS' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'EN_COURS')} className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800 disabled:opacity-50">Prendre en charge</button>}
+            {l.statut !== 'RESOLU' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'RESOLU')} className="rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Proposer comme résolu</button>}
+          </div>
+          <p className="mt-2 text-xs text-slate-500">Les deux parties reçoivent la note. La clôture définitive reste confirmée par la personne qui a signalé l’incident.</p>
+        </div>}
       </article>)}</div>}
     <a href="/admin/supervision-locative" className="mt-8 inline-block text-sm font-semibold text-amber-800 underline">Retour à la supervision locative</a>
   </main>
