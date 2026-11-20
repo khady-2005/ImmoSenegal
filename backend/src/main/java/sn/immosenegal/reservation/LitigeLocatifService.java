@@ -54,6 +54,7 @@ public class LitigeLocatifService {
         return resultats;
     }
 
+    @Transactional
     public LitigeResume ajouterNoteAdministrative(String type, java.util.UUID id, String note, AuthenticatedUser acteur) {
         if (acteur == null || acteur.role() != Role.ADMIN)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé à l'administrateur.");
