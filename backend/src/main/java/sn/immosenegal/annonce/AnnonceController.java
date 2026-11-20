@@ -94,6 +94,14 @@ public class AnnonceController {
 
     public record ReattributionProprietaire(@jakarta.validation.constraints.NotNull UUID proprietaireId) {}
 
+    @PostMapping("/{id}/publier")
+    @Operation(summary = "Publier une annonce en attente avec un abonnement propriétaire actif",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public AnnonceResponse publierAvecAbonnement(@PathVariable UUID id,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        return service.publierAvecAbonnement(id, utilisateur);
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Modifier une annonce (son propriétaire ou un ADMIN) ; statut : seulement RESERVE, VENDU, LOUE ou PUBLIEE",
         description = "Le propriétaire peut modifier le contenu sans validation préalable. Le contenu et le statut commercial se modifient en deux enregistrements séparés.",
