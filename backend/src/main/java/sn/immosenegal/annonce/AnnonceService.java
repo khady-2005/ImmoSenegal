@@ -30,10 +30,10 @@ import sn.immosenegal.user.UserRepository;
 /**
  * Règles des annonces.
  * <ul>
- *   <li>Toute nouvelle annonce est EN_ATTENTE ; seul un administrateur la fait passer à PUBLIEE.</li>
+ *   <li>Le propriétaire publie directement ses annonces ordinaires ; l'administration conserve la modération a posteriori.</li>
  *   <li>Le public ne voit que les annonces PUBLIEE (liste, fiche). Le propriétaire et les administrateurs voient les autres.</li>
  *   <li>Le propriétaire ne choisit lui-même que les statuts commerciaux (RESERVE, VENDU, LOUE, ou remettre PUBLIEE) d'une annonce déjà validée.</li>
- *   <li>Toute modification du contenu (ou ajout de photo) par le propriétaire d'une annonce déjà validée la renvoie EN_ATTENTE.</li>
+ *   <li>Le propriétaire peut modifier le contenu et les photos sans repasser par une validation préalable ; les annonces refusées ou suspendues restent verrouillées.</li>
  * </ul>
  */
 @Service
@@ -136,10 +136,8 @@ public class AnnonceService {
         if (changeLeStatut) {
             annonce.setStatut(demande);
             audit.enregistrer("ANNONCE_STATUT_MODIFIE", auteur.id(), "Annonce " + id + " : " + avant + " -> " + demande);
-        } else if (changeLeContenu && !admin && avant != StatutAnnonce.EN_ATTENTE) {
-            // Le contenu validé a changé : il doit être validé de nouveau.
-            annonce.setStatut(StatutAnnonce.EN_ATTENTE);
-            audit.enregistrer("ANNONCE_RENVOYEE_EN_MODERATION", auteur.id(), "Annonce " + id + " : " + avant + " -> EN_ATTENTE");
+        } else if (changeLeContenu && !admin) {
+            audit.enregistrer("ANNONNE_CONTENU_MODIFIE_PAR_PROPRIETAIRE", auteur.id(), "Annonce " + id + " : contenu mis à jour sans blocage de publication");
         }
         audit.enregistrer("ANNONCE_MODIFIEE", auteur.id(), "Annonce " + id);
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
@@ -223,20 +221,11 @@ public class AnnonceService {
         return annonce;
     }
 
-    /**
-     * Comme {@link #annonceModifiable} mais pour AJOUTER du contenu (une photo) : un propriétaire ne peut pas contourner la
-     * modération, donc l'annonce déjà validée repasse EN_ATTENTE ; une annonce refusée ou suspendue ne se modifie plus.
-     */
+    /** Ajout de contenu : le propriétaire garde la main, sauf sur les annonces refusées ou suspendues. */
     Annonce annonceAvecAjoutDeContenu(UUID id, AuthenticatedUser utilisateur) {
         Annonce annonce = annonceModifiable(id, utilisateur);
         if (utilisateur.role() != Role.ADMIN) {
-            StatutAnnonce avant = annonce.getStatut();
-            verifierContenuModifiable(avant);
-            if (avant != StatutAnnonce.EN_ATTENTE) {
-                annonce.setStatut(StatutAnnonce.EN_ATTENTE);
-                annonce.setModifieLe(Instant.now());
-                audit.enregistrer("ANNONCE_RENVOYEE_EN_MODERATION", utilisateur.id(), "Annonce " + id + " : " + avant + " -> EN_ATTENTE");
-            }
+            verifierContenuModifiable(annonce.getStatut());
         }
         return annonce;
     }
