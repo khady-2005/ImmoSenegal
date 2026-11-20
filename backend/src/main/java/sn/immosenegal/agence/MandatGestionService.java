@@ -127,8 +127,10 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette demande a déjà reçu une réponse.");
         }
 
-        if (accepter && mandats.existsByAnnonceIdAndStatutAndIdNot(
-                mandat.getAnnonce().getId(), StatutMandatGestion.ACCEPTE, mandat.getId())) {
+        if (accepter && (mandats.existsByAnnonceIdAndStatutAndIdNot(
+                mandat.getAnnonce().getId(), StatutMandatGestion.ACCEPTE, mandat.getId())
+                || mandats.existsByAnnonceIdAndStatutAndIdNot(
+                mandat.getAnnonce().getId(), StatutMandatGestion.RESILIATION_DEMANDEE, mandat.getId()))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Ce bien est déjà confié à une autre agence. Le mandat existant doit être terminé avant d'en accepter un nouveau.");
         }
@@ -156,7 +158,7 @@ public class MandatGestionService {
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
-        if (!proprietaire && !responsable && !acteur.role().name().equals("ADMIN")) {
+        if (!proprietaire && !responsable) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul le propriétaire ou le responsable de l'agence peut demander la résiliation.");
         }
         User demandeur = utilisateurActeur(acteur);
@@ -190,7 +192,7 @@ public class MandatGestionService {
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
-        if (!proprietaire && !responsable && !acteur.role().name().equals("ADMIN")) {
+        if (!proprietaire && !responsable) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé à répondre.");
         }
         User demandeur = mandat.getResiliationDemandeePar();
@@ -246,10 +248,11 @@ public class MandatGestionService {
         return new MandatResume(m.getId(), m.getAgence().getId(), m.getAgence().getNom(),
             m.getAnnonce().getId(), m.getAnnonce().getTitre(), m.getAnnonce().getVille(),
             m.getProprietaire().getId(), m.getProprietaire().getNomComplet(),
-            m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe());
+            m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe(),
+            m.getResiliationDemandeePar() == null ? null : m.getResiliationDemandeePar().getId());
     }
 
     public record MandatResume(UUID id, UUID agenceId, String agenceNom, UUID annonceId,
             String annonceTitre, String ville, UUID proprietaireId, String proprietaireNom,
-            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe) {}
+            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId) {}
 }
