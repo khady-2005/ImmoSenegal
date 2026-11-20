@@ -22,7 +22,7 @@ type Mandat = {
 }
 
 const libelleOrigine = (origine: string) => origine === 'INITIATIVE_PROPRIETAIRE' ? 'Demande envoyée à l’agence' : 'Proposition reçue de l’agence'
-const libelleMandat = (statut: string) => statut === 'EN_ATTENTE' ? 'En attente de réponse' : statut === 'ACCEPTE' ? 'Accepté' : 'Refusé'
+const libelleMandat = (statut: string) => ({ EN_ATTENTE: 'En attente de réponse', ACCEPTE: 'Mandat actif', REFUSE: 'Proposition refusée', RESILIATION_DEMANDEE: 'Résiliation en attente', RESILIE: 'Mandat résilié' }[statut] || statut)
 
 export default function MesAnnonces() {
   const { utilisateur, jeton } = useAuth()
@@ -187,7 +187,7 @@ export default function MesAnnonces() {
                     <p className="text-sm text-slate-600">{mandat.agenceNom} · {libelleOrigine(mandat.origine)}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-blue-100 text-blue-800' : mandat.statut === 'REFUSE' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${mandat.statut === 'ACCEPTE' ? 'bg-blue-100 text-blue-800' : ['REFUSE', 'RESILIE'].includes(mandat.statut) ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-800'}`}>
                       {libelleMandat(mandat.statut)}
                     </span>
                     {mandat.statut === 'EN_ATTENTE' && mandat.proposeParId === utilisateur?.id && mandat.tauxCommissionMensuel == null && (
@@ -199,7 +199,9 @@ export default function MesAnnonces() {
                       </div>
                     )}
                     {mandat.statut === 'EN_ATTENTE' && mandat.tauxCommissionMensuel == null && mandat.proposeParId !== utilisateur?.id && <p className="mt-2 text-xs text-slate-500">En attente de la proposition du taux de commission par l’autre partie avant acceptation.</p>}
-                    {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission proposée : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
+                    {mandat.tauxCommissionMensuel != null && <p className="mt-2 text-xs text-slate-600">Commission convenue ou proposée : <strong>{Number(mandat.tauxCommissionMensuel).toLocaleString('fr-FR')} % du loyer mensuel</strong></p>}
+                    {mandat.statut === 'RESILIATION_DEMANDEE' && <p className="mt-2 text-xs text-amber-800">Une demande de résiliation est en cours. Consultez votre espace propriétaire pour répondre à l’agence.</p>}
+                    {mandat.statut === 'RESILIE' && <p className="mt-2 text-xs text-slate-500">Ce mandat est terminé. Le bien reste dans votre portefeuille et peut être confié à une autre agence.</p>}
                     {mandat.origine === 'INITIATIVE_AGENCE' && mandat.statut === 'EN_ATTENTE' && (
                       <>
                         <button type="button" disabled={demandeEnCours === mandat.id} onClick={() => void repondreProposition(mandat, true)} className="rounded-full bg-nuit-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">Accepter</button>
