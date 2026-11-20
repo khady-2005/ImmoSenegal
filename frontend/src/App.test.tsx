@@ -38,19 +38,20 @@ describe('Accueil', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/impossible de joindre le serveur/i)
   })
 
-  it('redirige un visiteur vers la connexion lorsqu’il choisit de consulter le catalogue', async () => {
-    simulerApi({})
+  it('permet à un visiteur de consulter le catalogue public', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
     afficher()
     await userEvent.setup().click(screen.getByRole('link', { name: 'Rechercher un bien' }))
-    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
   })
 })
 
 describe('Application', () => {
-  it('redirige un visiteur non connecté vers la connexion avant le catalogue', async () => {
-    simulerApi({})
+  it('affiche le catalogue public à un visiteur non connecté', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
     afficher('/catalogue')
-    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Appartement lumineux' })).toBeInTheDocument()
   })
 
   it('affiche une page 404 pour une route inconnue', () => {
