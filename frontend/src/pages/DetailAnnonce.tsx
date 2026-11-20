@@ -179,10 +179,10 @@ export default function DetailAnnonce() {
                   {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
                 </p>
               </div>
-              {typeof a.latitude === 'number' && Number.isFinite(a.latitude) && a.latitude >= -90 && a.latitude <= 90 &&
-               typeof a.longitude === 'number' && Number.isFinite(a.longitude) && a.longitude >= -180 && a.longitude <= 180 && (
+              {((typeof a.latitude === 'number' && Number.isFinite(a.latitude) && a.latitude >= -90 && a.latitude <= 90 &&
+               typeof a.longitude === 'number' && Number.isFinite(a.longitude) && a.longitude >= -180 && a.longitude <= 180) || Boolean(a.adresse || a.quartier || a.ville)) && (
                 <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${a.latitude},${a.longitude}&travelmode=driving`}
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${typeof a.latitude === 'number' && Number.isFinite(a.latitude) && typeof a.longitude === 'number' && Number.isFinite(a.longitude) ? `${a.latitude},${a.longitude}` : encodeURIComponent([a.adresse, a.quartier, a.ville, 'Sénégal'].filter(Boolean).join(', '))}&travelmode=driving`}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Obtenir l’itinéraire vers ${a.titre} dans Google Maps`}
