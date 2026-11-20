@@ -124,6 +124,36 @@ DELETE FROM users WHERE email = 'exemples@immosenegal.invalid';
 
 Puis remettre `EXEMPLES_ACTIFS=false` (sinon elles seraient recréées au prochain démarrage).
 
+## Paiements d'abonnements avec PayDunya
+
+Le paiement en ligne des abonnements propriétaires utilise l'API PayDunya « Paiement avec redirection ».
+La page de paiement PayDunya propose les moyens réellement activés sur le compte marchand, notamment Orange Money Sénégal et Wave Sénégal lorsqu'ils sont disponibles.
+
+### Configuration Render
+
+Dans les variables d'environnement du service backend Render, renseigner les variables suivantes à partir de l'application créée dans le tableau de bord PayDunya :
+
+- `PAYDUNYA_MASTER_KEY`
+- `PAYDUNYA_PRIVATE_KEY`
+- `PAYDUNYA_PUBLIC_KEY`
+- `PAYDUNYA_TOKEN`
+- `PAYDUNYA_MODE=test` pour les essais (utiliser `live` uniquement après validation du compte marchand)
+- `PAYDUNYA_CALLBACK_URL=https://ADRESSE-PUBLIQUE-RENDER/api/abonnements/paydunya/callback`
+
+Les clés ne doivent jamais être ajoutées au dépôt, au frontend, à une capture d'écran publique ou à un message. Les renseigner uniquement dans le gestionnaire de variables sécurisé de Render. Commencer avec les clés de test et faire valider le compte marchand par son titulaire ou son représentant autorisé avant tout passage en production.
+
+### Fonctionnement et sécurité
+
+1. Le propriétaire choisit un forfait et demande la création d'une facture.
+2. Le backend crée la facture auprès de PayDunya et redirige le navigateur vers l'URL HTTPS renvoyée par le fournisseur.
+3. PayDunya envoie une notification IPN au callback backend.
+4. Le backend vérifie le hash de notification, puis interroge lui-même PayDunya pour confirmer l'état et le montant de la facture.
+5. L'abonnement n'est activé qu'après confirmation d'un paiement `completed` dont le montant correspond au forfait. L'administration ne peut pas activer manuellement une facture PayDunya en attente.
+
+Le bouton de déclaration manuelle reste réservé aux paiements reçus hors ligne. Les tarifs affichés (5 000 FCFA mensuel, 13 500 FCFA trimestriel et 50 000 FCFA annuel) sont des valeurs initiales à confirmer par l'administrateur du service avant commercialisation.
+
+Documentation officielle : https://developers.paydunya.com/doc/FR/http_json
+
 ## Tests
 
 ```bash
