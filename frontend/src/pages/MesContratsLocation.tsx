@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
+import EvaluationContrat from '../components/EvaluationContrat'
 
 type Contrat = { id:string; annonceId:string; annonceTitre:string; proprietaireNom:string; locataireNom:string; loyerMensuel:number; depotGarantie:number; dateDebut:string; dateFin:string|null; etat:string; resiliationDemandeeParId:string|null; resiliationDemandeeParNom:string|null; resiliationDemandeeLe:string|null; resiliationMotif?:string|null; dateFinSouhaitee?:string|null; proprietaireConfirmeLe:string|null; locataireConfirmeLe:string|null }
 type Paiement = { id:string; montant:number; periode:string; datePaiement:string; reference:string|null; enregistrePar:string; tauxCommissionAgence:number|null; commissionAgence:number|null }
@@ -151,6 +152,7 @@ export default function MesContratsLocation(){
       {selection===c.id&&<div className="mt-5 border-t border-slate-100 pt-4"><h3 className="font-semibold text-nuit-900">Historique des paiements déclarés</h3>{paiements.length===0?<p className="mt-2 text-sm text-slate-500">Aucun paiement déclaré pour ce contrat.</p>:<ul className="mt-3 space-y-2">{paiements.map(p=><li key={p.id} className="rounded-lg bg-slate-50 p-3 text-sm"><strong>{monnaie(p.montant)}</strong> — période {p.periode} · déclaré le {p.datePaiement}<p className="mt-1 text-xs text-slate-500">Déclaré par {p.enregistrePar}{p.reference?' · Référence : '+p.reference:''}</p>{espaceProprietaire&&p.commissionAgence!=null&&<p className="mt-2 text-xs font-semibold text-amber-800">Commission agence estimée ({p.tauxCommissionAgence} %) : {monnaie(p.commissionAgence)}</p>}</li>)}</ul>}
        <form onSubmit={ajouter} className="mt-4 grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-2"><h4 className="font-semibold text-nuit-900 sm:col-span-2">{espaceProprietaire?'Enregistrer un loyer reçu':'Déclarer le paiement de mon loyer'}</h4><label className="text-sm">Montant (FCFA)<input required type="number" min="1" step="0.01" value={montant} onChange={e=>setMontant(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Période du loyer<input required type="date" value={periode} onChange={e=>setPeriode(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Date du paiement<input required type="date" value={datePaiement} onChange={e=>setDatePaiement(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><label className="text-sm">Référence facultative<input maxLength={500} value={reference} onChange={e=>setReference(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label><button className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">{espaceProprietaire?'Enregistrer le loyer reçu':'Déclarer mon paiement'}</button></form>
       </div>}
+      <EvaluationContrat contratId={c.id} termine={c.etat==='TERMINE'||c.etat==='RESILIE'} />
      </article>)}</div>}
    </>
   }
