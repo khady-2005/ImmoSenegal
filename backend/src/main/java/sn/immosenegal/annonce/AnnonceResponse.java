@@ -14,7 +14,7 @@ public record AnnonceResponse(
     UUID id, String titre, String description, TypeBien typeBien, TypeTransaction transaction,
     long prix, BigDecimal superficie, Integer pieces, String quartier, String ville, String adresse,
     BigDecimal latitude, BigDecimal longitude, List<String> equipements, StatutAnnonce statut,
-    Proprietaire proprietaire, Instant creeLe, Instant modifieLe, java.time.LocalDate dateFinGratuite, List<UUID> photos, boolean exemple,
+    Proprietaire proprietaire, Instant creeLe, Instant modifieLe, java.time.LocalDate dateFinPublication, List<UUID> photos, boolean exemple,
     String motifModeration) {
 
     public record Proprietaire(UUID id, String nomComplet) {
@@ -35,6 +35,6 @@ public record AnnonceResponse(
             a.getPrix(), a.getSuperficie(), a.getPieces(), a.getQuartier(), a.getVille(), a.getAdresse(),
             a.getLatitude(), a.getLongitude(), a.getEquipements().stream().sorted().toList(), a.getStatut(),
             new Proprietaire(a.getProprietaire().getId(), a.getProprietaire().getNomComplet()),
-            a.getCreeLe(), a.getModifieLe(), a.getDateFinGratuite(), photos, a.isExemple(), motif);
+            a.getCreeLe(), a.getModifieLe(), a.getDateFinPublication(), photos, a.isExemple(), motif);
     }
 }
