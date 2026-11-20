@@ -127,6 +127,13 @@ public class AbonnementProprietaire {
         this.modifieLe = Instant.now();
     }
 
+    public void annulerPaiement() {
+        if (this.statut == StatutAbonnement.EN_ATTENTE && this.paydunyaToken != null) {
+            this.statut = StatutAbonnement.ANNULE;
+            this.modifieLe = Instant.now();
+        }
+    }
+
     public void expirer() {
         this.statut = StatutAbonnement.EXPIRE;
         this.modifieLe = Instant.now();
