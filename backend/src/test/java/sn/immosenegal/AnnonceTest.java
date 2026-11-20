@@ -57,7 +57,7 @@ class AnnonceTest extends AbstractApiTest {
         return JsonPath.read(r.getResponse().getContentAsString(), "$.id");
     }
 
-    /** Un administrateur valide l'annonce : elle devient PUBLIEE et entre dans le catalogue public. */
+    /** Une annonce est publiée dès sa création ; l'administrateur peut encore la modérer ensuite. */
     private void valider(String jetonAdmin, String id) throws Exception {
         mvc.perform(post("/api/admin/annonces/{id}/valider", id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin)))
             .andExpect(status().isOk())
@@ -66,7 +66,7 @@ class AnnonceTest extends AbstractApiTest {
 
     private String publierEtValider(String jeton, String jetonAdmin, Map<String, Object> corps) throws Exception {
         String id = publierEtRecupererId(jeton, corps);
-        valider(jetonAdmin, id);
+        // Les annonces des propriétaires sont publiées immédiatement : cet appel reste compatible avec les anciens scénarios.
         return id;
     }
 
@@ -101,13 +101,13 @@ class AnnonceTest extends AbstractApiTest {
     void unProprietairePublie_etLeProprietaireNEstJamaisCeluiDeLaRequete() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
         Map<String, Object> corps = annonce("Ma villa", quartierUnique());
-        corps.put("statut", "PUBLIEE");                                 // ignoré à la création : toute annonce commence EN_ATTENTE
+        corps.put("statut", "EN_ATTENTE");                                 // le statut client est ignoré : une annonce propriétaire est publiée immédiatement
         corps.put("proprietaireId", UUID.randomUUID().toString());       // champ inconnu : ignoré
         corps.put("proprietaire", Map.of("id", UUID.randomUUID().toString()));
 
         MvcResult r = publier(jeton, corps)
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.statut").value("EN_ATTENTE"))
+            .andExpect(jsonPath("$.statut").value("PUBLIEE"))
             .andReturn();
 
         String idProprietaire = JsonPath.read(r.getResponse().getContentAsString(), "$.proprietaire.id");
@@ -216,7 +216,7 @@ class AnnonceTest extends AbstractApiTest {
         String jetonAdmin = utilisateurConnecte(Role.ADMIN);
         String id = publierEtRecupererId(jetonProprio, annonce("À modérer", quartierUnique()));
 
-        lire(id, jetonAdmin).andExpect(status().isOk());   // un administrateur voit aussi les annonces EN_ATTENTE
+        lire(id, jetonAdmin).andExpect(status().isOk());   // un administrateur peut aussi consulter les annonces publiées
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin)))
             .andExpect(status().isNoContent());
         lire(id, jetonAdmin).andExpect(status().isNotFound());
@@ -233,7 +233,7 @@ class AnnonceTest extends AbstractApiTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.contenu[0].titre").value("Annonce de A"))
-            .andExpect(jsonPath("$.contenu[0].statut").value("EN_ATTENTE"));
+            .andExpect(jsonPath("$.contenu[0].statut").value("PUBLIEE"));
         mvc.perform(get("/api/annonces/mes-annonces")).andExpect(status().isUnauthorized());
     }
 
