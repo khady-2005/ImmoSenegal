@@ -39,10 +39,12 @@ export default function MesAnnonces() {
   const charger = useCallback(async () => {
     setErreur(null)
     try {
+      // Les annonces sont prioritaires : une panne de l'annuaire ou des mandats
+      // ne doit pas empêcher le propriétaire de consulter et gérer ses biens.
       const [p, listeAgences, listeMandats] = await Promise.all([
         appelApi<PagePaginee<Annonce>>('/api/annonces/mes-annonces?taille=50', { token: jeton }),
-        appelApi<Agence[]>('/api/agence/annuaire', { token: jeton }),
-        appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }),
+        appelApi<Agence[]>('/api/agence/annuaire', { token: jeton }).catch(() => [] as Agence[]),
+        appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }).catch(() => [] as Mandat[]),
       ])
       setAnnonces(p.contenu)
       setAgences(listeAgences)
