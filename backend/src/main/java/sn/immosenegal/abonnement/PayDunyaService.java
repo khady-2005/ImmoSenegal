@@ -3,6 +3,7 @@ package sn.immosenegal.abonnement;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,14 +49,14 @@ public class PayDunyaService {
             && !callbackUrl.isBlank();
     }
 
-    public String creerFacture(UUIDHolder abonnementId, BigDecimal montant, String description, String nom, String email) {
+    public Facture creerFacture(UUID abonnementId, BigDecimal montant, String description, String nom, String email) {
         verifierConfiguration();
         String base = testMode ? "https://app.paydunya.com/sandbox-api/v1" : "https://app.paydunya.com/api/v1";
         Map<String,Object> invoice = new LinkedHashMap<>();
         invoice.put("total_amount", montant.intValueExact());
         invoice.put("description", description);
         invoice.put("customer", Map.of("name", nom, "email", email));
-        invoice.put("custom_data", Map.of("abonnement_id", abonnementId.value()));
+        invoice.put("custom_data", Map.of("abonnement_id", abonnementId.toString()));
         Map<String,Object> actions = Map.of(
             "callback_url", callbackUrl,
             "return_url", frontendUrl + "/espace-proprietaire?paiement=retour",
@@ -69,7 +70,7 @@ public class PayDunyaService {
         JsonNode response = envoyerCreation(base + "/checkout-invoice/create", payload);
         if (!"00".equals(response.path("response_code").asText()) || response.path("token").asText().isBlank())
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "PayDunya n'a pas pu créer la facture.");
-        return response.path("response_text").asText();
+        return new Facture(response.path("token").asText(), response.path("response_text").asText());
     }
 
     public JsonNode verifierFacture(String invoiceToken) {
@@ -121,5 +122,5 @@ public class PayDunyaService {
                 "Le paiement en ligne n'est pas encore configuré sur le serveur.");
     }
 
-    public record UUIDHolder(String value) {}
+    public record Facture(String token, String url) {}
 }
