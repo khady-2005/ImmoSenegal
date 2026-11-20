@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
+import AbonnementProprietaire from '../components/AbonnementProprietaire'
 import { useAuth } from '../auth'
 
 type Mandat = {
@@ -133,6 +134,8 @@ export default function EspaceProprietaire() {
         </Link>)}
       </div>
     </section>
+
+    <AbonnementProprietaire />
 
     <section className="mt-9">
       <div>
