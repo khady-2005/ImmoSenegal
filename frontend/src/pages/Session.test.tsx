@@ -77,7 +77,8 @@ describe('Session longue (cookie HttpOnly)', () => {
     const user = userEvent.setup()
     afficher('/tableau-de-bord')
     await screen.findByRole('heading', { name: /Bonjour/ })
-    await user.click(screen.getByRole('button', { name: /déconnexion/i }))
+    await user.click(screen.getByRole('button', { name: 'Afficher les autres rubriques' }))
+    await user.click(screen.getByRole('menuitem', { name: /déconnexion/i }))
 
     expect(await screen.findByRole('link', { name: 'Connexion' })).toBeInTheDocument()
     const appel = api.mock.calls.find(([u]) => u === '/api/auth/logout')!
