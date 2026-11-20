@@ -72,7 +72,6 @@ export default function EspaceProprietaire() {
   }, [jeton])
 
   const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
-  const demandes = contrats.filter(c => c.etat === 'RESILIATION_DEMANDEE')
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
 
   return <main className="mx-auto max-w-6xl px-4 py-10">
