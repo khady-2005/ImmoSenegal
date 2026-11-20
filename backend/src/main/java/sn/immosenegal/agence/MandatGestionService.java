@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import sn.immosenegal.abonnement.AbonnementProprietaireRepository;
+import sn.immosenegal.abonnement.StatutAbonnement;
 import sn.immosenegal.annonce.Annonce;
 import sn.immosenegal.annonce.AnnonceRepository;
 import sn.immosenegal.annonce.StatutAnnonce;
@@ -25,16 +27,19 @@ public class MandatGestionService {
     private final MandatGestionRepository mandats;
     private final NotificationService notifications;
     private final UserRepository utilisateurs;
+    private final AbonnementProprietaireRepository abonnements;
 
     public MandatGestionService(AgenceRepository agences, MembreAgenceRepository membres,
             AnnonceRepository annonces, MandatGestionRepository mandats,
-            NotificationService notifications, UserRepository utilisateurs) {
+            NotificationService notifications, UserRepository utilisateurs,
+            AbonnementProprietaireRepository abonnements) {
         this.agences = agences;
         this.membres = membres;
         this.annonces = annonces;
         this.mandats = mandats;
         this.notifications = notifications;
         this.utilisateurs = utilisateurs;
+        this.abonnements = abonnements;
     }
 
     /** L'agence propose de gérer un bien appartenant à un autre utilisateur. */
@@ -203,6 +208,19 @@ public class MandatGestionService {
         User demandeur = mandat.getResiliationDemandeePar();
         try { mandat.deciderResiliation(accepter); }
         catch (IllegalStateException e) { throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage()); }
+        // À la fin du mandat, le bien ne peut rester publié sans abonnement direct actif.
+        // Le propriétaire pourra le republier après souscription ou signer un nouveau mandat.
+        if (accepter && mandat.getAnnonce().getStatut() == StatutAnnonce.PUBLIEE) {
+            boolean abonnementActif = abonnements
+                .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
+                    mandat.getProprietaire().getId(), StatutAbonnement.ACTIF)
+                .filter(a -> a.getDateFin() != null
+                    && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+                .isPresent();
+            if (!abonnementActif) {
+                mandat.getAnnonce().setStatut(StatutAnnonce.EN_ATTENTE);
+            }
+        }
         if (demandeur != null) notifications.creer(demandeur, "REPONSE_RESILIATION_MANDAT",
             accepter ? "Résiliation confirmée" : "Résiliation refusée",
             accepter ? "Le mandat concernant " + mandat.getAnnonce().getTitre() + " est terminé."
