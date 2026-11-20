@@ -13,16 +13,14 @@ export default function MentionsLegales() {
           <h2 id="ml-nature" className={titre}>Nature du site</h2>
           <p className="mt-2">
             ImmoSénégal est un projet de mémoire de Licence 3 Ingénierie Informatique, réalisé à l’Université Assane Seck de
-            Ziguinchor (UASZ). C’est un site à but pédagogique : il ne vend rien et ne perçoit aucune commission.
+            Ziguinchor (UASZ). C’est un projet pédagogique qui présente des parcours de location, de vente et de gestion immobilière. Les fonctionnalités de commission affichées dans l’application servent au suivi interne de l’agence ; elles ne prouvent pas qu’un paiement réel a été effectué.
           </p>
         </section>
 
         <section aria-labelledby="ml-annonces">
           <h2 id="ml-annonces" className={titre}>Annonces</h2>
           <p className="mt-2">
-            Chaque annonce est examinée par un administrateur avant sa publication. Les annonces marquées « Exemple » sont des
-            démonstrations : ces biens n’existent pas et leurs photos sont illustratives. Les informations d’une annonce engagent
-            la personne qui la publie.
+            Les annonces ordinaires publiées par un propriétaire apparaissent directement dans le catalogue. L’administration conserve des outils de contrôle a posteriori et peut intervenir en cas de signalement ou de non-respect des règles. Les informations d’une annonce engagent la personne qui la publie.
           </p>
         </section>
 
@@ -31,7 +29,7 @@ export default function MentionsLegales() {
           <p className="mt-2">
             À l’inscription, le site conserve votre nom, votre adresse email, votre téléphone (facultatif) et votre mot de passe,
             qui n’est jamais stocké en clair. Un cookie technique, indispensable à la connexion, garde votre session ouverte. Le
-            site n’utilise ni publicité ni traceur. Pour demander la suppression de votre compte, utilisez le contact ci-dessous.
+            site n’utilise ni publicité ni traceur. Pour toute demande relative à vos données ou à votre compte, contactez le responsable du projet par le canal de contact communiqué lors de la présentation du projet.
           </p>
         </section>
 
@@ -44,7 +42,7 @@ export default function MentionsLegales() {
 
         <section aria-labelledby="ml-contact">
           <h2 id="ml-contact" className={titre}>Contact</h2>
-          <p className="mt-2">Ziguinchor, Sénégal. Un formulaire de contact arrive prochainement.</p>
+          <p className="mt-2">Ziguinchor, Sénégal. Les coordonnées institutionnelles du responsable du projet doivent être communiquées directement par celui-ci.</p>
         </section>
       </div>
 
