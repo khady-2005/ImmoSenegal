@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 
 type Forfait = 'MENSUEL' | 'TRIMESTRIEL' | 'ANNUEL'
 type Abonnement = {
   id: string; forfait: Forfait; montant: number; dateDebut: string | null; dateFin: string | null;
-  statut: 'EN_ATTENTE' | 'ACTIF' | 'REFUSE' | 'EXPIRE'; modePaiement: string;
+  statut: 'EN_ATTENTE' | 'ACTIF' | 'REFUSE' | 'EXPIRE' | 'ANNULE'; modePaiement: string;
   referencePaiement: string | null; note: string | null; creeLe: string
 }
 const forfaits: { id: Forfait; nom: string; prix: number; duree: string; avantage: string }[] = [
@@ -14,10 +15,11 @@ const forfaits: { id: Forfait; nom: string; prix: number; duree: string; avantag
   { id: 'ANNUEL', nom: 'Annuel', prix: 50000, duree: '12 mois', avantage: 'Le meilleur tarif' },
 ]
 const monnaie = (n: number) => Number(n).toLocaleString('fr-FR') + ' FCFA'
-const statuts = { EN_ATTENTE: 'En attente de vérification', ACTIF: 'Actif', REFUSE: 'Demande refusée', EXPIRE: 'Expiré' }
+const statuts = { EN_ATTENTE: 'En attente de vérification', ACTIF: 'Actif', REFUSE: 'Demande refusée', EXPIRE: 'Expiré', ANNULE: 'Paiement annulé' }
 
 export default function AbonnementProprietaire() {
   const { jeton } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [historique, setHistorique] = useState<Abonnement[]>([])
   const [forfait, setForfait] = useState<Forfait>('MENSUEL')
   const [mode, setMode] = useState('WAVE')
@@ -36,6 +38,30 @@ export default function AbonnementProprietaire() {
     finally { setChargement(false) }
   }, [jeton])
   useEffect(() => { void charger() }, [charger])
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    const retour = searchParams.get('paiement')
+    if (!jeton || !token || !retour) return
+    let actif = true
+    setErreur('')
+    setMessage('Vérification du paiement auprès de PayDunya…')
+    appelApi<{ status: 'completed' | 'pending' | 'cancelled' }>(
+      '/api/abonnements/paydunya/retour?token=' + encodeURIComponent(token),
+      { token: jeton },
+    ).then(resultat => {
+      if (!actif) return
+      if (resultat.status === 'completed') setMessage('Paiement confirmé. Votre abonnement est maintenant actif.')
+      else if (resultat.status === 'cancelled') setMessage('Le paiement a été annulé ou a échoué. Vous pouvez recommencer.')
+      else setMessage('Le paiement est encore en attente. Actualisez votre historique dans quelques instants.')
+      void charger()
+    }).catch(e => {
+      if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de vérifier le paiement pour le moment.')
+    }).finally(() => {
+      if (actif) setSearchParams({}, { replace: true })
+    })
+    return () => { actif = false }
+  }, [jeton, searchParams, setSearchParams, charger])
 
   const actif = historique.find(a => a.statut === 'ACTIF' && a.dateFin && a.dateFin >= new Date().toISOString().slice(0, 10))
   const attente = historique.some(a => a.statut === 'EN_ATTENTE')
