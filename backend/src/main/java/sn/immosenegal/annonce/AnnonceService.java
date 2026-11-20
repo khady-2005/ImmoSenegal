@@ -157,6 +157,28 @@ public class AnnonceService {
     }
 
     @Transactional
+    public AnnonceResponse publierAvecAbonnement(UUID id, AuthenticatedUser auteur) {
+        Annonce annonce = trouver(id);
+        verifierDroits(annonce, auteur);
+        if (auteur.role() != Role.PROPRIETAIRE) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Cette action est réservée au propriétaire du bien.");
+        }
+        if (annonce.getStatut() != StatutAnnonce.EN_ATTENTE) {
+            throw new ApiException(HttpStatus.CONFLICT, "Seule une annonce en attente peut être publiée ainsi.");
+        }
+        boolean abonnementActif = abonnements
+            .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(auteur.id(), StatutAbonnement.ACTIF)
+            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(java.time.LocalDate.now()))
+            .isPresent();
+        if (!abonnementActif) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Un abonnement actif est nécessaire pour publier directement ce bien. Vous pouvez aussi le confier à une agence.");
+        }
+        annonce.setStatut(StatutAnnonce.PUBLIEE);
+        audit.enregistrer("ANNONCE_PUBLIEE_AVEC_ABONNEMENT", auteur.id(), "Annonce " + id + " publiée avec un abonnement actif");
+        return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
+    }
+
+    @Transactional
     public void supprimer(UUID id, AuthenticatedUser auteur) {
         Annonce annonce = trouver(id);
         verifierDroits(annonce, auteur);
