@@ -10,6 +10,8 @@ type Mandat = {
   ville: string; proprietaireId: string; proprietaireNom: string; origine: string; statut: string;
   creeLe: string; decideLe: string | null; resiliationDemandeeParId?: string | null
 }
+type AnnonceResume = { id: string; statut: string; dateFinPublication?: string | null; prix: number; transaction: string }
+type PageAnnonces = { contenu: AnnonceResume[]; totalElements: number }
 type Contrat = {
   id: string
   annonceId: string
@@ -42,6 +44,8 @@ const nomEtat = (etat: string) => ({ ACTIF: 'Actif', RESILIATION_DEMANDEE: 'Rés
 export default function EspaceProprietaire() {
   const { jeton, utilisateur } = useAuth()
   const [contrats, setContrats] = useState<Contrat[]>([])
+  const [annonces, setAnnonces] = useState<AnnonceResume[]>([])
+  const [totalAnnonces, setTotalAnnonces] = useState(0)
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
   const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, offres: 0 })
@@ -60,7 +64,8 @@ export default function EspaceProprietaire() {
       appelApi<{ statut: string }[]>('/api/offres/recues', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/offres-location/recues', { token: jeton }),
       appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }),
-    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult]) => {
+      appelApi<PageAnnonces>('/api/annonces/mes-annonces?taille=100', { token: jeton }),
+    ]).then(([contratsResult, visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult, annoncesResult]) => {
       if (!actif) return
       if (contratsResult.status === 'fulfilled') {
         setContrats(contratsResult.value.filter(c => c.etat !== 'TERMINE' && c.etat !== 'RESILIE'))
@@ -71,8 +76,12 @@ export default function EspaceProprietaire() {
       const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
       const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
       const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
-      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult].some(result => result.status === 'rejected'))
+      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult, mandatsResult, annoncesResult].some(result => result.status === 'rejected'))
       if (mandatsResult.status === 'fulfilled') setMandats(mandatsResult.value)
+      if (annoncesResult.status === 'fulfilled') {
+        setAnnonces(annoncesResult.value.contenu)
+        setTotalAnnonces(annoncesResult.value.totalElements)
+      }
       setSuivi({
         visites: visites.filter(x => x.statut === 'EN_ATTENTE').length,
         reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
@@ -101,6 +110,11 @@ export default function EspaceProprietaire() {
 
   const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
+  const annoncesPubliees = annonces.filter(a => a.statut === 'PUBLIEE').length
+  const annoncesEnAttente = annonces.filter(a => a.statut === 'EN_ATTENTE').length
+  const annoncesModerees = annonces.filter(a => ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut)).length
+  const aujourdHui = new Date().toISOString().slice(0, 10)
+  const publicationsAExpirer = annonces.filter(a => a.statut === 'PUBLIEE' && a.dateFinPublication && a.dateFinPublication <= new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)).length
 
   return <main className="mx-auto max-w-6xl px-4 py-10">
     <header className="rounded-3xl bg-nuit-900 p-6 text-white sm:p-8">
@@ -123,6 +137,15 @@ export default function EspaceProprietaire() {
       <Link to="/mes-contrats-location" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300 hover:shadow-sm"><p className="text-xs text-slate-500">Loyers mensuels contractuels</p><p className="mt-2 text-xl font-bold text-nuit-900">{chargement ? '…' : monnaie(loyer)}</p><span className="mt-1 block text-xs text-amber-800">Gérer les contrats →</span></Link>
     </section>
     <p className="mt-3 text-xs text-slate-500">Les montants correspondent aux loyers prévus dans les contrats actifs, pas à des encaissements bancaires vérifiés.</p>
+    <section aria-label="Résumé de mes annonces" className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <Link to="/mes-annonces" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300"><p className="text-xs text-slate-500">Total de mes biens</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : totalAnnonces}</p><span className="mt-1 block text-xs text-amber-800">Gérer le patrimoine →</span></Link>
+      <Link to="/mes-annonces" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300"><p className="text-xs text-slate-500">Annonces publiées</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : annoncesPubliees}</p><span className="mt-1 block text-xs text-amber-800">Voir mes annonces →</span></Link>
+      <Link to="/mes-annonces" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300"><p className="text-xs text-slate-500">À renouveler ou régulariser</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : annoncesEnAttente}</p><span className="mt-1 block text-xs text-amber-800">Voir les abonnements →</span></Link>
+      <Link to="/mes-annonces" className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-amber-300"><p className="text-xs text-slate-500">À surveiller</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : publicationsAExpirer + annoncesModerees}</p><span className="mt-1 block text-xs text-amber-800">Échéances et modération →</span></Link>
+    </section>
+    {!chargement && (publicationsAExpirer > 0 || annoncesModerees > 0) && <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+      <strong>Actions à prévoir :</strong> {publicationsAExpirer > 0 ? `${publicationsAExpirer} publication(s) arrivent à échéance dans les cinq prochains jours. Pensez à renouveler la couverture par abonnement ou à discuter d’un mandat avec une agence. ` : ''}{annoncesModerees > 0 ? `${annoncesModerees} annonce(s) nécessitent une correction ou font l’objet d’une modération. Consultez leur motif dans « Mes annonces ».` : ''}
+    </div>}
 
     <section className="mt-9">
       <div><h2 className="text-xl font-bold text-nuit-900">Tous vos outils de gestion</h2><p className="mt-1 text-sm text-slate-600">Chaque rubrique vous conduit directement à la fonctionnalité correspondante.</p></div>
