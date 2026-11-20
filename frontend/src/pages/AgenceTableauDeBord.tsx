@@ -86,6 +86,18 @@ export default function AgenceTableauDeBord() {
   const [membreEnCours, setMembreEnCours] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [rechercheMembre, setRechercheMembre] = useState('')
+  const [filtreMembre, setFiltreMembre] = useState('TOUS')
+
+  const membresFiltres = membres.filter(m => {
+    const q = rechercheMembre.trim().toLocaleLowerCase()
+    const texte = !q || [m.nom, m.email, fonctions[m.fonction] ?? m.fonction].some(v => v.toLocaleLowerCase().includes(q))
+    return texte && (filtreMembre === 'TOUS' || m.statut === filtreMembre || m.fonction === filtreMembre)
+  })
+  const membresActifs = membres.filter(m => m.statut === 'ACTIF').length
+  const membresSuspendus = membres.filter(m => m.statut !== 'ACTIF').length
+  const mandatsActifs = mandats.filter(m => m.statut === 'ACCEPTE').length
+  const mandatsEnAttente = mandats.filter(m => m.statut === 'EN_ATTENTE').length
 
   const charger = useCallback(async () => {
     if (!jeton || !agenceId) return
@@ -309,6 +321,12 @@ export default function AgenceTableauDeBord() {
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
 
+      <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Indicateurs de l’agence">
+        <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Collaborateurs actifs</p><p className="mt-1 text-2xl font-bold text-nuit-900">{membresActifs}</p></article>
+        <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Accès suspendus</p><p className="mt-1 text-2xl font-bold text-nuit-900">{membresSuspendus}</p></article>
+        <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Mandats actifs</p><p className="mt-1 text-2xl font-bold text-nuit-900">{mandatsActifs}</p></article>
+        <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Mandats en attente</p><p className="mt-1 text-2xl font-bold text-nuit-900">{mandatsEnAttente}</p></article>
+      </section>
       {agence && <MissionsAgence agenceId={agenceId} fonction="RESPONSABLE" />}
       {agence && <CRMAgence agenceId={agenceId} fonction="RESPONSABLE" />}
       {agence && <VisitesAgence agenceId={agenceId} />}
