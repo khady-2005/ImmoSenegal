@@ -107,7 +107,7 @@ export default function Visites() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-wider text-emeraude-700">Espace personnel</p>
         <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{titre}</h1>
-        <p className="mt-2 text-slate-600">{client ? 'Retrouvez ici les réponses des propriétaires et gérez vos rendez-vous.' : 'Consultez les demandes et répondez aux personnes intéressées par les biens que vous gérez.'}</p>
+        <p className="mt-2 text-slate-600">{client ? 'Retrouvez ici les réponses du propriétaire ou de l’agence gestionnaire et gérez vos rendez-vous.' : 'Consultez les demandes et répondez aux personnes intéressées par les biens que vous gérez.'}</p>
       </div>
       {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des demandes…</p>}
