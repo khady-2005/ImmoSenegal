@@ -48,11 +48,15 @@ services:
         sync: false                  # mot de passe ou clé SMTP, jamais dans Git
       - key: MAIL_FROM
         sync: false                  # adresse expéditrice autorisée par le fournisseur SMTP
-      - key: PAYTECH_API_KEY
-        sync: false                  # identifiant marchand privé : ne jamais le mettre dans Git
-      - key: PAYTECH_API_SECRET
-        sync: false                  # secret marchand privé : ne jamais le mettre dans Git
-      - key: PAYTECH_ENV
+      - key: PAYDUNYA_MASTER_KEY
+        sync: false                  # clé principale privée : ne jamais la mettre dans Git
+      - key: PAYDUNYA_PRIVATE_KEY
+        sync: false                  # clé privée : ne jamais la mettre dans Git
+      - key: PAYDUNYA_PUBLIC_KEY
+        sync: false                  # clé publique : ne jamais la mettre dans Git
+      - key: PAYDUNYA_TOKEN
+        sync: false                  # jeton API privé : ne jamais le mettre dans Git
+      - key: PAYDUNYA_MODE
         value: test                  # production uniquement après activation du compte marchand
-      - key: PAYTECH_IPN_URL
-        sync: false                  # URL Render publique + /api/abonnements/paytech/callback
+      - key: PAYDUNYA_CALLBACK_URL
+        sync: false                  # URL Render publique + /api/abonnements/paydunya/callback
