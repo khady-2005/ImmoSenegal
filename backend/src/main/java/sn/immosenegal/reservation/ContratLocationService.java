@@ -1,6 +1,7 @@
 package sn.immosenegal.reservation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Instant;
 import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,15 @@ public class ContratLocationService {
   return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet());
  }
  @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(p->new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),p.getReference(),p.getEnregistrePar().getNomComplet())).toList();}
+ public ContratResume confirmerLecture(UUID id, AuthenticatedUser a) {
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  verifierParticipant(c,a);
+  User participant=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
+  c.confirmerLecture(participant);
+  User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
+  notifications.creer(autre,"CONTRAT_LECTURE_CONFIRME","Contrat consulté","L'autre partie a confirmé avoir pris connaissance du récapitulatif du contrat concernant "+c.getAnnonce().getTitre()+".","/mes-contrats-location");
+  return resume(c);
+ }
  public ContratResume demanderResiliation(UUID id, String motif, LocalDate dateSouhaitee, AuthenticatedUser a) {
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   verifierParticipant(c,a);
@@ -98,10 +108,10 @@ public class ContratLocationService {
    .anyMatch(m->mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),r.getAnnonce().getId(),StatutMandatGestion.ACCEPTE));
  }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
- private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getId(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getNomComplet(),c.getResiliationDemandeeLe(),c.getResiliationMotif(),c.getDateFinSouhaitee());}
+ private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getId(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getNomComplet(),c.getResiliationDemandeeLe(),c.getResiliationMotif(),c.getDateFinSouhaitee(),c.getProprietaireConfirmeLe(),c.getLocataireConfirmeLe());}
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
- public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee){}
+ public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe){}
  public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
 }
