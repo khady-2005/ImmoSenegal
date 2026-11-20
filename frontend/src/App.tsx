@@ -38,6 +38,7 @@ import AdminDemandes from './pages/AdminDemandes'
 import AdminModeration from './pages/AdminModeration'
 import AdminUtilisateurs from './pages/AdminUtilisateurs'
 import AdminAgences from './pages/AdminAgences'
+import AdminAbonnements from './pages/AdminAbonnements'
 import MesAnnonces from './pages/MesAnnonces'
 import FormulaireAnnonce from './pages/FormulaireAnnonce'
 import RequireAuth from './components/RequireAuth'
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/agences" element={<RequireRole roles={["ADMIN"]}><AdminAgences /></RequireRole>} />
+          <Route path="admin/abonnements" element={<RequireRole roles={["ADMIN"]}><AdminAbonnements /></RequireRole>} />
           <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
           <Route path="admin/litiges-locatifs" element={<RequireRole roles={["ADMIN"]}><AdminLitigesLocatifs /></RequireRole>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
