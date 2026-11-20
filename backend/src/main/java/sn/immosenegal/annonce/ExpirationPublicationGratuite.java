@@ -42,9 +42,9 @@ public class ExpirationPublicationGratuite {
     @Transactional
     public void rappelerFinGratuite() {
         LocalDate echeance = LocalDate.now().plusDays(5);
-        annonces.findAllByStatutAndDateFinGratuiteLessThanEqual(StatutAnnonce.PUBLIEE, echeance)
+        annonces.findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce.PUBLIEE, echeance)
             .stream()
-            .filter(a -> echeance.equals(a.getDateFinGratuite()))
+            .filter(a -> echeance.equals(a.getDateFinPublication()))
             .filter(a -> !couvertParAbonnementOuMandat(a))
             .filter(a -> !notifications.existsByDestinataireIdAndTypeAndLien(
                 a.getProprietaire().getId(), TYPE_RAPPEL, lien(a)))
@@ -60,17 +60,17 @@ public class ExpirationPublicationGratuite {
     @Transactional
     public void retirerAnnoncesExpirees() {
         LocalDate aujourdHui = LocalDate.now();
-        annonces.findAllByStatutAndDateFinGratuiteLessThanEqual(StatutAnnonce.PUBLIEE, aujourdHui)
+        annonces.findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce.PUBLIEE, aujourdHui)
             .forEach(a -> {
                 if (mandats.existsByAnnonceIdAndStatut(a.getId(), StatutMandatGestion.ACCEPTE)) {
-                    a.setDateFinGratuite(null);
+                    a.setDateFinPublication(null);
                 } else {
                     var abonnementActif = abonnements
                         .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
                             a.getProprietaire().getId(), StatutAbonnement.ACTIF)
                         .filter(ab -> ab.getDateFin() != null && !ab.getDateFin().isBefore(aujourdHui));
                     if (abonnementActif.isPresent()) {
-                        a.setDateFinGratuite(abonnementActif.get().getDateFin());
+                        a.setDateFinPublication(abonnementActif.get().getDateFin());
                         return;
                     }
                     a.setStatut(StatutAnnonce.EN_ATTENTE);
