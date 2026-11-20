@@ -105,6 +105,24 @@ export default function MesAnnonces() {
     }
   }
 
+  async function publierAvecAbonnement(annonce: Annonce) {
+    setDemandeEnCours(annonce.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi<Annonce>(`/api/annonces/${annonce.id}/publier`, {
+        method: 'POST',
+        token: jeton,
+      })
+      setMessage('Votre annonce est maintenant publiée dans le catalogue.')
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de publier cette annonce.')
+    } finally {
+      setDemandeEnCours(null)
+    }
+  }
+
   const mandatParAnnonce = new Map(mandats.map((m) => [m.annonceId, m]))
 
   return (
@@ -167,7 +185,12 @@ export default function MesAnnonces() {
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
               {a.statut === 'EN_ATTENTE' && (
-                <p className="mt-2 text-sm text-slate-600">Cette annonce n’est pas encore visible du public. Vous pouvez souscrire un abonnement pour la publier directement, ou demander à une agence de prendre le bien en gestion sans abonnement.</p>
+                <div className="mt-2">
+                  <p className="text-sm text-slate-600">Cette annonce n’est pas encore visible du public. Vous pouvez souscrire un abonnement pour la publier directement, ou demander à une agence de prendre le bien en gestion sans abonnement.</p>
+                  <button type="button" onClick={() => void publierAvecAbonnement(a)} disabled={demandeEnCours === a.id} className="mt-2 rounded-lg border border-nuit-900 px-3 py-1.5 text-sm font-semibold text-nuit-900 disabled:opacity-50">
+                    {demandeEnCours === a.id ? 'Publication…' : 'Publier avec mon abonnement'}
+                  </button>
+                </div>
               )}
               {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
                 <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-slate-800"><strong>Motif :</strong> {a.motifModeration}</p>
