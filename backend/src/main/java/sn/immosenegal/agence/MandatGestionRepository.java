@@ -13,6 +13,7 @@ public interface MandatGestionRepository extends JpaRepository<MandatGestion, UU
     List<MandatGestion> findAllByAnnonceIdAndStatutOrderByCreeLeDesc(UUID annonceId, StatutMandatGestion statut);
     Optional<MandatGestion> findByIdAndProprietaireId(UUID id, UUID proprietaireId);
     boolean existsByAgenceIdAndAnnonceId(UUID agenceId, UUID annonceId);
+    boolean existsByAnnonceIdAndStatut(UUID annonceId, StatutMandatGestion statut);
     boolean existsByAgenceIdAndAnnonceIdAndStatut(UUID agenceId, UUID annonceId, StatutMandatGestion statut);
     boolean existsByAnnonceIdAndStatutAndIdNot(UUID annonceId, StatutMandatGestion statut, UUID id);
 }
