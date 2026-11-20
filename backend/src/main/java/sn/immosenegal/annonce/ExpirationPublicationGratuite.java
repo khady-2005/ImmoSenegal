@@ -46,6 +46,12 @@ public class ExpirationPublicationGratuite {
             .stream()
             .filter(a -> echeance.equals(a.getDateFinPublication()))
             .filter(a -> !mandats.existsByAnnonceIdAndStatut(a.getId(), StatutMandatGestion.ACCEPTE))
+            // Un abonnement déjà actif qui couvre cette échéance rend le rappel inutile.
+            .filter(a -> abonnements
+                .findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(
+                    a.getProprietaire().getId(), StatutAbonnement.ACTIF)
+                .filter(ab -> ab.getDateFin() != null && !ab.getDateFin().isBefore(echeance))
+                .isEmpty())
             .filter(a -> !notifications.existsByDestinataireIdAndTypeAndLien(
                 a.getProprietaire().getId(), TYPE_RAPPEL, lien(a)))
             .forEach(a -> serviceNotifications.creer(a.getProprietaire(), TYPE_RAPPEL,
