@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
@@ -20,10 +21,13 @@ import sn.immosenegal.user.UserRepository;
 public class AbonnementProprietaireService {
     private final AbonnementProprietaireRepository abonnements;
     private final UserRepository utilisateurs;
+    private final NotificationService notifications;
 
-    public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements, UserRepository utilisateurs) {
+    public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements, UserRepository utilisateurs,
+            NotificationService notifications) {
         this.abonnements = abonnements;
         this.utilisateurs = utilisateurs;
+        this.notifications = notifications;
     }
 
     public Resume demander(Demande q, AuthenticatedUser acteur) {
@@ -67,9 +71,20 @@ public class AbonnementProprietaireService {
         if ("PAYDUNYA".equalsIgnoreCase(a.getModePaiement()))
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Un paiement PayDunya ne peut être activé que par confirmation automatique du fournisseur.");
-        if (q.accepter()) a.activer(acteur.id(), LocalDate.now());
-        else a.refuser(acteur.id(), q.motif());
-        return resume(abonnements.save(a));
+        if (q.accepter()) {
+            a.activer(acteur.id(), LocalDate.now());
+        } else {
+            a.refuser(acteur.id(), q.motif());
+        }
+        AbonnementProprietaire traite = abonnements.save(a);
+        utilisateurs.findById(traite.getProprietaireId()).ifPresent(proprietaire ->
+            notifications.creer(proprietaire, q.accepter() ? "ABONNEMENT_ACTIVE" : "ABONNEMENT_REFUSE",
+                q.accepter() ? "Votre abonnement est activé" : "Votre demande d'abonnement a été refusée",
+                q.accepter()
+                    ? "Votre abonnement " + traite.getForfait() + " est actif jusqu'au " + traite.getDateFin() + "."
+                    : "Votre demande d'abonnement n'a pas été acceptée. Consultez votre espace propriétaire pour les précisions.",
+                "/espace-proprietaire"));
+        return resume(traite);
     }
 
     private BigDecimal tarif(ForfaitAbonnement f) {
