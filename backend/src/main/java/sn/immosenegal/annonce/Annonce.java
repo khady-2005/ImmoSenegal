@@ -98,7 +98,7 @@ public class Annonce {
     @Column(nullable = false, updatable = false)
     private boolean exemple;
 
-    /** Fin de la période gratuite de 30 jours ; null si la publication repose sur un abonnement. */
+    /** Échéance de couverture : période gratuite de 30 jours ou date de fin de l'abonnement ; null si un mandat accepté prend en charge le bien. */
     @Column(name = "date_fin_publication")
     private java.time.LocalDate dateFinPublication;
 
