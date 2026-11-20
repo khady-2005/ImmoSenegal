@@ -52,6 +52,19 @@ export default function MessagerieMandats() {
   useEffect(() => { void chargerConversations() }, [chargerConversations])
   useEffect(() => { void chargerMessages() }, [chargerMessages])
 
+  // Actualise les nouveaux messages sans recharger la page.
+  useEffect(() => {
+    if (!selection) return
+    const intervalle = window.setInterval(() => { void chargerMessages() }, 8000)
+    return () => window.clearInterval(intervalle)
+  }, [chargerMessages, selection])
+
+  // Détecte aussi les nouvelles conversations créées depuis l'ouverture de la page.
+  useEffect(() => {
+    const intervalle = window.setInterval(() => { void chargerConversations() }, 20000)
+    return () => window.clearInterval(intervalle)
+  }, [chargerConversations])
+
   async function envoyer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!contenu.trim() || !selection || envoi) return
