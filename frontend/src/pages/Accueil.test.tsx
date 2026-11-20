@@ -83,11 +83,11 @@ describe("Page d'accueil", () => {
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
 
-  it('redirige le visiteur vers la connexion lorsqu’il ouvre le catalogue', async () => {
-    simulerApi({})
+  it('permet au visiteur d’ouvrir le catalogue depuis l’accueil', async () => {
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
     await userEvent.setup().click(screen.getByRole('link', { name: 'Découvrir le catalogue' }))
-    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
   })
 
   it('affiche les annonces récentes quand il y en a', async () => {
@@ -198,6 +198,7 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
     expect(screen.queryByRole('button', { name: 'Faut-il un compte pour chercher un logement ?' })).not.toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Afficher les autres rubriques' }))
     expect(screen.getByRole('link', { name: 'FAQ' })).toHaveAttribute('href', '/faq')
     expect(screen.getByRole('heading', { name: 'Comment ça marche ?' })).toBeInTheDocument()
     await screen.findByText(/la première annonce peut être la vôtre/i)
