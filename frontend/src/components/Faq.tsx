@@ -5,19 +5,19 @@ import { ChevronDown } from 'lucide-react'
 const questions = [
   {
     q: 'Faut-il un compte pour chercher un logement ?',
-    r: 'Oui. Vous devez vous connecter pour accéder au catalogue et parcourir toutes les annonces. Si vous n’avez pas encore de compte, vous pouvez en créer un gratuitement depuis la page de connexion.',
+    r: 'Oui. Non. Le catalogue, la carte et les fiches des annonces publiées sont accessibles sans connexion. Un compte est nécessaire pour contacter un propriétaire, demander une visite, faire une proposition ou utiliser votre espace personnel.',
   },
   {
     q: 'Qui peut publier une annonce ?',
-    r: 'Seuls les propriétaires autorisés et les administrateurs peuvent publier. Un compte client ne donne pas automatiquement le droit d’ajouter un bien ; l’accès à la publication est soumis à autorisation.',
+    r: 'Les propriétaires peuvent publier directement leurs biens après avoir obtenu le rôle Propriétaire. Les annonces sont visibles dans le catalogue dès leur publication ; l’administration conserve un contrôle a posteriori et peut intervenir en cas de signalement.',
   },
   {
     q: 'Les annonces présentées sur la plateforme sont-elles toutes disponibles ?',
-    r: 'Certaines annonces peuvent servir à illustrer le fonctionnement de la plateforme dans le cadre du projet. Vérifiez toujours les informations et la disponibilité d’un bien auprès de son propriétaire avant toute démarche.',
+    r: 'La disponibilité peut évoluer. Vérifiez les informations auprès du propriétaire ou de l’agence et attendez une confirmation avant de prendre une décision ou de vous déplacer.',
   },
   {
     q: 'Combien de photos puis-je ajouter à une annonce ?',
-    r: 'Jusqu’à 8 photos par annonce, en JPEG ou PNG, de 5 Mo au maximum chacune. À l’envoi, les photos sont ré-encodées : les informations cachées qu’elles contiennent, comme la position GPS, sont supprimées.',
+    r: 'Jusqu’à 8 photos par annonce, en JPEG ou PNG, de 5 Mo au maximum chacune. Une vidéo de présentation MP4 ou WebM peut aussi être ajoutée (30 Mo maximum). Les métadonnées des photos, dont la position GPS, sont supprimées à l’envoi.',
   },
   {
     q: 'La recherche en une phrase, est-ce de l’intelligence artificielle ?',
@@ -29,7 +29,7 @@ const questions = [
   },
   {
     q: 'Puis-je réserver, payer ou écrire au propriétaire ?',
-    r: 'Les clients connectés peuvent envoyer des demandes de visite et suivre leur traitement depuis leur espace. Les réservations et la messagerie ne sont pas encore disponibles dans la version actuelle.',
+    r: 'Les utilisateurs connectés peuvent demander une visite, envoyer une demande de réservation et échanger avec le propriétaire ou, si le bien est confié à une agence, avec les membres autorisés de cette agence. Les propositions de loyer et d’achat peuvent également être suivies depuis les espaces concernés. La plateforme suit les paiements déclarés, mais ne traite pas directement les paiements bancaires.',
   },
 ]
 
@@ -41,7 +41,7 @@ export default function Faq() {
     <section className="bg-transparent py-14 sm:py-18" aria-labelledby="titre-faq">
       <div className="mx-auto grid max-w-6xl gap-7 rounded-[2rem] bg-[#102b49] px-5 py-8 text-white shadow-carte-haut sm:px-8 sm:py-10 lg:grid-cols-[0.8fr_1.7fr] lg:gap-14">
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Besoin de précisions ?</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-dore-300">Besoin de précisions ?</p>
           <h2 id="titre-faq" className="font-titre text-3xl font-semibold text-white sm:text-4xl">
             Questions fréquentes
           </h2>
@@ -61,7 +61,7 @@ export default function Faq() {
                     aria-expanded={ouvert}
                     aria-controls={idReponse}
                     onClick={() => setOuverte(ouvert ? null : i)}
-                    className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-emeraude-300 sm:text-base"
+                    className="flex w-full items-center justify-between gap-4 py-4 text-left text-sm font-semibold text-white transition-colors hover:text-dore-300 sm:text-base"
                   >
                     {item.q}
                     <ChevronDown
