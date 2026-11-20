@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
-import { json, reponseConnexion, simulerApi, utilisateurTest } from '../test/apiSimulee'
+import { annonceTest, json, pageTest, reponseConnexion, simulerApi, utilisateurTest } from '../test/apiSimulee'
 
 function afficher(chemin: string) {
   return render(
@@ -95,10 +95,14 @@ describe('Accès protégé et déconnexion', () => {
     expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
   })
 
-  it('redirige un visiteur non connecté vers la connexion quand il ouvre une fiche de bien', async () => {
-    simulerApi({})
+  it('permet à un visiteur de consulter une fiche publique sans accéder aux actions réservées', async () => {
+    simulerApi({
+      'GET /api/annonces/a1111111-1111-1111-1111-111111111111': () => json(200, annonceTest()),
+      'GET /api/annonces*': () => json(200, pageTest([])),
+    })
     afficher('/annonces/a1111111-1111-1111-1111-111111111111')
-    expect(await screen.findByRole('heading', { name: 'Connexion' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Appartement lumineux' })).toBeInTheDocument()
+    expect(screen.getByText(/connectez-vous avec un compte client/i)).toBeInTheDocument()
   })
 
   it('la déconnexion efface la session et ferme l\'espace personnel', async () => {
@@ -111,7 +115,8 @@ describe('Accès protégé et déconnexion', () => {
     await seConnecter(user)
     await screen.findByRole('heading', { name: /bonjour/i })
 
-    await user.click(screen.getByRole('button', { name: /déconnexion/i }))
+    await user.click(screen.getByRole('button', { name: 'Afficher les autres rubriques' }))
+    await user.click(screen.getByRole('menuitem', { name: /déconnexion/i }))
     expect(screen.queryByRole('button', { name: /déconnexion/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Connexion' })).toBeInTheDocument()
   })
@@ -120,6 +125,8 @@ describe('Accès protégé et déconnexion', () => {
     simulerApi({
       'POST /api/auth/login': () => reponseConnexion(),
       'GET /api/auth/me': () => json(401, { message: 'Session invalide.' }),
+      'GET /api/agence/mes-espaces': () => json(200, []),
+      'GET /api/agence/mes-invitations': () => json(200, []),
     })
     const user = userEvent.setup()
     afficher('/connexion')
