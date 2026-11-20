@@ -186,7 +186,7 @@ export default function FormulaireAnnonce() {
       <div className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-2xl font-bold">Ajoutez les photos de votre bien</h1>
         <p role="status" className="mt-4 rounded-xl bg-dore-100 p-4 text-sm leading-6 text-nuit-900">
-          Votre annonce est bien enregistrée et transmise à l'administration pour vérification. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation. L'annonce apparaîtra dans le catalogue après validation.
+          Votre annonce est publiée dans le catalogue. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation. Vous gardez la main sur votre annonce ; l’administration peut intervenir en cas de signalement ou de non-respect des règles.
         </p>
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
         <GestionVideo annonceId={annonceCreeeId} />
@@ -299,14 +299,14 @@ export default function FormulaireAnnonce() {
             </select>
             <p className="mt-1 text-sm text-slate-600">
               Seule une annonce « Publiée » apparaît dans le catalogue. Si vous modifiez le contenu ou ajoutez une photo,
-              l'annonce repasse en attente de validation. Changez le statut et le contenu en deux enregistrements séparés.
+              l'annonce doit être vérifiée à nouveau avant de redevenir visible du public. Changez le statut et le contenu en deux enregistrements séparés.
             </p>
           </div>
         )}
         {edition && a && !statutsCommerciaux.includes(a.statut) && (
           <div role="status" className="rounded-lg bg-amber-50 p-3 text-sm text-slate-800">
             <p><strong>Statut : {libelleStatut[a.statut]}.</strong>{' '}
-              {a.statut === 'EN_ATTENTE' && "Elle n'est pas visible du public tant qu'un administrateur ne l'a pas validée."}
+              {a.statut === 'EN_ATTENTE' && "Cette annonce est en cours de vérification et n'est pas visible du public."}
               {a.statut === 'A_CORRIGER' && "Corrigez ce qui est demandé : en enregistrant, elle repart en attente de validation."}
               {a.statut === 'REFUSEE' && "Elle ne peut plus être modifiée : créez une nouvelle annonce."}
               {a.statut === 'SUSPENDUE' && "Elle est retirée du catalogue : contactez l'administration."}
