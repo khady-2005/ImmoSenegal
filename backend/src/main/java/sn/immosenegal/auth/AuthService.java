@@ -91,6 +91,22 @@ public class AuthService {
         return new AuthResponse(jwt.creer(utilisateur.getId()), "Bearer", jwt.dureeSecondes(), UserResponse.de(utilisateur));
     }
 
+
+    public void changerMotDePasse(java.util.UUID utilisateurId, ChangerMotDePasseRequest requete) {
+        User utilisateur = users.findById(utilisateurId)
+            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        if (!encoder.matches(requete.motDePasseActuel(), utilisateur.getPasswordHash())) {
+            audit.enregistrer("CHANGEMENT_MOT_DE_PASSE_ECHEC", utilisateurId, "Ancien mot de passe incorrect");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Le mot de passe actuel est incorrect.");
+        }
+        if (encoder.matches(requete.nouveauMotDePasse(), utilisateur.getPasswordHash())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez un nouveau mot de passe différent de l'ancien.");
+        }
+        utilisateur.setPasswordHash(encoder.encode(requete.nouveauMotDePasse()));
+        users.save(utilisateur);
+        audit.enregistrer("CHANGEMENT_MOT_DE_PASSE", utilisateurId, "Mot de passe modifié depuis le profil");
+    }
+
     private static String normaliser(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }
