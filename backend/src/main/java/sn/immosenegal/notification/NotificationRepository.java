@@ -10,4 +10,5 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     List<Notification> findTop30ByDestinataireIdOrderByCreeLeDesc(UUID destinataireId);
     long countByDestinataireIdAndLueFalse(UUID destinataireId);
     Optional<Notification> findByIdAndDestinataireId(UUID id, UUID destinataireId);
+    boolean existsByDestinataireIdAndTypeAndLien(UUID destinataireId, String type, String lien);
 }
