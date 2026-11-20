@@ -44,11 +44,14 @@ export default function EspaceLocataire() {
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
   const [suivi, setSuivi] = useState({ visites: 0, reservations: 0, propositions: 0 })
+  const [suiviPartiel, setSuiviPartiel] = useState(false)
 
   useEffect(() => {
     if (!jeton) return
     let actif = true
     setChargement(true)
+    setErreur('')
+    setSuiviPartiel(false)
     Promise.allSettled([
       appelApi<Contrat[]>('/api/locations/mes-contrats', { token: jeton }),
       appelApi<{ statut: string }[]>('/api/visites/mes-demandes', { token: jeton }),
@@ -63,6 +66,7 @@ export default function EspaceLocataire() {
       const reservations = reservationsResult.status === 'fulfilled' ? reservationsResult.value : []
       const achats = achatsResult.status === 'fulfilled' ? achatsResult.value : []
       const loyers = loyersResult.status === 'fulfilled' ? loyersResult.value : []
+      setSuiviPartiel([visitesResult, reservationsResult, achatsResult, loyersResult].some(result => result.status === 'rejected'))
       setSuivi({
         visites: visites.filter(x => x.statut === 'EN_ATTENTE' || x.statut === 'PROPOSEE').length,
         reservations: reservations.filter(x => x.statut === 'EN_ATTENTE').length,
@@ -85,9 +89,9 @@ export default function EspaceLocataire() {
       <h1 className="mt-2 text-3xl font-bold">Bonjour {utilisateur?.nomComplet || ''}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75">Retrouvez au même endroit vos démarches avant la location, le suivi de vos contrats, vos échanges avec le propriétaire ou l’agence et les formalités de départ.</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Visites en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.visites}</p></div>
-        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Réservations en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.reservations}</p></div>
-        <div className="rounded-xl border border-white/15 bg-white/5 p-3"><p className="text-xs text-white/65">Propositions sans réponse</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.propositions}</p></div>
+        <Link to="/mes-visites" className="rounded-xl border border-white/15 bg-white/5 p-3 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-dore-300"><p className="text-xs text-white/65">Visites en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.visites}</p><span className="mt-1 block text-xs text-white/60">Voir mes visites →</span></Link>
+        <Link to="/mes-reservations" className="rounded-xl border border-white/15 bg-white/5 p-3 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-dore-300"><p className="text-xs text-white/65">Réservations en attente</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.reservations}</p><span className="mt-1 block text-xs text-white/60">Voir mes réservations →</span></Link>
+        <Link to="/mes-offres" className="rounded-xl border border-white/15 bg-white/5 p-3 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-dore-300"><p className="text-xs text-white/65">Propositions sans réponse</p><p className="mt-1 text-2xl font-bold text-dore-300">{chargement ? '…' : suivi.propositions}</p><span className="mt-1 block text-xs text-white/60">Voir mes propositions →</span></Link>
       </div>
       <div className="mt-5 flex flex-wrap gap-3">
         <Link to="/catalogue?transaction=LOCATION" className="rounded-full bg-dore-300 px-5 py-2.5 text-sm font-bold text-nuit-900 hover:bg-dore-200">Trouver un logement</Link>
@@ -96,6 +100,7 @@ export default function EspaceLocataire() {
     </header>
 
     {erreur && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+    {suiviPartiel && <p role="status" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Certaines statistiques n’ont pas pu être chargées. Consultez directement les rubriques Visites, Réservations et Propositions pour vérifier leur état complet.</p>}
 
     <section aria-label="Résumé de mes locations" className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <div className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Contrats actifs ou départ planifié</p><p className="mt-2 text-2xl font-bold text-nuit-900">{chargement ? '…' : actifs.length}</p></div>
