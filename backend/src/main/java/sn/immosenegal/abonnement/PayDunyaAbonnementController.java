@@ -76,15 +76,38 @@ public class PayDunyaAbonnementController {
             String token = notification.path("invoice").path("token").asText();
             if (token.isBlank()) token = notification.path("token").asText();
             if (token.isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Token de facture absent.");
+            return synchroniser(token, null);
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notification PayDunya invalide.");
+        }
+    }
 
-            JsonNode confirmation = payDunya.verifierFacture(token);
-            if (!"00".equals(confirmation.path("response_code").asText()))
-                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Vérification PayDunya impossible.");
-            if (!"completed".equalsIgnoreCase(confirmation.path("status").asText()))
-                return Map.of("status", "pending");
+    /**
+     * Retour navigateur : le token n'est jamais considéré comme une preuve de paiement.
+     * Le serveur vérifie la facture directement auprès de PayDunya et contrôle son propriétaire.
+     */
+    @GetMapping("/paydunya/retour")
+    public Map<String,String> retour(@RequestParam("token") String token,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        if (acteur == null || acteur.role() != Role.PROPRIETAIRE)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Réservé aux propriétaires.");
+        return synchroniser(token, acteur.id());
+    }
 
-            var abonnement = abonnements.findByPaydunyaToken(token)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Abonnement introuvable."));
+    private Map<String,String> synchroniser(String token, UUID proprietaireId) {
+        var abonnement = abonnements.findByPaydunyaToken(token)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Facture introuvable."));
+        if (proprietaireId != null && !proprietaireId.equals(abonnement.getProprietaireId()))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Facture introuvable.");
+
+        JsonNode confirmation = payDunya.verifierFacture(token);
+        if (!"00".equals(confirmation.path("response_code").asText()))
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Vérification PayDunya impossible.");
+
+        String statut = confirmation.path("status").asText("").toLowerCase(java.util.Locale.ROOT);
+        if ("completed".equals(statut)) {
             BigDecimal montantConfirme = confirmation.path("invoice").path("total_amount").decimalValue();
             if (montantConfirme.compareTo(abonnement.getMontant()) != 0)
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Le montant confirmé ne correspond pas au forfait.");
@@ -92,11 +115,13 @@ public class PayDunyaAbonnementController {
             abonnement.confirmerPaiement(reference.isBlank() ? token : reference);
             abonnements.save(abonnement);
             return Map.of("status", "completed");
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Notification PayDunya invalide.");
         }
+        if ("cancelled".equals(statut) || "canceled".equals(statut) || "failed".equals(statut)) {
+            abonnement.annulerPaiement();
+            abonnements.save(abonnement);
+            return Map.of("status", "cancelled");
+        }
+        return Map.of("status", "pending");
     }
 
     public record PaiementRequest(ForfaitAbonnement forfait) {}
