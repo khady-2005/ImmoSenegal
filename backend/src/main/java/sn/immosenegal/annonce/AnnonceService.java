@@ -32,7 +32,7 @@ import sn.immosenegal.user.UserRepository;
 /**
  * Règles des annonces.
  * <ul>
- *   <li>Le propriétaire publie directement ses annonces ordinaires ; l'administration conserve la modération a posteriori.</li>
+ *   <li>Le propriétaire publie directement avec un abonnement actif ; sans abonnement, le bien reste en attente et peut être publié après acceptation d'un mandat d'agence.</li>
  *   <li>Le public ne voit que les annonces PUBLIEE (liste, fiche). Le propriétaire et les administrateurs voient les autres.</li>
  *   <li>Le propriétaire ne choisit lui-même que les statuts commerciaux (RESERVE, VENDU, LOUE, ou remettre PUBLIEE) d'une annonce déjà validée.</li>
  *   <li>Le propriétaire peut modifier le contenu et les photos sans repasser par une validation préalable ; les annonces refusées ou suspendues restent verrouillées.</li>
