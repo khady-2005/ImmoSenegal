@@ -4,7 +4,7 @@ import { ArrowLeft, Building2, CheckCircle2, Send } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
-type Agence = { id: string; nom: string; slug: string; description?: string; adresse?: string; logoUrl?: string }
+type Agence = { id: string; nom: string; slug: string; description?: string; adresse?: string; logoUrl?: string; moyenne?: number; nombreAvis?: number }
 type EspaceAgence = { id: string; nom: string; fonction: string }
 type Candidature = { id: string; agenceId: string; agenceNom: string; fonction: string; statut: string; creeLe: string; traiteeLe?: string | null }
 
@@ -37,7 +37,13 @@ export default function AnnuaireAgences() {
         appelApi<Candidature[]>('/api/mes-candidatures-agence', { token: jeton }),
         appelApi<EspaceAgence[]>('/api/agence/mes-espaces', { token: jeton }),
       ])
-      setAgences(liste)
+      const agencesNotees = await Promise.all(liste.map(async agence => {
+        try {
+          const resume = await appelApi<{ moyenne: number; nombreAvis: number }>(`/api/agence/${agence.id}/evaluations`, { token: jeton })
+          return { ...agence, moyenne: resume.moyenne, nombreAvis: resume.nombreAvis }
+        } catch { return agence }
+      }))
+      setAgences(agencesNotees)
       setCandidatures(mesDemandes)
       setMesEspaces(espaces)
     } catch (e) {
@@ -104,6 +110,7 @@ export default function AnnuaireAgences() {
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-5 w-5" /></span>
                     <div className="min-w-0">
                       <h3 className="font-semibold text-nuit-900">{agence.nom}</h3>
+                      {typeof agence.nombreAvis === 'number' && agence.nombreAvis > 0 && <p className="mt-1 text-sm font-semibold text-amber-700">★ {agence.moyenne?.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})}/5 <span className="font-normal text-slate-500">· {agence.nombreAvis} avis</span></p>}
                       {agence.adresse && <p className="mt-1 text-sm text-slate-500">{agence.adresse}</p>}
                       {agence.description && <p className="mt-2 text-sm leading-relaxed text-slate-600">{agence.description}</p>}
                     </div>
