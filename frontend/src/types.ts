@@ -49,7 +49,7 @@ export interface Annonce {
   creeLe: string
   modifieLe: string
   /** Date de fin de la période gratuite de 30 jours, absente si abonnement actif. */
-  dateFinGratuite?: string | null
+  dateFinPublication?: string | null
   /** Identifiants des photos, la première sert de couverture. */
   photos: string[]
   /** Motif de la dernière décision de modération : fourni seulement au propriétaire et aux administrateurs. */
