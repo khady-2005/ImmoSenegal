@@ -33,7 +33,6 @@ export default function Reservations() {
   const { utilisateur, jeton } = useAuth()
   const role = utilisateur?.role as Role | undefined
   const admin = role === 'ADMIN'
-  const agent = role === 'AGENT'
   const client = role === 'CLIENT'
   const [demandes, setDemandes] = useState<Reservation[]>([])
   const [chargement, setChargement] = useState(true)
