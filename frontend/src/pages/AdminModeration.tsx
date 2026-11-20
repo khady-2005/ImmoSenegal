@@ -205,7 +205,7 @@ export default function AdminModeration() {
                       type="button"
                       disabled={envoi}
                       onClick={() => decider(a.id, action)}
-                      className="rounded-lg bg-emeraude-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60"
+                      className="rounded-lg bg-nuit-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-60"
                     >
                       {LIBELLE_ACTION[action]}
                     </button>
