@@ -40,21 +40,19 @@ export default function AbonnementProprietaire() {
   useEffect(() => { void charger() }, [charger])
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    // PayDunya ajoute automatiquement ?token=... aux URL de retour et d'annulation.
-    // Le statut réel est ensuite vérifié côté serveur, sans faire confiance à l'URL.
-    if (!jeton || !token) return
+    const referencePayTech = searchParams.get('paytech_ref') || searchParams.get('paytech_cancel')
+    if (!jeton || !referencePayTech) return
     let actif = true
     setErreur('')
-    setMessage('Vérification du paiement auprès de PayDunya…')
+    setMessage('Vérification du statut du paiement…')
     appelApi<{ status: 'completed' | 'pending' | 'cancelled' }>(
-      '/api/abonnements/paydunya/retour?token=' + encodeURIComponent(token),
+      '/api/abonnements/paytech/retour?ref=' + encodeURIComponent(referencePayTech),
       { token: jeton },
     ).then(resultat => {
       if (!actif) return
       if (resultat.status === 'completed') setMessage('Paiement confirmé. Votre abonnement est maintenant actif.')
-      else if (resultat.status === 'cancelled') setMessage('Le paiement a été annulé ou a échoué. Vous pouvez recommencer.')
-      else setMessage('Le paiement est encore en attente. Actualisez votre historique dans quelques instants.')
+      else if (resultat.status === 'cancelled') setMessage('Le paiement a été annulé. Vous pouvez recommencer.')
+      else setMessage('Paiement en attente de confirmation. Votre historique sera actualisé automatiquement.')
       void charger()
     }).catch(e => {
       if (actif) setErreur(e instanceof ApiError ? e.message : 'Impossible de vérifier le paiement pour le moment.')
@@ -100,7 +98,7 @@ export default function AbonnementProprietaire() {
   }
 
   return <section className="mt-9 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-    <div><p className="text-xs font-bold uppercase tracking-widest text-amber-800">Services propriétaires</p><h2 className="mt-2 text-2xl font-bold text-nuit-900">Abonnement de publication</h2><p className="mt-2 max-w-2xl text-sm text-slate-600">L’abonnement permet de publier directement vos annonces. Si vous confiez un bien à ImmoSénégal ou à une agence partenaire et que celle-ci accepte le mandat, aucun abonnement propriétaire n’est exigé pour ce bien.</p><p className="mt-2 text-sm text-slate-600">Choisissez une durée puis payez en ligne avec les moyens proposés par PayDunya, dont Orange Money et Wave selon la disponibilité de votre compte marchand.</p></div>
+    <div><p className="text-xs font-bold uppercase tracking-widest text-amber-800">Services propriétaires</p><h2 className="mt-2 text-2xl font-bold text-nuit-900">Abonnement de publication</h2><p className="mt-2 max-w-2xl text-sm text-slate-600">L’abonnement permet de publier directement vos annonces. Si vous confiez un bien à ImmoSénégal ou à une agence partenaire et que celle-ci accepte le mandat, aucun abonnement propriétaire n’est exigé pour ce bien.</p><p className="mt-2 text-sm text-slate-600">Choisissez une durée puis payez en ligne avec PayTech, notamment par Orange Money ou Wave selon les moyens activés sur le compte marchand.</p></div>
     {actif && <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900"><strong>Abonnement actif</strong> — {actif.forfait.toLowerCase()} jusqu’au {actif.dateFin}. Vous pouvez renouveler après son expiration.</div>}
     {attente && <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Une demande est déjà en cours de vérification. Vous pourrez en soumettre une nouvelle après la décision de l’administration.</div>}
     {erreur && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
@@ -111,7 +109,7 @@ export default function AbonnementProprietaire() {
       <label className="text-sm font-semibold text-slate-700">Référence de transaction (facultatif)<input value={reference} onChange={e => setReference(e.target.value)} maxLength={150} className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 font-normal" placeholder="Numéro ou référence"/></label>
       <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Précisions (facultatif)<textarea value={note} onChange={e => setNote(e.target.value)} maxLength={1000} rows={2} className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 font-normal" placeholder="Informations utiles pour vérifier votre paiement…"/></label>
       <div className="flex flex-wrap items-center justify-between gap-3 sm:col-span-2"><p className="text-sm text-slate-600">Total : <strong className="text-nuit-900">{monnaie(choisi.prix)}</strong></p><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void payerEnLigne()} disabled={paiementEnCours || envoi || attente || !!actif} className="rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50">{paiementEnCours ? 'Connexion…' : 'Payer en ligne (Orange Money ou Wave)'}</button><button disabled={envoi || paiementEnCours || attente || !!actif} className="rounded-full bg-nuit-900 px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{envoi ? 'Envoi…' : 'Envoyer une déclaration manuelle'}</button></div></div>
-      <p className="text-xs text-slate-500 sm:col-span-2">Le paiement en ligne est confirmé automatiquement par PayDunya avant l’activation. Le bouton de déclaration manuelle reste réservé aux paiements reçus hors ligne.</p>
+      <p className="text-xs text-slate-500 sm:col-span-2">Le paiement en ligne est confirmé automatiquement par notification sécurisée PayTech avant l’activation. Le bouton de déclaration manuelle reste réservé aux paiements reçus hors ligne.</p>
     </form>
     <div className="mt-7"><h3 className="font-bold text-nuit-900">Historique des abonnements</h3>{chargement ? <p className="mt-3 text-sm text-slate-500">Chargement…</p> : historique.length === 0 ? <p className="mt-3 text-sm text-slate-500">Aucun abonnement enregistré.</p> : <div className="mt-3 space-y-2">{historique.map(a => <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-3"><div><p className="text-sm font-semibold text-nuit-900">{a.forfait} · {monnaie(a.montant)}</p><p className="mt-1 text-xs text-slate-500">{new Date(a.creeLe).toLocaleDateString('fr-FR')} · {a.modePaiement}{a.referencePaiement ? ' · ' + a.referencePaiement : ''}</p><p className="mt-1 text-xs text-slate-500">{a.dateFin ? 'Valable jusqu’au ' + a.dateFin : 'Dates à confirmer après validation'}</p></div><span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{statuts[a.statut]}</span></div>)}</div>}</div>
   </section>
