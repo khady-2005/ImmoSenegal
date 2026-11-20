@@ -167,13 +167,13 @@ export default function MesAnnonces() {
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
               {a.statut === 'EN_ATTENTE' && (
-                <p className="mt-2 text-sm text-slate-600">Pas encore visible du public : un administrateur doit la valider.</p>
+                <p className="mt-2 text-sm text-slate-600">Cette annonce n’est pas encore visible du public. Vous pouvez souscrire un abonnement pour la publier directement, ou demander à une agence de prendre le bien en gestion sans abonnement.</p>
               )}
               {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
                 <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-slate-800"><strong>Motif :</strong> {a.motifModeration}</p>
               )}
 
-              {a.statut === 'PUBLIEE' && !a.exemple && (
+              {['PUBLIEE', 'EN_ATTENTE'].includes(a.statut) && !a.exemple && (
                 <div className="mt-4 rounded-xl border border-dore-200 bg-dore-50/50 p-3">
                   <h3 className="text-sm font-bold text-nuit-900">Confier ce bien à une agence</h3>
                   {mandat ? (
