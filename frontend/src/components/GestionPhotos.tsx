@@ -45,6 +45,25 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     if (champ.current) champ.current.value = ''
   }
 
+  async function deplacer(index: number, direction: -1 | 1) {
+    const cible = index + direction
+    if (cible < 0 || cible >= photos.length || enCours) return
+    const nouvelOrdre = [...photos]
+    ;[nouvelOrdre[index], nouvelOrdre[cible]] = [nouvelOrdre[cible], nouvelOrdre[index]]
+    setErreurs([])
+    setEnCours(true)
+    try {
+      await appelApi<void>(`/api/annonces/${annonceId}/photos/ordre`, {
+        method: 'PUT', body: nouvelOrdre, token: jeton,
+      })
+      onChange(nouvelOrdre)
+    } catch (e) {
+      setErreurs([e instanceof ApiError ? e.message : 'Réorganisation impossible.'])
+    } finally {
+      setEnCours(false)
+    }
+  }
+
   async function supprimer(photo: string) {
     setErreurs([])
     try {
@@ -59,7 +78,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     <section aria-labelledby="titre-photos" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="titre-photos" className="text-lg font-semibold">Photos ({photos.length}/{PHOTOS_MAX})</h2>
       <p className="mt-1 text-sm text-slate-600">
-        JPEG ou PNG, 5 Mo maximum chacune (8 photos par annonce). Ajoutez une vue de la façade, du salon, des chambres, de la cuisine, des salles de bain et des extérieurs. La première photo sert de couverture et les suivantes gardent l'ordre d'ajout. Les informations cachées dans les photos
+        JPEG ou PNG, 5 Mo maximum chacune (8 photos par annonce). Ajoutez une vue de la façade, du salon, des chambres, de la cuisine, des salles de bain et des extérieurs. La première photo sert de couverture. Utilisez les flèches pour choisir l'ordre d'affichage. Les informations cachées dans les photos
         (position GPS, appareil) sont supprimées à l'envoi.
       </p>
 
@@ -68,14 +87,23 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
           {photos.map((photo, i) => (
             <li key={photo} className="space-y-1">
               <img src={urlPhoto(annonceId, photo)} alt={`Photo ${i + 1}`} className="h-24 w-full rounded-lg object-cover" />
-              <button
+              <div className="grid grid-cols-3 gap-1">
+                <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
+                  aria-label={`Déplacer la photo ${i + 1} vers le début`}
+                  className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 disabled:opacity-40">↑</button>
+                <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
+                  aria-label={`Déplacer la photo ${i + 1} vers la fin`}
+                  className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 disabled:opacity-40">↓</button>
+                <button
                 type="button"
+                disabled={enCours}
                 onClick={() => supprimer(photo)}
                 aria-label={`Supprimer la photo ${i + 1}`}
                 className="w-full rounded-lg border border-red-300 px-2 py-1 text-xs font-medium text-red-700"
               >
                 Supprimer
               </button>
+              </div>
             </li>
           ))}
         </ul>
