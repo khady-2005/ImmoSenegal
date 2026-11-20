@@ -20,7 +20,7 @@ const ONGLETS: { statut: StatutAnnonce; libelle: string }[] = [
 
 /** Décisions proposées selon le statut actuel. Le serveur vérifie la même règle : l'interface ne fait que la refléter. */
 const ACTIONS_PAR_STATUT: Partial<Record<StatutAnnonce, Action[]>> = {
-  EN_ATTENTE: ['valider', 'demander-correction', 'refuser'],
+  EN_ATTENTE: ['demander-correction', 'refuser'],
   PUBLIEE: ['suspendre'],
   RESERVE: ['suspendre'],
   SUSPENDUE: ['valider'],
