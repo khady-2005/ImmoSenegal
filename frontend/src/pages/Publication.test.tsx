@@ -150,7 +150,7 @@ describe('Publication et gestion des annonces', () => {
     await user.click(await screen.findByRole('link', { name: 'Modifier' }))
     expect(await screen.findByLabelText('Titre')).toHaveValue('Appartement lumineux')
     expect(screen.queryByLabelText('Statut')).not.toBeInTheDocument()
-    expect(screen.getByText(/Statut : En attente de validation/)).toBeInTheDocument()
+    expect(screen.getByText(/Statut : En attente d’abonnement ou de mandat/)).toBeInTheDocument()
     // L'annonce n'étant pas publique, sa lecture se fait avec la session du propriétaire.
     const lecture = api.mock.calls.find(([u, i]) => u === `/api/annonces/${a.id}` && (i?.method ?? 'GET') === 'GET')!
     expect(JSON.stringify(lecture[1]?.headers)).toContain('Bearer jeton-de-test')
