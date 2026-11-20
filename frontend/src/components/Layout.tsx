@@ -128,9 +128,9 @@ export default function Layout() {
                     </>
                   )}
                   <div className="my-2 border-t border-white/10" />
-                  <Link to="/a-propos" role="menuitem" onClick={fermerMenu} className={lienMobile}>À propos</Link>
-                  <Link to="/faq" role="menuitem" onClick={fermerMenu} className={lienMobile}>FAQ</Link>
-                  <Link to="/contact" role="menuitem" onClick={fermerMenu} className={lienMobile}>Contact</Link>
+                  <Link to="/a-propos" role="menuitem" onClick={fermerMenu} className="block rounded-xl px-3 py-3 text-base font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-dore-300">À propos</Link>
+                  <Link to="/faq" role="menuitem" onClick={fermerMenu} className="block rounded-xl px-3 py-3 text-base font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-dore-300">FAQ</Link>
+                  <Link to="/contact" role="menuitem" onClick={fermerMenu} className="block rounded-xl px-3 py-3 text-base font-medium text-white/90 transition-colors hover:bg-white/10 hover:text-dore-300">Contact</Link>
                   {utilisateur && (
                     <button
                       type="button"
