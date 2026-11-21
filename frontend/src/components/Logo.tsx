@@ -21,8 +21,8 @@ export function Marque({ taille = 'md', sombre = false }: { taille?: 'md' | 'sm'
         />
       </span>
       <span className="leading-none">
-        <span className={`block whitespace-nowrap font-marque font-black tracking-[-0.075em] antialiased drop-shadow-[0_2px_8px_rgba(0,0,0,0.22)] ${grand ? 'text-[1.85rem] sm:text-[2.05rem] lg:text-[2.2rem]' : 'text-lg'}`}>
-          <span className={`font-marque font-black ${sombre ? 'text-[#8ec5ff]' : 'text-nuit-900'}`}>Immo</span><span className={`ml-0.5 font-marque font-black tracking-[-0.025em] ${sombre ? 'text-[#ffd34e]' : 'text-[#e0a400]'}`}>Sénégal</span>
+        <span className={`block whitespace-nowrap font-titre font-bold tracking-[-0.045em] antialiased drop-shadow-[0_2px_8px_rgba(0,0,0,0.22)] ${grand ? 'text-[1.85rem] sm:text-[2.05rem] lg:text-[2.2rem]' : 'text-lg'}`}>
+          <span className={`font-titre font-bold ${sombre ? 'text-[#8ec5ff]' : 'text-nuit-900'}`}>Immo</span><span className={`ml-0.5 font-titre font-bold tracking-[-0.015em] ${sombre ? 'text-[#ffd34e]' : 'text-[#e0a400]'}`}>Sénégal</span>
         </span>
         <span aria-hidden className={`mt-1.5 block h-[3px] w-[78%] rounded-full bg-gradient-to-r from-dore-400 via-dore-500 to-transparent ${grand ? 'opacity-95' : 'opacity-70'}`} />
         <span className={`mt-1.5 hidden text-[0.72rem] font-semibold tracking-[0.13em] sm:block ${sombre ? 'text-white/85' : 'text-nuit-800'}`}>
