@@ -4,7 +4,7 @@ import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import type { Role } from '../types'
 
-type StatutVisite = 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'PROPOSEE' | 'ANNULEE'
+type StatutVisite = 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'PROPOSEE' | 'ANNULEE' | 'VISITEE'
 interface DemandeVisite {
   id: string
   annonceId: string
@@ -29,6 +29,7 @@ const libelles: Record<StatutVisite, string> = {
   REFUSEE: 'Refusée',
   PROPOSEE: 'Nouveau créneau proposé',
   ANNULEE: 'Annulée',
+  VISITEE: 'Visite effectuée',
 }
 
 function dateLisible(value: string) {
@@ -77,6 +78,16 @@ export default function Visites() {
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Action impossible.')
+    } finally { setEnCours(null) }
+  }
+
+  async function marquerEffectuee(id: string) {
+    setEnCours(id); setErreur('')
+    try {
+      await appelApi('/api/visites/' + id + '/effectuee', { method: 'POST', token: jeton })
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de confirmer la réalisation de la visite.')
     } finally { setEnCours(null) }
   }
 
@@ -150,6 +161,7 @@ export default function Visites() {
             {d.reponseProprietaire && <p className="mt-3 rounded-xl bg-dore-100 p-3 text-sm text-nuit-900">Réponse : {d.reponseProprietaire}</p>}
             {client && d.statut === 'PROPOSEE' && <div className="mt-4 flex flex-wrap gap-2"><button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'confirmer')} className="inline-flex items-center gap-2 rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white"><Check className="h-4 w-4" /> Confirmer ce créneau</button><button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'annuler')} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Annuler la demande</button></div>}
             {client && d.statut === 'EN_ATTENTE' && <button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'annuler')} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"><X className="h-4 w-4" /> Annuler la demande</button>}
+            {!client && !admin && d.statut === 'ACCEPTEE' && <button disabled={enCours === d.id} onClick={() => void marquerEffectuee(d.id)} className="mt-4 rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white">Confirmer que la visite a été effectuée</button>}
             {!client && !admin && d.statut === 'EN_ATTENTE' && <div className="mt-5 space-y-3 border-t border-slate-100 pt-4"><div className="flex flex-wrap gap-2"><button disabled={enCours === d.id} onClick={() => void action(d.id, 'ACCEPTEE')} className="rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white">Accepter</button><button disabled={enCours === d.id} onClick={() => void action(d.id, 'REFUSEE')} className="rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-700">Refuser</button></div><form onSubmit={e => proposer(e, d.id)} className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]"><label className="sr-only" htmlFor={'date-'+d.id}>Proposer une autre date</label><input id={'date-'+d.id} name="nouvelleDate" type="datetime-local" min={dateLocaleMin()} required className="rounded-lg border border-slate-300 px-3 py-2 text-sm" /><input name="reponse" maxLength={1000} placeholder="Message (facultatif)" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" /><button disabled={enCours === d.id} className="rounded-lg border border-amber-300 px-4 py-2 text-sm font-semibold text-amber-900">Proposer ce créneau</button></form></div>}
           </article>
         ))}
