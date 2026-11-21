@@ -7,7 +7,7 @@ import { useAnnonces } from '../components/useAnnonces'
 const photoVilla = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=88'
 const photoSalon = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=88'
 const photoCoucher = 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=88'
-const photoFin = 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=88'
+const photoFin = 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1400&q=88'
 const photoPlage = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=88'
 
 const types = [
@@ -20,9 +20,9 @@ const types = [
 
 
 const inspirations = [
-  { titre: 'La maison où tout commence', texte: 'Imaginez votre quotidien dans un espace chaleureux, pensé pour votre famille.', image: photoVilla, type: 'MAISON', position: 'center' },
+  { titre: 'La maison où tout commence', texte: 'Imaginez votre quotidien dans un espace chaleureux, pensé pour votre famille.', image: photoFin, type: 'MAISON', position: 'center' },
   { titre: 'Le confort au cœur de la ville', texte: 'Un appartement adapté à votre rythme, proche de vos activités.', image: photoSalon, type: 'APPARTEMENT', position: 'center' },
-  { titre: 'Une parenthèse de sérénité', texte: 'Découvrez des lieux où espace, lumière et tranquillité se rencontrent.', image: photoCoucher, type: 'VILLA', position: 'center' },
+  { titre: 'Une parenthèse de sérénité', texte: 'Découvrez des lieux où espace, lumière et tranquillité se rencontrent.', image: photoVilla, type: 'VILLA', position: 'center' },
   { titre: 'Votre projet prend forme', texte: 'Trouvez le terrain ou le bien qui donnera vie à vos idées.', image: photoPlage, type: 'TERRAIN', position: 'center' },
 ]
 
