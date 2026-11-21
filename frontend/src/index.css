@@ -150,3 +150,51 @@ body.fond-pages #contenu {
   background-color: rgb(255 255 255 / 0.94);
 }
 
+/* Contraste renforcé : le contenu reste lisible même lorsque le fond photo est visible. */
+body.fond-pages #contenu {
+  background-image:
+    linear-gradient(rgba(250, 252, 255, 0.97), rgba(250, 252, 255, 0.97)),
+    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
+  color: #172b40;
+}
+
+/* Texte courant et libellés secondaires : fini le gris trop pâle. */
+#contenu .text-slate-300,
+#contenu .text-gray-300,
+#contenu .text-zinc-300,
+#contenu .text-neutral-300,
+#contenu .text-slate-400,
+#contenu .text-gray-400,
+#contenu .text-zinc-400,
+#contenu .text-neutral-400 {
+  color: #43566b;
+}
+#contenu .text-slate-500,
+#contenu .text-gray-500,
+#contenu .text-zinc-500,
+#contenu .text-neutral-500 {
+  color: #354a60;
+}
+
+/* Panneaux clairs légèrement translucides : lecture confortable sur toutes les pages. */
+#contenu .bg-white\/30,
+#contenu .bg-white\/40,
+#contenu .bg-white\/50,
+#contenu .bg-white\/60,
+#contenu .bg-white\/70,
+#contenu .bg-white\/80 {
+  background-color: rgb(255 255 255 / 0.97);
+}
+
+/* Lisibilité et confort des formulaires. */
+#contenu input,
+#contenu textarea,
+#contenu select {
+  font-size: 0.975rem;
+  line-height: 1.5;
+}
+#contenu input::placeholder,
+#contenu textarea::placeholder {
+  color: #52667b;
+}
+
