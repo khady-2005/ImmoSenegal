@@ -61,6 +61,11 @@ public class DemandeVisiteController {
         return service.confirmer(id, acteur);
     }
 
+    @PostMapping("/{id}/effectuee")
+    public DemandeVisiteResponse marquerEffectuee(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.marquerEffectuee(id, acteur);
+    }
+
     @PostMapping("/{id}/annuler")
     public ResponseEntity<Void> annuler(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser acteur) {
         service.annuler(id, acteur);
