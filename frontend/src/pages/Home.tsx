@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 import CommentCaMarche from '../components/CommentCaMarche'
 import ListeAnnonces from '../components/ListeAnnonces'
 import { useAnnonces } from '../components/useAnnonces'
-import photoPlage from '../assets/hero-plage.webp'
-import photoSalon from '../assets/hero-salon.webp'
-import photoCoucher from '../assets/hero-coucher.webp'
-import photoFin from '../assets/bien-saly.webp'
-import photoVilla from '../assets/hero-villa.webp'
+// Photographies immobilières réelles (Unsplash), plutôt que des visuels illustratifs.
+const photoVilla = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=88'
+const photoSalon = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=88'
+const photoCoucher = 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=88'
+const photoFin = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=88'
+const photoPlage = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=88'
 
 const types = [
   { type: 'MAISON', nom: 'Maisons', description: 'Des espaces pour toute la famille', icone: House, image: photoVilla },
