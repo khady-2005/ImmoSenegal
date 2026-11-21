@@ -90,11 +90,6 @@ export default function DetailAnnonce() {
 
       {a && (
         <article className="mt-6">
-          {a.exemple && (
-            <p role="note" className="mb-5 inline-block rounded-full border border-dashed border-slate-400 bg-white px-4 py-1.5 text-sm text-slate-700">
-              <strong>Annonce de démonstration</strong> : données simulées, photos illustratives.
-            </p>
-          )}
           <Galerie annonce={a} />
           <LecteurVideoAnnonce annonceId={a.id} />
 
