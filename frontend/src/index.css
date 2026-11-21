@@ -66,99 +66,30 @@ body { @apply bg-ivoire text-encre antialiased; overflow-x: hidden; }
   .squelette, .entree { animation: none; }
 }
 
-/* Fond immobilier discret sur toutes les pages sauf l’accueil. */
+/* Fond des pages intérieures : nouvelle photo locale, claire et cohérente avec l'accueil. */
 html, body, #root { min-height: 100%; }
-body {
-  background-color: #f4f7fb;
-  background-image: none;
-}
-body.fond-pages {
-  background-color: #f4f7fb;
-  background-image: none;
-}
+body { background-color: #f4f7fb; }
+body.fond-pages { background-color: #f4f7fb; }
 
-/* Le fond photo est porté par toute la zone de contenu, sur chaque page hors accueil. */
 body.fond-pages #contenu {
-  margin-top: 0;
-  padding-top: 0;
+  min-height: calc(100vh - 5rem);
   background-color: #f4f7fb;
   background-image:
-    linear-gradient(rgba(247, 250, 253, 0.62), rgba(247, 250, 253, 0.68)),
-    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
+    linear-gradient(rgba(247, 250, 253, 0.76), rgba(247, 250, 253, 0.80)),
+    url("./assets/hero-salon.webp");
   background-position: center, center;
   background-size: cover;
-  background-attachment: fixed;
   background-repeat: no-repeat;
-}
-
-/* Amélioration globale de la lisibilité des pages intérieures. */
-body.fond-pages #contenu {
-  background-image:
-    linear-gradient(rgba(249, 251, 254, 0.90), rgba(249, 251, 254, 0.93)),
-    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
-  background-position: center, center;
-  background-size: cover;
   background-attachment: fixed;
-  background-repeat: no-repeat;
   color: #172b40;
 }
 
-/* Les textes secondaires restent lisibles même sur les zones photographiques. */
-#contenu .text-slate-400,
-#contenu .text-gray-400,
-#contenu .text-zinc-400,
-#contenu .text-neutral-400 {
-  color: #536579;
-}
-#contenu .text-slate-500,
-#contenu .text-gray-500,
-#contenu .text-zinc-500,
-#contenu .text-neutral-500 {
-  color: #43566b;
-}
-#contenu .text-slate-600,
-#contenu .text-gray-600,
-#contenu .text-zinc-600,
-#contenu .text-neutral-600 {
-  color: #34485e;
+/* Sur mobile, laisser le navigateur faire défiler le fond normalement. */
+@media (max-width: 767px) {
+  body.fond-pages #contenu { background-attachment: scroll; }
 }
 
-/* Champs plus nets : fond blanc, bordure visible et texte foncé. */
-#contenu input:not([type="checkbox"]):not([type="radio"]),
-#contenu textarea,
-#contenu select {
-  color: #172b40;
-  background-color: #fff;
-  border-color: #b8c7d8;
-}
-#contenu input::placeholder,
-#contenu textarea::placeholder {
-  color: #687b8f;
-  opacity: 1;
-}
-#contenu input:focus,
-#contenu textarea:focus,
-#contenu select:focus {
-  border-color: #b77b00;
-  outline-color: #d99a00;
-}
-
-/* Surfaces de contenu blanches et lisibles, sans modifier l'en-tête ni le pied de page. */
-#contenu .bg-white\/50,
-#contenu .bg-white\/60,
-#contenu .bg-white\/70 {
-  background-color: rgb(255 255 255 / 0.94);
-}
-
-/* Contraste renforcé : le contenu reste lisible même lorsque le fond photo est visible. */
-body.fond-pages #contenu {
-  background-image:
-    linear-gradient(rgba(250, 252, 255, 0.60), rgba(250, 252, 255, 0.66)),
-    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
-  color: #172b40;
-}
-
-/* Texte courant et libellés secondaires : fini le gris trop pâle. */
+/* Contraste des textes secondaires sur toutes les pages intérieures. */
 #contenu .text-slate-300,
 #contenu .text-gray-300,
 #contenu .text-zinc-300,
@@ -166,35 +97,41 @@ body.fond-pages #contenu {
 #contenu .text-slate-400,
 #contenu .text-gray-400,
 #contenu .text-zinc-400,
-#contenu .text-neutral-400 {
-  color: #43566b;
-}
+#contenu .text-neutral-400 { color: #43566b; }
+
 #contenu .text-slate-500,
 #contenu .text-gray-500,
 #contenu .text-zinc-500,
-#contenu .text-neutral-500 {
-  color: #354a60;
-}
+#contenu .text-neutral-500 { color: #354a60; }
 
-/* Panneaux clairs légèrement translucides : lecture confortable sur toutes les pages. */
+#contenu .text-slate-600,
+#contenu .text-gray-600,
+#contenu .text-zinc-600,
+#contenu .text-neutral-600 { color: #34485e; }
+
+/* Cartes et panneaux : fond presque blanc pour garder le texte net. */
 #contenu .bg-white\/30,
 #contenu .bg-white\/40,
 #contenu .bg-white\/50,
 #contenu .bg-white\/60,
 #contenu .bg-white\/70,
-#contenu .bg-white\/80 {
-  background-color: rgb(255 255 255 / 0.97);
-}
+#contenu .bg-white\/80 { background-color: rgb(255 255 255 / 0.95); }
 
-/* Lisibilité et confort des formulaires. */
+/* Champs de formulaire lisibles. */
 #contenu input,
 #contenu textarea,
 #contenu select {
+  color: #172b40;
+  background-color: #fff;
+  border-color: #b8c7d8;
   font-size: 0.975rem;
   line-height: 1.5;
 }
 #contenu input::placeholder,
-#contenu textarea::placeholder {
-  color: #52667b;
+#contenu textarea::placeholder { color: #52667b; opacity: 1; }
+#contenu input:focus,
+#contenu textarea:focus,
+#contenu select:focus {
+  border-color: #b77b00;
+  outline-color: #d99a00;
 }
-
