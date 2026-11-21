@@ -129,6 +129,27 @@ public class DemandeVisiteService {
     }
 
     @Transactional
+    public DemandeVisiteResponse marquerEffectuee(UUID id, AuthenticatedUser acteur) {
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        DemandeVisite demande = trouver(id);
+        if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(demande.getAnnonce(), acteur)) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Cette visite ne concerne pas vos annonces.");
+        }
+        if (demande.getStatut() != StatutVisite.ACCEPTEE) {
+            throw new ApiException(HttpStatus.CONFLICT, "Seule une visite acceptée peut être marquée comme effectuée.");
+        }
+        if (demande.getDateVisite().isAfter(LocalDateTime.now())) {
+            throw new ApiException(HttpStatus.CONFLICT, "La date prévue de la visite n'est pas encore passée.");
+        }
+        demande.marquerEffectuee();
+        notifications.creer(demande.getClient(), "VISITE_EFFECTUEE", "Visite confirmée comme effectuée",
+            "La visite de « " + demande.getAnnonce().getTitre() + " » a été marquée comme effectuée. Vous pouvez maintenant demander une réservation.",
+            "/mes-visites");
+        audit.enregistrer("VISITE_MARQUEE_EFFECTUEE", acteur.id(), "Demande de visite " + id);
+        return DemandeVisiteResponse.de(demande);
+    }
+
+    @Transactional
     public DemandeVisiteResponse confirmer(UUID id, AuthenticatedUser acteur) {
         exigerRole(acteur, Role.CLIENT);
         DemandeVisite demande = trouver(id);
