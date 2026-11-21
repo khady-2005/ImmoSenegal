@@ -24,5 +24,7 @@ public interface DemandeVisiteRepository extends JpaRepository<DemandeVisite, UU
         """)
     List<DemandeVisite> findAllByAgenceMandatAccepte(@Param("agenceId") UUID agenceId);
 
+    boolean existsByAnnonceIdAndClientIdAndStatut(UUID annonceId, UUID clientId, StatutVisite statut);
+
     boolean existsByAnnonceIdAndClientIdAndStatutAndDateVisiteBefore(UUID annonceId, UUID clientId, StatutVisite statut, java.time.LocalDateTime dateVisite);
 }
