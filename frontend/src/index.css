@@ -153,7 +153,7 @@ body.fond-pages #contenu {
 /* Contraste renforcé : le contenu reste lisible même lorsque le fond photo est visible. */
 body.fond-pages #contenu {
   background-image:
-    linear-gradient(rgba(250, 252, 255, 0.97), rgba(250, 252, 255, 0.97)),
+    linear-gradient(rgba(250, 252, 255, 0.60), rgba(250, 252, 255, 0.66)),
     url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
   color: #172b40;
 }
