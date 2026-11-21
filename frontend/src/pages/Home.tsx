@@ -12,9 +12,9 @@ const photoFin = 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?a
 const photoPlage = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=88'
 
 const types = [
-  { type: 'MAISON', nom: 'Maisons', description: 'Des espaces pour toute la famille', icone: House, image: photoVilla },
+  { type: 'MAISON', nom: 'Maisons', description: 'Des espaces pour toute la famille', icone: House, image: photoFin },
   { type: 'APPARTEMENT', nom: 'Appartements', description: 'Le confort en ville', icone: Building2, image: photoCoucher },
-  { type: 'VILLA', nom: 'Villas', description: 'Élégance et sérénité', icone: House, image: photoFin },
+  { type: 'VILLA', nom: 'Villas', description: 'Élégance et sérénité', icone: House, image: photoVilla },
   { type: 'STUDIO', nom: 'Studios', description: 'Pratiques au quotidien', icone: BedSingle, image: photoSalon },
   { type: 'TERRAIN', nom: 'Terrains', description: 'Donnez vie à vos projets', icone: LandPlot, image: photoPlage },
 ]
@@ -24,7 +24,7 @@ const inspirations = [
   { titre: 'La maison où tout commence', texte: 'Imaginez votre quotidien dans un espace chaleureux, pensé pour votre famille.', image: photoVilla, type: 'MAISON', position: 'center' },
   { titre: 'Le confort au cœur de la ville', texte: 'Un appartement adapté à votre rythme, proche de vos activités.', image: photoSalon, type: 'APPARTEMENT', position: 'center' },
   { titre: 'Une parenthèse de sérénité', texte: 'Découvrez des lieux où espace, lumière et tranquillité se rencontrent.', image: photoCoucher, type: 'VILLA', position: 'center' },
-  { titre: 'Votre projet prend forme', texte: 'Trouvez le terrain ou le bien qui donnera vie à vos idées.', image: photoFin, type: 'TERRAIN', position: 'center' },
+  { titre: 'Votre projet prend forme', texte: 'Trouvez le terrain ou le bien qui donnera vie à vos idées.', image: photoPlage, type: 'TERRAIN', position: 'center' },
 ]
 
 const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-dore-500 px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-dore-600'
