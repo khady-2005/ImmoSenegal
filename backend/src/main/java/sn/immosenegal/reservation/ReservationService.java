@@ -19,6 +19,8 @@ import sn.immosenegal.agence.MembreAgenceRepository;
 import sn.immosenegal.agence.StatutMandatGestion;
 import sn.immosenegal.agence.StatutMembreAgence;
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.visite.DemandeVisiteRepository;
+import sn.immosenegal.visite.StatutVisite;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
@@ -32,10 +34,11 @@ public class ReservationService {
     private final NotificationService notifications;
     private final MandatGestionRepository mandats;
     private final MembreAgenceRepository membres;
+    private final DemandeVisiteRepository visites;
 
     public ReservationService(ReservationRepository reservations, AnnonceRepository annonces,
             UserRepository users, AuditService audit, NotificationService notifications,
-            MandatGestionRepository mandats, MembreAgenceRepository membres) {
+            MandatGestionRepository mandats, MembreAgenceRepository membres, DemandeVisiteRepository visites) {
         this.reservations = reservations;
         this.annonces = annonces;
         this.users = users;
@@ -43,6 +46,7 @@ public class ReservationService {
         this.notifications = notifications;
         this.mandats = mandats;
         this.membres = membres;
+        this.visites = visites;
     }
 
     @Transactional
@@ -52,6 +56,9 @@ public class ReservationService {
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
         if (annonce.getStatut() != StatutAnnonce.PUBLIEE) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Cette annonce n'est pas disponible à la réservation.");
+        }
+        if (!visites.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutVisite.VISITEE)) {
+            throw new ApiException(HttpStatus.CONFLICT, "La réservation est possible uniquement après une visite effectivement réalisée et confirmée.");
         }
         if (reservations.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutReservation.EN_ATTENTE)
                 || reservations.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutReservation.ACCEPTEE)) {
