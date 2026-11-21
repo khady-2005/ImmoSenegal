@@ -55,7 +55,7 @@ export default function Home() {
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-dore-400/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-400"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
-            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">Immo<span className="text-dore-400">Sénégal</span></h1>
+            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-[-0.075em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.28)] sm:text-6xl lg:text-7xl"><span className="text-white">Immo</span><span className="ml-1 bg-gradient-to-r from-[#fff0b0] via-[#ffc928] to-[#e5a000] bg-clip-text text-transparent">Sénégal</span></h1>
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
             <div className="mt-7 flex flex-wrap gap-3">
