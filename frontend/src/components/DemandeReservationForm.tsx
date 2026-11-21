@@ -41,7 +41,7 @@ export default function DemandeReservationForm({ annonceId }: { annonceId: strin
   return (
     <form onSubmit={soumettre} className="mt-4 space-y-3 border-t border-slate-100 pt-4" aria-label="Demander une réservation">
       <div className="flex items-center gap-2 text-base font-semibold text-nuit-900"><BookmarkCheck className="h-5 w-5 text-emeraude-700" /> Demander une réservation</div>
-      <p className="text-sm text-slate-600">Envoyez une demande au propriétaire. Aucun paiement n’est effectué sur cette étape.</p>
+      <p className="text-sm text-slate-600">La réservation est autorisée uniquement après une visite effectivement réalisée et confirmée. Aucun paiement n’est effectué à cette étape.</p>
       <label className="block text-sm font-medium text-slate-700" htmlFor="message-reservation">Message au propriétaire (facultatif)</label>
       <textarea id="message-reservation" rows={3} maxLength={1000} value={message} onChange={e => setMessage(e.target.value)} placeholder="Présentez brièvement votre demande…" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-slate-900" />
       {erreur && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
