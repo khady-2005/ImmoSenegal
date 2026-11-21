@@ -5,5 +5,6 @@ public enum StatutVisite {
     ACCEPTEE,
     REFUSEE,
     PROPOSEE,
-    ANNULEE
+    ANNULEE,
+    VISITEE
 }
