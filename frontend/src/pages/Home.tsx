@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin, ShieldCheck, Headset, Handshake, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin, ShieldCheck, Headset, Handshake, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CommentCaMarche from '../components/CommentCaMarche'
 import ListeAnnonces from '../components/ListeAnnonces'
@@ -18,6 +18,14 @@ const types = [
   { type: 'TERRAIN', nom: 'Terrains', description: 'Donnez vie à vos projets', icone: LandPlot, image: photoPlage },
 ]
 
+
+const inspirations = [
+  { titre: 'La maison où tout commence', texte: 'Imaginez votre quotidien dans un espace chaleureux, pensé pour votre famille.', image: photoVilla, type: 'MAISON', position: 'center' },
+  { titre: 'Le confort au cœur de la ville', texte: 'Un appartement adapté à votre rythme, proche de vos activités.', image: photoSalon, type: 'APPARTEMENT', position: 'center' },
+  { titre: 'Une parenthèse de sérénité', texte: 'Découvrez des lieux où espace, lumière et tranquillité se rencontrent.', image: photoCoucher, type: 'VILLA', position: 'center' },
+  { titre: 'Votre projet prend forme', texte: 'Trouvez le terrain ou le bien qui donnera vie à vos idées.', image: photoFin, type: 'TERRAIN', position: 'center' },
+]
+
 const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-dore-500 px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-dore-600'
 
 function TitreSection({ petit, titre, accent, id }: { petit: string; titre: string; accent?: string; id?: string }) {
@@ -26,6 +34,14 @@ function TitreSection({ petit, titre, accent, id }: { petit: string; titre: stri
 
 export default function Home() {
   const [onglet, setOnglet] = useState<'TOUT' | 'LOCATION' | 'VENTE'>('TOUT')
+  const [inspiration, setInspiration] = useState(0)
+  useEffect(() => {
+    const minuterie = window.setInterval(() => setInspiration((i) => (i + 1) % inspirations.length), 6500)
+    return () => window.clearInterval(minuterie)
+  }, [])
+  const precedente = () => setInspiration((i) => (i - 1 + inspirations.length) % inspirations.length)
+  const suivante = () => setInspiration((i) => (i + 1) % inspirations.length)
+  const slide = inspirations[inspiration]
   const { etat, reessayer } = useAnnonces(`taille=6&tri=recent${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`)
   const { etat: etatReelles } = useAnnonces('taille=1&exemple=false')
   const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0
@@ -59,6 +75,39 @@ export default function Home() {
             { Icone: MapPin, titre: 'Une couverture', sous: 'partout au Sénégal' },
             { Icone: Handshake, titre: 'Des annonces', sous: 'gérées avec soin' },
           ].map(({ Icone, titre, sous }) => <div key={titre} className="flex items-center gap-3 border-slate-200 md:border-r md:px-4 last:border-0"><Icone aria-hidden className="h-8 w-8 shrink-0 text-nuit-900" /><div><p className="text-sm font-bold text-nuit-900">{titre}</p><p className="text-sm text-slate-600">{sous}</p></div></div>)}
+        </div>
+      </section>
+
+
+      <section className="bg-[#f4f7fb] py-14 sm:py-18" aria-labelledby="titre-inspirations">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-dore-600">Laissez-vous inspirer</p>
+              <h2 id="titre-inspirations" className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">Un lieu, mille possibilités</h2>
+              <p className="mt-2 max-w-xl text-slate-600">Découvrez des ambiances et imaginez votre prochain projet immobilier.</p>
+            </div>
+            <Link to="/catalogue" className="inline-flex items-center gap-2 font-bold text-nuit-900 hover:text-dore-600">Explorer les biens <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+          <div className="relative isolate min-h-[360px] overflow-hidden rounded-[2rem] bg-nuit-900 shadow-carte-haut sm:min-h-[430px]">
+            <img key={slide.image} src={slide.image} alt="Inspiration immobilière" loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover transition-opacity duration-700" />
+            <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#102b49]/90 via-[#102b49]/55 to-[#102b49]/10" />
+            <div className="flex min-h-[360px] flex-col justify-end p-7 pb-24 text-white sm:min-h-[430px] sm:max-w-2xl sm:p-12 sm:pb-28">
+              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-dore-400">Inspiration {inspiration + 1} / {inspirations.length}</p>
+              <h3 className="font-titre mt-3 text-3xl font-semibold sm:text-5xl">{slide.titre}</h3>
+              <p className="mt-3 max-w-lg text-base leading-relaxed text-white/90 sm:text-lg">{slide.texte}</p>
+              <div className="mt-6">
+                <Link to={`/catalogue?type=${slide.type}`} className={boutonOr}>Voir les annonces <ArrowRight className="h-4 w-4" /></Link>
+              </div>
+            </div>
+            <div className="absolute bottom-6 right-6 flex items-center gap-3 sm:bottom-9 sm:right-10">
+              <div className="flex gap-2" aria-label="Choisir une diapositive">
+                {inspirations.map((item, i) => <button key={item.titre} type="button" onClick={() => setInspiration(i)} aria-label={`Afficher la diapositive ${i + 1}`} aria-current={i === inspiration ? 'true' : undefined} className={`h-2.5 rounded-full transition-all ${i === inspiration ? 'w-8 bg-dore-500' : 'w-2.5 bg-white/65 hover:bg-white'}`} />)}
+              </div>
+              <button type="button" onClick={precedente} aria-label="Diapositive précédente" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-nuit-900/35 text-white transition hover:bg-dore-500 hover:text-nuit-950"><ChevronLeft className="h-5 w-5" /></button>
+              <button type="button" onClick={suivante} aria-label="Diapositive suivante" className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-nuit-900/35 text-white transition hover:bg-dore-500 hover:text-nuit-950"><ChevronRight className="h-5 w-5" /></button>
+            </div>
+          </div>
         </div>
       </section>
 
