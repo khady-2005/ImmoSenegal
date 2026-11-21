@@ -85,6 +85,11 @@ public class DemandeVisite {
         this.modifieLe = Instant.now();
     }
 
+    public void marquerEffectuee() {
+        this.statut = StatutVisite.VISITEE;
+        this.modifieLe = Instant.now();
+    }
+
     public void annuler() {
         this.statut = StatutVisite.ANNULEE;
         this.modifieLe = Instant.now();
