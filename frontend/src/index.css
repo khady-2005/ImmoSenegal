@@ -90,3 +90,63 @@ body.fond-pages #contenu {
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
+
+/* Amélioration globale de la lisibilité des pages intérieures. */
+body.fond-pages #contenu {
+  background-image:
+    linear-gradient(rgba(249, 251, 254, 0.90), rgba(249, 251, 254, 0.93)),
+    url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2400&q=85");
+  background-position: center, center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: #172b40;
+}
+
+/* Les textes secondaires restent lisibles même sur les zones photographiques. */
+#contenu .text-slate-400,
+#contenu .text-gray-400,
+#contenu .text-zinc-400,
+#contenu .text-neutral-400 {
+  color: #536579;
+}
+#contenu .text-slate-500,
+#contenu .text-gray-500,
+#contenu .text-zinc-500,
+#contenu .text-neutral-500 {
+  color: #43566b;
+}
+#contenu .text-slate-600,
+#contenu .text-gray-600,
+#contenu .text-zinc-600,
+#contenu .text-neutral-600 {
+  color: #34485e;
+}
+
+/* Champs plus nets : fond blanc, bordure visible et texte foncé. */
+#contenu input:not([type="checkbox"]):not([type="radio"]),
+#contenu textarea,
+#contenu select {
+  color: #172b40;
+  background-color: #fff;
+  border-color: #b8c7d8;
+}
+#contenu input::placeholder,
+#contenu textarea::placeholder {
+  color: #687b8f;
+  opacity: 1;
+}
+#contenu input:focus,
+#contenu textarea:focus,
+#contenu select:focus {
+  border-color: #b77b00;
+  outline-color: #d99a00;
+}
+
+/* Surfaces de contenu blanches et lisibles, sans modifier l'en-tête ni le pied de page. */
+#contenu .bg-white\/50,
+#contenu .bg-white\/60,
+#contenu .bg-white\/70 {
+  background-color: rgb(255 255 255 / 0.94);
+}
+
