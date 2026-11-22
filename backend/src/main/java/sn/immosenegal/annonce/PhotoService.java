@@ -106,6 +106,7 @@ public class PhotoService {
 
     @Transactional
     public void reordonner(UUID annonceId, AuthenticatedUser auteur, List<UUID> ordre) {
+        annonces.verifierGestionPhotoAdmin(annonceId, auteur);
         annonces.annonceModifiable(annonceId, auteur);
         if (ordre == null || ordre.size() != photos.countByAnnonceId(annonceId)
                 || ordre.size() > PHOTOS_MAX || new HashSet<>(ordre).size() != ordre.size()) {
