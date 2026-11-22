@@ -59,7 +59,7 @@ public class ModerationPhotoService {
             "Photo à corriger sous 48 heures",
             "Photo signalée sur « " + annonce.getTitre() + " » : " + motifCourt
                 + ". Corrigez-la ou répondez sous 48 heures.",
-            "/proprietaire/annonces");
+            "/mes-annonces");
         return convertir(avertissement, annonce.getTitre());
     }
 
