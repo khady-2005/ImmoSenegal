@@ -126,7 +126,7 @@ body.fond-pages #contenu {
 #contenu .text-gray-700,
 #contenu .text-gray-600,
 #contenu .text-gray-500 {
-  color: #805500;
+  color: #173b63;
   text-shadow: none;
 }
 
@@ -181,7 +181,7 @@ body.fond-pages #contenu {
 #contenu .messagerie-page .text-slate-600,
 #contenu .messagerie-page .text-slate-500,
 #contenu .messagerie-page .text-slate-400 {
-  color: #805500 !important;
+  color: #173b63 !important;
   text-shadow: none !important;
 }
 #contenu .messagerie-page .bg-slate-50\\/70 {
