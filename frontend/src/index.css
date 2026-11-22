@@ -333,7 +333,7 @@ header h2 {
 }
 
 #contenu::before {
-  background: rgba(13, 30, 49, 0.30);
+  background: rgba(13, 30, 49, 0.18);
 }
 
 /* Les surfaces claires gardent un texte bleu lisible malgré le voile du fond. */
@@ -354,4 +354,49 @@ header h2 {
 @media (max-width: 640px) {
   body { font-size: 15px; }
   #contenu p, #contenu li { line-height: 1.6; }
+}
+
+/* Même niveau de finition que l'accueil : hiérarchie claire, espaces réguliers,
+   textes bleus sur surfaces claires et contraste conservé sur les bandeaux foncés. */
+#contenu section {
+  scroll-margin-top: 6rem;
+}
+
+#contenu :where(.rounded-xl, .rounded-2xl, .rounded-3xl) {
+  text-wrap: pretty;
+}
+
+#contenu :where(.bg-white, [class*="bg-white/"]) {
+  border-color: rgb(188 204 220 / 0.72);
+}
+
+#contenu :where(.bg-white, [class*="bg-white/"]) :where(p, li, label, small, span) {
+  text-shadow: none;
+}
+
+#contenu :where(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) {
+  color: #fff;
+}
+
+#contenu :where(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800) :where(h1, h2, h3, h4, p, li, label, span) {
+  color: inherit;
+}
+
+#contenu :where(a, button) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#contenu :where(input, textarea, select) {
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+}
+
+#contenu textarea {
+  min-height: 7rem;
+}
+
+@media (max-width: 640px) {
+  #contenu :where(.rounded-2xl, .rounded-3xl) {
+    border-radius: 1rem;
+  }
 }
