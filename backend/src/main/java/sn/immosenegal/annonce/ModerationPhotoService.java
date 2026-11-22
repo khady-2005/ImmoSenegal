@@ -150,7 +150,7 @@ public class ModerationPhotoService {
                 notifications.creer(a.getProprietaire(), "PHOTO_RETIRE_MODERATION",
                     "Photo retirée du catalogue",
                     "La photo signalée de votre annonce a été retirée, car aucune réponse n'a été reçue dans le délai de 48 heures.",
-                    "/proprietaire/annonces");
+                    "/mes-annonces");
             } else {
                 a.terminer(StatutAvertissementPhoto.CORRIGE);
             }
