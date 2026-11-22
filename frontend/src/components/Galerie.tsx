@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Building2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Annonce } from '../types'
+import { urlApi } from '../api'
 import { urlPhoto } from './photos'
 
 /** Photo principale + vignettes cliquables. Sans photo : bandeau coloré et mention claire. */
@@ -9,7 +10,7 @@ export default function Galerie({ annonce }: { annonce: Annonce }) {
   const [categories, setCategories] = useState<Record<string, string>>({})
   useEffect(() => {
     let active = true
-    fetch(`/api/annonces/${annonce.id}/photos/metadata`)
+    fetch(urlApi(`/api/annonces/${annonce.id}/photos/metadata`))
       .then((r) => r.ok ? r.json() : [])
       .then((items: Array<{id: string; piece: string}>) => {
         if (active) setCategories(Object.fromEntries(items.map((x) => [x.id, x.piece])))
