@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import { PHOTOS_MAX, TAILLE_MAX_OCTETS, urlPhoto } from './photos'
@@ -17,6 +17,16 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   const [enCours, setEnCours] = useState(false)
   const [piece, setPiece] = useState('AUTRE')
   const [categories, setCategories] = useState<Record<string, string>>({})
+  useEffect(() => {
+    let active = true
+    fetch(`/api/annonces/${annonceId}/photos/metadata`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((items: Array<{id: string; piece: string}>) => {
+        if (active) setCategories(Object.fromEntries(items.map((x) => [x.id, x.piece])))
+      })
+      .catch(() => undefined)
+    return () => { active = false }
+  }, [annonceId])
 
   async function ajouter(fichiers: FileList | null) {
     if (!fichiers || fichiers.length === 0) return
