@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,10 +44,28 @@ public class PhotoController {
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<Map<String, UUID>> ajouter(@PathVariable UUID annonceId,
                                                      @RequestParam("fichier") MultipartFile fichier,
+                                                     @RequestParam(value = "piece", required = false, defaultValue = "AUTRE") String piece,
                                                      @AuthenticationPrincipal AuthenticatedUser utilisateur) {
-        UUID id = service.ajouter(annonceId, utilisateur, fichier);
+        UUID id = service.ajouter(annonceId, utilisateur, fichier, piece);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("id", id));
     }
+
+    @GetMapping("/metadata")
+    @Operation(summary = "Lister les catégories des photos d’une annonce")
+    public List<PhotoService.PhotoMetadata> metadata(@PathVariable UUID annonceId) {
+        return service.metadata(annonceId);
+    }
+
+    @PatchMapping("/{photoId}/piece")
+    @Operation(summary = "Classer une photo dans une pièce",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public ResponseEntity<Void> classer(@PathVariable UUID annonceId, @PathVariable UUID photoId,
+            @RequestBody ClassementPhoto requete, @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        service.classer(annonceId, photoId, utilisateur, requete.piece());
+        return ResponseEntity.noContent().build();
+    }
+
+    public record ClassementPhoto(String piece) {}
 
     @PutMapping("/ordre")
     @Operation(summary = "Réorganiser les photos (propriétaire de l'annonce ou ADMIN)",
