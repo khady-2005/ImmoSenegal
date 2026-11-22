@@ -113,14 +113,14 @@ export default function DetailAnnonce() {
               </dl>
 
               {a.description && (
-                <section className="mt-10" aria-labelledby="titre-description">
+                <section className="mt-10 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm" aria-labelledby="titre-description">
                   <h2 id="titre-description" className="font-titre text-2xl font-medium text-nuit-900">Description</h2>
                   <p className="mt-3 max-w-[68ch] whitespace-pre-line leading-relaxed text-slate-700">{a.description}</p>
                 </section>
               )}
 
               {a.equipements.length > 0 && (
-                <section className="mt-10" aria-labelledby="titre-equipements">
+                <section className="mt-10 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm" aria-labelledby="titre-equipements">
                   <h2 id="titre-equipements" className="font-titre text-2xl font-medium text-nuit-900">Équipements</h2>
                   <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                     {a.equipements.map((e) => (
@@ -165,7 +165,7 @@ export default function DetailAnnonce() {
           </div>
 
           <section className="mt-12" aria-labelledby="titre-localisation">
-            <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide !text-dore-300">Préparer votre visite</p>
                 <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-medium text-nuit-900 sm:text-3xl">Localisation du logement</h2>
