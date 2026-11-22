@@ -36,6 +36,7 @@ import CollaborateurTableauDeBord from './pages/CollaborateurTableauDeBord'
 import AnnuaireAgences from './pages/AnnuaireAgences'
 import AdminDemandes from './pages/AdminDemandes'
 import AdminModeration from './pages/AdminModeration'
+import AdminPhotos from './pages/AdminPhotos'
 import AdminUtilisateurs from './pages/AdminUtilisateurs'
 import AdminAgences from './pages/AdminAgences'
 import AdminAbonnements from './pages/AdminAbonnements'
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="annonces/:id" element={<DetailAnnonce />} />
           <Route path="admin/demandes" element={<RequireRole roles={["ADMIN"]}><AdminDemandes /></RequireRole>} />
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
+          <Route path="admin/photos" element={<RequireRole roles={["ADMIN"]}><AdminPhotos /></RequireRole>} />
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/agences" element={<RequireRole roles={["ADMIN"]}><AdminAgences /></RequireRole>} />
           <Route path="admin/abonnements" element={<RequireRole roles={["ADMIN"]}><AdminAbonnements /></RequireRole>} />
