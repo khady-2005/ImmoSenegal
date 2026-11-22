@@ -30,6 +30,9 @@ public class PhotoAnnonce {
     @Column(nullable = false)
     private int ordre;
 
+    @Column(name = "piece", nullable = false, length = 40)
+    private String piece = "AUTRE";
+
     @Column(name = "cree_le", nullable = false)
     private Instant creeLe = Instant.now();
 
@@ -48,5 +51,7 @@ public class PhotoAnnonce {
     public byte[] getContenu() { return contenu; }
     public String getTypeMime() { return typeMime; }
     public int getOrdre() { return ordre; }
+    public String getPiece() { return piece; }
+    public void setPiece(String piece) { this.piece = piece; }
     public void setOrdre(int ordre) { this.ordre = ordre; }
 }
