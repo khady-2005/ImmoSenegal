@@ -400,3 +400,23 @@ header h2 {
     border-radius: 1rem;
   }
 }
+
+
+/* Correctifs de contraste : titres blancs sur les bandeaux bleus,
+   textes bleus lisibles sur le fond photo des pages intérieures. */
+body.fond-pages #contenu::before {
+  background: rgba(247, 250, 253, 0.42);
+}
+
+#contenu :is(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) :is(h1, h2, h3, h4) {
+  color: #ffffff !important;
+}
+
+#contenu :is(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) :is(p, li, label, span) {
+  color: inherit;
+}
+
+#contenu :is(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) .text-dore-400,
+#contenu :is(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) .text-dore-300 {
+  color: #ffdc72 !important;
+}
