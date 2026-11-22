@@ -91,47 +91,54 @@ body.fond-pages #contenu {
 
 
 /*
- * Contraste des contenus posés directement sur la photo des pages intérieures.
- * Les cartes claires conservent volontairement leurs textes bleu nuit.
+ * Voile clair commun à toutes les pages intérieures :
+ * la photo reste visible en arrière-plan, mais le contenu repose sur une
+ * surface claire qui garantit la lecture des textes foncés existants.
  */
-#contenu main h1[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
-#contenu main h2[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
-#contenu main h3[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
-  color: #fff !important;
-  text-shadow: 0 2px 5px rgb(0 0 0 / 85%);
+#contenu {
+  position: relative;
+  isolation: isolate;
 }
-#contenu main p[class~="text-slate-600"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
-#contenu main p[class~="text-slate-500"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
-  color: #fff !important;
-  font-weight: 500;
-  text-shadow: 0 1px 4px rgb(0 0 0 / 90%);
+#contenu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(247, 250, 253, 0.78);
 }
-#contenu main span[class~="text-slate-600"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
-#contenu main span[class~="text-slate-500"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
-  color: #fff !important;
-  text-shadow: 0 1px 4px rgb(0 0 0 / 90%);
+#contenu > * {
+  position: relative;
+  z-index: 1;
 }
 
-/* Contraste des textes secondaires sur toutes les pages intérieures. */
-#contenu .text-slate-300,
-#contenu .text-gray-300,
-#contenu .text-zinc-300,
-#contenu .text-neutral-300,
-#contenu .text-slate-400,
-#contenu .text-gray-400,
-#contenu .text-zinc-400,
-#contenu .text-neutral-400 { color: #43566b; }
-
-#contenu .text-slate-500,
-#contenu .text-gray-500,
-#contenu .text-zinc-500,
-#contenu .text-neutral-500 { color: #354a60; }
-
+/* Couleurs de texte uniformes et contrastées sur les pages intérieures. */
+#contenu .text-nuit-950,
+#contenu .text-nuit-900,
+#contenu .text-nuit-800,
+#contenu .text-slate-900,
+#contenu .text-slate-800,
+#contenu .text-slate-700,
 #contenu .text-slate-600,
+#contenu .text-slate-500,
+#contenu .text-gray-900,
+#contenu .text-gray-800,
+#contenu .text-gray-700,
 #contenu .text-gray-600,
-#contenu .text-zinc-600,
-#contenu .text-neutral-600 { color: #34485e; }
+#contenu .text-gray-500 {
+  color: #173b63;
+  text-shadow: none;
+}
 
+/* Sur les panneaux bleus, les textes blancs restent blancs. */
+#contenu .bg-nuit-950 .text-white,
+#contenu .bg-nuit-900 .text-white,
+#contenu .bg-nuit-800 .text-white,
+#contenu [class*="from-nuit-"] .text-white {
+  color: #fff;
+}
+
+/* Les cartes claires restent opaques pour préserver la lisibilité de leurs contenus. */
 /* Cartes et panneaux : fond presque blanc pour garder le texte net. */
 #contenu .bg-white\/30,
 #contenu .bg-white\/40,
