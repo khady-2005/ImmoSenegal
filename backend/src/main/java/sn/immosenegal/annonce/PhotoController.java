@@ -89,6 +89,17 @@ public class PhotoController {
             .body(photo.getContenu());
     }
 
+
+    @PutMapping(value = "/{photoId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Remplacer une photo (propriétaire ou ADMIN sur une annonce ImmoSénégal)",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public ResponseEntity<Void> remplacer(@PathVariable UUID annonceId, @PathVariable UUID photoId,
+            @RequestParam("fichier") MultipartFile fichier,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        service.remplacer(annonceId, photoId, utilisateur, fichier);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{photoId}")
     @Operation(summary = "Supprimer une photo (propriétaire de l'annonce ou ADMIN)",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
