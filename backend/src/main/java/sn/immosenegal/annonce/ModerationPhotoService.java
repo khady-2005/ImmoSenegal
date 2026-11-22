@@ -54,11 +54,11 @@ public class ModerationPhotoService {
         AvertissementPhoto avertissement = avertissements.save(new AvertissementPhoto(
             annonceId, photo.getId(), annonce.getProprietaire(), admin.id(), motif.trim(),
             maintenant.plus(48, ChronoUnit.HOURS)));
+        String motifCourt = motif.trim().length() > 280 ? motif.trim().substring(0, 280) : motif.trim();
         notifications.creer(annonce.getProprietaire(), "AVERTISSEMENT_PHOTO",
             "Photo à corriger sous 48 heures",
-            "Une photo de votre annonce « " + annonce.getTitre()
-                + " » a été signalée : " + motif.trim()
-                + ". Vous avez 48 heures pour la corriger ou répondre depuis votre espace.",
+            "Photo signalée sur « " + annonce.getTitre() + " » : " + motifCourt
+                + ". Corrigez-la ou répondez sous 48 heures.",
             "/proprietaire/annonces");
         return convertir(avertissement, annonce.getTitre());
     }
@@ -70,6 +70,20 @@ public class ModerationPhotoService {
             String titre = annonces.findById(a.getAnnonceId()).map(Annonce::getTitre).orElse("Annonce supprimée");
             return convertir(a, titre);
         }).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AvertissementResponse> mesAvertissements(UUID annonceId, AuthenticatedUser proprietaire) {
+        if (proprietaire == null || proprietaire.role() != Role.PROPRIETAIRE) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Réservé au propriétaire de l'annonce.");
+        }
+        Annonce annonce = annonces.findById(annonceId)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
+        if (!annonce.getProprietaire().getId().equals(proprietaire.id())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Cette annonce ne vous appartient pas.");
+        }
+        return avertissements.findAllByAnnonceIdAndProprietaireIdOrderByCreeLeDesc(annonceId, proprietaire.id())
+            .stream().map(a -> convertir(a, annonce.getTitre())).toList();
     }
 
     @Transactional
@@ -89,6 +103,9 @@ public class ModerationPhotoService {
             .filter(x -> x.getAnnonceId().equals(annonceId) && x.getPhotoId().equals(photoId)
                 && x.getStatut() == StatutAvertissementPhoto.EN_ATTENTE)
             .findFirst().orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Aucun avertissement en attente pour cette photo."));
+        if (Instant.now().isAfter(a.getEcheanceLe())) {
+            throw new ApiException(HttpStatus.GONE, "Le délai de réponse de 48 heures est dépassé.");
+        }
         a.repondre(reponse.trim());
         return convertir(a, annonce.getTitre());
     }
