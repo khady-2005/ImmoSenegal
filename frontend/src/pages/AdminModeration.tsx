@@ -123,7 +123,12 @@ export default function AdminModeration() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold">Modération des annonces</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Modération des annonces</h1>
+        <Link to="/admin/photos" className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-nuit-900 hover:bg-slate-50">
+          Gérer les photos du catalogue
+        </Link>
+      </div>
       <p className="mt-1 text-sm text-slate-600">
         Les propriétaires publient directement leurs annonces pendant 30 jours. Cet espace sert à traiter les signalements et les non-conformités. Une annonce arrivée à échéance doit être couverte par un abonnement ou un mandat accepté ; elle ne peut pas être validée par l’administration.
       </p>
