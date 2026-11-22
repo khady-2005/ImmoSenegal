@@ -19,6 +19,12 @@ public class PhotoOwnerModerationController {
         this.service = service;
     }
 
+    @GetMapping("/api/annonces/mes-avertissements-photos")
+    public java.util.List<ModerationPhotoService.AvertissementResponse> mesAvertissementsToutesAnnonces(
+            @AuthenticationPrincipal AuthenticatedUser proprietaire) {
+        return service.mesAvertissementsToutesAnnonces(proprietaire);
+    }
+
     @GetMapping
     public java.util.List<ModerationPhotoService.AvertissementResponse> mesAvertissements(
             @PathVariable UUID annonceId,
