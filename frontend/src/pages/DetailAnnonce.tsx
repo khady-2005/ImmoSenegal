@@ -99,7 +99,7 @@ export default function DetailAnnonce() {
                 {libelleTypeBien[a.typeBien]} · {libelleStatut[a.statut]}
               </p>
               <h1 className="font-titre mt-1 text-3xl font-medium leading-tight text-nuit-900 sm:text-4xl">{a.titre}</h1>
-              <p className="mt-2 flex items-center gap-1.5 text-slate-600">
+              <p className="mt-2 flex items-center gap-1.5 !text-white">
                 <MapPin aria-hidden className="h-4 w-4 text-emeraude-600" />
                 {a.quartier}, {a.ville}
                 {a.adresse ? ` — ${a.adresse}` : ''}
@@ -113,18 +113,18 @@ export default function DetailAnnonce() {
               </dl>
 
               {a.description && (
-                <section className="mt-10 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm" aria-labelledby="titre-description">
-                  <h2 id="titre-description" className="font-titre text-2xl font-medium text-nuit-900">Description</h2>
-                  <p className="mt-3 max-w-[68ch] whitespace-pre-line leading-relaxed text-slate-700">{a.description}</p>
+                <section className="mt-10 rounded-2xl border border-white/20 bg-nuit-950/90 p-5 text-white shadow-xl backdrop-blur-sm" aria-labelledby="titre-description">
+                  <h2 id="titre-description" className="font-titre text-2xl font-bold !text-white">Description</h2>
+                  <p className="mt-3 max-w-[68ch] whitespace-pre-line leading-relaxed !text-white">{a.description}</p>
                 </section>
               )}
 
               {a.equipements.length > 0 && (
                 <section className="mt-10 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm" aria-labelledby="titre-equipements">
-                  <h2 id="titre-equipements" className="font-titre text-2xl font-medium text-nuit-900">Équipements</h2>
+                  <h2 id="titre-equipements" className="font-titre text-2xl font-bold !text-white">Équipements</h2>
                   <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                     {a.equipements.map((e) => (
-                      <li key={e} className="flex items-center gap-2.5 text-slate-700">
+                      <li key={e} className="flex items-center gap-2.5 !text-white">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
                           <Check aria-hidden className="h-3.5 w-3.5" />
                         </span>
@@ -168,7 +168,7 @@ export default function DetailAnnonce() {
             <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-wide !text-dore-300">Préparer votre visite</p>
-                <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-medium text-nuit-900 sm:text-3xl">Localisation du logement</h2>
+                <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-bold !text-white sm:text-3xl">Localisation du logement</h2>
                 <p className="mt-2 flex items-center gap-1.5 text-slate-600">
                   <MapPin aria-hidden className="h-4 w-4 !text-dore-300" />
                   {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
