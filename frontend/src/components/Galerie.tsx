@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Building2, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Annonce } from '../types'
 import { urlPhoto } from './photos'
@@ -6,6 +6,17 @@ import { urlPhoto } from './photos'
 /** Photo principale + vignettes cliquables. Sans photo : bandeau coloré et mention claire. */
 export default function Galerie({ annonce }: { annonce: Annonce }) {
   const [courante, setCourante] = useState(0)
+  const [categories, setCategories] = useState<Record<string, string>>({})
+  useEffect(() => {
+    let active = true
+    fetch(`/api/annonces/${annonce.id}/photos/metadata`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((items: Array<{id: string; piece: string}>) => {
+        if (active) setCategories(Object.fromEntries(items.map((x) => [x.id, x.piece])))
+      })
+      .catch(() => undefined)
+    return () => { active = false }
+  }, [annonce.id])
   const badge = (
     <span className="absolute left-4 top-4 rounded-full bg-dore-500 px-3.5 py-1 text-sm font-bold text-nuit-950 shadow">
       {annonce.transaction === 'LOCATION' ? 'À louer' : 'À vendre'}
