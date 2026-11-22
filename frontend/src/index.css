@@ -258,3 +258,100 @@ body.fond-pages #contenu {
     width: 100%;
   }
 }
+
+/* Typographie harmonisée sur toutes les pages ImmoSénégal. */
+:root {
+  font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  color: #173b63;
+  font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+#contenu {
+  color: #173b63;
+  font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+#contenu h1,
+#contenu h2,
+#contenu h3,
+#contenu h4,
+header h1,
+header h2 {
+  color: #173b63;
+  font-family: "Bricolage Grotesque Variable", "Bricolage Grotesque", "DM Sans", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+}
+
+#contenu h1 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+#contenu h2 { font-size: clamp(1.45rem, 2.3vw, 2rem); }
+#contenu h3 { font-size: clamp(1.15rem, 1.8vw, 1.45rem); }
+
+#contenu p,
+#contenu li,
+#contenu label,
+#contenu th,
+#contenu td,
+#contenu input,
+#contenu textarea,
+#contenu select,
+#contenu button {
+  font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+#contenu p,
+#contenu li {
+  line-height: 1.65;
+}
+
+#contenu label,
+#contenu th {
+  color: #173b63;
+  font-weight: 600;
+}
+
+#contenu button {
+  font-weight: 650;
+  letter-spacing: 0.005em;
+}
+
+#contenu input,
+#contenu textarea,
+#contenu select {
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+#contenu::before {
+  background: rgba(13, 30, 49, 0.30);
+}
+
+/* Les surfaces claires gardent un texte bleu lisible malgré le voile du fond. */
+#contenu .bg-white,
+#contenu [class*="bg-white/"] {
+  color: #173b63;
+}
+
+#contenu .bg-white h1,
+#contenu .bg-white h2,
+#contenu .bg-white h3,
+#contenu .bg-white p,
+#contenu .bg-white label,
+#contenu .bg-white li {
+  color: #173b63;
+}
+
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+  #contenu p, #contenu li { line-height: 1.6; }
+}
