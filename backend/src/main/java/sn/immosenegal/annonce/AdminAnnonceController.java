@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +44,17 @@ public class AdminAnnonceController {
                                                 @AuthenticationPrincipal AuthenticatedUser admin) {
         return service.listerPourModeration(admin, statut, page, taille);
     }
+
+
+    @PatchMapping("/{id}/publication-agence")
+    @Operation(summary = "Marquer une annonce comme publiée par ImmoSénégal ou par un propriétaire (ADMIN uniquement)")
+    public AnnonceResponse definirPublicationAgence(@PathVariable UUID id,
+            @Valid @RequestBody OriginePublication requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.definirPublicationAgence(id, requete.publieeParAgence(), admin);
+    }
+
+    public record OriginePublication(@jakarta.validation.constraints.NotNull Boolean publieeParAgence) {}
 
     @PostMapping("/{id}/valider")
     @Operation(summary = "Réactiver une annonce suspendue ; les annonces expirées nécessitent un abonnement ou un mandat accepté")
