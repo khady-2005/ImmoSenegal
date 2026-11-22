@@ -121,6 +121,28 @@ public class AnnonceService {
     }
 
     @Transactional
+    public AnnonceResponse definirPublicationAgence(UUID id, boolean publieeParAgence, AuthenticatedUser admin) {
+        exigerAdmin(admin);
+        Annonce annonce = trouver(id);
+        annonce.setPublieeParAgence(publieeParAgence);
+        annonce.setModifieLe(Instant.now());
+        audit.enregistrer("ANNONCE_ORIGINE_PUBLICATION_MODIFIEE", admin.id(),
+            "Annonce " + id + " : publieeParAgence=" + publieeParAgence);
+        return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
+    }
+
+    /** Les opérations photo directes de l'administrateur sont réservées aux annonces de l'agence. */
+    void verifierGestionPhotoAdmin(UUID annonceId, AuthenticatedUser utilisateur) {
+        if (utilisateur != null && utilisateur.role() == Role.ADMIN) {
+            Annonce annonce = trouver(annonceId);
+            if (!annonce.isPublieeParAgence()) {
+                throw new ApiException(HttpStatus.CONFLICT,
+                    "Cette annonce appartient à un propriétaire. Un avertissement doit être envoyé avant toute suppression ou modification de photo.");
+            }
+        }
+    }
+
+    @Transactional
     public AnnonceResponse modifier(UUID id, AuthenticatedUser auteur, AnnonceRequest requete) {
         Annonce annonce = trouver(id);
         verifierDroits(annonce, auteur);
