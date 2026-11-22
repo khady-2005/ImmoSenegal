@@ -420,3 +420,35 @@ body.fond-pages #contenu::before {
 #contenu :is(.bg-nuit-950, .bg-nuit-900, .bg-nuit-800, [class*="from-nuit-"]) .text-dore-300 {
   color: #ffdc72 !important;
 }
+
+
+/* Lisibilité renforcée sur toutes les pages : les petites mentions,
+   aides, libellés et textes secondaires ne doivent plus être minuscules. */
+#contenu .text-xs,
+#contenu small,
+#contenu figcaption {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+#contenu .text-sm {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+#contenu [class*="text-[0.6"],
+#contenu [class*="text-[0.7"],
+#contenu [class*="text-[10px]"],
+#contenu [class*="text-[11px]"] {
+  font-size: 0.8125rem !important;
+  line-height: 1.5;
+}
+
+/* Dans les panneaux clairs, éviter les textes blancs presque invisibles.
+   Les boutons et bandeaux bleus conservent leur propre contraste. */
+#contenu .bg-white .text-white,
+#contenu [class*="bg-white/"] .text-white,
+#contenu .bg-slate-50 .text-white,
+#contenu .bg-slate-100 .text-white {
+  color: #173b63 !important;
+}
