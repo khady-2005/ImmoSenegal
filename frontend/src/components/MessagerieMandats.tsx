@@ -25,6 +25,7 @@ export default function MessagerieMandats() {
   const [conversations, setConversations] = useState<ConversationMandat[]>([])
   const [selection, setSelection] = useState('')
   const [messages, setMessages] = useState<MessageMandat[]>([])
+  const [chargementMessages, setChargementMessages] = useState(false)
   const [contenu, setContenu] = useState('')
   const [erreur, setErreur] = useState('')
   const [chargement, setChargement] = useState(true)
@@ -44,10 +45,11 @@ export default function MessagerieMandats() {
   const chargerMessages = useCallback(async () => {
     if (!selection) { setMessages([]); return }
     try {
+      setChargementMessages(true)
       setMessages(await appelApi<MessageMandat[]>('/api/messagerie/mandats/' + selection, { token: jeton }))
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les messages du mandat.')
-    }
+    } finally { setChargementMessages(false) }
   }, [jeton, selection])
 
   useEffect(() => { void chargerConversations() }, [chargerConversations])
@@ -71,11 +73,12 @@ export default function MessagerieMandats() {
     if (!contenu.trim() || !selection || envoi) return
     setEnvoi(true); setErreur('')
     try {
-      await appelApi<MessageMandat>('/api/messagerie/mandats/' + selection, {
+      const nouveau = await appelApi<MessageMandat>('/api/messagerie/mandats/' + selection, {
         method: 'POST', token: jeton, body: { contenu: contenu.trim() },
       })
+      setMessages(precedents => precedents.some(m => m.id === nouveau.id) ? precedents : [...precedents, nouveau])
       setContenu('')
-      await chargerMessages()
+      void chargerMessages()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Le message n’a pas pu être envoyé.')
     } finally { setEnvoi(false) }
@@ -87,7 +90,7 @@ export default function MessagerieMandats() {
   }), [conversations, recherche])
   const active = conversations.find(c => c.mandatId === selection)
   return (
-    <section className="mt-8">
+    <section className="messagerie-page mt-8 rounded-2xl border border-amber-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center gap-3">
         <span className="rounded-xl bg-amber-50 p-3 text-amber-900"><Building2 className="h-6 w-6" /></span>
         <div><h2 className="text-xl font-semibold text-nuit-900">Échanges avec les agences</h2><p className="text-sm text-slate-600">Conversations privées liées aux mandats de gestion acceptés.</p></div>
@@ -108,7 +111,7 @@ export default function MessagerieMandats() {
           {active ? <>
             <header className="border-b border-slate-100 px-4 py-3"><h3 className="font-semibold text-nuit-900">{active.interlocuteurNom}</h3><p className="text-xs text-slate-500">{active.annonceTitre} · {active.agenceNom}</p></header>
             <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-4">
-              {messages.length === 0 ? <p className="py-10 text-center text-sm text-slate-500">Aucun message. Vous pouvez commencer la conversation.</p> : messages.map(m => {
+              {chargementMessages && messages.length === 0 ? <p role="status" className="py-10 text-center text-sm font-medium text-amber-900">Chargement des messages…</p> : messages.length === 0 ? <p className="py-10 text-center text-sm font-medium text-amber-900">Aucun message. Vous pouvez commencer la conversation.</p> : messages.map(m => {
                 const mien = m.expediteurId === utilisateur?.id
                 return <div key={m.id} className={'flex ' + (mien ? 'justify-end' : 'justify-start')}><div className={'max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ' + (mien ? 'bg-nuit-900 text-white' : 'border border-slate-200 bg-white text-slate-800')}><p className="mb-1 text-[11px] font-semibold opacity-70">{mien ? 'Vous' : m.expediteurNom}</p><p className="whitespace-pre-wrap break-words">{m.contenu}</p><p className="mt-2 text-right text-[10px] opacity-60">{new Date(m.envoyeLe).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</p></div></div>
               })}
