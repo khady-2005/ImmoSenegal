@@ -33,5 +33,13 @@ public class AdminPhotoModerationController {
         return service.avertir(annonceId, photoId, requete.motif(), admin);
     }
 
+    @PostMapping("/avertissements/{id}/decision")
+    public ModerationPhotoService.AvertissementResponse decider(@PathVariable UUID id,
+            @Valid @RequestBody DecisionAvertissement requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.decider(id, requete.retirer(), admin);
+    }
+
     public record DemandeAvertissement(@NotBlank @Size(max = 500) String motif) {}
+    public record DecisionAvertissement(boolean retirer) {}
 }
