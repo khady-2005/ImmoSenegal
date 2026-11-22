@@ -37,6 +37,11 @@ public class PhotoService {
 
     @Transactional
     public UUID ajouter(UUID annonceId, AuthenticatedUser auteur, MultipartFile fichier) {
+        return ajouter(annonceId, auteur, fichier, "AUTRE");
+    }
+
+    @Transactional
+    public UUID ajouter(UUID annonceId, AuthenticatedUser auteur, MultipartFile fichier, String piece) {
         // Le propriétaire peut compléter une annonce publiée sans validation préalable.
         annonces.annonceAvecAjoutDeContenu(annonceId, auteur);
         if (fichier == null || fichier.isEmpty()) {
@@ -65,9 +70,36 @@ public class PhotoService {
         } catch (TraitementImage.ImageRefusee e) {
             throw new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-        PhotoAnnonce photo = photos.save(new PhotoAnnonce(annonceId, propre.octets(), propre.typeMime(), photos.ordreMax(annonceId) + 1));
+        PhotoAnnonce photo = new PhotoAnnonce(annonceId, propre.octets(), propre.typeMime(), photos.ordreMax(annonceId) + 1);
+        photo.setPiece(normaliserPiece(piece));
+        photo = photos.save(photo);
         audit.enregistrer("PHOTO_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return photo.getId();
+    }
+
+    public record PhotoMetadata(UUID id, String piece, int ordre) {}
+
+    @Transactional(readOnly = true)
+    public List<PhotoMetadata> metadata(UUID annonceId) {
+        return photos.findAllByAnnonceIdOrderByOrdreAscCreeLeAsc(annonceId).stream()
+            .map(p -> new PhotoMetadata(p.getId(), p.getPiece(), p.getOrdre())).toList();
+    }
+
+    @Transactional
+    public void classer(UUID annonceId, UUID photoId, AuthenticatedUser auteur, String piece) {
+        annonces.annonceModifiable(annonceId, auteur);
+        PhotoAnnonce photo = lire(annonceId, photoId);
+        photo.setPiece(normaliserPiece(piece));
+        audit.enregistrer("PHOTO_CLASSEE", auteur.id(), "Photo " + photoId + " classée dans " + photo.getPiece());
+    }
+
+    private static String normaliserPiece(String piece) {
+        String valeur = piece == null ? "AUTRE" : piece.trim().toUpperCase(java.util.Locale.ROOT);
+        if (!java.util.Set.of("FACADE", "SALON", "CHAMBRE", "CUISINE", "SALLE_DE_BAIN", "TOILETTES",
+                "BALCON_TERRASSE", "JARDIN_COUR", "PISCINE", "AUTRE").contains(valeur)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Catégorie de pièce invalide.");
+        }
+        return valeur;
     }
 
     @Transactional
