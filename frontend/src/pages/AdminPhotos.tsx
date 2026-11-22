@@ -32,6 +32,7 @@ export default function AdminPhotos() {
   const [avertissements, setAvertissements] = useState<Avertissement[]>([])
   const [motifs, setMotifs] = useState<Record<string, string>>({})
   const [fichiers, setFichiers] = useState<Record<string, File | undefined>>({})
+  const [fichiersRemplacement, setFichiersRemplacement] = useState<Record<string, File | undefined>>({})
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -105,6 +106,21 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
+  async function remplacerPhoto(a: AnnoncePhoto, photoId: string) {
+    const fichier = fichiersRemplacement[photoId]
+    if (!fichier) { setErreur('Choisis une nouvelle image.'); return }
+    const form = new FormData()
+    form.append('fichier', fichier)
+    setEnvoi(photoId); setErreur(null); setInfo(null)
+    try {
+      await appelApi('/api/annonces/' + a.id + '/photos/' + photoId, { method: 'PUT', token: jeton, body: form })
+      setInfo('Photo remplacée.')
+      setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Remplacement impossible.') }
+    finally { setEnvoi(null) }
+  }
+
   async function ajouterPhoto(a: AnnoncePhoto) {
     const fichier = fichiers[a.id]
     if (!fichier) { setErreur('Choisis une image à ajouter.'); return }
@@ -155,8 +171,18 @@ export default function AdminPhotos() {
                     <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId)} alt={'Photo de ' + a.titre} className="h-48 w-full object-cover" />
                     <div className="space-y-2 p-3">
                       {a.publieeParAgence ? (
-                        <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                          className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700 disabled:opacity-50">Supprimer cette photo</button>
+                        <>
+                          <label className="block text-xs font-semibold text-slate-700">Remplacer cette photo
+                            <input type="file" accept="image/jpeg,image/png"
+                              onChange={(e) => setFichiersRemplacement((v) => ({ ...v, [photoId]: e.target.files?.[0] }))}
+                              className="mt-1 block max-w-full text-xs" />
+                          </label>
+                          <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
+                            onClick={() => void remplacerPhoto(a, photoId)}
+                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold disabled:opacity-50">Remplacer</button>
+                          <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
+                            className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700 disabled:opacity-50">Supprimer cette photo</button>
+                        </>
                       ) : (
                         <>
                           <label className="block text-xs font-semibold text-slate-700" htmlFor={'motif-' + photoId}>Motif de l’avertissement</label>
