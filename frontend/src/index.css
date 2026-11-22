@@ -89,6 +89,29 @@ body.fond-pages #contenu {
   body.fond-pages #contenu { background-attachment: scroll; }
 }
 
+
+/*
+ * Contraste des contenus posés directement sur la photo des pages intérieures.
+ * Les cartes claires conservent volontairement leurs textes bleu nuit.
+ */
+#contenu main h1[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
+#contenu main h2[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
+#contenu main h3[class~="text-nuit-900"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
+  color: #fff !important;
+  text-shadow: 0 2px 5px rgb(0 0 0 / 85%);
+}
+#contenu main p[class~="text-slate-600"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
+#contenu main p[class~="text-slate-500"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
+  color: #fff !important;
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 90%);
+}
+#contenu main span[class~="text-slate-600"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *),
+#contenu main span[class~="text-slate-500"]:not(.bg-white *):not(.bg-slate-50 *):not(.bg-slate-100 *) {
+  color: #fff !important;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 90%);
+}
+
 /* Contraste des textes secondaires sur toutes les pages intérieures. */
 #contenu .text-slate-300,
 #contenu .text-gray-300,
