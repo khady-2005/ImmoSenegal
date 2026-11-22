@@ -53,5 +53,7 @@ public class PhotoAnnonce {
     public int getOrdre() { return ordre; }
     public String getPiece() { return piece; }
     public void setPiece(String piece) { this.piece = piece; }
+    public void setContenu(byte[] contenu) { this.contenu = contenu; }
+    public void setTypeMime(String typeMime) { this.typeMime = typeMime; }
     public void setOrdre(int ordre) { this.ordre = ordre; }
 }
