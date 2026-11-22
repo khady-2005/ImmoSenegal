@@ -11,4 +11,5 @@ public interface AvertissementPhotoRepository extends JpaRepository<Avertissemen
     List<AvertissementPhoto> findAllByStatutAndEcheanceLeLessThanEqual(StatutAvertissementPhoto statut, Instant date);
     boolean existsByPhotoIdAndStatut(UUID photoId, StatutAvertissementPhoto statut);
     List<AvertissementPhoto> findAllByAnnonceIdAndProprietaireIdOrderByCreeLeDesc(UUID annonceId, UUID proprietaireId);
+    List<AvertissementPhoto> findAllByProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
 }
