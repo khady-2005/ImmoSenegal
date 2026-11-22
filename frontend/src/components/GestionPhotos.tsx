@@ -77,10 +77,22 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   return (
     <section aria-labelledby="titre-photos" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="titre-photos" className="text-lg font-semibold">Photos ({photos.length}/{PHOTOS_MAX})</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        JPEG ou PNG, 5 Mo maximum chacune (8 photos par annonce). Ajoutez une vue de la façade, du salon, des chambres, de la cuisine, des salles de bain et des extérieurs. La première photo sert de couverture. Utilisez les flèches pour choisir l'ordre d'affichage. Les informations cachées dans les photos
-        (position GPS, appareil) sont supprimées à l'envoi.
-      </p>
+      <div className="mt-2 rounded-xl border border-dore-200 bg-dore-50/70 p-3 text-sm leading-relaxed text-nuit-900">
+        <p className="font-semibold">Ajoutez plusieurs photos en une seule sélection (8 maximum).</p>
+        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Les photos sont envoyées l'une après l'autre.</p>
+        <p className="mt-2 font-semibold">Ordre conseillé pour présenter un appartement :</p>
+        <ol className="mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-2">
+          <li>1. Façade / couverture</li>
+          <li>2. Salon / séjour</li>
+          <li>3. Cuisine</li>
+          <li>4. Chambre principale</li>
+          <li>5. Deuxième chambre</li>
+          <li>6. Salle de bain</li>
+          <li>7. Balcon / terrasse</li>
+          <li>8. Cour / parking / autre pièce</li>
+        </ol>
+        <p className="mt-2 text-xs text-slate-600">JPEG ou PNG, 5 Mo maximum par image. La première photo devient la couverture. Vous pouvez modifier l'ordre avec les flèches. Les métadonnées privées (GPS, appareil) sont retirées à l'envoi.</p>
+      </div>
 
       {photos.length > 0 && (
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
