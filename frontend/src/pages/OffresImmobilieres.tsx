@@ -78,9 +78,11 @@ export default function OffresImmobilieres() {
 
   const vide = achats.length === 0 && locations.length === 0
   return <main className="mx-auto max-w-5xl px-4 py-10">
-    <p className="text-sm font-semibold uppercase tracking-wider text-emeraude-700">Transactions immobilières</p>
-    <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{client ? 'Mes propositions' : admin ? 'Supervision des propositions' : 'Propositions reçues'}</h1>
-    <p className="mt-2 mb-7 text-slate-600">{client ? 'Suivez vos offres d’achat et vos propositions de loyer.' : admin ? 'Consultez toutes les offres d’achat et propositions de loyer. Les décisions restent réservées aux personnes autorisées.' : 'Répondez aux offres d’achat et aux propositions de loyer concernant vos biens ou ceux confiés à votre agence.'}</p>
+    <header className="mb-7 rounded-2xl border border-white/80 bg-white/95 p-6 shadow-xl shadow-nuit-950/10 backdrop-blur-sm">
+      <p className="text-sm font-bold uppercase tracking-wider text-emeraude-800">Transactions immobilières</p>
+      <h1 className="mt-2 font-titre text-3xl font-bold text-nuit-950">{client ? 'Mes propositions' : admin ? 'Supervision des propositions' : 'Propositions reçues'}</h1>
+      <p className="mt-2 text-base font-medium leading-relaxed text-nuit-800">{client ? 'Suivez vos offres d’achat et vos propositions de loyer.' : admin ? 'Consultez toutes les offres d’achat et propositions de loyer. Les décisions restent réservées aux personnes autorisées.' : 'Répondez aux offres d’achat et aux propositions de loyer concernant vos biens ou ceux confiés à votre agence.'}</p>
+    </header>
     {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
     {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des propositions…</p>}
     {!chargement && vide && <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center"><HandCoins className="mx-auto h-10 w-10 text-emeraude-700"/><h2 className="mt-3 font-semibold text-nuit-900">Aucune proposition pour le moment</h2><p className="mt-1 text-sm text-slate-600">Vos propositions apparaîtront ici.</p></div>}
