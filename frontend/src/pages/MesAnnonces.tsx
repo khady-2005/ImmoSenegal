@@ -7,6 +7,17 @@ import { libelleStatut, type Annonce, type PagePaginee } from '../types'
 import { peutPublier } from './FormulaireAnnonce'
 
 type Agence = { id: string; nom: string; slug: string; description: string | null; adresse: string | null; logoUrl: string | null }
+type AvertissementPhoto = {
+  id: string
+  annonceId: string
+  photoId: string
+  titreAnnonce: string
+  motif: string
+  creeLe: string
+  echeanceLe: string
+  statut: 'EN_ATTENTE' | 'REPONDU' | 'CORRIGE' | 'RETIRE'
+  reponseProprietaire: string | null
+}
 type Mandat = {
   id: string
   agenceId: string
@@ -29,6 +40,8 @@ export default function MesAnnonces() {
   const [annonces, setAnnonces] = useState<Annonce[] | null>(null)
   const [agences, setAgences] = useState<Agence[]>([])
   const [mandats, setMandats] = useState<Mandat[]>([])
+  const [avertissementsPhotos, setAvertissementsPhotos] = useState<AvertissementPhoto[]>([])
+  const [reponsesPhotos, setReponsesPhotos] = useState<Record<string, string>>({})
   const [agenceChoisie, setAgenceChoisie] = useState<Record<string, string>>({})
   const [erreur, setErreur] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -44,20 +57,37 @@ export default function MesAnnonces() {
     try {
       // Les annonces sont prioritaires : une panne de l'annuaire ou des mandats
       // ne doit pas empêcher le propriétaire de consulter et gérer ses biens.
-      const [p, listeAgences, listeMandats] = await Promise.all([
+      const [p, listeAgences, listeMandats, argumentsPhotos] = await Promise.all([
         appelApi<PagePaginee<Annonce>>('/api/annonces/mes-annonces?taille=50', { token: jeton }),
         appelApi<Agence[]>('/api/agence/annuaire', { token: jeton }).catch(() => [] as Agence[]),
         appelApi<Mandat[]>('/api/mandats/mes-propositions', { token: jeton }).catch(() => [] as Mandat[]),
+        appelApi<AvertissementPhoto[]>('/api/annonces/mes-avertissements-photos', { token: jeton }).catch(() => [] as AvertissementPhoto[]),
       ])
       setAnnonces(p.contenu)
       setAgences(listeAgences)
       setMandats(listeMandats)
+      setAvertissementsPhotos(argumentsPhotos)
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Chargement impossible.')
     }
   }, [jeton])
 
   useEffect(() => { void charger() }, [charger])
+
+  async function repondreAvertissementPhoto(a: AvertissementPhoto) {
+    const reponse = (reponsesPhotos[a.id] ?? '').trim()
+    if (!reponse) { setErreur('Écris une réponse avant de l’envoyer.'); return }
+    setDemandeEnCours(a.id); setErreur(null); setMessage(null)
+    try {
+      await appelApi('/api/annonces/' + a.annonceId + '/photos/' + a.photoId + '/avertissement/repondre', {
+        method: 'POST', token: jeton, body: { reponse },
+      })
+      setMessage('Votre réponse a été transmise à l’administration. La photo ne sera pas retirée automatiquement pendant l’examen de votre réponse.')
+      setReponsesPhotos((v) => ({ ...v, [a.id]: '' }))
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer la réponse.') }
+    finally { setDemandeEnCours(null) }
+  }
 
   async function supprimer(id: string) {
     setErreur(null)
@@ -171,6 +201,38 @@ export default function MesAnnonces() {
       </div>
       {erreur && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       {message && <p role="status" className="mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">{message}</p>}
+
+      {avertissementsPhotos.length > 0 && (
+        <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+          <h2 className="text-lg font-bold text-nuit-900">Avertissements concernant vos photos</h2>
+          <p className="mt-1 text-sm text-slate-600">Vous disposez de 48 heures après chaque avertissement pour corriger la photo ou répondre à l’administration.</p>
+          <ul className="mt-3 space-y-3">
+            {avertissementsPhotos.map((a) => (
+              <li key={a.id} className="rounded-xl border border-amber-200 bg-white p-3">
+                <p className="font-semibold text-nuit-900">{a.titreAnnonce}</p>
+                <p className="mt-1 text-sm text-slate-700">Motif : {a.motif}</p>
+                <p className="mt-1 text-xs text-slate-500">Avertissement reçu le {new Date(a.creeLe).toLocaleString('fr-FR')} · délai jusqu’au {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>
+                {a.statut === 'EN_ATTENTE' ? (
+                  <div className="mt-3 space-y-2">
+                    <textarea value={reponsesPhotos[a.id] ?? ''} maxLength={1000} rows={2}
+                      onChange={(e) => setReponsesPhotos((v) => ({ ...v, [a.id]: e.target.value }))}
+                      className="w-full rounded-lg border border-slate-300 p-2 text-sm"
+                      placeholder="Expliquez la correction effectuée ou donnez votre réponse…" />
+                    <button type="button" disabled={demandeEnCours === a.id || !(reponsesPhotos[a.id] ?? '').trim()}
+                      onClick={() => void repondreAvertissementPhoto(a)}
+                      className="rounded-lg bg-nuit-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Envoyer ma réponse</button>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm font-semibold text-slate-700">
+                    {a.statut === 'REPONDU' ? 'Votre réponse a été reçue.' : a.statut === 'CORRIGE' ? 'Photo corrigée ou supprimée.' : 'Photo retirée du catalogue.'}
+                  </p>
+                )}
+                {a.reponseProprietaire && <p className="mt-2 text-sm text-slate-600">Votre réponse : {a.reponseProprietaire}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
         <h2 className="text-lg font-bold text-nuit-900">Suivi des demandes de gestion</h2>
