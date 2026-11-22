@@ -43,6 +43,7 @@ public class PhotoService {
     @Transactional
     public UUID ajouter(UUID annonceId, AuthenticatedUser auteur, MultipartFile fichier, String piece) {
         // Le propriétaire peut compléter une annonce publiée sans validation préalable.
+        annonces.verifierGestionPhotoAdmin(annonceId, auteur);
         annonces.annonceAvecAjoutDeContenu(annonceId, auteur);
         if (fichier == null || fichier.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Aucun fichier reçu.");
@@ -87,6 +88,7 @@ public class PhotoService {
 
     @Transactional
     public void classer(UUID annonceId, UUID photoId, AuthenticatedUser auteur, String piece) {
+        annonces.verifierGestionPhotoAdmin(annonceId, auteur);
         annonces.annonceModifiable(annonceId, auteur);
         PhotoAnnonce photo = lire(annonceId, photoId);
         photo.setPiece(normaliserPiece(piece));
@@ -129,6 +131,7 @@ public class PhotoService {
 
     @Transactional
     public void supprimer(UUID annonceId, UUID photoId, AuthenticatedUser auteur) {
+        annonces.verifierGestionPhotoAdmin(annonceId, auteur);
         annonces.annonceModifiable(annonceId, auteur);
         PhotoAnnonce photo = lire(annonceId, photoId);
         photos.delete(photo);
