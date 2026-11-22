@@ -25,10 +25,10 @@ function BiensSimilaires({ annonce }: { annonce: Annonce }) {
   if (autres.length === 0) return null
   return (
     <section className="mt-16" aria-labelledby="titre-similaires">
-      <h2 id="titre-similaires" className="font-titre text-2xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:text-3xl">
+      <h2 id="titre-similaires" className="font-titre text-2xl font-bold !text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)] sm:text-3xl">
         Biens similaires
       </h2>
-      <p className="mt-1 font-medium text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)]">
+      <p className="mt-1 font-medium !text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.95)]">
         {libelleTypeBien[annonce.typeBien]} à {annonce.ville}.
       </p>
       <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -167,10 +167,10 @@ export default function DetailAnnonce() {
           <section className="mt-12" aria-labelledby="titre-localisation">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-dore-600">Préparer votre visite</p>
+                <p className="text-sm font-semibold uppercase tracking-wide !text-dore-300">Préparer votre visite</p>
                 <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-medium text-nuit-900 sm:text-3xl">Localisation du logement</h2>
                 <p className="mt-2 flex items-center gap-1.5 text-slate-600">
-                  <MapPin aria-hidden className="h-4 w-4 text-dore-600" />
+                  <MapPin aria-hidden className="h-4 w-4 !text-dore-300" />
                   {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
                 </p>
               </div>
