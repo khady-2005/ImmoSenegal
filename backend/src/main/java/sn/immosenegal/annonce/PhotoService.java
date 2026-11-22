@@ -131,6 +131,38 @@ public class PhotoService {
     }
 
     @Transactional
+    public void remplacer(UUID annonceId, UUID photoId, AuthenticatedUser auteur, MultipartFile fichier) {
+        annonces.verifierGestionPhotoAdmin(annonceId, auteur);
+        annonces.annonceAvecAjoutDeContenu(annonceId, auteur);
+        if (fichier == null || fichier.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Aucun fichier reçu.");
+        }
+        if (fichier.getSize() > TAILLE_MAX_OCTETS) {
+            throw new ApiException(HttpStatus.PAYLOAD_TOO_LARGE, "La photo dépasse 5 Mo.");
+        }
+        byte[] contenu;
+        try {
+            contenu = fichier.getBytes();
+        } catch (IOException e) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Fichier illisible.");
+        }
+        String type = reconnaitreType(contenu);
+        if (type == null) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Format refusé : seuls les JPEG et PNG sont acceptés.");
+        }
+        TraitementImage.Resultat propre;
+        try {
+            propre = TraitementImage.nettoyer(contenu, type);
+        } catch (TraitementImage.ImageRefusee e) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        PhotoAnnonce photo = lire(annonceId, photoId);
+        photo.setContenu(propre.octets());
+        photo.setTypeMime(propre.typeMime());
+        audit.enregistrer("PHOTO_REMPLACEE", auteur.id(), "Photo " + photoId + " de l'annonce " + annonceId);
+    }
+
+    @Transactional
     public void supprimer(UUID annonceId, UUID photoId, AuthenticatedUser auteur) {
         annonces.verifierGestionPhotoAdmin(annonceId, auteur);
         annonces.annonceModifiable(annonceId, auteur);
