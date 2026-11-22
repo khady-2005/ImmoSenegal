@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
-import { LogOut, MapPin, Menu, MoreHorizontal, PlusCircle, X } from 'lucide-react'
+import { Instagram, LogOut, Mail, MapPin, Menu, MessageCircle, MoreHorizontal, Music2, Phone, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
 import { LogoComplet, Marque } from './Logo'
 import CentreNotifications from './CentreNotifications'
@@ -236,99 +236,81 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-white/80">
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-[0.82rem] leading-relaxed text-white/80">
         <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="mx-auto grid max-w-6xl gap-5 px-4 py-5 sm:grid-cols-2 lg:grid-cols-[1.25fr_0.9fr_0.9fr_1.25fr]">
           <div>
-            <Link to="/" className="inline-flex rounded-xl bg-white p-2 shadow-md" aria-label="ImmoSénégal : accueil">
-              <LogoComplet className="h-16" />
+            <Link to="/" className="inline-flex rounded-xl bg-white p-1.5 shadow-md" aria-label="ImmoSénégal : accueil">
+              <LogoComplet className="h-12" />
             </Link>
-            <p className="mt-3 max-w-xs text-xs leading-relaxed">
+            <p className="mt-2 max-w-xs text-xs leading-relaxed">
               La plateforme immobilière du Sénégal : maisons, appartements, studios, villas et terrains à louer ou à acheter.
             </p>
           </div>
 
           <nav aria-label="Pied de page : explorer">
             <p className="font-semibold text-white">Explorer</p>
-            <ul className="mt-3 space-y-1.5">
-              <li>
-                <Link to="/catalogue" className="transition-colors hover:text-white hover:underline">
-                  Tous les logements
-                </Link>
-              </li>
-              <li>
-                <Link to="/carte" className="transition-colors hover:text-white hover:underline">
-                  Carte des biens
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalogue?transaction=LOCATION" className="transition-colors hover:text-white hover:underline">
-                  Logements à louer
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalogue?transaction=VENTE" className="transition-colors hover:text-white hover:underline">
-                  Logements à acheter
-                </Link>
-              </li>
-              <li>
-                <Link to="/catalogue?type=TERRAIN" className="transition-colors hover:text-white hover:underline">
-                  Terrains
-                </Link>
-              </li>
+            <ul className="mt-2 space-y-1">
+              <li><Link to="/catalogue" className="transition-colors hover:text-dore-300 hover:underline">Tous les logements</Link></li>
+              <li><Link to="/carte" className="transition-colors hover:text-dore-300 hover:underline">Carte des biens</Link></li>
+              <li><Link to="/catalogue?transaction=LOCATION" className="transition-colors hover:text-dore-300 hover:underline">Logements à louer</Link></li>
+              <li><Link to="/catalogue?transaction=VENTE" className="transition-colors hover:text-dore-300 hover:underline">Logements à acheter</Link></li>
+              <li><Link to="/catalogue?type=TERRAIN" className="transition-colors hover:text-dore-300 hover:underline">Terrains</Link></li>
             </ul>
           </nav>
 
           <nav aria-label="Pied de page : services">
             <p className="font-semibold text-white">Services</p>
-            <ul className="mt-3 space-y-1.5">
-              {peutPublier && (
-                <li>
-                  <Link to="/annonces/nouvelle" className="transition-colors hover:text-white hover:underline">
-                    Publier une annonce
-                  </Link>
-                </li>
-              )}
+            <ul className="mt-2 space-y-1">
+              {peutPublier && <li><Link to="/annonces/nouvelle" className="transition-colors hover:text-dore-300 hover:underline">Publier une annonce</Link></li>}
               {utilisateur ? (
-                <li>
-                  <Link to="/tableau-de-bord" className="transition-colors hover:text-white hover:underline">
-                    Tableau de bord
-                  </Link>
-                </li>
+                <li><Link to="/tableau-de-bord" className="transition-colors hover:text-dore-300 hover:underline">Tableau de bord</Link></li>
               ) : (
                 <>
-                  <li>
-                    <Link to="/connexion" className="transition-colors hover:text-white hover:underline">
-                      Se connecter
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/inscription" className="transition-colors hover:text-white hover:underline">
-                      Créer un compte
-                    </Link>
-                  </li>
+                  <li><Link to="/connexion" className="transition-colors hover:text-dore-300 hover:underline">Se connecter</Link></li>
+                  <li><Link to="/inscription" className="transition-colors hover:text-dore-300 hover:underline">Créer un compte</Link></li>
                 </>
               )}
+              <li><Link to="/contact" className="transition-colors hover:text-dore-300 hover:underline">Nous contacter</Link></li>
             </ul>
           </nav>
 
           <div>
-            <p className="font-semibold text-white">Contact</p>
-            <ul className="mt-4 space-y-2.5">
-              <li className="flex items-start gap-2">
-                <MapPin aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-dore-500" />
+            <p className="font-semibold text-white">Contact et réseaux sociaux</p>
+            <ul className="mt-2 space-y-1.5">
+              <li className="flex items-center gap-2">
+                <MapPin aria-hidden className="h-4 w-4 shrink-0 text-dore-400" />
                 Ziguinchor, Sénégal
               </li>
+              <li className="flex items-center gap-2">
+                <Phone aria-hidden className="h-4 w-4 shrink-0 text-dore-400" />
+                <a href="tel:+221779816806" className="hover:text-dore-300 hover:underline">77 981 68 06</a>
+                <span className="text-white/45">/</span>
+                <a href="tel:+221769916604" className="hover:text-dore-300 hover:underline">76 991 66 04</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail aria-hidden className="h-4 w-4 shrink-0 text-dore-400" />
+                <a href="mailto:khady05.sall@gmail.com" className="break-all hover:text-dore-300 hover:underline">khady05.sall@gmail.com</a>
+              </li>
             </ul>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a href="https://wa.me/221779816806" target="_blank" rel="noreferrer" aria-label="WhatsApp ImmoSénégal" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
+                <MessageCircle className="h-3.5 w-3.5" aria-hidden /> WhatsApp
+              </a>
+              <a href="https://www.tiktok.com/@kysia769" target="_blank" rel="noreferrer" aria-label="TikTok kysia769" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
+                <Music2 className="h-3.5 w-3.5" aria-hidden /> TikTok
+              </a>
+              <a href="https://www.instagram.com/dykha2236/" target="_blank" rel="noreferrer" aria-label="Instagram dykha2236" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
+                <Instagram className="h-3.5 w-3.5" aria-hidden /> Instagram
+              </a>
+            </div>
           </div>
         </div>
 
         <div className="border-t border-white/15">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs sm:flex-row">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-3 text-[0.7rem] sm:flex-row">
             <p>© {new Date().getFullYear()} ImmoSénégal. Projet de mémoire de Licence 3 Ingénierie Informatique, UASZ.</p>
-            <Link to="/mentions-legales" className="transition-colors hover:text-white hover:underline">
-              Mentions légales
-            </Link>
+            <Link to="/mentions-legales" className="transition-colors hover:text-dore-300 hover:underline">Mentions légales</Link>
           </div>
         </div>
       </footer>
