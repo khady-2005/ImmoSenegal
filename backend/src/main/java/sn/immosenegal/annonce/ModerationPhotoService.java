@@ -110,6 +110,32 @@ public class ModerationPhotoService {
         return convertir(a, annonce.getTitre());
     }
 
+    @Transactional
+    public AvertissementResponse decider(UUID avertissementId, boolean retirer, AuthenticatedUser admin) {
+        exigerAdmin(admin);
+        AvertissementPhoto a = avertissements.findById(avertissementId)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Avertissement introuvable."));
+        if (a.getStatut() != StatutAvertissementPhoto.REPONDU) {
+            throw new ApiException(HttpStatus.CONFLICT, "Seul un avertissement ayant reçu une réponse peut être traité ici.");
+        }
+        String titre = annonces.findById(a.getAnnonceId()).map(Annonce::getTitre).orElse("votre annonce");
+        if (retirer) {
+            photos.findByIdAndAnnonceId(a.getPhotoId(), a.getAnnonceId()).ifPresent(photos::delete);
+            a.terminer(StatutAvertissementPhoto.RETIRE);
+            notifications.creer(a.getProprietaire(), "PHOTO_RETIRE_MODERATION",
+                "Photo retirée après examen",
+                "Après examen de votre réponse, l'administration a décidé de retirer la photo de « " + titre + " ».",
+                "/mes-annonces");
+        } else {
+            a.terminer(StatutAvertissementPhoto.CORRIGE);
+            notifications.creer(a.getProprietaire(), "AVERTISSEMENT_PHOTO_CLOTURE",
+                "Avertissement photo clôturé",
+                "L'administration a examiné votre réponse et a clôturé l'avertissement concernant « " + titre + " ».",
+                "/mes-annonces");
+        }
+        return convertir(a, titre);
+    }
+
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void traiterEcheances() {
