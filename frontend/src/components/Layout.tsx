@@ -236,21 +236,21 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-white/75">
+      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-sm text-white/80">
         <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <Link to="/" className="inline-flex rounded-2xl bg-white p-3 shadow-lg" aria-label="ImmoSénégal : accueil">
-              <LogoComplet className="h-24" />
+            <Link to="/" className="inline-flex rounded-xl bg-white p-2 shadow-md" aria-label="ImmoSénégal : accueil">
+              <LogoComplet className="h-16" />
             </Link>
-            <p className="mt-4 max-w-xs leading-relaxed">
+            <p className="mt-3 max-w-xs text-xs leading-relaxed">
               La plateforme immobilière du Sénégal : maisons, appartements, studios, villas et terrains à louer ou à acheter.
             </p>
           </div>
 
           <nav aria-label="Pied de page : explorer">
             <p className="font-semibold text-white">Explorer</p>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-1.5">
               <li>
                 <Link to="/catalogue" className="transition-colors hover:text-white hover:underline">
                   Tous les logements
@@ -281,7 +281,7 @@ export default function Layout() {
 
           <nav aria-label="Pied de page : services">
             <p className="font-semibold text-white">Services</p>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-1.5">
               {peutPublier && (
                 <li>
                   <Link to="/annonces/nouvelle" className="transition-colors hover:text-white hover:underline">
