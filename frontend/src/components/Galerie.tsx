@@ -62,6 +62,9 @@ export default function Galerie({ annonce }: { annonce: Annonce }) {
         )}
       </div>
       {total > 1 && (
+        <p className="mt-2 text-xs font-medium text-slate-600">Galerie du logement · {total} photos</p>
+      )}
+      {total > 1 && (
         <ul className="mt-3 flex gap-2.5 overflow-x-auto pb-1">
           {annonce.photos.map((photo, i) => (
             <li key={photo} className="shrink-0">
