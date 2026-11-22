@@ -14,16 +14,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
 
 /**
- * Base commune des tests d'API : application complète + PostgreSQL réel (variables DB_*).
+ * Base commune des tests d'API : application complète + PostgreSQL isolé par Testcontainers.
+ * Les identifiants de la base de développement (.env) ne sont pas utilisés par ces tests.
  * Le secret JWT ci-dessous sert uniquement aux tests.
  */
 @SpringBootTest
@@ -34,6 +38,23 @@ import sn.immosenegal.user.UserRepository;
     "app.security.login-ip-max-failures=1000"
 })
 abstract class AbstractApiTest {
+
+    private static final PostgreSQLContainer<?> POSTGRES =
+        new PostgreSQLContainer<>("postgres:16")
+            .withDatabaseName("immosenegal_test")
+            .withUsername("immosenegal_test")
+            .withPassword("test-only-password");
+
+    static {
+        POSTGRES.start();
+    }
+
+    @DynamicPropertySource
+    static void configureDatabase(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRES::getUsername);
+        registry.add("spring.datasource.password", POSTGRES::getPassword);
+    }
 
     protected static final String MOT_DE_PASSE = "MotDePasse-Solide-123";
 
