@@ -297,7 +297,7 @@ export default function Layout() {
               <a href="https://wa.me/221779816806" target="_blank" rel="noreferrer" aria-label="WhatsApp ImmoSénégal" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
                 <MessageCircle className="h-3.5 w-3.5" aria-hidden /> WhatsApp
               </a>
-              <a href="https://www.tiktok.com/@kysia769" target="_blank" rel="noreferrer" aria-label="TikTok kysia769" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
+              <a href="https://www.tiktok.com/@khadysall77" target="_blank" rel="noreferrer" aria-label="TikTok khadysall77" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
                 <Music2 className="h-3.5 w-3.5" aria-hidden /> TikTok
               </a>
               <a href="https://www.instagram.com/dykha2236/" target="_blank" rel="noreferrer" aria-label="Instagram dykha2236" className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-2.5 py-1.5 text-xs font-medium text-white transition hover:border-dore-400 hover:bg-white/10 hover:text-dore-300">
