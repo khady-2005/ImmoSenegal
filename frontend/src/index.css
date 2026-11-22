@@ -209,3 +209,52 @@ body.fond-pages #contenu {
 #contenu .messagerie-page button:disabled {
   opacity: .55;
 }
+
+
+/* Finition visuelle : fond photo moins lumineux et typographie plus nette. */
+#contenu::before {
+  background: rgba(13,  30, 49, 0.22);
+}
+#contenu h1,
+#contenu h2,
+#contenu h3,
+#contenu h4 {
+  font-family: "Bricolage Grotesque Variable", "Bricolage Grotesque", "DM Sans", sans-serif;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+#contenu p,
+#contenu label,
+#contenu li {
+  text-shadow: none;
+}
+#contenu .bg-white\/30 .text-white,
+#contenu .bg-white\/40 .text-white,
+#contenu .bg-white\/50 .text-white,
+#contenu .bg-white\/60 .text-white,
+#contenu .bg-white\/70 .text-white,
+#contenu .bg-white\/80 .text-white {
+  color: #173b63 !important;
+}
+#contenu .messagerie-page {
+  font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, sans-serif;
+}
+#contenu .messagerie-page h1,
+#contenu .messagerie-page h2,
+#contenu .messagerie-page h3 {
+  color: #173b63;
+  font-weight: 700;
+}
+#contenu .messagerie-page form button[type="submit"] {
+  min-width: 112px;
+  font-size: 0.95rem;
+}
+@media (max-width: 520px) {
+  #contenu .messagerie-page form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  #contenu .messagerie-page form button[type="submit"] {
+    width: 100%;
+  }
+}
