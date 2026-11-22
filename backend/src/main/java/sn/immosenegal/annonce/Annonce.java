@@ -98,6 +98,10 @@ public class Annonce {
     @Column(nullable = false, updatable = false)
     private boolean exemple;
 
+    /** Origine de publication gérée explicitement : true uniquement pour les biens publiés par ImmoSénégal. */
+    @Column(name = "publiee_par_agence", nullable = false)
+    private boolean publieeParAgence;
+
     /** Échéance de couverture : période gratuite de 30 jours ou date de fin de l'abonnement ; null si un mandat accepté prend en charge le bien. */
     @Column(name = "date_fin_publication")
     private java.time.LocalDate dateFinPublication;
@@ -136,11 +140,13 @@ public class Annonce {
     public Instant getModereLe() { return modereLe; }
     public Set<String> getEquipements() { return equipements; }
     public boolean isExemple() { return exemple; }
+    public boolean isPublieeParAgence() { return publieeParAgence; }
     public java.time.LocalDate getDateFinPublication() { return dateFinPublication; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
 
     public void setProprietaire(User proprietaire) { this.proprietaire = proprietaire; }
+    public void setPublieeParAgence(boolean publieeParAgence) { this.publieeParAgence = publieeParAgence; }
     public void setTitre(String titre) { this.titre = titre; }
     public void setDescription(String description) { this.description = description; }
     public void setTypeBien(TypeBien typeBien) { this.typeBien = typeBien; }
