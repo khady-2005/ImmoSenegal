@@ -15,6 +15,8 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   const champ = useRef<HTMLInputElement>(null)
   const [erreurs, setErreurs] = useState<string[]>([])
   const [enCours, setEnCours] = useState(false)
+  const [piece, setPiece] = useState('AUTRE')
+  const [categories, setCategories] = useState<Record<string, string>>({})
 
   async function ajouter(fichiers: FileList | null) {
     if (!fichiers || fichiers.length === 0) return
@@ -32,9 +34,11 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
       }
       const donnees = new FormData()
       donnees.append('fichier', fichier)
+      donnees.append('piece', piece)
       try {
         const r = await appelApi<{ id: string }>(`/api/annonces/${annonceId}/photos`, { method: 'POST', body: donnees, token: jeton })
         courantes = [...courantes, r.id]
+        setCategories((actuelles) => ({ ...actuelles, [r.id]: piece }))
         onChange(courantes)
       } catch (e) {
         problemes.push(`« ${fichier.name} » : ${e instanceof ApiError ? e.message : 'envoi impossible.'}`)
@@ -64,6 +68,15 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     }
   }
 
+  async function classer(photo: string, nouvellePiece: string) {
+    setCategories((actuelles) => ({ ...actuelles, [photo]: nouvellePiece }))
+    try {
+      await appelApi<void>(`/api/annonces/${annonceId}/photos/${photo}/piece`, { method: 'PATCH', body: { piece: nouvellePiece }, token: jeton })
+    } catch (e) {
+      setErreurs([e instanceof ApiError ? e.message : 'Classement impossible.'])
+    }
+  }
+
   async function supprimer(photo: string) {
     setErreurs([])
     try {
@@ -78,8 +91,12 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     <section aria-labelledby="titre-photos" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="titre-photos" className="text-lg font-semibold">Photos ({photos.length}/{PHOTOS_MAX})</h2>
       <div className="mt-2 rounded-xl border border-dore-200 bg-dore-50/70 p-3 text-sm leading-relaxed text-nuit-900">
-        <p className="font-semibold">Ajoutez plusieurs photos en une seule sélection (8 maximum).</p>
-        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Les photos sont envoyées l'une après l'autre.</p>
+        <p className="font-semibold">Classez les photos par pièce du logement (8 maximum).</p>
+        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi.</p>
+        <label htmlFor="categorie-nouvelles-photos" className="mt-3 block font-semibold">Catégorie des prochaines photos</label>
+        <select id="categorie-nouvelles-photos" value={piece} onChange={(e) => setPiece(e.target.value)} className="mt-1 w-full rounded-lg border border-dore-300 bg-white px-3 py-2 text-sm text-slate-900">
+          <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
+        </select>
         <p className="mt-2 font-semibold">Ordre conseillé pour présenter un appartement :</p>
         <ol className="mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-2">
           <li>1. Façade / couverture</li>
@@ -99,6 +116,11 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
           {photos.map((photo, i) => (
             <li key={photo} className="space-y-1">
               <img src={urlPhoto(annonceId, photo)} alt={`Photo ${i + 1}`} className="h-24 w-full rounded-lg object-cover" />
+              <label className="block text-xs font-medium text-slate-600">Pièce
+                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900">
+                  <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
+                </select>
+              </label>
               <div className="grid grid-cols-3 gap-1">
                 <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
                   aria-label={`Déplacer la photo ${i + 1} vers le début`}
