@@ -29,6 +29,7 @@ export default function Messagerie() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selection, setSelection] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
+  const [chargementMessages, setChargementMessages] = useState(false)
   const [contenu, setContenu] = useState('')
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState(false)
@@ -48,11 +49,13 @@ export default function Messagerie() {
   const chargerMessages = useCallback(async () => {
     if (!selection) { setMessages([]); return }
     try {
-      setMessages(await appelApi<Message[]>('/api/messagerie/' + selection, { token: jeton }))
+      setChargementMessages(true)
+      const liste = await appelApi<Message[]>('/api/messagerie/' + selection, { token: jeton })
+      setMessages(liste)
       setErreur('')
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les messages.')
-    }
+    } finally { setChargementMessages(false) }
   }, [jeton, selection])
 
   useEffect(() => { void chargerConversations() }, [chargerConversations])
@@ -77,11 +80,12 @@ export default function Messagerie() {
     if (!texte || !selection || envoi) return
     setEnvoi(true); setErreur('')
     try {
-      await appelApi<Message>('/api/messagerie/' + selection, {
+      const nouveau = await appelApi<Message>('/api/messagerie/' + selection, {
         method: 'POST', token: jeton, body: { contenu: texte },
       })
+      setMessages(precedents => precedents.some(m => m.id === nouveau.id) ? precedents : [...precedents, nouveau])
       setContenu('')
-      await chargerMessages()
+      void chargerMessages()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Le message n’a pas pu être envoyé.')
     } finally { setEnvoi(false) }
@@ -97,8 +101,8 @@ export default function Messagerie() {
   }), [conversations, recherche])
   const active = conversations.find(c => c.reservationId === selection)
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6"><p className="text-sm font-semibold uppercase tracking-wider text-amber-800">Échanges privés</p><h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">Messagerie</h1><p className="mt-2 text-slate-600">Discutez avec l’autre partie au sujet de vos demandes de réservation.</p></div>
+    <main className="messagerie-page mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6 rounded-2xl border border-amber-200 bg-white p-5 shadow-sm"><p className="text-sm font-bold uppercase tracking-wider text-amber-900">Échanges privés</p><h1 className="mt-2 font-titre text-3xl font-semibold text-amber-950">Messagerie</h1><p className="mt-2 text-slate-700">Discutez avec l’autre partie au sujet de vos demandes de réservation.</p></div>
       {erreur && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       <div className="grid min-h-[32rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:grid-cols-[18rem_1fr]">
         <aside className="border-b border-slate-200 md:border-b-0 md:border-r">
@@ -113,7 +117,7 @@ export default function Messagerie() {
           {active ? <>
             <header className="border-b border-slate-100 px-5 py-4"><h2 className="font-semibold text-nuit-900">{active.interlocuteurNom}</h2><p className="mt-1 text-xs text-slate-500">{active.annonceTitre}</p></header>
             <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-4">
-              {messages.length === 0 ? <p className="py-12 text-center text-sm text-slate-500">Aucun message. Vous pouvez commencer la conversation.</p> : messages.map(m => {
+              {chargementMessages && messages.length === 0 ? <p role="status" className="py-12 text-center text-sm font-medium text-amber-900">Chargement des messages…</p> : messages.length === 0 ? <p className="py-12 text-center text-sm font-medium text-amber-900">Aucun message. Vous pouvez commencer la conversation.</p> : messages.map(m => {
                 const mien = m.expediteurId === utilisateur.id
                 return <div key={m.id} className={'flex ' + (mien ? 'justify-end' : 'justify-start')}><div className={'max-w-[85%] rounded-2xl px-4 py-3 shadow-sm ' + (mien ? 'bg-nuit-900 text-white' : 'border border-slate-200 bg-white text-slate-800')}><p className="mb-1 text-[11px] font-semibold opacity-70">{mien ? 'Vous' : m.expediteurNom}</p><p className="whitespace-pre-wrap break-words text-sm">{m.contenu}</p><p className="mt-2 text-right text-[10px] opacity-60">{dateMessage(m.envoyeLe)}</p></div></div>
               })}
