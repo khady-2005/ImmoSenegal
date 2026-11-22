@@ -147,7 +147,7 @@ describe("Page d'accueil", () => {
     expect(api.mock.calls.some((c) => String(c[0]).includes('transaction=VENTE'))).toBe(true)
   })
 
-  it('la page de détail d’une annonce de démonstration le dit clairement', async () => {
+  it('ne montre pas de mention de démonstration sur la fiche d’annonce', async () => {
     const exemple = annonceTest({ exemple: true, titre: 'Villa avec vue sur la mer' })
     simulerApi({
       'POST /api/auth/refresh': () => reponseConnexion(),   // la fiche d'un bien exige un compte connecté
@@ -159,7 +159,7 @@ describe("Page d'accueil", () => {
       </MemoryRouter>,
     )
     expect(await screen.findByRole('heading', { name: 'Villa avec vue sur la mer' })).toBeInTheDocument()
-    expect(screen.getByRole('note')).toHaveTextContent('Annonce de démonstration')
+    expect(screen.queryByText(/annonce de démonstration/i)).not.toBeInTheDocument()
   })
 
   it('ne présente pas de rubrique « À venir » sur la page d’accueil', async () => {
