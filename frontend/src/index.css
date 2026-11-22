@@ -75,7 +75,7 @@ body.fond-pages #contenu {
   min-height: calc(100vh - 5rem);
   background-color: #f4f7fb;
   background-image:
-    linear-gradient(rgba(247, 250, 253, 0.10), rgba(247, 250, 253, 0.14)),
+    linear-gradient(rgba(247, 250, 253, 0.24), rgba(247, 250, 253, 0.28)),
     url("https://images.squarespace-cdn.com/content/v1/58487dc4b8a79b6d02499b60/9d7b5085-0edc-44a7-86f6-9508bca8bf56/Francis-York-Rare-Contemporary-Villa-Lake-Como-Modern-1.jpeg");
   background-position: center, center;
   background-size: cover;
