@@ -109,17 +109,17 @@ export default function MessagerieMandats() {
         </aside>
         <div className="flex min-h-[22rem] flex-col">
           {active ? <>
-            <header className="border-b border-slate-100 px-4 py-3"><h3 className="font-semibold text-nuit-900">{active.interlocuteurNom}</h3><p className="text-xs text-slate-500">{active.annonceTitre} · {active.agenceNom}</p></header>
+            <header className="border-b border-slate-100 bg-white px-4 py-3"><p className="text-xs font-bold uppercase tracking-wider text-amber-800">Destinataire de vos messages</p><h3 className="mt-1 text-lg font-bold text-nuit-900">{active.interlocuteurNom}</h3><p className="mt-1 text-sm text-slate-600">{active.agenceNom} · {active.annonceTitre}</p></header>
             <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50/70 p-4">
               {chargementMessages && messages.length === 0 ? <p role="status" className="py-10 text-center text-sm font-medium text-amber-900">Chargement des messages…</p> : messages.length === 0 ? <p className="py-10 text-center text-sm font-medium text-amber-900">Aucun message. Vous pouvez commencer la conversation.</p> : messages.map(m => {
                 const mien = m.expediteurId === utilisateur?.id
                 return <div key={m.id} className={'flex ' + (mien ? 'justify-end' : 'justify-start')}><div className={'max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ' + (mien ? 'bg-nuit-900 text-white' : 'border border-slate-200 bg-white text-slate-800')}><p className="mb-1 text-[11px] font-semibold opacity-70">{mien ? 'Vous' : m.expediteurNom}</p><p className="whitespace-pre-wrap break-words">{m.contenu}</p><p className="mt-2 text-right text-[10px] opacity-60">{new Date(m.envoyeLe).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}</p></div></div>
               })}
             </div>
-            <form onSubmit={envoyer} className="flex items-end gap-2 border-t border-slate-100 p-3">
+            <form onSubmit={envoyer} className="flex items-end gap-2 border-t border-slate-100 bg-white p-4">
               <label className="sr-only" htmlFor="message-mandat">Votre message à l'agence ou au propriétaire</label>
               <textarea id="message-mandat" value={contenu} onChange={e => setContenu(e.target.value)} maxLength={2000} rows={2} placeholder="Écrire un message…" className="min-h-12 flex-1 resize-y rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100" />
-              <button type="submit" disabled={!contenu.trim() || envoi} className="inline-flex items-center gap-2 rounded-xl bg-nuit-900 px-4 py-3 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><Send className="h-4 w-4" />Envoyer</button>
+              <button type="submit" disabled={!contenu.trim() || envoi} className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-dore-500 px-5 py-3 text-sm font-bold text-nuit-950 shadow-sm transition hover:bg-dore-600 disabled:cursor-not-allowed disabled:opacity-50"><Send className="h-4 w-4" />Envoyer</button>
             </form>
           </> : <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-slate-500">Sélectionnez un mandat pour consulter les échanges.</div>}
         </div>
