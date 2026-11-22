@@ -55,11 +55,11 @@ export default function AvisAnnonce({ annonceId }: { annonceId: string }) {
     <section className="mt-12" aria-labelledby="titre-avis">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-dore-600">Retours d’expérience</p>
-          <h2 id="titre-avis" className="font-titre mt-1 text-2xl font-medium text-nuit-900 sm:text-3xl">Avis des visiteurs</h2>
+          <p className="text-sm font-bold uppercase tracking-wide text-dore-300 drop-shadow-[0_2px_3px_rgba(0,0,0,0.9)]">Retours d’expérience</p>
+          <h2 id="titre-avis" className="font-titre mt-1 text-2xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:text-3xl">Avis des visiteurs</h2>
         </div>
         {avis.length > 0 && (
-          <p className="flex items-center gap-2 text-sm font-semibold text-nuit-900">
+          <p className="flex items-center gap-2 rounded-full bg-nuit-950/85 px-3 py-2 text-sm font-semibold text-white shadow-lg">
             <Star aria-hidden className="h-5 w-5 fill-dore-500 text-dore-500" />
             {moyenne.toFixed(1)} / 5 · {avis.length} avis
           </p>
