@@ -100,7 +100,7 @@ export default function MessagerieMandats() {
         <aside className="border-b border-slate-200 md:border-b-0 md:border-r">
           <h3 className="border-b border-slate-100 px-4 py-3 font-semibold text-nuit-900">Mandats</h3><div className="border-b border-slate-100 p-3"><label htmlFor="recherche-mandat-message" className="sr-only">Rechercher un mandat</label><input id="recherche-mandat-message" value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Rechercher…" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"/></div>
           {chargement ? <p className="p-4 text-sm text-slate-500">Chargement…</p> : conversations.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucune conversation. Un échange apparaît lorsqu'un mandat de gestion est accepté.</p> : conversationsFiltrees.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucun résultat.</p> : conversationsFiltrees.map(c => (
-            <button key={c.mandatId} type="button" onClick={() => setSelection(c.mandatId)} className={'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 ' + (selection === c.mandatId ? 'bg-amber-50' : '')}>
+            <button key={c.mandatId} type="button" onClick={() => { setSelection(c.mandatId); setMessages([]) }} className={'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 ' + (selection === c.mandatId ? 'bg-amber-50' : '')}>
               <span className="block truncate text-sm font-semibold text-nuit-900">{c.annonceTitre}</span>
               <span className="mt-1 block text-xs text-slate-600">{c.interlocuteurNom}</span>
               <span className="mt-1 block text-[11px] text-slate-400">{c.agenceNom}</span>
