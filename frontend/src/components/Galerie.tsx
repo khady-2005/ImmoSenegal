@@ -49,6 +49,11 @@ export default function Galerie({ annonce }: { annonce: Annonce }) {
         />
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-nuit-950/40 to-transparent" />
         {badge}
+        {categories[annonce.photos[index]] && (
+          <span className="absolute bottom-3 left-4 rounded-full bg-nuit-950/75 px-3 py-1 text-xs font-semibold text-white">
+            {categories[annonce.photos[index]].replaceAll('_', ' ').toLowerCase()}
+          </span>
+        )}
         {total > 1 && (
           <>
             <button
