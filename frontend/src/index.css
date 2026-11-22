@@ -165,3 +165,47 @@ body.fond-pages #contenu {
   border-color: #b77b00;
   outline-color: #d99a00;
 }
+
+
+/* Messagerie : surface claire et contrastes renforcés, indépendamment du fond photo global. */
+#contenu .messagerie-page {
+  color: #172b40;
+  background: #fff;
+  border-color: #e8cf86;
+}
+#contenu .messagerie-page .text-nuit-950,
+#contenu .messagerie-page .text-nuit-900,
+#contenu .messagerie-page .text-slate-900,
+#contenu .messagerie-page .text-slate-800,
+#contenu .messagerie-page .text-slate-700,
+#contenu .messagerie-page .text-slate-600,
+#contenu .messagerie-page .text-slate-500,
+#contenu .messagerie-page .text-slate-400 {
+  color: #805500 !important;
+  text-shadow: none !important;
+}
+#contenu .messagerie-page .bg-slate-50\\/70 {
+  background-color: #f7f9fc;
+}
+#contenu .messagerie-page .bg-nuit-900 {
+  background-color: #173b63;
+}
+#contenu .messagerie-page .bg-nuit-900 .text-white,
+#contenu .messagerie-page .text-white {
+  color: #fff !important;
+}
+#contenu .messagerie-page input,
+#contenu .messagerie-page textarea,
+#contenu .messagerie-page select {
+  color: #172b40 !important;
+  background: #fff !important;
+  border-color: #9aaec2 !important;
+}
+#contenu .messagerie-page input::placeholder,
+#contenu .messagerie-page textarea::placeholder {
+  color: #53677c !important;
+  opacity: 1;
+}
+#contenu .messagerie-page button:disabled {
+  opacity: .55;
+}
