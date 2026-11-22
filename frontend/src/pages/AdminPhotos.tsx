@@ -81,6 +81,19 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
+  async function deciderAvertissement(a: Avertissement, retirer: boolean) {
+    if (retirer && !window.confirm('Retirer cette photo après examen de la réponse du propriétaire ?')) return
+    setEnvoi(a.id); setErreur(null); setInfo(null)
+    try {
+      await appelApi('/api/admin/photos/avertissements/' + a.id + '/decision', {
+        method: 'POST', token: jeton, body: { retirer },
+      })
+      setInfo(retirer ? 'Photo retirée après examen de la réponse.' : 'Avertissement clôturé après examen de la réponse.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Décision impossible.') }
+    finally { setEnvoi(null) }
+  }
+
   async function supprimerPhoto(a: AnnoncePhoto, photoId: string) {
     if (!window.confirm('Supprimer définitivement cette photo de l’annonce ImmoSénégal ?')) return
     setEnvoi(photoId); setErreur(null); setInfo(null)
@@ -187,6 +200,14 @@ export default function AdminPhotos() {
                 <p className="mt-1 text-slate-600">{a.motif}</p>
                 {a.statut === 'EN_ATTENTE' && <p className="mt-1 text-xs text-slate-500">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
                 {a.reponseProprietaire && <p className="mt-1 rounded bg-slate-50 p-2">Réponse : {a.reponseProprietaire}</p>}
+                {a.statut === 'REPONDU' && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, false)}
+                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Clôturer sans retrait</button>
+                    <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, true)}
+                      className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700">Retirer après examen</button>
+                  </div>
+                )}
               </article>
             ))}
           </div>
