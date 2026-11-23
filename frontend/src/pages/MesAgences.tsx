@@ -87,15 +87,31 @@ export default function MesAgences() {
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-base font-medium text-red-900">{erreur}</p>}
 
-      <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div>
+      <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="min-w-0">
           <h2 className="text-2xl font-bold text-nuit-950">Mes espaces professionnels</h2>
-          <p className="mt-2 text-base leading-relaxed text-slate-700">Les agences auxquelles vous êtes rattaché et les espaces que vous pouvez gérer.</p>
+          <p className="mt-2 text-base leading-relaxed text-slate-700">
+            Les agences auxquelles vous êtes rattaché et les espaces que vous pouvez gérer.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link to="/rejoindre-agence" className="inline-flex items-center justify-center rounded-xl bg-dore-400 px-5 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-300">Découvrir les agences</Link><button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-5 py-3 text-base font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-50">
-          <RefreshCw className={`h-4 w-4 ${chargement ? 'animate-spin' : ''}`} /> Actualiser
-        </button></div>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to="/rejoindre-agence"
+            className="inline-flex items-center justify-center rounded-xl bg-dore-400 px-5 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-300"
+          >
+            Découvrir les agences
+          </Link>
+          <button
+            type="button"
+            onClick={() => void charger()}
+            disabled={chargement}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-5 py-3 text-base font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${chargement ? 'animate-spin' : ''}`} />
+            Actualiser
+          </button>
+        </div>
+      </section>
 
       {chargement ? (
         <p role="status" className="mt-5 rounded-xl bg-slate-50 p-5 text-base font-medium text-slate-700">Chargement de vos agences…</p>
