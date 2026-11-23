@@ -175,134 +175,216 @@ export default function AdminPhotos() {
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold text-nuit-950 sm:text-4xl">Gestion des photos du catalogue</h1>
-          <p className="mt-3 max-w-3xl rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-800 sm:text-lg">Photos de l’agence : gestion directe. Photos des propriétaires : avertissement et délai de 48 heures.</p>
-        </div>
-        <Link to="/admin/annonces" className="inline-flex rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-bold text-nuit-900 underline">Retour à la modération</Link>
-      </div>
-      {info && <p role="status" className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-base font-semibold text-nuit-950">{info}</p>}
-      {erreur && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-base font-semibold text-red-900">{erreur}</p>}
-      {chargement ? <p className="rounded-xl bg-slate-50 p-4 text-base text-slate-700">Chargement…</p> : annonces.length === 0 ? <p className="rounded-xl bg-slate-50 p-4 text-base text-slate-700">Aucune annonce publiée à afficher.</p> : (
-        <div className="space-y-5">
-          {annonces.map((a) => (
-            <section key={a.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <Link to={'/annonces/' + a.id} className="text-xl font-bold text-nuit-950 underline">{a.titre}</Link>
-                  <p className="mt-2 text-base text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
-                  <p className="mt-2 inline-flex rounded-full border border-dore-300 bg-dore-100 px-3 py-1.5 text-base font-bold text-nuit-950">{a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce d’un propriétaire'}</p>
-                </div>
-                <button type="button" disabled={envoi === a.id} onClick={() => void definirOrigine(a, !a.publieeParAgence)}
-                  className="rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-bold text-slate-900 hover:bg-slate-50 disabled:opacity-50">
-                  {a.publieeParAgence ? 'Classer comme annonce propriétaire' : 'Classer comme annonce ImmoSénégal'}
-                </button>
+    <main className="min-h-screen bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-7">
+        <header className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 p-6 text-white shadow-xl sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
+              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">Gestion du catalogue</h1>
+              <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
+                Remplace les photos incorrectes, ajoute de nouvelles vues et vérifie les images qui seront visibles dans le catalogue public.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button type="button" onClick={() => void charger()} disabled={chargement}
+                className="min-h-12 rounded-xl border-2 border-white bg-white px-5 py-3 text-base font-extrabold text-slate-950 shadow hover:bg-slate-100 disabled:opacity-60">
+                {chargement ? 'Actualisation…' : 'Actualiser la liste'}
+              </button>
+              <Link to="/admin/annonces" className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-amber-300 bg-amber-300 px-5 py-3 text-base font-extrabold text-slate-950 shadow hover:bg-amber-200">
+                Modération des annonces
+              </Link>
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+              <p className="text-sm font-semibold text-slate-200">Annonces publiées</p>
+              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.length}</p>
+            </div>
+            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+              <p className="text-sm font-semibold text-slate-200">Annonces ImmoSénégal</p>
+              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.filter((a) => a.publieeParAgence).length}</p>
+            </div>
+            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+              <p className="text-sm font-semibold text-slate-200">Annonces propriétaires</p>
+              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.filter((a) => !a.publieeParAgence).length}</p>
+            </div>
+          </div>
+        </header>
+
+        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
+          <h2 className="text-lg font-extrabold text-blue-950">Comment gérer les photos ?</h2>
+          <div className="mt-2 grid gap-2 text-sm leading-relaxed text-blue-950 sm:grid-cols-2">
+            <p><strong>Annonces ImmoSénégal :</strong> tu peux ajouter, remplacer ou supprimer les photos directement.</p>
+            <p><strong>Annonces propriétaires :</strong> l’espace admin permet d’envoyer un avertissement ; le propriétaire garde la gestion de ses photos.</p>
+          </div>
+        </section>
+
+        {info && <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-base font-bold text-emerald-950">{info}</p>}
+        {erreur && <p role="alert" className="rounded-xl border-2 border-red-300 bg-red-50 p-4 text-base font-bold text-red-950">{erreur}</p>}
+
+        {chargement ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-lg font-semibold text-slate-700">Chargement des annonces…</div>
+        ) : annonces.length === 0 ? (
+          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center">
+            <h2 className="text-xl font-extrabold text-slate-950">Aucune annonce publiée</h2>
+            <p className="mt-2 text-base text-slate-700">Les annonces publiées apparaîtront ici pour la gestion de leurs photos.</p>
+          </div>
+        ) : (
+          <section className="space-y-6">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <h2 className="text-2xl font-black text-slate-950">Annonces du catalogue</h2>
+                <p className="mt-1 text-sm text-slate-700">Sélectionne une annonce pour gérer ses images.</p>
               </div>
-              <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {a.photos.map((photoId) => (
-                  <article key={photoId} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + (versionImages[photoId] ? '?v=' + versionImages[photoId] : ''))} alt={'Photo de ' + a.titre} className="h-48 w-full object-cover" />
-                    <div className="space-y-3 bg-slate-50 p-4">
-                      {a.publieeParAgence ? (
-                        <>
-                          <div className="space-y-2">
-                            <span className="block text-base font-bold text-slate-900">Remplacer cette photo</span>
-                            <label htmlFor={`remplacer-${photoId}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une nouvelle photo</label>
-                            <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                              onChange={async (e) => {
-                                const fichier = e.target.files?.[0]
-                                if (!fichier) return
-                                try {
-                                  const prepare = await preparerPhoto(fichier)
-                                  setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
-                                  setErreur(null)
-                                } catch (erreurPhoto) {
-                                  setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
-                                  setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
-                                }
-                              }} />
-                            <p aria-live="polite" className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-medium text-slate-700">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier sélectionné'}</p>
-                          </div>
-                          <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
-                            onClick={() => void remplacerPhoto(a, photoId)}
-                            className="w-full min-h-12 rounded-xl border-2 border-dore-500 bg-dore-400 px-4 py-3 text-base font-extrabold text-nuit-950 shadow-md hover:bg-dore-300 disabled:cursor-not-allowed disabled:opacity-60">Remplacer la photo sélectionnée</button>
-                          <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                            className="w-full rounded-xl border-2 border-red-300 bg-white px-4 py-3 text-base font-bold text-red-800 hover:bg-red-50 disabled:opacity-50">Supprimer cette photo</button>
-                        </>
-                      ) : (
-                        <>
-                          <label className="block text-base font-bold text-slate-900" htmlFor={'motif-' + photoId}>Motif de l’avertissement</label>
-                          <textarea id={'motif-' + photoId} value={motifs[photoId] ?? ''} maxLength={500} rows={2}
-                            onChange={(e) => setMotifs((v) => ({ ...v, [photoId]: e.target.value }))}
-                            className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950" placeholder="Explique le problème constaté…" />
-                          <button type="button" disabled={envoi === photoId || !(motifs[photoId] ?? '').trim()}
-                            onClick={() => void avertir(a, photoId)}
-                            className="rounded-xl bg-nuit-900 px-4 py-3 text-base font-bold text-white disabled:opacity-50">Envoyer l’avertissement (48 h)</button>
-                        </>
-                      )}
+              <span className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800">{annonces.length} annonce(s) chargée(s)</span>
+            </div>
+            {annonces.map((a) => (
+              <article key={a.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+                <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={a.publieeParAgence ? "rounded-full bg-blue-100 px-3 py-1.5 text-sm font-extrabold text-blue-950" : "rounded-full bg-amber-100 px-3 py-1.5 text-sm font-extrabold text-amber-950"}>
+                        {a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce propriétaire'}
+                      </span>
+                      <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
-                  </article>
-                ))}
-              </div>
-              {a.publieeParAgence && (
-                <div className="mt-5 flex flex-col items-start gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-end">
-                  <div className="w-full space-y-2 sm:w-auto">
-                    <span className="block text-lg font-extrabold text-slate-950">Ajouter une photo au catalogue</span>
-                    <label htmlFor={`ajouter-${a.id}`} className="inline-flex min-h-14 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-amber-700 bg-amber-300 px-6 py-4 text-base font-extrabold text-slate-950 shadow-lg hover:bg-amber-200 focus-within:ring-4 focus-within:ring-amber-400 sm:w-auto">+ Choisir une photo</label>
-                    <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                      onChange={async (e) => {
-                        const fichier = e.target.files?.[0]
-                        if (!fichier) return
-                        try {
-                          const prepare = await preparerPhoto(fichier)
-                          setFichiers((v) => ({ ...v, [a.id]: prepare }))
-                          setErreur(null)
-                        } catch (erreurPhoto) {
-                          setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
-                          setFichiers((v) => ({ ...v, [a.id]: undefined }))
-                        }
-                      }} />
-                    <p aria-live="polite" className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700">{fichiers[a.id]?.name ?? 'Aucun fichier sélectionné'}</p>
+                    <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
+                    <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
+                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex font-bold text-blue-800 underline decoration-2 underline-offset-2 hover:text-blue-950">Voir la fiche de l’annonce</Link>
                   </div>
-                  <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                    className="min-h-14 w-full rounded-xl border-2 border-blue-950 bg-blue-800 px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:bg-blue-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:border-blue-950 disabled:bg-blue-900 disabled:text-white disabled:opacity-80 sm:w-auto">
-                    {envoi === a.id ? 'Ajout en cours…' : fichiers[a.id] ? 'Ajouter la photo sélectionnée' : 'Sélectionne d’abord une photo'}
+                  <button type="button" disabled={envoi === a.id} onClick={() => void definirOrigine(a, !a.publieeParAgence)}
+                    className="min-h-12 shrink-0 rounded-xl border-2 border-slate-900 bg-white px-4 py-3 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-slate-100 disabled:opacity-60">
+                    {a.publieeParAgence ? 'Changer en annonce propriétaire' : 'Classer comme annonce ImmoSénégal'}
                   </button>
                 </div>
-              )}
-            </section>
-          ))}
-        </div>
-      )}
 
-      <section className="mt-10">
-        <h2 className="text-2xl font-bold text-nuit-950">Historique des avertissements</h2>
-        {avertissements.length === 0 ? <p className="mt-3 text-base text-slate-700">Aucun avertissement envoyé.</p> : (
-          <div className="mt-4 space-y-3">
-            {avertissements.map((a) => (
-              <article key={a.id} className="rounded-2xl border border-slate-200 bg-white p-5 text-base shadow-sm">
-                <div className="flex flex-wrap justify-between gap-2">
-                  <strong>{a.titreAnnonce} · {a.nomProprietaire}</strong>
-                  <span>{a.statut === 'EN_ATTENTE' ? 'En attente' : a.statut === 'REPONDU' ? 'Réponse reçue' : a.statut === 'CORRIGE' ? 'Photo corrigée' : 'Photo retirée'}</span>
+                <div className="p-5 sm:p-6">
+                  <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
+                  {a.photos.length === 0 ? (
+                    <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-700">Aucune photo pour cette annonce.</div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                      {a.photos.map((photoId, index) => (
+                        <article key={photoId} className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm">
+                          <div className="relative bg-slate-200">
+                            <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
+                              alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover" />
+                            <span className="absolute left-3 top-3 rounded-lg bg-slate-950/90 px-3 py-1.5 text-sm font-bold text-white">Photo {index + 1}</span>
+                          </div>
+                          <div className="space-y-3 p-4">
+                            {a.publieeParAgence ? (
+                              <>
+                                <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-950 bg-blue-900 px-4 py-3 text-center text-sm font-extrabold text-white shadow hover:bg-blue-800 focus-within:ring-4 focus-within:ring-blue-300">Parcourir les photos</label>
+                                <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
+                                  onChange={async (e) => {
+                                    const fichier = e.target.files?.[0]
+                                    if (!fichier) return
+                                    try {
+                                      const prepare = await preparerPhoto(fichier)
+                                      setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
+                                      setErreur(null)
+                                    } catch (erreurPhoto) {
+                                      setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                                      setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
+                                    }
+                                  }} />
+                                <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-slate-300 bg-slate-50 p-3 text-sm font-semibold text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
+                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
+                                  onClick={() => void remplacerPhoto(a, photoId)}
+                                  className="min-h-12 w-full rounded-xl border-2 border-amber-700 bg-amber-300 px-4 py-3 text-sm font-black text-slate-950 shadow hover:bg-amber-200 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
+                                  {envoi === photoId ? 'Remplacement en cours…' : 'Valider le remplacement'}
+                                </button>
+                                <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
+                                  className="min-h-11 w-full rounded-xl border-2 border-red-700 bg-white px-4 py-2.5 text-sm font-extrabold text-red-800 hover:bg-red-50 disabled:opacity-50">Supprimer cette photo</button>
+                              </>
+                            ) : (
+                              <>
+                                <label className="block text-sm font-extrabold text-slate-900" htmlFor={'motif-' + photoId}>Motif de l’avertissement au propriétaire</label>
+                                <textarea id={'motif-' + photoId} value={motifs[photoId] ?? ''} maxLength={500} rows={3}
+                                  onChange={(e) => setMotifs((v) => ({ ...v, [photoId]: e.target.value }))}
+                                  className="w-full rounded-xl border-2 border-slate-400 bg-white p-3 text-sm text-slate-950 placeholder:text-slate-500 focus:border-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="Explique clairement le problème constaté…" />
+                                <button type="button" disabled={envoi === photoId || !(motifs[photoId] ?? '').trim()}
+                                  onClick={() => void avertir(a, photoId)}
+                                  className="min-h-12 w-full rounded-xl border-2 border-slate-950 bg-slate-900 px-4 py-3 text-sm font-extrabold text-white hover:bg-slate-800 disabled:opacity-50">Envoyer l’avertissement (48 h)</button>
+                              </>
+                            )}
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+
+                  {a.publieeParAgence && (
+                    <div className="mt-6 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
+                      <h4 className="text-lg font-black text-blue-950">Ajouter une photo à cette annonce</h4>
+                      <p className="mt-1 text-sm leading-relaxed text-blue-950">Formats acceptés : JPG ou PNG. Maximum 5 Mo après préparation, jusqu’à 8 photos par annonce.</p>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                        <div className="space-y-2">
+                          <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
+                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-950 bg-blue-900 px-5 py-3 text-center text-sm font-extrabold text-white shadow hover:bg-blue-800 focus-within:ring-4 focus-within:ring-blue-300">Choisir un fichier image</label>
+                          <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
+                            onChange={async (e) => {
+                              const fichier = e.target.files?.[0]
+                              if (!fichier) return
+                              try {
+                                const prepare = await preparerPhoto(fichier)
+                                setFichiers((v) => ({ ...v, [a.id]: prepare }))
+                                setErreur(null)
+                              } catch (erreurPhoto) {
+                                setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                                setFichiers((v) => ({ ...v, [a.id]: undefined }))
+                              }
+                            }} />
+                          <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
+                        </div>
+                        <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
+                          className="min-h-12 rounded-xl border-2 border-amber-700 bg-amber-300 px-6 py-3 text-sm font-black text-slate-950 shadow hover:bg-amber-200 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500">
+                          {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="mt-2 text-base leading-relaxed text-slate-700">{a.motif}</p>
-                {a.statut === 'EN_ATTENTE' && <p className="mt-2 text-base text-slate-600">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
-                {a.reponseProprietaire && <p className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-base text-slate-800">Réponse : {a.reponseProprietaire}</p>}
-                {a.statut === 'REPONDU' && (
-                  <div className="mt-3 flex flex-wrap gap-3">
-                    <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, false)}
-                      className="rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-bold">Clôturer sans retrait</button>
-                    <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, true)}
-                      className="rounded-xl border-2 border-red-300 bg-white px-4 py-3 text-base font-bold text-red-800">Retirer après examen</button>
-                  </div>
-                )}
               </article>
             ))}
-          </div>
+          </section>
         )}
-      </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="text-2xl font-black text-slate-950">Historique des avertissements</h2>
+              <p className="mt-1 text-sm text-slate-700">Suivi des signalements envoyés aux propriétaires.</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-800">{avertissements.length} dossier(s)</span>
+          </div>
+          {avertissements.length === 0 ? <p className="mt-4 rounded-xl bg-slate-50 p-4 text-base text-slate-700">Aucun avertissement envoyé.</p> : (
+            <div className="mt-4 space-y-3">
+              {avertissements.map((a) => (
+                <article key={a.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex flex-wrap justify-between gap-2">
+                    <strong className="text-base text-slate-950">{a.titreAnnonce} · {a.nomProprietaire}</strong>
+                    <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-slate-800">{a.statut === 'EN_ATTENTE' ? 'En attente' : a.statut === 'REPONDU' ? 'Réponse reçue' : a.statut === 'CORRIGE' ? 'Photo corrigée' : 'Photo retirée'}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-800">{a.motif}</p>
+                  {a.statut === 'EN_ATTENTE' && <p className="mt-2 text-sm font-semibold text-slate-700">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
+                  {a.reponseProprietaire && <p className="mt-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900">Réponse : {a.reponseProprietaire}</p>}
+                  {a.statut === 'REPONDU' && (
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, false)}
+                        className="min-h-11 rounded-xl border-2 border-slate-800 bg-white px-4 py-2 text-sm font-extrabold text-slate-950 hover:bg-slate-100">Clôturer sans retrait</button>
+                      <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, true)}
+                        className="min-h-11 rounded-xl border-2 border-red-700 bg-red-700 px-4 py-2 text-sm font-extrabold text-white hover:bg-red-800">Retirer après examen</button>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   )
 }
