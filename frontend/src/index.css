@@ -608,3 +608,49 @@ body.fond-pages #contenu::before {
 .admin-photos-page .admin-photo-grid p {
   overflow-wrap: anywhere;
 }
+
+
+/* Accueil ImmoSénégal : neutraliser les règles globales qui assombrissaient
+   les titres blancs des grands bandeaux photo. */
+#contenu .home-hero h1,
+#contenu .home-hero h2,
+#contenu .home-hero h3,
+#contenu .home-hero p,
+#contenu .home-hero li,
+#contenu .home-hero label {
+  color: #ffffff !important;
+}
+#contenu .home-hero h1 span,
+#contenu .home-hero .text-dore-400,
+#contenu .home-hero .text-dore-300 {
+  color: #ffd45c !important;
+}
+#contenu .home-hero .text-white,
+#contenu .home-hero .text-white\/90,
+#contenu .home-hero .text-white\/85 {
+  color: #ffffff !important;
+}
+#contenu .home-hero select,
+#contenu .home-hero input {
+  color: #102b49 !important;
+  background-color: transparent;
+}
+#contenu .home-hero input::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+#contenu .home-inspiration h3,
+#contenu .home-inspiration p,
+#contenu .home-inspiration .text-white {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+#contenu .home-inspiration .text-dore-400 {
+  color: #ffdc72 !important;
+}
+#contenu .home-hero > div:first-child {
+  min-height: clamp(540px, 66vh, 720px);
+}
+#contenu .home-hero > div:first-child > div:last-child {
+  min-height: clamp(540px, 66vh, 720px);
+}
