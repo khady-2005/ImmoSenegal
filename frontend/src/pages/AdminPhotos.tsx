@@ -143,7 +143,7 @@ export default function AdminPhotos() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
-              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">Gestion du catalogue</h1>
+              <h1 className="mt-2 text-3xl font-black leading-tight text-white sm:text-4xl">Gestion du catalogue</h1>
               <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
                 Retrouve rapidement les annonces par type de bien ou par origine de publication. Les photos et fiches restent accessibles depuis chaque annonce.
               </p>
