@@ -159,13 +159,19 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f4c542] bg-[#f4c542] p-2 text-[#171717] shadow-md transition-colors hover:bg-[#ffe08a] hover:text-[#171717] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white xl:hidden"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-transparent p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-300 xl:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
             onClick={() => setMenuOuvert((v) => !v)}
           >
-            {menuOuvert ? <X aria-hidden className="h-6 w-6" /> : <Menu aria-hidden className="h-6 w-6" />}
+            {menuOuvert ? <X aria-hidden className="h-6 w-6" /> : (
+              <span aria-hidden="true" className="flex w-7 flex-col items-center gap-[6px]">
+                <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
+                <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
+                <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
+              </span>
+            )}
           </button>
         </div>
 
