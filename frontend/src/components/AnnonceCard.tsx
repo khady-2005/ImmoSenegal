@@ -10,7 +10,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
   const disponible = annonce.statut === 'PUBLIEE'
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
+    <article className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-nuit-900 to-nuit-700">
         <BoutonFavori annonceId={annonce.id} />
         {annonce.photos.length > 0 ? (
@@ -36,9 +36,9 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           )}
         </div>
 
-        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-xl border border-dore-300/80 bg-nuit-950/95 px-3.5 py-2.5 text-2xl font-bold leading-none text-white shadow-lg">
+        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-full border-2 border-dore-400 bg-[#fff4cf] px-4 py-3 text-2xl font-extrabold leading-none text-[#102b49] shadow-[0_4px_16px_rgba(15,35,60,0.28)]">
           <span className="truncate">{formatFcfa(annonce.prix)}</span>
-          {location && <span className="shrink-0 font-sans text-sm font-medium text-dore-200">/ mois</span>}
+          {location && <span className="shrink-0 font-sans text-sm font-bold text-[#294766]">/ mois</span>}
         </p>
       </div>
 
