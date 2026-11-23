@@ -452,3 +452,52 @@ body.fond-pages #contenu::before {
 #contenu .bg-slate-100 .text-white {
   color: #173b63 !important;
 }
+
+
+/* Sélecteurs de fichiers harmonisés sur toutes les pages : photos et vidéos. */
+#contenu input[type="file"] {
+  display: block;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.55rem;
+  border: 1px solid #c5d3e1;
+  border-radius: 0.9rem;
+  background: #f8fbff;
+  color: #173b63;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+#contenu input[type="file"]::file-selector-button {
+  margin-right: 0.85rem;
+  padding: 0.65rem 1.05rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: #173b63;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .18s ease, transform .18s ease;
+}
+#contenu input[type="file"]::file-selector-button:hover {
+  background: #245783;
+}
+#contenu input[type="file"]:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+#contenu input[type="file"]:focus-visible {
+  outline: 3px solid #f2b800;
+  outline-offset: 2px;
+}
+/* Les zones d'ajout de médias sont plus lisibles et mieux séparées du fond photo. */
+#contenu label:has(+ input[type="file"]),
+#contenu label:has(input[type="file"]) {
+  display: block;
+  padding: .75rem;
+  border-radius: .9rem;
+  background: #fff8df;
+  color: #173b63;
+  font-size: 1rem;
+  font-weight: 700;
+}
