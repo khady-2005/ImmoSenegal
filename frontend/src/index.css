@@ -567,3 +567,44 @@ body.fond-pages #contenu::before {
 #contenu .admin-photos-page header p {
   color: #08284d !important;
 }
+
+
+/* La page d'administration est une application plein écran : ne pas la contraindre
+   par le conteneur général des pages publiques. */
+#contenu > .admin-photos-page {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 80 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+.admin-photos-page .admin-photo-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .admin-photos-page .admin-photo-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+@media (min-width: 1440px) {
+  .admin-photos-page .admin-photo-grid {
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+  }
+}
+.admin-photos-page .admin-photo-grid > article {
+  width: 100%;
+  min-width: 0;
+}
+.admin-photos-page .admin-photo-grid label,
+.admin-photos-page .admin-photo-grid button,
+.admin-photos-page .admin-photo-grid p {
+  overflow-wrap: anywhere;
+}
