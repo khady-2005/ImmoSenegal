@@ -6,6 +6,8 @@ import { useAuth } from '../auth'
 type AnnoncePhoto = {
   id: string
   titre: string
+  ville: string
+  quartier: string
   statut: string
   typeBien: 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN'
   publieeParAgence: boolean
