@@ -1,5 +1,4 @@
 import { useState, type MouseEvent } from 'react'
-import { Heart } from 'lucide-react'
 import { useAuth } from '../auth'
 import { useFavoris } from '../favoris'
 import { ApiError } from '../api'
@@ -31,8 +30,8 @@ export default function BoutonFavori({ annonceId }: { annonceId: string }) {
       <button type="button" onClick={cliquer} disabled={enCours} aria-pressed={actif}
         aria-label={actif ? 'Retirer des favoris' : 'Ajouter aux favoris'}
         title={actif ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-nuit-900 shadow-md transition hover:scale-105 hover:bg-white disabled:opacity-60">
-        <Heart aria-hidden className={`h-5 w-5 ${actif ? 'fill-rose-500 text-rose-600' : ''}`} />
+        className="rounded-full border border-white/90 bg-white/95 px-3.5 py-2 text-xs font-bold text-nuit-900 shadow-md transition hover:bg-white disabled:opacity-60">
+        {actif ? 'En favoris' : 'Ajouter aux favoris'}
       </button>
       {erreur && <p role="alert" className="absolute right-0 top-12 w-48 rounded-lg bg-white p-2 text-xs text-red-700 shadow-lg">{erreur}</p>}
     </div>
