@@ -6,6 +6,15 @@ import { useAuth } from '../auth'
 type AnnoncePhoto = {
   id: string
   titre: string
+  description: string | null
+  transaction: 'LOCATION' | 'VENTE'
+  prix: number
+  superficie: number
+  pieces: number | null
+  adresse: string | null
+  latitude: number | null
+  longitude: number | null
+  equipements: string[]
   ville: string
   quartier: string
   statut: string
@@ -60,6 +69,9 @@ export default function AdminPhotos() {
   const [info, setInfo] = useState<string | null>(null)
   const [categorie, setCategorie] = useState('TOUTES')
   const [recherche, setRecherche] = useState('')
+  const [annonceEnEdition, setAnnonceEnEdition] = useState<AnnoncePhoto | null>(null)
+  const [motifEdition, setMotifEdition] = useState('')
+  const [edition, setEdition] = useState({ titre: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
 
   const charger = useCallback(async () => {
     setChargement(true)
@@ -73,6 +85,36 @@ export default function AdminPhotos() {
   }, [jeton])
 
   useEffect(() => { if (utilisateur?.role === 'ADMIN') void charger() }, [charger, utilisateur?.role])
+
+  function ouvrirEdition(a: AnnoncePhoto) {
+    setAnnonceEnEdition(a)
+    setMotifEdition('')
+    setEdition({ titre: a.titre, description: a.description ?? '', typeBien: a.typeBien, transaction: a.transaction, prix: String(a.prix), superficie: String(a.superficie), pieces: a.pieces == null ? '' : String(a.pieces), quartier: a.quartier, ville: a.ville, adresse: a.adresse ?? '' })
+  }
+
+  async function enregistrerEdition(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!annonceEnEdition) return
+    if (!motifEdition.trim()) { setErreur('Le motif de la modification est obligatoire.'); return }
+    setEnvoi(annonceEnEdition.id); setErreur(null); setInfo(null)
+    try {
+      await appelApi('/api/admin/annonces/' + annonceEnEdition.id + '/intervention', {
+        method: 'PUT', token: jeton,
+        body: { motif: motifEdition.trim(), annonce: {
+          titre: edition.titre.trim(), description: edition.description.trim(), typeBien: edition.typeBien,
+          transaction: edition.transaction, prix: Number(edition.prix), superficie: Number(edition.superficie),
+          pieces: edition.pieces === '' ? null : Number(edition.pieces), quartier: edition.quartier.trim(),
+          ville: edition.ville.trim(), adresse: edition.adresse.trim() || null,
+          latitude: annonceEnEdition.latitude, longitude: annonceEnEdition.longitude,
+          equipements: annonceEnEdition.equipements ?? [], statut: annonceEnEdition.statut
+        } }
+      })
+      setInfo('Annonce modifiée. Le propriétaire a été informé.')
+      setAnnonceEnEdition(null)
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Modification impossible.') }
+    finally { setEnvoi(null) }
+  }
 
   async function supprimerPhoto(a: AnnoncePhoto, photoId: string) {
     if (!window.confirm('Supprimer définitivement cette photo de l’annonce ImmoSénégal ?')) return
@@ -217,6 +259,9 @@ export default function AdminPhotos() {
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
+                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-blue-800 bg-blue-800 px-4 py-2.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-200">
+                      ✎ Modifier l’annonce
+                    </button>
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <Link to={'/annonces/' + a.id} className="mt-2 inline-flex font-bold text-blue-800 underline decoration-2 underline-offset-2 hover:text-blue-950">Voir la fiche de l’annonce</Link>
                   </div>
@@ -240,7 +285,7 @@ export default function AdminPhotos() {
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-950 bg-blue-900 px-4 py-3 text-center text-sm font-extrabold text-white shadow hover:bg-blue-800 focus-within:ring-4 focus-within:ring-blue-300">Parcourir les photos</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-900 bg-blue-700 px-4 py-3 text-center text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-950 focus-within:ring-4 focus-within:ring-blue-300">📷 Choisir une nouvelle photo</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -257,11 +302,11 @@ export default function AdminPhotos() {
                                 <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-slate-300 bg-slate-50 p-3 text-sm font-semibold text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
                                 <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                                   onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-12 w-full rounded-xl border-2 border-amber-700 bg-amber-300 px-4 py-3 text-sm font-black text-slate-950 shadow hover:bg-amber-200 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
+                                  className="min-h-12 w-full rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-3 text-sm font-black text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Valider le remplacement'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border-2 border-red-700 bg-white px-4 py-2.5 text-sm font-extrabold text-red-800 hover:bg-red-50 disabled:opacity-50">Supprimer cette photo</button>
+                                  className="min-h-11 w-full rounded-xl border-2 border-red-700 bg-red-600 px-4 py-2.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-red-800 disabled:opacity-50">🗑 Supprimer cette photo</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
@@ -282,7 +327,7 @@ export default function AdminPhotos() {
                       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                         <div className="space-y-2">
                           <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
-                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-950 bg-blue-900 px-5 py-3 text-center text-sm font-extrabold text-white shadow hover:bg-blue-800 focus-within:ring-4 focus-within:ring-blue-300">Choisir un fichier image</label>
+                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-900 bg-blue-700 px-5 py-3 text-center text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-950 focus-within:ring-4 focus-within:ring-blue-300">＋ Choisir un fichier image</label>
                           <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                             onChange={async (e) => {
                               const fichier = e.target.files?.[0]
@@ -299,7 +344,7 @@ export default function AdminPhotos() {
                           <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
                         </div>
                         <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-12 rounded-xl border-2 border-amber-700 bg-amber-300 px-6 py-3 text-sm font-black text-slate-950 shadow hover:bg-amber-200 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500">
+                          className="min-h-12 rounded-xl border-2 border-amber-600 bg-amber-400 px-6 py-3 text-sm font-black text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500">
                           {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
                         </button>
                       </div>
@@ -311,6 +356,35 @@ export default function AdminPhotos() {
           </section>
         )}
 
+
+
+        {annonceEnEdition && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4">
+            <form onSubmit={enregistrerEdition} className="my-6 w-full max-w-3xl space-y-4 rounded-3xl border-2 border-blue-200 bg-white p-5 shadow-2xl sm:p-7">
+              <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
+                <div><p className="text-xs font-black uppercase tracking-widest text-blue-800">Administration · Intervention justifiée</p><h2 className="mt-1 text-2xl font-black text-slate-950">Modifier l’annonce</h2><p className="mt-1 text-sm text-slate-600">Le propriétaire sera automatiquement informé de cette modification.</p></div>
+                <button type="button" onClick={() => setAnnonceEnEdition(null)} className="rounded-xl border-2 border-slate-300 bg-slate-100 px-3 py-2 font-bold text-slate-800 hover:bg-slate-200">Fermer</button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Titre<input required maxLength={150} value={edition.titre} onChange={e=>setEdition(v=>({...v,titre:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base font-medium text-slate-950 focus:border-blue-700 focus:outline-none"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Type de bien<select value={edition.typeBien} onChange={e=>setEdition(v=>({...v,typeBien:e.target.value as AnnoncePhoto['typeBien']}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="STUDIO">Studio</option><option value="VILLA">Villa</option><option value="TERRAIN">Terrain</option></select></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Transaction<select value={edition.transaction} onChange={e=>setEdition(v=>({...v,transaction:e.target.value as 'LOCATION'|'VENTE'}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"><option value="LOCATION">Location</option><option value="VENTE">Vente</option></select></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Prix (FCFA)<input required type="number" min="1" value={edition.prix} onChange={e=>setEdition(v=>({...v,prix:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Superficie (m²)<input required type="number" min="0.01" step="0.01" value={edition.superficie} onChange={e=>setEdition(v=>({...v,superficie:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Nombre de pièces<input type="number" min="0" max="100" value={edition.pieces} onChange={e=>setEdition(v=>({...v,pieces:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Ville<input required maxLength={100} value={edition.ville} onChange={e=>setEdition(v=>({...v,ville:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800">Quartier<input required maxLength={100} value={edition.quartier} onChange={e=>setEdition(v=>({...v,quartier:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Adresse<input maxLength={255} value={edition.adresse} onChange={e=>setEdition(v=>({...v,adresse:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Description<textarea rows={4} maxLength={5000} value={edition.description} onChange={e=>setEdition(v=>({...v,description:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Motif obligatoire de la modification<textarea required minLength={1} maxLength={500} rows={2} value={motifEdition} onChange={e=>setMotifEdition(e.target.value)} placeholder="Explique pourquoi l’administration modifie cette annonce…" className="w-full rounded-xl border-2 border-amber-400 bg-amber-50 p-3 text-base text-slate-950"/></label>
+              </div>
+              <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-4">
+                <button type="button" onClick={()=>setAnnonceEnEdition(null)} className="rounded-xl border-2 border-slate-300 bg-white px-5 py-3 font-bold text-slate-800 hover:bg-slate-100">Annuler</button>
+                <button type="submit" disabled={envoi===annonceEnEdition.id} className="rounded-xl border-2 border-blue-950 bg-blue-900 px-6 py-3 font-black text-white shadow-lg hover:bg-blue-950 disabled:opacity-60">{envoi===annonceEnEdition.id?'Enregistrement…':'Enregistrer les modifications'}</button>
+              </div>
+            </form>
+          </div>
+        )}
 
       </div>
     </main>
