@@ -87,7 +87,7 @@ export default function Dashboard() {
   ]
 
   const accesAgent: Acces[] = [
-    { titre: 'Rejoindre une agence', description: 'Découvrez les agences immobilières et déposez votre candidature pour collaborer avec elles.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
+    { titre: 'Rejoindre une agence', description: 'Après validation de votre statut Agent, découvrez les agences et envoyez votre candidature. Un gestionnaire rejoint une agence sur invitation de son responsable.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
     { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences qui vous ont invité et les espaces auxquels vous appartenez.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
     { titre: 'Mes visites', description: 'Consultez les demandes de visite associées à votre compte.', lien: '/mes-visites', icone: CalendarDays, action: 'Suivre les visites' },
     { titre: 'Catalogue des biens', description: 'Explorez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
