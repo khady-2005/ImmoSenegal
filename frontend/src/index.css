@@ -537,3 +537,33 @@ body.fond-pages #contenu::before {
   background: linear-gradient(110deg, #be123c, #991b1b) !important;
   border-color: #881337 !important;
 }
+
+
+/* Corrections ciblées pour l'espace Gestion du catalogue. */
+#contenu .admin-photos-page {
+  color: #08284d !important;
+  background: #f4f6fb !important;
+}
+#contenu .admin-photos-page .price-badge {
+  color: #ffffff !important;
+  background: #08284d !important;
+  text-shadow: none !important;
+}
+#contenu .admin-photos-page .price-badge span {
+  color: #ffe28a !important;
+}
+#contenu .admin-photos-page .admin-add-button,
+#contenu .admin-photos-page .admin-add-button * {
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page aside nav a:not(.bg-gradient-to-r),
+#contenu .admin-photos-page aside > div a {
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page aside nav a.bg-gradient-to-r {
+  color: #08284d !important;
+}
+#contenu .admin-photos-page header h1,
+#contenu .admin-photos-page header p {
+  color: #08284d !important;
+}
