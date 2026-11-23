@@ -111,9 +111,9 @@ export default function Layout() {
                 aria-expanded={menuPlusOuvert}
                 aria-haspopup="menu"
                 aria-label="Afficher les autres rubriques"
-                className={`ml-1 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f4c542] bg-[#f4c542] text-[#171717] shadow-md transition hover:bg-[#ffe08a] hover:text-[#171717] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${menuPlusOuvert ? 'bg-[#ffe08a] text-[#171717]' : ''}`}
+                className={`ml-1 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#ffd45c] bg-[#102b49] text-[#ffe08a] shadow-[0_4px_14px_rgba(0,0,0,.35)] transition hover:bg-[#173b62] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${menuPlusOuvert ? 'bg-[#173b62] text-white' : ''}`}
               >
-                <MoreHorizontal aria-hidden className="h-6 w-6" />
+                <MoreHorizontal aria-hidden className="h-7 w-7 stroke-[3]" />
               </button>
               {menuPlusOuvert && (
                 <div
