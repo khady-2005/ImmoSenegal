@@ -126,7 +126,7 @@ export default function Messagerie() {
           </> : <div className="flex flex-1 flex-col items-center justify-center p-8 text-center text-slate-500"><MessageCircle className="h-10 w-10 text-amber-800" /><p className="mt-3 font-medium text-slate-700">Sélectionnez une conversation</p><p className="mt-1 text-sm">Vos échanges liés aux réservations apparaîtront ici.</p></div>}
         </section>
       </div>
-      <MessagerieMandats />
+      {utilisateur?.role !== 'ADMIN' && <MessagerieMandats />}
     </main>
   )
 }
