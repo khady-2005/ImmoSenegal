@@ -7,6 +7,7 @@ type AnnoncePhoto = {
   id: string
   titre: string
   statut: string
+  typeBien: 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN'
   publieeParAgence: boolean
   proprietaire: { id: string; nomComplet: string }
   photos: string[]
@@ -55,6 +56,8 @@ export default function AdminPhotos() {
   const [envoi, setEnvoi] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+  const [categorie, setCategorie] = useState('TOUTES')
+  const [recherche, setRecherche] = useState('')
 
   const charger = useCallback(async () => {
     setChargement(true)
@@ -112,6 +115,23 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
+  const categories = [
+    { id: 'TOUTES', label: 'Toutes les annonces', count: annonces.length },
+    { id: 'MAISON', label: 'Maisons', count: annonces.filter((a) => a.typeBien === 'MAISON').length },
+    { id: 'APPARTEMENT', label: 'Appartements', count: annonces.filter((a) => a.typeBien === 'APPARTEMENT').length },
+    { id: 'STUDIO', label: 'Studios', count: annonces.filter((a) => a.typeBien === 'STUDIO').length },
+    { id: 'VILLA', label: 'Villas', count: annonces.filter((a) => a.typeBien === 'VILLA').length },
+    { id: 'TERRAIN', label: 'Terrains', count: annonces.filter((a) => a.typeBien === 'TERRAIN').length },
+    { id: 'AGENCE', label: 'ImmoSénégal', count: annonces.filter((a) => a.publieeParAgence).length },
+    { id: 'PROPRIETAIRE', label: 'Propriétaires', count: annonces.filter((a) => !a.publieeParAgence).length },
+  ]
+  const annoncesFiltrees = annonces.filter((a) => {
+    const correspondCategorie = categorie === 'TOUTES' || categorie === 'AGENCE' && a.publieeParAgence || categorie === 'PROPRIETAIRE' && !a.publieeParAgence || a.typeBien === categorie
+    const terme = recherche.trim().toLocaleLowerCase('fr')
+    const correspondRecherche = !terme || [a.titre, a.ville, a.quartier, a.proprietaire.nomComplet].some((v) => v.toLocaleLowerCase('fr').includes(terme))
+    return correspondCategorie && correspondRecherche
+  })
+
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
@@ -123,7 +143,7 @@ export default function AdminPhotos() {
               <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
               <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">Gestion du catalogue</h1>
               <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
-                Gère uniquement les photos des annonces publiées par ImmoSénégal. Les propriétaires conservent la maîtrise de leurs propres annonces.
+                Retrouve rapidement les annonces par type de bien ou par origine de publication. Les photos et fiches restent accessibles depuis chaque annonce.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -152,7 +172,6 @@ export default function AdminPhotos() {
             <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-amber-950">{annonces.filter((a) => !a.publieeParAgence).length}</p>
           </article>
         </section>
-        </header>
 
         <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
           <h2 className="text-lg font-extrabold text-blue-950">Règles de gestion des annonces</h2>
@@ -174,14 +193,17 @@ export default function AdminPhotos() {
           </div>
         ) : (
           <section className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 className="text-2xl font-black text-slate-950">Annonces du catalogue</h2>
-                <p className="mt-1 text-sm text-slate-700">Sélectionne une annonce pour gérer ses images.</p>
+            <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div><h2 className="text-2xl font-black text-slate-950">Annonces du catalogue</h2><p className="mt-1 text-sm text-slate-700">Choisis une catégorie ou recherche un bien par son titre, sa ville ou son propriétaire.</p></div>
+                <span className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-800">{annoncesFiltrees.length} résultat(s)</span>
               </div>
-              <span className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800">{annonces.length} annonce(s) chargée(s)</span>
+              <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce, une ville, un quartier…" aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-medium text-slate-950 outline-none placeholder:text-slate-500 focus:border-blue-800 focus:ring-4 focus:ring-blue-100" />
+              <div className="flex flex-wrap gap-2" aria-label="Catégories du catalogue">
+                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-xl border-2 border-blue-950 bg-blue-950 px-4 py-2.5 text-sm font-extrabold text-white shadow' : 'rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-blue-400 hover:bg-blue-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-amber-300' : 'ml-1 text-blue-800'}>{item.count}</span></button>)}
+              </div>
             </div>
-            {annonces.map((a) => (
+            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-xl bg-blue-950 px-4 py-2.5 font-bold text-white">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
               <article key={a.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
                 <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div className="min-w-0">
@@ -189,6 +211,7 @@ export default function AdminPhotos() {
                       <span className={a.publieeParAgence ? "rounded-full bg-blue-100 px-3 py-1.5 text-sm font-extrabold text-blue-950" : "rounded-full bg-amber-100 px-3 py-1.5 text-sm font-extrabold text-amber-950"}>
                         {a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce propriétaire'}
                       </span>
+                      <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
