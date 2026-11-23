@@ -116,9 +116,9 @@ export default function Reservations() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-wider text-amber-800">Espace personnel</p>
-        <h1 className="mt-2 font-titre text-3xl font-semibold text-nuit-900">{titre}</h1>
-        <p className="mt-2 text-slate-600">{client ? 'Suivez les réponses du propriétaire ou de l’agence mandatée pour les logements qui vous intéressent.' : 'Chaque demande est associée au logement concerné et à son propriétaire ou à son agence gestionnaire.'}</p>
+        <p className="text-base font-bold uppercase tracking-wider text-amber-800">Espace personnel</p>
+        <h1 className="mt-2 font-titre text-4xl font-semibold text-nuit-900">{titre}</h1>
+        <p className="mt-3 text-base leading-relaxed text-slate-600">{client ? 'Suivez les réponses du propriétaire ou de l’agence mandatée pour les logements qui vous intéressent.' : 'Chaque demande est associée au logement concerné et à son propriétaire ou à son agence gestionnaire.'}</p>
       </div>
       {erreur && <p role="alert" className="mb-5 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
       {chargement && <p role="status" className="py-10 text-center text-slate-500">Chargement des réservations…</p>}
