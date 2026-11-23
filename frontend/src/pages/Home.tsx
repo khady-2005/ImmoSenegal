@@ -50,12 +50,12 @@ export default function Home() {
     <>
       <section aria-labelledby="titre-accueil" className="relative isolate min-h-[560px] overflow-hidden bg-gradient-to-br from-[#102a43] via-[#173b5e] to-[#245477] text-white sm:min-h-[620px]">
         <img src={photoVilla} alt="Villa contemporaine avec piscine, image d'ambiance" width={1600} height={1000} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#102a43]/75 via-[#102a43]/45 to-[#102a43]/10" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#102a43]/60 via-[#102a43]/32 to-[#102a43]/5" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#102a43]/55 to-transparent" />
         <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
           <div className="max-w-2xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-dore-400/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-400"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
-            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-[-0.075em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.28)] sm:text-6xl lg:text-7xl"><span className="text-white">Immo</span><span className="text-dore-400">Sénégal</span></h1>
+            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-[-0.045em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.28)] sm:text-6xl lg:text-7xl"><span className="text-white">Immo</span><span className="text-dore-400">Sénégal</span></h1>
             <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
             <div className="mt-7 flex flex-wrap gap-3">
@@ -67,7 +67,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="avantages" className="bg-[#f3f8f3] py-9" aria-label="Les avantages ImmoSénégal">
+      <section id="avantages" className="bg-[#f1f6fc] py-9" aria-label="Les avantages ImmoSénégal">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 md:grid-cols-4 md:gap-4">
           {[
             { Icone: ShieldCheck, titre: 'Transactions sécurisées', sous: 'et fiables' },
@@ -79,7 +79,7 @@ export default function Home() {
       </section>
 
 
-      <section className="bg-[#f4f7fb] py-14 sm:py-18" aria-labelledby="titre-inspirations">
+      <section className="bg-[#f7f9fc] py-14 sm:py-18" aria-labelledby="titre-inspirations">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -125,12 +125,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#eaf3eb] py-16 sm:py-20" aria-labelledby="titre-types">
+      <section className="bg-[#edf3fa] py-16 sm:py-20" aria-labelledby="titre-types">
         <div className="mx-auto max-w-6xl px-4">
           <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
           <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
           <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Types de bien">
-            {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-2xl bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#f7faf7]/95 via-[#f7faf7]/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
+            {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-[1.5rem] bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#f7faf7]/95 via-[#f7faf7]/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
           </ul>
         </div>
       </section>
