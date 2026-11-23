@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import sn.immosenegal.abonnement.AbonnementProprietaireRepository;
 import sn.immosenegal.abonnement.StatutAbonnement;
 import sn.immosenegal.common.ApiException;
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
@@ -50,14 +52,23 @@ public class AnnonceService {
     private final AuditService audit;
     private final PhotoRepository photos;
     private final AbonnementProprietaireRepository abonnements;
+    private final NotificationService notifications;
 
+    @Autowired
     public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos,
-            AbonnementProprietaireRepository abonnements) {
+            AbonnementProprietaireRepository abonnements, NotificationService notifications) {
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
         this.photos = photos;
         this.abonnements = abonnements;
+        this.notifications = notifications;
+    }
+
+    /** Constructeur conservé pour les tests unitaires historiques. */
+    public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos,
+            AbonnementProprietaireRepository abonnements) {
+        this(annonces, users, audit, photos, abonnements, null);
     }
 
     @Transactional
@@ -153,6 +164,11 @@ public class AnnonceService {
         Annonce annonce = trouver(id);
         verifierDroits(annonce, auteur);
         boolean admin = auteur.role() == Role.ADMIN;
+        if (admin && !annonce.isPublieeParAgence()
+                && !annonce.getProprietaire().getId().equals(auteur.id())) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                "Pour intervenir sur l'annonce d'un propriétaire, utilisez l'action administrative avec un motif obligatoire.");
+        }
         StatutAnnonce avant = annonce.getStatut();
         StatutAnnonce demande = requete.statut();
         boolean changeLeStatut = demande != null && demande != avant;
@@ -215,6 +231,11 @@ public class AnnonceService {
     public void supprimer(UUID id, AuthenticatedUser auteur) {
         Annonce annonce = trouver(id);
         verifierDroits(annonce, auteur);
+        if (auteur.role() == Role.ADMIN && !annonce.isPublieeParAgence()
+                && !annonce.getProprietaire().getId().equals(auteur.id())) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                "Une annonce de propriétaire ne peut pas être supprimée directement. Utilisez l'archivage administratif avec un motif.");
+        }
         annonces.delete(annonce);
         boolean parAdminSurAutrui = !annonce.getProprietaire().getId().equals(auteur.id());
         audit.enregistrer(parAdminSurAutrui ? "ANNONCE_SUPPRIMEE_PAR_ADMIN" : "ANNONCE_SUPPRIMEE", auteur.id(), "Annonce " + id);
@@ -262,6 +283,49 @@ public class AnnonceService {
     }
 
     /** Applique une décision de modération (validation, refus, suspension, demande de correction). */
+    @Transactional
+    public AnnonceResponse modifierParAdmin(UUID id, AnnonceRequest requete, String motif, AuthenticatedUser admin) {
+        exigerAdmin(admin);
+        String motifPropre = motif == null ? "" : motif.trim();
+        if (motifPropre.isEmpty() || motifPropre.length() > 500) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Un motif de 1 à 500 caractères est obligatoire.");
+        }
+        Annonce annonce = trouver(id);
+        appliquer(annonce, requete);
+        audit.enregistrer("ANNONCE_MODIFIEE_PAR_ADMIN", admin.id(),
+            "Annonce " + id + " ; motif : " + motifPropre);
+        if (notifications != null) {
+            notifications.creer(annonce.getProprietaire(), "ANNONCE_MODIFIEE_PAR_ADMIN",
+                "Votre annonce a été modifiée par l'administration",
+                "L'administration a modifié « " + annonce.getTitre() + " ». Motif : " + motifPropre,
+                "/mes-annonces");
+        }
+        return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
+    }
+
+    /** Archivage réversible : l'annonce est suspendue, jamais effacée physiquement. */
+    @Transactional
+    public AnnonceResponse archiverParAdmin(UUID id, String motif, AuthenticatedUser admin) {
+        exigerAdmin(admin);
+        String motifPropre = motif == null ? "" : motif.trim();
+        if (motifPropre.isEmpty() || motifPropre.length() > 500) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Un motif de 1 à 500 caractères est obligatoire.");
+        }
+        Annonce annonce = trouver(id);
+        StatutAnnonce avant = annonce.getStatut();
+        annonce.moderer(StatutAnnonce.SUSPENDUE, admin.id(), motifPropre);
+        audit.enregistrer("ANNONCE_ARCHIVEE_PAR_ADMIN", admin.id(),
+            "Annonce " + id + " ; statut précédent : " + avant + " ; motif : " + motifPropre);
+        if (notifications != null) {
+            notifications.creer(annonce.getProprietaire(), "ANNONCE_ARCHIVEE_PAR_ADMIN",
+                "Votre annonce a été suspendue par l'administration",
+                "L'annonce « " + annonce.getTitre() + " » a été retirée du catalogue. Motif : " + motifPropre
+                    + ". Vous pouvez contacter l'administration pour demander son rétablissement.",
+                "/mes-annonces");
+        }
+        return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
+    }
+
     @Transactional
     public AnnonceResponse moderer(UUID id, AuthenticatedUser admin, ActionModeration action, String motif) {
         exigerAdmin(admin);
