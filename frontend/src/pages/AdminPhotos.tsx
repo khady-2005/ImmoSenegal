@@ -373,7 +373,7 @@ export default function AdminPhotos() {
                   )}
                 </div>
               </article>
-            ))}</div>
+            ))}</div>}
           </section>
         )}
 
