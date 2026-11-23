@@ -74,6 +74,7 @@ public class PhotoService {
         PhotoAnnonce photo = new PhotoAnnonce(annonceId, propre.octets(), propre.typeMime(), photos.ordreMax(annonceId) + 1);
         photo.setPiece(normaliserPiece(piece));
         photo = photos.save(photo);
+        annonces.marquerPhotosModifiees(annonceId);
         audit.enregistrer("PHOTO_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return photo.getId();
     }
@@ -159,6 +160,7 @@ public class PhotoService {
         PhotoAnnonce photo = lire(annonceId, photoId);
         photo.setContenu(propre.octets());
         photo.setTypeMime(propre.typeMime());
+        annonces.marquerPhotosModifiees(annonceId);
         audit.enregistrer("PHOTO_REMPLACEE", auteur.id(), "Photo " + photoId + " de l'annonce " + annonceId);
     }
 
