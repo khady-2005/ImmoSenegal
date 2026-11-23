@@ -73,6 +73,7 @@ export default function AdminPhotos() {
   const [recherche, setRecherche] = useState('')
   const [villeFiltre, setVilleFiltre] = useState('TOUTES')
   const [menuMobile, setMenuMobile] = useState(false)
+  const [photosOuvertes, setPhotosOuvertes] = useState<Record<string, boolean>>({})
   const [annonceEnEdition, setAnnonceEnEdition] = useState<AnnoncePhoto | null>(null)
   const [motifEdition, setMotifEdition] = useState('')
   const [edition, setEdition] = useState({ titre: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
@@ -175,16 +176,6 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
-  const categories = [
-    { id: 'TOUTES', label: 'Toutes les annonces', count: annonces.length },
-    { id: 'MAISON', label: 'Maisons', count: annonces.filter((a) => a.typeBien === 'MAISON').length },
-    { id: 'APPARTEMENT', label: 'Appartements', count: annonces.filter((a) => a.typeBien === 'APPARTEMENT').length },
-    { id: 'STUDIO', label: 'Studios', count: annonces.filter((a) => a.typeBien === 'STUDIO').length },
-    { id: 'VILLA', label: 'Villas', count: annonces.filter((a) => a.typeBien === 'VILLA').length },
-    { id: 'TERRAIN', label: 'Terrains', count: annonces.filter((a) => a.typeBien === 'TERRAIN').length },
-    { id: 'AGENCE', label: 'ImmoSénégal', count: annonces.filter((a) => a.publieeParAgence).length },
-    { id: 'PROPRIETAIRE', label: 'Propriétaires', count: annonces.filter((a) => !a.publieeParAgence).length },
-  ]
   const villes = Array.from(new Set(annonces.map((a) => a.ville).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'fr'))
   const annoncesFiltrees = annonces.filter((a) => {
     const correspondCategorie = categorie === 'TOUTES' || categorie === 'AGENCE' && a.publieeParAgence || categorie === 'PROPRIETAIRE' && !a.publieeParAgence || a.typeBien === categorie
@@ -282,16 +273,6 @@ export default function AdminPhotos() {
           </div>
         ) : (
           <section className="space-y-6">
-            <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div><h2 className="text-2xl font-black text-slate-950">Annonces du catalogue</h2><p className="mt-1 text-sm text-slate-700">Choisis une catégorie ou recherche un bien par son titre, sa ville ou son propriétaire.</p></div>
-                <span className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-800">{annoncesFiltrees.length} résultat(s)</span>
-              </div>
-              <div className="relative"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#102b49]" /><input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce..." aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-full border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-base font-medium text-[#102b49] outline-none placeholder:text-slate-500 focus:border-amber-400 focus:ring-4 focus:ring-amber-100" /></div>
-              <div className="flex flex-wrap gap-2" aria-label="Catégories du catalogue">
-                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-xs font-extrabold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
-              </div>
-            </div>
             {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">{annoncesFiltrees.map((a) => (
               <article key={a.id} className="group overflow-hidden rounded-[1.45rem] border border-slate-200/80 bg-white shadow-[0_5px_16px_rgba(8,40,77,0.13)] transition duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-52">
@@ -318,14 +299,14 @@ export default function AdminPhotos() {
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
                         Modifier
                       </button>
-                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] transition hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>}
-                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] transition hover:brightness-105 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</Link>
+                      <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] transition hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>
+                      <button type="button" onClick={() => setPhotosOuvertes((v) => ({ ...v, [a.id]: !v[a.id] }))} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] transition hover:brightness-105 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</button>
                     </div>
                   </div>
 
                 </div>
 
-                <details className="border-t border-slate-100 bg-[#fbfcff]">
+                <details open={!!photosOuvertes[a.id]} className="border-t border-slate-100 bg-[#fbfcff]">
                   <summary className="cursor-pointer px-5 py-3 text-sm font-extrabold text-[#08284d] hover:bg-amber-50">Gérer les photos ({a.photos.length})</summary>
                   <div className="p-5 sm:p-6">
                   <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
