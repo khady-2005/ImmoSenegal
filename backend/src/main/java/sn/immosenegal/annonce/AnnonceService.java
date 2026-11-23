@@ -353,6 +353,14 @@ public class AnnonceService {
         StatutAnnonce avant = annonce.getStatut();
         annonce.moderer(action.vers(), admin.id(), motifPropre);
         audit.enregistrer(action.evenement(), admin.id(), "Annonce " + id + " : " + avant + " -> " + action.vers());
+        if (notifications != null) {
+            String motifNotification = motifPropre == null ? "" : " Motif : " + motifPropre;
+            notifications.creer(annonce.getProprietaire(), action.evenement(),
+                "Mise à jour administrative de votre annonce",
+                "Le statut de « " + annonce.getTitre() + " » est passé de " + avant + " à " + action.vers() + "."
+                    + motifNotification,
+                "/mes-annonces");
+        }
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
     }
 
