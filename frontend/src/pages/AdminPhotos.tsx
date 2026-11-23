@@ -276,7 +276,7 @@ export default function AdminPhotos() {
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200 sm:w-auto">
                         ✎ Modifier l’annonce
                       </button>
-                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-blue-950 px-4 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">Retirer du catalogue</button>}
+                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-dore-600 bg-dore-300 px-5 py-2.5 text-sm font-black text-nuit-950 shadow-md transition hover:bg-dore-400 focus:outline-none focus:ring-4 focus:ring-dore-200 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto">Retirer du catalogue</button>}
                       <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-white px-4 py-2 text-sm font-extrabold text-blue-950 transition hover:bg-blue-50 sm:w-auto">Voir la fiche</Link>
                     </div>
                   </div>
