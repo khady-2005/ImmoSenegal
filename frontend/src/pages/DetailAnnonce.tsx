@@ -121,10 +121,10 @@ export default function DetailAnnonce() {
 
               {a.equipements.length > 0 && (
                 <section className="mt-10 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm" aria-labelledby="titre-equipements">
-                  <h2 id="titre-equipements" className="font-titre text-2xl font-bold !text-white">Équipements</h2>
+                  <h2 id="titre-equipements" className="font-titre text-2xl font-bold text-nuit-900">Équipements</h2>
                   <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                     {a.equipements.map((e) => (
-                      <li key={e} className="flex items-center gap-2.5 !text-white">
+                      <li key={e} className="flex items-center gap-2.5 font-medium text-slate-800">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emeraude-50 text-emeraude-700">
                           <Check aria-hidden className="h-3.5 w-3.5" />
                         </span>
@@ -167,10 +167,10 @@ export default function DetailAnnonce() {
           <section className="mt-12" aria-labelledby="titre-localisation">
             <div className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-sm">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide !text-dore-300">Préparer votre visite</p>
-                <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-bold !text-white sm:text-3xl">Localisation du logement</h2>
-                <p className="mt-2 flex items-center gap-1.5 text-slate-600">
-                  <MapPin aria-hidden className="h-4 w-4 !text-dore-300" />
+                <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">Préparer votre visite</p>
+                <h2 id="titre-localisation" className="font-titre mt-1 text-2xl font-bold text-nuit-900 sm:text-3xl">Localisation du logement</h2>
+                <p className="mt-2 flex items-center gap-1.5 font-medium text-slate-700">
+                  <MapPin aria-hidden className="h-4 w-4 text-amber-700" />
                   {a.quartier}, {a.ville}{a.adresse ? ` — ${a.adresse}` : ''}
                 </p>
               </div>
