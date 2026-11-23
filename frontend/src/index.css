@@ -654,3 +654,102 @@ body.fond-pages #contenu::before {
 #contenu .home-hero > div:first-child > div:last-child {
   min-height: clamp(540px, 66vh, 720px);
 }
+
+
+/* Galerie photo de l'administration : largeur calculée sur l'espace réellement
+   disponible, et non sur la largeur totale de l'écran. */
+#contenu .admin-photos-page .admin-photo-details {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+#contenu .admin-photos-page .admin-photo-details > div {
+  width: 100%;
+  min-width: 0;
+}
+#contenu .admin-photos-page .admin-photo-gallery {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)) !important;
+  gap: 1.25rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  align-items: start;
+}
+#contenu .admin-photos-page .admin-photo-item {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+#contenu .admin-photos-page .admin-photo-item > div:first-child {
+  width: 100%;
+  min-width: 0;
+}
+#contenu .admin-photos-page .admin-photo-item > div:last-child {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: .9rem;
+}
+#contenu .admin-photos-page .admin-photo-item label {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.9rem;
+  padding: .75rem 1rem !important;
+  border-radius: .9rem;
+  font-size: .95rem !important;
+  line-height: 1.35 !important;
+  text-align: center;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+}
+#contenu .admin-photos-page .admin-photo-item p {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.9rem;
+  padding: .75rem 1rem;
+  color: #173b63 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+#contenu .admin-photos-page .admin-photo-item button {
+  width: 100%;
+  min-height: 2.9rem;
+  white-space: normal;
+  line-height: 1.35;
+}
+#contenu .admin-photos-page .admin-photo-item label[for^="remplacer-"] {
+  background: #12385f !important;
+  border: 1px solid #12385f !important;
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page .admin-photo-item label[for^="remplacer-"] * {
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page .admin-photo-item button:not(:disabled) {
+  opacity: 1;
+}
+#contenu .admin-photos-page .admin-photo-item button:disabled {
+  color: #475569 !important;
+  background: #e8edf3 !important;
+  border-color: #cbd5e1 !important;
+}
+#contenu .admin-photos-page input[type="file"].sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+@media (max-width: 700px) {
+  #contenu .admin-photos-page .admin-photo-gallery {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
