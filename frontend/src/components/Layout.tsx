@@ -80,6 +80,11 @@ export default function Layout() {
                 Mon espace
               </NavLink>
             )}
+            {utilisateur && (
+              <NavLink to="/rejoindre-agence" className={lienDesktop}>
+                Rejoindre une agence
+              </NavLink>
+            )}
             {utilisateur && <CentreNotifications />}
             {peutPublier && (
               <Link to="/annonces/nouvelle" className={`${boutonPublier} ml-1`}>
