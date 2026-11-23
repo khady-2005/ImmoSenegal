@@ -15,7 +15,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
         <BoutonFavori annonceId={annonce.id} />
         {annonce.photos.length > 0 ? (
           <img
-            src={urlPhoto(annonce.id, annonce.photos[0])}
+            src={urlPhoto(annonce.id, annonce.photos[0], annonce.modifieLe)}
             alt={`Photo du type de bien présenté : ${annonce.titre}`}
             loading="lazy"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
