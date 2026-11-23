@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
-import { Instagram, LogOut, Mail, MapPin, Menu, MessageCircle, MoreHorizontal, Music2, Phone, PlusCircle, X } from 'lucide-react'
+import { Instagram, LogOut, Mail, MapPin, Menu, MessageCircle, Music2, Phone, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
 import { LogoComplet, Marque } from './Logo'
 import CentreNotifications from './CentreNotifications'
@@ -113,7 +113,11 @@ export default function Layout() {
                 aria-label="Afficher les autres rubriques"
                 className={`ml-1 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#ffd45c] bg-[#102b49] text-[#ffe08a] shadow-[0_4px_14px_rgba(0,0,0,.35)] transition hover:bg-[#173b62] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${menuPlusOuvert ? 'bg-[#173b62] text-white' : ''}`}
               >
-                <MoreHorizontal aria-hidden className="h-7 w-7 stroke-[3]" />
+                <span aria-hidden="true" className="flex items-center justify-center gap-[5px]">
+                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
+                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
+                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
+                </span>
               </button>
               {menuPlusOuvert && (
                 <div
