@@ -244,10 +244,10 @@ export default function AdminPhotos() {
               </div>
               <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce, une ville, un quartier…" aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-medium text-slate-950 outline-none placeholder:text-slate-500 focus:border-blue-800 focus:ring-4 focus:ring-blue-100" />
               <div className="flex flex-wrap gap-2" aria-label="Catégories du catalogue">
-                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-xl border-2 border-blue-950 bg-blue-950 px-4 py-2.5 text-sm font-extrabold text-white shadow' : 'rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-blue-400 hover:bg-blue-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-amber-300' : 'ml-1 text-blue-800'}>{item.count}</span></button>)}
+                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-lg border border-amber-600 bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
               </div>
             </div>
-            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-xl bg-blue-950 px-4 py-2.5 font-bold text-white">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
+            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-lg border border-amber-600 bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
               <article key={a.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
                 <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div className="min-w-0">
@@ -259,11 +259,11 @@ export default function AdminPhotos() {
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
-                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-2.5 text-sm font-extrabold text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200">
+                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-amber-600 bg-amber-400 px-3 py-1.5 text-xs font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200">
                       ✎ Modifier l’annonce
                     </button>
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
-                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex font-bold text-blue-800 underline decoration-2 underline-offset-2 hover:text-blue-950">Voir la fiche de l’annonce</Link>
+                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex rounded-lg border border-amber-500 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-950 hover:bg-amber-100">Voir la fiche de l’annonce</Link>
                   </div>
 
                 </div>
@@ -279,13 +279,13 @@ export default function AdminPhotos() {
                           <div className="relative bg-slate-200">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
                               alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover" />
-                            <span className="absolute left-3 top-3 rounded-lg bg-slate-950/90 px-3 py-1.5 text-sm font-bold text-white">Photo {index + 1}</span>
+                            <span className="absolute left-3 top-3 rounded-md border border-amber-300 bg-amber-400 px-2.5 py-1 text-xs font-extrabold text-slate-950 shadow-sm">Photo {index + 1}</span>
                           </div>
                           <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-3 text-center text-sm font-extrabold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300 focus-within:ring-4 focus-within:ring-amber-200">📷 Choisir une nouvelle photo</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-9 cursor-pointer items-center justify-center rounded-lg border border-amber-600 bg-amber-400 px-3 py-2 text-center text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 focus-within:ring-2 focus-within:ring-amber-200">📷 Choisir une nouvelle photo</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -302,11 +302,11 @@ export default function AdminPhotos() {
                                 <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-slate-300 bg-slate-50 p-3 text-sm font-semibold text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
                                 <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                                   onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-12 w-full rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-3 text-sm font-black text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
+                                  className="min-h-9 w-full rounded-lg border border-amber-600 bg-amber-400 px-3 py-2 text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Valider le remplacement'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border-2 border-red-700 bg-red-600 px-4 py-2.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-red-800 disabled:opacity-50">🗑 Supprimer cette photo</button>
+                                  className="min-h-9 w-full rounded-lg border border-red-700 bg-red-600 px-3 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 disabled:opacity-50">🗑 Supprimer cette photo</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
