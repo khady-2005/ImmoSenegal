@@ -267,7 +267,7 @@ export default function FormulaireAnnonce() {
             <p className="mt-1 text-sm leading-relaxed text-slate-600">Placez le repère à l’emplacement du logement. Cette position sera visible sur sa fiche pour aider les visiteurs à préparer leur déplacement.</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            <button type="button" onClick={() => void localiserAdresse()} disabled={localisationEnCours} className="rounded-xl bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
+            <button type="button" onClick={() => void localiserAdresse()} disabled={localisationEnCours} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-nuit-900 px-5 py-2.5 text-sm font-bold !text-white shadow-sm transition hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">
               {localisationEnCours ? 'Recherche…' : 'Localiser la maison sur la carte'}
             </button>
           </div>
