@@ -83,7 +83,9 @@ public class PhotoController {
         PhotoAnnonce photo = service.lire(annonceId, photoId);
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(photo.getTypeMime()))
-            .cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic())
+            // Les photos peuvent être remplacées en conservant le même identifiant :
+            // désactiver le cache évite d'afficher l'ancienne image dans le catalogue.
+            .cacheControl(CacheControl.noStore())
             // L'image ne peut en aucun cas exécuter du contenu actif si elle était ouverte directement.
             .header("Content-Security-Policy", "default-src 'none'; sandbox")
             .body(photo.getContenu());
