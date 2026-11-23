@@ -36,9 +36,9 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           )}
         </div>
 
-        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-xl border border-dore-300 bg-nuit-900/95 px-4 py-3 text-xl font-extrabold leading-none text-white shadow-[0_6px_18px_rgba(15,35,60,0.3)]">
+        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-xl border border-[#e8bd55] bg-[#f8df9a] px-3.5 py-2.5 text-lg font-extrabold leading-tight text-[#102b49] shadow-[0_5px_16px_rgba(15,35,60,0.22)]">
           <span className="truncate">{formatFcfa(annonce.prix)}</span>
-          {location && <span className="shrink-0 font-sans text-xs font-semibold text-dore-300">/ mois</span>}
+          {location && <span className="shrink-0 font-sans text-xs font-bold text-[#294766]">/ mois</span>}
         </p>
       </div>
 
