@@ -116,6 +116,18 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
+  async function retirerAnnonce(a: AnnoncePhoto) {
+    const motif = window.prompt('Indique le motif du retrait de cette annonce. Le propriétaire recevra ce motif :')
+    if (!motif || !motif.trim()) return
+    setEnvoi(a.id); setErreur(null); setInfo(null)
+    try {
+      await appelApi('/api/admin/annonces/' + a.id + '/suspendre', { method: 'POST', token: jeton, body: { motif: motif.trim() } })
+      setInfo('Annonce retirée du catalogue. Le propriétaire a été notifié. Le retrait est réversible depuis la modération.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Retrait impossible.') }
+    finally { setEnvoi(null) }
+  }
+
   async function supprimerPhoto(a: AnnoncePhoto, photoId: string) {
     if (!window.confirm('Supprimer définitivement cette photo de l’annonce ImmoSénégal ?')) return
     setEnvoi(photoId); setErreur(null); setInfo(null)
@@ -221,7 +233,7 @@ export default function AdminPhotos() {
           <h2 className="text-lg font-extrabold text-blue-950">Règles de gestion des annonces</h2>
           <div className="mt-2 grid gap-2 text-sm leading-relaxed text-blue-950 sm:grid-cols-2">
             <p><strong>Annonces ImmoSénégal :</strong> l’administrateur peut ajouter, remplacer ou supprimer les photos.</p>
-            <p><strong>Annonces des propriétaires :</strong> elles sont affichées en consultation uniquement. Le propriétaire modifie lui-même son annonce et ses photos. La modération se fait dans l’espace dédié.</p>
+            <p><strong>Annonces des propriétaires :</strong> l’administrateur peut modifier la fiche avec un motif, ou retirer l’annonce du catalogue avec notification au propriétaire. Les photos restent gérées par le propriétaire.</p>
           </div>
         </section>
 
@@ -262,6 +274,7 @@ export default function AdminPhotos() {
                     <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200">
                       ✎ Modifier l’annonce
                     </button>
+                    {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 border-red-700 bg-red-600 px-4 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 disabled:opacity-50">Retirer l’annonce du catalogue</button>}
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <Link to={'/annonces/' + a.id} className="mt-2 inline-flex rounded-full border-2 border-amber-500 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-950 hover:bg-amber-100">Voir la fiche de l’annonce</Link>
                   </div>
