@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import BandeauServeurLent from './BandeauServeurLent'
 import { NavLink, Outlet, Link, useLocation } from 'react-router-dom'
-import { Instagram, LogOut, Mail, MapPin, Menu, MessageCircle, Music2, Phone, PlusCircle, X } from 'lucide-react'
+import { Instagram, LogOut, Mail, MapPin, MessageCircle, Music2, Phone, PlusCircle, X } from 'lucide-react'
 import { useAuth } from '../auth'
 import { LogoComplet, Marque } from './Logo'
 import CentreNotifications from './CentreNotifications'
