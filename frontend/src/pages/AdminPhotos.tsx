@@ -298,7 +298,7 @@ export default function AdminPhotos() {
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-blue-950 bg-gradient-to-r from-blue-950 via-blue-900 to-slate-800 px-4 py-2.5 text-center text-sm font-extrabold !text-white shadow-[0_5px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_0_#c58a16] active:translate-y-1 active:shadow-none focus-within:outline-none focus-within:ring-4 focus-within:ring-amber-200">📁 Choisir un fichier</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-blue-950 bg-gradient-to-r from-blue-950 via-blue-900 to-slate-800 px-4 py-2.5 text-center text-sm font-extrabold !text-white shadow-[0_5px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_0_#c58a16] active:translate-y-1 active:shadow-none focus-within:outline-none focus-within:ring-4 focus-within:ring-amber-200">📁 Choisir un fichier</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -315,11 +315,11 @@ export default function AdminPhotos() {
                                 <p aria-live="polite" className="min-h-11 break-all rounded-xl border border-blue-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 shadow-inner">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
                                 <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                                   onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-4 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
+                                  className="min-h-11 w-full rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-4 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border-2 border-rose-900 bg-gradient-to-r from-rose-700 to-red-800 px-4 py-2.5 text-sm font-black !text-white shadow-[0_4px_0_#64151b] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_0_#64151b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
+                                  className="min-h-11 w-full rounded-full border-2 border-rose-900 bg-gradient-to-r from-rose-700 to-red-800 px-4 py-2.5 text-sm font-black !text-white shadow-[0_4px_0_#64151b] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_0_#64151b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
@@ -357,7 +357,7 @@ export default function AdminPhotos() {
                           <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
                         </div>
                         <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-11 rounded-xl border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
+                          className="min-h-11 rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
                           {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
                         </button>
                       </div>
