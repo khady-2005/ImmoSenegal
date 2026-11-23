@@ -122,14 +122,14 @@ export default function AdminModeration() {
   const actions = ACTIONS_PAR_STATUT[statut] ?? []
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Modération des annonces</h1>
-        <Link to="/admin/photos" className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-nuit-900 hover:bg-slate-50">
+        <h1 className="text-3xl font-bold text-nuit-950 sm:text-4xl">Modération des annonces</h1>
+        <Link to="/admin/photos" className="rounded-xl border-2 border-dore-400 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">
           Gérer les photos du catalogue
         </Link>
       </div>
-      <p className="mt-1 text-sm text-slate-600">
+      <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-800">
         Les propriétaires publient directement leurs annonces pendant 30 jours. Cet espace sert à traiter les signalements et les non-conformités. Une annonce arrivée à échéance doit être couverte par un abonnement ou un mandat accepté ; elle ne peut pas être validée par l’administration.
       </p>
 
@@ -140,7 +140,7 @@ export default function AdminModeration() {
             type="button"
             aria-pressed={statut === o.statut}
             onClick={() => choisirOnglet(o.statut)}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${
+            className={`rounded-full px-4 py-2.5 text-base font-semibold ${
               statut === o.statut ? 'bg-nuit-900 text-white' : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
@@ -149,47 +149,47 @@ export default function AdminModeration() {
         ))}
       </div>
 
-      {info && <p role="status" className="mt-4 rounded-lg bg-dore-100 p-3 text-sm text-nuit-900">{info}</p>}
-      {erreur && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
-      {!annonces && !erreur && <p role="status" className="mt-6 text-slate-500">Chargement…</p>}
+      {info && <p role="status" className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-base font-medium text-nuit-950">{info}</p>}
+      {erreur && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-base font-medium text-red-900">{erreur}</p>}
+      {!annonces && !erreur && <p role="status" className="mt-6 rounded-xl bg-slate-50 p-4 text-base text-slate-700">Chargement…</p>}
       {annonces && annonces.length === 0 && (
-        <p className="mt-6 text-slate-600">Aucune annonce « {libelleStatut[statut].toLowerCase()} ».</p>
+        <p className="mt-6 rounded-xl bg-slate-50 p-4 text-base text-slate-700">Aucune annonce « {libelleStatut[statut].toLowerCase()} ».</p>
       )}
 
-      <ul className="mt-6 space-y-3">
+      <ul className="mt-6 space-y-5">
         {annonces?.map((a) => (
-          <li key={a.id} className="rounded-2xl bg-white p-4 shadow">
+          <li key={a.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-md sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
-                <Link to={`/annonces/${a.id}`} className="break-words font-semibold hover:underline">{a.titre}</Link>
-                <p className="text-sm text-slate-600">
+                <Link to={`/annonces/${a.id}`} className="break-words text-lg font-bold text-nuit-950 hover:underline sm:text-xl">{a.titre}</Link>
+                <p className="mt-1 text-base leading-relaxed text-slate-700">
                   {libelleTypeBien[a.typeBien]} · {a.quartier}, {a.ville} · {formatFcfa(a.prix)}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="mt-1 text-base leading-relaxed text-slate-600">
                   Propriétaire : {a.proprietaire.nomComplet} · déposée le {new Date(a.creeLe).toLocaleDateString('fr-FR')}
                 </p>
               </div>
-              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
+              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-800">{libelleStatut[a.statut]}</span>
             </div>
-            {a.exemple && <p className="mt-2 text-sm text-slate-600">Annonce d'exemple (le bien n'existe pas).</p>}
+            {a.exemple && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-base text-slate-700">Annonce d'exemple (le bien n'existe pas).</p>}
             {!a.exemple && (
               <div className="mt-3 max-w-xl">
-                <label htmlFor={'proprietaire-' + a.id} className="mb-1 block text-xs font-semibold text-slate-600">Rattacher cette annonce au propriétaire réel</label>
+                <label htmlFor={'proprietaire-' + a.id} className="mb-2 block text-base font-bold text-slate-800">Rattacher cette annonce au propriétaire réel</label>
                 <select id={'proprietaire-' + a.id} value={a.proprietaire.id} disabled={envoi || proprietaires.length === 0}
                   onChange={(e) => void changerProprietaire(a.id, e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 disabled:bg-slate-100">
+                  className="w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base text-slate-950 disabled:bg-slate-100">
                   {!proprietaires.some((p) => p.id === a.proprietaire.id) && <option value={a.proprietaire.id}>{a.proprietaire.nomComplet} (compte actuel)</option>}
                   {proprietaires.map((p) => <option key={p.id} value={p.id}>{p.nomComplet} — {p.email}</option>)}
                 </select>
-                {proprietaires.length === 0 && <p className="mt-1 text-xs text-amber-800">Aucun compte propriétaire actif disponible.</p>}
+                {proprietaires.length === 0 && <p className="mt-2 rounded-lg bg-amber-50 p-3 text-base font-medium text-amber-900">Aucun compte propriétaire actif disponible.</p>}
               </div>
             )}
             {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
-              <p className="mt-2 rounded-lg bg-amber-50 p-2 text-sm text-slate-800"><strong>Motif :</strong> {a.motifModeration}</p>
+              <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-base leading-relaxed text-slate-900"><strong>Motif :</strong> {a.motifModeration}</p>
             )}
 
             {actions.length > 0 && saisie?.id !== a.id && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 {actions.map((action) =>
                   AVEC_MOTIF.includes(action) ? (
                     <button
@@ -200,7 +200,7 @@ export default function AdminModeration() {
                         setMotif('')
                         setInfo(null)
                       }}
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium"
+                      className="rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-900 hover:bg-slate-50"
                     >
                       {LIBELLE_ACTION[action]}
                     </button>
@@ -210,7 +210,7 @@ export default function AdminModeration() {
                       type="button"
                       disabled={envoi}
                       onClick={() => decider(a.id, action)}
-                      className="rounded-lg bg-nuit-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-60"
+                      className="rounded-xl bg-nuit-900 px-4 py-3 text-base font-bold text-white hover:bg-nuit-800 disabled:opacity-60"
                     >
                       {LIBELLE_ACTION[action]}
                     </button>
@@ -221,13 +221,13 @@ export default function AdminModeration() {
 
             {saisie?.id === a.id && (
               <form
-                className="mt-3 space-y-2"
+                className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
                 onSubmit={(e) => {
                   e.preventDefault()
                   void decider(a.id, saisie.action, motif.trim())
                 }}
               >
-                <label htmlFor={`motif-${a.id}`} className="block text-sm font-medium">
+                <label htmlFor={`motif-${a.id}`} className="block text-base font-bold text-slate-800">
                   Motif (visible par le propriétaire)
                 </label>
                 <textarea
@@ -236,17 +236,17 @@ export default function AdminModeration() {
                   onChange={(e) => setMotif(e.target.value)}
                   maxLength={500}
                   rows={3}
-                  className="w-full rounded-lg border border-slate-300 p-2 text-sm"
+                  className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"
                 />
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="submit"
                     disabled={envoi || motif.trim() === ''}
-                    className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60"
+                    className="rounded-xl bg-red-700 px-4 py-3 text-base font-bold text-white disabled:opacity-60"
                   >
                     Confirmer : {LIBELLE_ACTION[saisie.action].toLowerCase()}
                   </button>
-                  <button type="button" onClick={() => setSaisie(null)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm">
+                  <button type="button" onClick={() => setSaisie(null)} className="rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-900">
                     Annuler
                   </button>
                 </div>
