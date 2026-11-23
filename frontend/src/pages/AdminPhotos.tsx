@@ -74,7 +74,7 @@ export default function AdminPhotos() {
   const [recherche, setRecherche] = useState('')
   const [villeFiltre, setVilleFiltre] = useState('TOUTES')
   const [menuMobile, setMenuMobile] = useState(false)
-  const [photosOuvertes, setPhotosOuvertes] = useState<Record<string, boolean>>({})
+  const [annoncePhotosOuverteId, setAnnoncePhotosOuverteId] = useState<string | null>(null)
   const [annonceEnEdition, setAnnonceEnEdition] = useState<AnnoncePhoto | null>(null)
   const [motifEdition, setMotifEdition] = useState('')
   const [edition, setEdition] = useState({ titre: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
@@ -297,59 +297,81 @@ export default function AdminPhotos() {
                     <p className="text-xs text-slate-800">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-md transition hover:brightness-110"><Pencil className="h-4 w-4" />Modifier</button>
-                      <button type="button" onClick={() => setPhotosOuvertes((v) => ({ ...v, [a.id]: !v[a.id] }))} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:brightness-105"><ImageIcon className="h-4 w-4" />Photos</button>
+                      <button type="button" onClick={() => setAnnoncePhotosOuverteId(a.id)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:brightness-105"><ImageIcon className="h-4 w-4" />Photos</button>
                       <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:bg-[#edf4fc] disabled:opacity-50"><Trash2 className="h-4 w-4" />Retirer</button>
                     </div>
                   </div>
 
                 </div>
 
-                <details open={!!photosOuvertes[a.id]} className="admin-photo-details w-full min-w-0 border-t border-slate-100 bg-[#fbfcff]">
-                  <summary className="cursor-pointer px-5 py-3 text-sm font-extrabold text-[#08284d] hover:bg-amber-50">Gérer les photos ({a.photos.length})</summary>
-                  <div className="p-5 sm:p-6">
-                  <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
+              </article>      </details>
+              </article>
+            ))}</div>}
+          </section>
+        )}
+
+
+        {annoncePhotosOuverteId && (() => {
+          const annoncePhotosActive = annonces.find((item) => item.id === annoncePhotosOuverteId)
+          if (!annoncePhotosActive) return null
+          const a = annoncePhotosActive
+          return (
+            <div className="admin-gallery-overlay fixed inset-0 z-[100] flex items-center justify-center bg-[#061b35]/80 p-3 backdrop-blur-sm sm:p-6" role="dialog" aria-modal="true" aria-labelledby="admin-gallery-title">
+              <section className="admin-gallery-dialog flex max-h-[94vh] w-full max-w-[1440px] flex-col overflow-hidden rounded-[1.6rem] border border-[#e8c65b] bg-[#f5f7fb] shadow-2xl">
+                <header className="flex shrink-0 items-center justify-between gap-4 border-b border-[#e5d39a] bg-white px-5 py-4 sm:px-7">
+                  <div className="min-w-0">
+                    <p className="text-xs font-extrabold uppercase tracking-[.18em] text-[#a87500]">Gestion des médias</p>
+                    <h2 id="admin-gallery-title" className="truncate text-xl font-black text-[#08284d] sm:text-2xl">Photos de l’annonce</h2>
+                    <p className="mt-1 truncate text-sm font-medium text-[#38536f]">{a.titre} · {a.ville}</p>
+                  </div>
+                  <button type="button" onClick={() => setAnnoncePhotosOuverteId(null)} className="flex h-11 shrink-0 items-center justify-center rounded-full border border-[#c5d2df] bg-white px-5 text-sm font-bold text-[#08284d] shadow-sm hover:bg-[#edf3fa]">Fermer ✕</button>
+                </header>
+                <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7">
+                  <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-extrabold text-[#08284d]">Galerie des photos</h3>
+                      <p className="text-sm text-[#49627d]">{a.photos.length} photo(s) enregistrée(s) · Images présentées dans une grille régulière</p>
+                    </div>
+                    <span className="rounded-full border border-[#e5c45c] bg-[#fff5cf] px-4 py-2 text-sm font-extrabold text-[#654900]">{a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce propriétaire'}</span>
+                  </div>
                   {a.photos.length === 0 ? (
-                    <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-800">Aucune photo pour cette annonce.</div>
+                    <div className="rounded-2xl border-2 border-dashed border-[#c6d2df] bg-white p-10 text-center">
+                      <ImageIcon className="mx-auto h-10 w-10 text-[#8aa0b7]" />
+                      <p className="mt-3 font-bold text-[#173b63]">Aucune photo enregistrée pour cette annonce.</p>
+                    </div>
                   ) : (
-                    <div className="admin-photo-gallery admin-photo-grid">
+                    <div className="admin-gallery-grid">
                       {a.photos.map((photoId, index) => (
-                        <article key={photoId} className="admin-photo-item group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
-                          <div className="relative overflow-hidden bg-slate-200">
-                            <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
-                              alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
-                            <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#08284d]/95 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-sm">Photo {index + 1}</span>
+                        <article key={photoId} className="admin-gallery-card overflow-hidden rounded-2xl border border-[#d7e0e9] bg-white shadow-[0_5px_18px_rgba(8,40,77,.09)]">
+                          <div className="relative aspect-[4/3] overflow-hidden bg-[#e6edf4]">
+                            <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))} alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-full w-full object-cover" />
+                            <span className="absolute left-3 top-3 rounded-full border border-white/80 bg-[#08284d]/95 px-3 py-1.5 text-xs font-extrabold text-white shadow">Photo {index + 1}</span>
                           </div>
-                          <div className="space-y-3.5 bg-white p-4 sm:p-5">
+                          <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
                               <>
-                                <label htmlFor={`remplacer-${photoId}`} className="block text-xs font-bold uppercase tracking-wide text-slate-800">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#174b83] bg-[#08284d] px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#174b83] focus-within:outline-none focus-within:ring-4 focus-within:ring-dore-200">📁 Choisir un fichier</label>
-                                <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                                  onChange={async (e) => {
-                                    const fichier = e.target.files?.[0]
-                                    if (!fichier) return
-                                    try {
-                                      const prepare = await preparerPhoto(fichier)
-                                      setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
-                                      setErreur(null)
-                                    } catch (erreurPhoto) {
-                                      setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
-                                      setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
-                                    }
-                                  }} />
-                                <p aria-live="polite" className="min-h-11 break-all rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
-                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
-                                  onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border border-[#08284d] bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-nuit-800 focus:outline-none focus:ring-4 focus:ring-dore-200 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-600 disabled:shadow-none">
-                                  {envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}
-                                </button>
-                                <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#08284d] transition-colors hover:border-dore-500 hover:bg-dore-50 focus:outline-none focus:ring-4 focus:ring-dore-100 disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
+                                <label htmlFor={'remplacer-' + photoId} className="block text-sm font-bold text-[#173b63]">Remplacer cette photo</label>
+                                <label htmlFor={'remplacer-' + photoId} className="flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#174b83] bg-[#12385f] px-3 py-2 text-center text-sm font-bold text-white hover:bg-[#174b83]">📁 Choisir une nouvelle image</label>
+                                <input id={'remplacer-' + photoId} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={async (e) => {
+                                  const fichier = e.target.files?.[0]
+                                  if (!fichier) return
+                                  try {
+                                    const prepare = await preparerPhoto(fichier)
+                                    setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
+                                    setErreur(null)
+                                  } catch (erreurPhoto) {
+                                    setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                                    setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
+                                  }
+                                }} />
+                                <p aria-live="polite" className="min-h-10 break-all rounded-lg border border-[#d7e0e9] bg-[#f7f9fc] px-3 py-2.5 text-sm text-[#38536f]">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
+                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]} onClick={() => void remplacerPhoto(a, photoId)} className="min-h-11 w-full rounded-full border border-[#12385f] bg-[#12385f] px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-[#1c4e7b] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">{envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}</button>
+                                <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)} className="min-h-11 w-full rounded-full border border-[#b8c8d8] bg-white px-4 py-2.5 text-sm font-bold text-[#173b63] hover:border-[#d6aa34] hover:bg-[#fff8e4] disabled:opacity-50">Supprimer la photo</button>
                               </>
                             ) : (
-                              <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
-                                <p className="text-base font-extrabold text-slate-950">Photo gérée par le propriétaire</p>
-                                <p className="mt-2 text-sm leading-relaxed text-slate-800">L’administrateur peut consulter cette photo, mais ne peut ni la remplacer ni la supprimer depuis cet espace. Toute demande de correction passe par la modération.</p>
+                              <div className="rounded-xl border border-[#d7e0e9] bg-[#f5f8fc] p-4">
+                                <p className="font-extrabold text-[#173b63]">Photo gérée par le propriétaire</p>
+                                <p className="mt-1 text-sm leading-relaxed text-[#49627d]">L’administrateur peut consulter cette photo, mais ne peut ni la remplacer ni la supprimer depuis cet espace.</p>
                               </div>
                             )}
                           </div>
@@ -357,43 +379,42 @@ export default function AdminPhotos() {
                       ))}
                     </div>
                   )}
-
                   {a.publieeParAgence && (
-                    <div className="mt-6 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5">
-                      <h4 className="text-lg font-black text-blue-950">Ajouter une photo à cette annonce</h4>
-                      <p className="mt-1 text-sm leading-relaxed text-blue-950">Formats acceptés : JPG ou PNG. Maximum 5 Mo après préparation, jusqu’à 8 photos par annonce.</p>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                        <div className="space-y-2">
-                          <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
-                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-blue-950 bg-gradient-to-r from-blue-950 via-blue-900 to-slate-800 px-5 py-2.5 text-center text-sm font-extrabold !text-white shadow-[0_5px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_0_#c58a16] active:translate-y-1 active:shadow-none focus-within:outline-none focus-within:ring-4 focus-within:ring-amber-200">＋ Choisir un fichier</label>
-                          <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                            onChange={async (e) => {
-                              const fichier = e.target.files?.[0]
-                              if (!fichier) return
-                              try {
-                                const prepare = await preparerPhoto(fichier)
-                                setFichiers((v) => ({ ...v, [a.id]: prepare }))
-                                setErreur(null)
-                              } catch (erreurPhoto) {
-                                setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
-                                setFichiers((v) => ({ ...v, [a.id]: undefined }))
-                              }
-                            }} />
-                          <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
+                    <section className="mt-7 rounded-2xl border border-[#e5c45c] bg-white p-5 shadow-sm sm:p-6">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-black text-[#08284d]">Ajouter une photo</h3>
+                          <p className="mt-1 text-sm text-[#49627d]">JPG ou PNG · 5 Mo maximum après préparation · Jusqu’à 8 photos par annonce</p>
                         </div>
-                        <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-11 w-full rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] sm:w-auto transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-800 disabled:shadow-none">
-                          {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
-                        </button>
+                        <ImageIcon className="h-8 w-8 text-[#c08a10]" />
                       </div>
-                    </div>
+                      <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                        <div className="space-y-2">
+                          <label htmlFor={'ajouter-' + a.id} className="block text-sm font-bold text-[#173b63]">Sélectionner une image</label>
+                          <label htmlFor={'ajouter-' + a.id} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-[#174b83] bg-[#12385f] px-4 py-3 text-sm font-extrabold text-white hover:bg-[#174b83]">＋ Choisir un fichier</label>
+                          <input id={'ajouter-' + a.id} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={async (e) => {
+                            const fichier = e.target.files?.[0]
+                            if (!fichier) return
+                            try {
+                              const prepare = await preparerPhoto(fichier)
+                              setFichiers((v) => ({ ...v, [a.id]: prepare }))
+                              setErreur(null)
+                            } catch (erreurPhoto) {
+                              setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                              setFichiers((v) => ({ ...v, [a.id]: undefined }))
+                            }
+                          }} />
+                          <p aria-live="polite" className="min-h-10 break-all rounded-lg border border-[#d7e0e9] bg-[#f7f9fc] px-3 py-2.5 text-sm text-[#38536f]">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
+                        </div>
+                        <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)} className="min-h-12 rounded-full border border-[#bd8b13] bg-gradient-to-r from-[#ffdf79] to-[#f1b92d] px-7 py-3 text-sm font-black text-[#08284d] shadow-sm hover:brightness-105 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">{envoi === a.id ? 'Ajout en cours…' : 'Ajouter à la galerie'}</button>
+                      </div>
+                    </section>
                   )}
-                  </div>
-                </details>
-              </article>
-            ))}</div>}
-          </section>
-        )}
+                </div>
+              </section>
+            </div>
+          )
+        })()}
 
 
 
