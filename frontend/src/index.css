@@ -1049,3 +1049,24 @@ svg.lucide,
 #contenu .espace-locataire-page a:focus-visible {
   outline-color: #d99a00;
 }
+
+
+/* Espaces agence et partenaire : lisibilité renforcée sur tous les panneaux. */
+#contenu :where(.espace-partenaire-page) {
+  color: #173b63 !important;
+  background: rgba(247, 250, 253, .96);
+  border-radius: 1.5rem;
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+#contenu .espace-partenaire-page :where(h1,h2,h3) { color: #102b49 !important; }
+#contenu .espace-partenaire-page :where(.bg-white,.bg-slate-50) { color: #173b63 !important; }
+#contenu .espace-partenaire-page :where(.text-slate-500,.text-slate-600,.text-slate-700,.text-slate-800) { color: #40566e !important; }
+#contenu .espace-partenaire-page :where(.text-amber-700,.text-amber-800,.text-amber-900) { color: #805000 !important; }
+#contenu .espace-partenaire-page :where(input,select,textarea) { color: #173b63 !important; background-color: #fff !important; }
+#contenu .espace-partenaire-page :where(input,select,textarea)::placeholder { color: #64748b !important; opacity: 1; }
+#contenu .espace-partenaire-page > section:first-of-type {
+  color: #fff !important;
+}
+#contenu .espace-partenaire-page > section:first-of-type :where(p,h1,h2,span) { color: inherit; }
+#contenu .espace-partenaire-page > section:first-of-type .text-white\/75,
+#contenu .espace-partenaire-page > section:first-of-type .text-white\/80 { color: rgba(255,255,255,.88) !important; }
