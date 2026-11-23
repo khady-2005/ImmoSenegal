@@ -111,7 +111,7 @@ export default function Layout() {
                 aria-expanded={menuPlusOuvert}
                 aria-haspopup="menu"
                 aria-label="Afficher les autres rubriques"
-                className={`ml-1 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white/90 transition hover:border-dore-400/60 hover:bg-white/10 hover:text-dore-300 ${menuPlusOuvert ? 'bg-white/10 text-dore-300' : ''}`}
+                className={`ml-1 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f4c542] bg-[#f4c542] text-[#171717] shadow-md transition hover:bg-[#ffe08a] hover:text-[#171717] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${menuPlusOuvert ? 'bg-[#ffe08a] text-[#171717]' : ''}`}
               >
                 <MoreHorizontal aria-hidden className="h-6 w-6" />
               </button>
@@ -155,7 +155,7 @@ export default function Layout() {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-full p-2 text-white transition-colors hover:bg-white/10 xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#f4c542] bg-[#f4c542] p-2 text-[#171717] shadow-md transition-colors hover:bg-[#ffe08a] hover:text-[#171717] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white xl:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? 'Fermer le menu' : 'Ouvrir le menu'}
