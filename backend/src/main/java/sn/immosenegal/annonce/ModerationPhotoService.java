@@ -86,6 +86,20 @@ public class ModerationPhotoService {
             .stream().map(a -> convertir(a, annonce.getTitre())).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<AvertissementResponse> mesAvertissementsToutesAnnonces(AuthenticatedUser proprietaire) {
+        if (proprietaire == null || proprietaire.role() != Role.PROPRIETAIRE) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Réservé au propriétaire.");
+        }
+        return avertissements.findAllByProprietaireIdOrderByCreeLeDesc(proprietaire.id()).stream()
+            .map(a -> {
+                String titre = annonces.findById(a.getAnnonceId())
+                    .map(Annonce::getTitre).orElse("Annonce supprimée");
+                return convertir(a, titre);
+            })
+            .toList();
+    }
+
     @Transactional
     public AvertissementResponse repondre(UUID annonceId, UUID photoId, String reponse, AuthenticatedUser acteur) {
         if (acteur == null || acteur.role() != Role.PROPRIETAIRE) {
