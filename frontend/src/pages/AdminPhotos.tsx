@@ -185,7 +185,7 @@ export default function AdminPhotos() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
-              <h1 className="mt-2 text-3xl font-black leading-tight text-white sm:text-4xl">Gestion du catalogue</h1>
+              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl" style={{ color: "#ffffff" }}>Gestion du catalogue</h1>
               <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
                 Retrouve rapidement les annonces par type de bien ou par origine de publication. Les photos et fiches restent accessibles depuis chaque annonce.
               </p>
@@ -259,7 +259,7 @@ export default function AdminPhotos() {
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
-                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-blue-800 bg-blue-800 px-4 py-2.5 text-sm font-extrabold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-blue-950 focus:outline-none focus:ring-4 focus:ring-blue-200">
+                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-2.5 text-sm font-extrabold text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200">
                       ✎ Modifier l’annonce
                     </button>
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
@@ -285,7 +285,7 @@ export default function AdminPhotos() {
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-900 bg-blue-700 px-4 py-3 text-center text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-950 focus-within:ring-4 focus-within:ring-blue-300">📷 Choisir une nouvelle photo</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-amber-600 bg-amber-400 px-4 py-3 text-center text-sm font-extrabold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300 focus-within:ring-4 focus-within:ring-amber-200">📷 Choisir une nouvelle photo</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -327,7 +327,7 @@ export default function AdminPhotos() {
                       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                         <div className="space-y-2">
                           <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
-                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-blue-900 bg-blue-700 px-5 py-3 text-center text-sm font-extrabold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-950 focus-within:ring-4 focus-within:ring-blue-300">＋ Choisir un fichier image</label>
+                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-amber-600 bg-amber-400 px-5 py-3 text-center text-sm font-extrabold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300 focus-within:ring-4 focus-within:ring-amber-200">＋ Choisir un fichier image</label>
                           <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                             onChange={async (e) => {
                               const fichier = e.target.files?.[0]
@@ -380,7 +380,7 @@ export default function AdminPhotos() {
               </div>
               <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-4">
                 <button type="button" onClick={()=>setAnnonceEnEdition(null)} className="rounded-xl border-2 border-slate-300 bg-white px-5 py-3 font-bold text-slate-800 hover:bg-slate-100">Annuler</button>
-                <button type="submit" disabled={envoi===annonceEnEdition.id} className="rounded-xl border-2 border-blue-950 bg-blue-900 px-6 py-3 font-black text-white shadow-lg hover:bg-blue-950 disabled:opacity-60">{envoi===annonceEnEdition.id?'Enregistrement…':'Enregistrer les modifications'}</button>
+                <button type="submit" disabled={envoi===annonceEnEdition.id} className="rounded-xl border-2 border-amber-600 bg-amber-400 px-6 py-3 font-black text-slate-950 shadow-lg hover:bg-amber-300 disabled:opacity-60">{envoi===annonceEnEdition.id?'Enregistrement…':'Enregistrer les modifications'}</button>
               </div>
             </form>
           </div>
