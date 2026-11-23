@@ -18,7 +18,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
             src={urlPhoto(annonce.id, annonce.photos[0], annonce.modifieLe)}
             alt={`Photo du type de bien présenté : ${annonce.titre}`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
+            className="absolute inset-0 h-full w-full object-cover brightness-[1.08] saturate-[1.08] transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
           />
         ) : (
           <Building2 aria-hidden className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 text-white/25" />
