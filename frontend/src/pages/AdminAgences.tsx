@@ -84,9 +84,9 @@ export default function AdminAgences() {
         <ArrowLeft className="h-4 w-4" /> Retour à l’administration
       </Link>
       <section className="mt-5 rounded-3xl bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 p-6 text-white shadow-lg sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-dore-400">Administration</p>
-        <h1 className="mt-3 text-2xl font-bold sm:text-3xl">Gestion des agences</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">
+        <p className="text-base font-extrabold uppercase tracking-wide text-amber-300">Administration</p>
+        <h1 className="mt-3 text-3xl font-extrabold leading-tight sm:text-4xl">Gestion des agences</h1>
+        <p className="mt-3 max-w-3xl text-lg font-semibold leading-8 text-white">
           Vérifiez les agences inscrites, validez leur activation et suspendez un accès si nécessaire.
         </p>
       </section>
