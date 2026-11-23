@@ -961,3 +961,40 @@ svg.lucide,
 .lucide {
   display: none !important;
 }
+
+/* Finition de l'accueil : meilleure hiérarchie et contrastes des encarts clairs. */
+#contenu .home-hero .home-hero-info p,
+#contenu .home-hero .home-hero-info p:first-child {
+  color: #52677f !important;
+}
+#contenu .home-hero .home-hero-info p:last-child {
+  color: #102b49 !important;
+}
+#contenu .home-hero .home-hero-info > div:last-child p:first-child {
+  color: #8a650b !important;
+}
+#contenu .home-hero .home-hero-info > div:last-child p:last-child {
+  color: #102b49 !important;
+}
+#contenu .home-hero h1 {
+  max-width: 12ch;
+  text-wrap: balance;
+}
+#contenu .home-hero > div:first-child {
+  background-color: #082747;
+}
+#contenu .home-hero > div:first-child > img {
+  object-position: center 54%;
+}
+@media (max-width: 1023px) {
+  #contenu .home-hero .home-hero-info p {
+    color: #173b63 !important;
+  }
+}
+
+/* Masquer de façon fiable les pictogrammes Lucide dans toutes les pages. */
+#root svg.lucide,
+#root svg[class~="lucide"],
+#root svg[class*="lucide-"] {
+  display: none !important;
+}
