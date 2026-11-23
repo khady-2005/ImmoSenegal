@@ -82,7 +82,7 @@ export default function Dashboard() {
     { titre: 'Supervision locative', description: 'Consultez tous les contrats de location et les paiements déclarés sur la plateforme.', lien: '/admin/supervision-locative', icone: FileCheck2, action: 'Superviser les locations' },
     { titre: 'Litiges locatifs', description: 'Suivez les incidents non clôturés et les désaccords signalés par les parties.', lien: '/admin/litiges-locatifs', icone: ShieldCheck, action: 'Voir les dossiers à suivre' },
     { titre: 'Messagerie', description: 'Consultez les échanges liés aux réservations et contactez les parties lorsque nécessaire.', lien: '/messagerie', icone: ClipboardList, action: 'Ouvrir la messagerie' },
-    { titre: 'Toutes les demandes de visite', description: 'Consultez les demandes de visite de la plateforme.', lien: '/mes-visites', icone: CalendarDays, action: 'Voir les visites' },
+    { titre: 'Toutes les demandes de visite', description: 'Consultez et traitez les demandes de visite de toute la plateforme : accepter, refuser ou proposer un autre créneau.', lien: '/admin/visites', icone: CalendarDays, action: 'Gérer les visites' },
     { titre: 'Toutes les réservations', description: 'Consultez toutes les demandes de réservation associées aux annonces.', lien: '/admin/reservations', icone: BookmarkCheck, action: 'Voir les réservations' },
   ]
 
