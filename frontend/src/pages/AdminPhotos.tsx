@@ -267,8 +267,8 @@ export default function AdminPhotos() {
                     <p aria-live="polite" className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700">{fichiers[a.id]?.name ?? 'Aucun fichier sélectionné'}</p>
                   </div>
                   <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                    className="min-h-14 w-full rounded-xl border-2 border-blue-950 bg-blue-800 px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:bg-blue-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500 sm:w-auto">
-                    {envoi === a.id ? 'Ajout en cours…' : 'Ajouter la photo sélectionnée'}
+                    className="min-h-14 w-full rounded-xl border-2 border-blue-950 bg-blue-800 px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:bg-blue-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:border-blue-950 disabled:bg-blue-900 disabled:text-white disabled:opacity-80 sm:w-auto">
+                    {envoi === a.id ? 'Ajout en cours…' : fichiers[a.id] ? 'Ajouter la photo sélectionnée' : 'Sélectionne d’abord une photo'}
                   </button>
                 </div>
               )}
