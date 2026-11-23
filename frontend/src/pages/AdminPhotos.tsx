@@ -198,7 +198,7 @@ export default function AdminPhotos() {
             <p className="mt-2 text-sm font-medium text-white/90">Trouvez votre bien idéal</p>
           </div>
         </div>
-        <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-6 text-sm font-semibold">
+        <nav className="relative z-10 flex-1 space-y-2 overflow-y-auto px-3 py-6 text-sm font-semibold">
           <Link to="/tableau-de-bord" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><HomeIcon className="h-5 w-5" />Tableau de bord</Link>
           <Link to="/admin/photos" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#ffd45c] to-[#f3b92e] px-4 py-3 font-extrabold text-[#08284d] shadow-lg"><LayoutGrid className="h-5 w-5" />Gestion du catalogue</Link>
           <Link to="/admin/demandes" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Demandes</Link>
@@ -207,10 +207,10 @@ export default function AdminPhotos() {
           <Link to="/admin/utilisateurs" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Users className="h-5 w-5" />Utilisateurs</Link>
           <Link to="/admin/abonnements" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Settings className="h-5 w-5" />Paramètres</Link>
         </nav>
-        <div className="border-t border-white/10 p-3">
+        <div className="relative z-10 border-t border-white/10 p-3">
           <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><LogOut className="h-5 w-5" />Quitter l'administration</Link>
         </div>
-        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 -z-0 h-40 w-full bg-cover bg-center opacity-60" style={{ backgroundImage: "linear-gradient(to top, rgba(3,29,59,.98), rgba(3,29,59,.08)), url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=85)" }} />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 z-0 h-40 w-full bg-cover bg-center opacity-60" style={{ backgroundImage: "linear-gradient(to top, rgba(3,29,59,.98), rgba(3,29,59,.08)), url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=85)" }} />
       </aside>
       {menuMobile && <button type="button" aria-label="Fermer le menu" onClick={() => setMenuMobile(false)} className="absolute inset-0 z-30 bg-[#061b35]/50 lg:hidden" />}
       <div className="flex min-w-0 flex-1 flex-col">
@@ -275,7 +275,7 @@ export default function AdminPhotos() {
           <section className="space-y-6">
             {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-800">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche(''); setVilleFiltre('TOUTES') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">{annoncesFiltrees.map((a) => (
               <article key={a.id} className="group overflow-hidden rounded-[1.45rem] border border-slate-200/80 bg-white shadow-[0_5px_16px_rgba(8,40,77,0.13)] transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-52">
+                <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-[214px]">
                   {a.photos.length > 0 ? <img src={urlApi('/api/annonces/' + a.id + '/photos/' + a.photos[0] + '?v=' + (versionImages[a.photos[0]] ?? a.id))} alt={a.titre} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <Building2 className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 text-white/50" />}
                   <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#071a31]/90 to-transparent" />
                   <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-amber-300 px-4 py-1.5 text-sm font-extrabold text-[#08284d] shadow-lg">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
@@ -288,7 +288,7 @@ export default function AdminPhotos() {
                       <span className={a.publieeParAgence ? "rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#08284d]" : "rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-[#603d00]"}>{a.publieeParAgence ? 'ImmoSénégal' : 'Propriétaire'}</span>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
-                    <h3 className="mt-1 break-words text-xl font-black leading-tight text-[#102b49]">{a.titre}</h3>
+                    <h3 className="mt-1 break-words text-xl font-black leading-tight text-[#08284d]">{a.titre}</h3>
                     <p className="flex items-center gap-1.5 text-sm text-slate-800"><MapPin className="h-4 w-4 shrink-0 text-amber-500" />{a.quartier}, {a.ville}</p>
                     <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-3 text-sm font-medium text-slate-800">
                       <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-amber-500" />{a.superficie} m²</span>
@@ -296,11 +296,9 @@ export default function AdminPhotos() {
                     </div>
                     <p className="text-xs text-slate-800">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
-                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
-                        Modifier
-                      </button>
-                      <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] transition hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>
-                      <button type="button" onClick={() => setPhotosOuvertes((v) => ({ ...v, [a.id]: !v[a.id] }))} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] transition hover:brightness-105 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</button>
+                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-md transition hover:brightness-110"><Pencil className="h-4 w-4" />Modifier</button>
+                      <button type="button" onClick={() => setPhotosOuvertes((v) => ({ ...v, [a.id]: !v[a.id] }))} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:brightness-105"><ImageIcon className="h-4 w-4" />Photos</button>
+                      <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:bg-[#edf4fc] disabled:opacity-50"><Trash2 className="h-4 w-4" />Retirer</button>
                     </div>
                   </div>
 
