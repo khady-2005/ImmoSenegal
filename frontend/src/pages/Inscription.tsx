@@ -67,7 +67,7 @@ export default function Inscription() {
   return (
     <MiseEnPageAuth
       titre="Créer un compte"
-      intro="Tous les nouveaux comptes sont des comptes Client. Le rôle Propriétaire ou Agent se demande ensuite et doit être validé par un administrateur."
+      intro="Créez d’abord votre compte Client. Ensuite, demandez le statut Propriétaire ou Agent depuis votre tableau de bord. Pour devenir Gestionnaire ou collaborer avec une agence, le responsable de cette agence devra vous inviter à partir de votre adresse e-mail."
       pied={
         <>
           Déjà inscrit ?{' '}
