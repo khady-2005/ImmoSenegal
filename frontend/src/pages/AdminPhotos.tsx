@@ -158,7 +158,7 @@ export default function AdminPhotos() {
                 <div>
                   <Link to={'/annonces/' + a.id} className="font-semibold text-nuit-900 underline">{a.titre}</Link>
                   <p className="text-sm text-slate-600">Propriétaire : {a.proprietaire.nomComplet}</p>
-                  <p className="mt-1 text-xs font-semibold">{a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce d’un propriétaire'}</p>
+                  <p className="mt-1 text-sm font-semibold">{a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce d’un propriétaire'}</p>
                 </div>
                 <button type="button" disabled={envoi === a.id} onClick={() => void definirOrigine(a, !a.publieeParAgence)}
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:opacity-50">
@@ -172,20 +172,20 @@ export default function AdminPhotos() {
                     <div className="space-y-2 p-3">
                       {a.publieeParAgence ? (
                         <>
-                          <label className="block text-xs font-semibold text-slate-700">Remplacer cette photo
+                          <label className="block text-sm font-semibold text-slate-700">Remplacer cette photo
                             <input type="file" accept="image/jpeg,image/png"
                               onChange={(e) => setFichiersRemplacement((v) => ({ ...v, [photoId]: e.target.files?.[0] }))}
-                              className="mt-1 block max-w-full text-xs" />
+                              className="mt-2 block w-full rounded-xl border border-dore-200 bg-dore-50 p-3 text-sm" />
                           </label>
                           <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                             onClick={() => void remplacerPhoto(a, photoId)}
-                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold disabled:opacity-50">Remplacer</button>
+                            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold disabled:opacity-50">Remplacer la photo sélectionnée</button>
                           <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
                             className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700 disabled:opacity-50">Supprimer cette photo</button>
                         </>
                       ) : (
                         <>
-                          <label className="block text-xs font-semibold text-slate-700" htmlFor={'motif-' + photoId}>Motif de l’avertissement</label>
+                          <label className="block text-sm font-semibold text-slate-700" htmlFor={'motif-' + photoId}>Motif de l’avertissement</label>
                           <textarea id={'motif-' + photoId} value={motifs[photoId] ?? ''} maxLength={500} rows={2}
                             onChange={(e) => setMotifs((v) => ({ ...v, [photoId]: e.target.value }))}
                             className="w-full rounded-lg border border-slate-300 p-2 text-sm" placeholder="Explique le problème constaté…" />
@@ -202,10 +202,10 @@ export default function AdminPhotos() {
                 <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-4">
                   <label className="text-sm font-medium">Ajouter une photo
                     <input type="file" accept="image/jpeg,image/png" onChange={(e) => setFichiers((v) => ({ ...v, [a.id]: e.target.files?.[0] }))}
-                      className="mt-1 block max-w-full text-sm" />
+                      className="mt-2 block w-full rounded-xl border border-dore-200 bg-dore-50 p-3 text-sm" />
                   </label>
                   <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                    className="rounded-lg bg-nuit-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Ajouter la photo</button>
+                    className="rounded-lg bg-nuit-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Ajouter la photo sélectionnée</button>
                 </div>
               )}
             </section>
@@ -224,14 +224,14 @@ export default function AdminPhotos() {
                   <span>{a.statut === 'EN_ATTENTE' ? 'En attente' : a.statut === 'REPONDU' ? 'Réponse reçue' : a.statut === 'CORRIGE' ? 'Photo corrigée' : 'Photo retirée'}</span>
                 </div>
                 <p className="mt-1 text-slate-600">{a.motif}</p>
-                {a.statut === 'EN_ATTENTE' && <p className="mt-1 text-xs text-slate-500">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
+                {a.statut === 'EN_ATTENTE' && <p className="mt-1 text-sm text-slate-500">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
                 {a.reponseProprietaire && <p className="mt-1 rounded bg-slate-50 p-2">Réponse : {a.reponseProprietaire}</p>}
                 {a.statut === 'REPONDU' && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, false)}
-                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold">Clôturer sans retrait</button>
+                      className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold">Clôturer sans retrait</button>
                     <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, true)}
-                      className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700">Retirer après examen</button>
+                      className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700">Retirer après examen</button>
                   </div>
                 )}
               </article>
