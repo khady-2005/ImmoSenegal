@@ -192,10 +192,10 @@ export default function AdminPhotos() {
             </div>
             <div className="flex flex-wrap gap-3">
               <button type="button" onClick={() => void charger()} disabled={chargement}
-                className="min-h-12 rounded-xl border-2 border-white bg-white px-5 py-3 text-base font-extrabold text-slate-950 shadow hover:bg-slate-100 disabled:opacity-60">
+                className="min-h-12 rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-slate-100 disabled:opacity-60">
                 {chargement ? 'Actualisation…' : 'Actualiser la liste'}
               </button>
-              <Link to="/admin/annonces" className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-amber-300 bg-amber-300 px-5 py-3 text-base font-extrabold text-slate-950 shadow hover:bg-amber-200">
+              <Link to="/admin/annonces" className="inline-flex min-h-10 items-center justify-center rounded-full border-2 border-amber-500 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-amber-300">
                 Modération des annonces
               </Link>
             </div>
@@ -244,10 +244,10 @@ export default function AdminPhotos() {
               </div>
               <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce, une ville, un quartier…" aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-medium text-slate-950 outline-none placeholder:text-slate-500 focus:border-blue-800 focus:ring-4 focus:ring-blue-100" />
               <div className="flex flex-wrap gap-2" aria-label="Catégories du catalogue">
-                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-full border border-amber-600 bg-amber-400 px-3.5 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-full border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
+                {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-xs font-extrabold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
               </div>
             </div>
-            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border border-amber-600 bg-amber-400 px-3.5 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
+            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
               <article key={a.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
                 <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                   <div className="min-w-0">
@@ -259,11 +259,11 @@ export default function AdminPhotos() {
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
-                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border border-amber-600 bg-amber-400 px-3.5 py-1.5 text-xs font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200">
+                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200">
                       ✎ Modifier l’annonce
                     </button>
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
-                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex rounded-full border border-amber-500 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-950 hover:bg-amber-100">Voir la fiche de l’annonce</Link>
+                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex rounded-full border-2 border-amber-500 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-950 hover:bg-amber-100">Voir la fiche de l’annonce</Link>
                   </div>
 
                 </div>
@@ -279,13 +279,13 @@ export default function AdminPhotos() {
                           <div className="relative bg-slate-200">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
                               alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover" />
-                            <span className="absolute left-3 top-3 rounded-full border border-amber-300 bg-amber-400 px-3 py-1 text-xs font-extrabold text-slate-950 shadow-sm">Photo {index + 1}</span>
+                            <span className="absolute left-3 top-3 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-1.5 text-xs font-extrabold text-slate-950 shadow-sm">Photo {index + 1}</span>
                           </div>
                           <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={`remplacer-${photoId}`} className="block text-sm font-extrabold text-slate-900">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-9 cursor-pointer items-center justify-center rounded-full border border-amber-600 bg-amber-400 px-4 py-2 text-center text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 focus-within:ring-2 focus-within:ring-amber-200">📷 Choisir une nouvelle photo</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-9 cursor-pointer items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-center text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 focus-within:ring-2 focus-within:ring-amber-200">📷 Choisir une nouvelle photo</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -302,11 +302,11 @@ export default function AdminPhotos() {
                                 <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-slate-300 bg-slate-50 p-3 text-sm font-semibold text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
                                 <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                                   onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-9 w-full rounded-full border border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
+                                  className="min-h-9 w-full rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:border-slate-300">
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Valider le remplacement'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-9 w-full rounded-full border border-red-700 bg-red-600 px-4 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 disabled:opacity-50">🗑 Supprimer cette photo</button>
+                                  className="min-h-9 w-full rounded-full border-2 border-red-700 bg-red-600 px-4 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 disabled:opacity-50">🗑 Supprimer cette photo</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
@@ -327,7 +327,7 @@ export default function AdminPhotos() {
                       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                         <div className="space-y-2">
                           <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
-                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-amber-600 bg-amber-400 px-5 py-3 text-center text-sm font-extrabold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-amber-300 focus-within:ring-4 focus-within:ring-amber-200">＋ Choisir un fichier image</label>
+                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-10 cursor-pointer items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-5 py-2 text-center text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus-within:ring-2 focus-within:ring-amber-200">＋ Choisir un fichier image</label>
                           <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                             onChange={async (e) => {
                               const fichier = e.target.files?.[0]
@@ -344,7 +344,7 @@ export default function AdminPhotos() {
                           <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
                         </div>
                         <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-12 rounded-xl border-2 border-amber-600 bg-amber-400 px-6 py-3 text-sm font-black text-slate-950 shadow-md transition hover:-translate-y-0.5 hover:bg-amber-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500">
+                          className="min-h-10 rounded-full border-2 border-amber-600 bg-amber-400 px-5 py-2 text-sm font-black text-slate-950 shadow-sm transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500">
                           {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
                         </button>
                       </div>
@@ -363,7 +363,7 @@ export default function AdminPhotos() {
             <form onSubmit={enregistrerEdition} className="my-6 w-full max-w-3xl space-y-4 rounded-3xl border-2 border-blue-200 bg-white p-5 shadow-2xl sm:p-7">
               <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
                 <div><p className="text-xs font-black uppercase tracking-widest text-blue-800">Administration · Intervention justifiée</p><h2 className="mt-1 text-2xl font-black text-slate-950">Modifier l’annonce</h2><p className="mt-1 text-sm text-slate-600">Le propriétaire sera automatiquement informé de cette modification.</p></div>
-                <button type="button" onClick={() => setAnnonceEnEdition(null)} className="rounded-xl border-2 border-slate-300 bg-slate-100 px-3 py-2 font-bold text-slate-800 hover:bg-slate-200">Fermer</button>
+                <button type="button" onClick={() => setAnnonceEnEdition(null)} className="rounded-full border-2 border-slate-300 bg-slate-100 px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-200">Fermer</button>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Titre<input required maxLength={150} value={edition.titre} onChange={e=>setEdition(v=>({...v,titre:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base font-medium text-slate-950 focus:border-blue-700 focus:outline-none"/></label>
@@ -379,8 +379,8 @@ export default function AdminPhotos() {
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Motif obligatoire de la modification<textarea required minLength={1} maxLength={500} rows={2} value={motifEdition} onChange={e=>setMotifEdition(e.target.value)} placeholder="Explique pourquoi l’administration modifie cette annonce…" className="w-full rounded-xl border-2 border-amber-400 bg-amber-50 p-3 text-base text-slate-950"/></label>
               </div>
               <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 pt-4">
-                <button type="button" onClick={()=>setAnnonceEnEdition(null)} className="rounded-xl border-2 border-slate-300 bg-white px-5 py-3 font-bold text-slate-800 hover:bg-slate-100">Annuler</button>
-                <button type="submit" disabled={envoi===annonceEnEdition.id} className="rounded-xl border-2 border-amber-600 bg-amber-400 px-6 py-3 font-black text-slate-950 shadow-lg hover:bg-amber-300 disabled:opacity-60">{envoi===annonceEnEdition.id?'Enregistrement…':'Enregistrer les modifications'}</button>
+                <button type="button" onClick={()=>setAnnonceEnEdition(null)} className="rounded-full border-2 border-slate-300 bg-white px-5 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100">Annuler</button>
+                <button type="submit" disabled={envoi===annonceEnEdition.id} className="rounded-full border-2 border-amber-600 bg-amber-400 px-6 py-2.5 text-sm font-black text-slate-950 shadow-sm hover:bg-amber-300 disabled:opacity-60">{envoi===annonceEnEdition.id?'Enregistrement…':'Enregistrer les modifications'}</button>
               </div>
             </form>
           </div>
