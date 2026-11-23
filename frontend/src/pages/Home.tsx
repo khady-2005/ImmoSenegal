@@ -29,7 +29,7 @@ const inspirations = [
 const boutonOr = 'inline-flex items-center justify-center gap-2 rounded-full bg-dore-500 px-6 py-3.5 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-dore-600'
 
 function TitreSection({ petit, titre, accent, id }: { petit: string; titre: string; accent?: string; id?: string }) {
-  return <div><p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-dore-600">{petit}</p><h2 id={id} className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">{titre}{accent && <> <span className="italic text-emeraude-700">{accent}</span></>}</h2></div>
+  return <div><p className="mb-2 text-xs font-extrabold uppercase tracking-[0.2em] text-dore-600">{petit}</p><h2 id={id} className="font-titre text-3xl font-semibold tracking-tight text-nuit-900 sm:text-4xl">{titre}{accent && <> <span className="italic text-dore-600">{accent}</span></>}</h2></div>
 }
 
 export default function Home() {
@@ -48,22 +48,31 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate min-h-[560px] overflow-hidden bg-gradient-to-br from-[#102a43] via-[#173b5e] to-[#245477] text-white sm:min-h-[620px]">
-        <img src={photoVilla} alt="Villa contemporaine avec piscine, image d'ambiance" width={1600} height={1000} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#102a43]/60 via-[#102a43]/32 to-[#102a43]/5" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-36 bg-gradient-to-t from-[#102a43]/55 to-transparent" />
-        <div className="mx-auto flex min-h-[560px] max-w-6xl items-center px-4 pb-32 pt-20 sm:min-h-[620px] sm:pb-36">
-          <div className="max-w-2xl">
-            <p className="inline-flex items-center gap-2 rounded-full border border-dore-400/60 bg-nuit-950/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-dore-400"><Sparkles aria-hidden className="h-4 w-4" /> Votre partenaire immobilier au Sénégal</p>
-            <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-[-0.045em] text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.28)] sm:text-6xl lg:text-7xl"><span className="text-white">Immo</span><span className="text-dore-400">Sénégal</span></h1>
-            <h2 className="font-titre mt-3 max-w-xl text-3xl font-semibold leading-tight text-white sm:text-4xl">Trouvez le bien de vos rêves au Sénégal</h2>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">Maisons, appartements, terrains… une large sélection de biens immobiliers pour donner vie à vos projets.</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/catalogue" className={boutonOr}><span aria-hidden>⌕</span> Rechercher un bien</Link>
-              <Link to="/catalogue" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/70 bg-nuit-950/35 px-6 py-3.5 font-semibold text-white transition hover:bg-white hover:text-nuit-950">Découvrir le catalogue <ArrowRight aria-hidden className="h-4 w-4" /></Link>
+      <section aria-labelledby="titre-accueil" className="relative isolate overflow-visible bg-[#08284d] text-white">
+        <div className="relative min-h-[500px] overflow-hidden sm:min-h-[560px]">
+          <img src={photoVilla} alt="Villa contemporaine avec piscine" width={1800} height={1100} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#06264b]/95 via-[#06264b]/70 to-[#06264b]/10" />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-[#06264b]/45 to-transparent" />
+          <div className="mx-auto flex min-h-[500px] max-w-7xl items-center px-5 pb-24 pt-16 sm:min-h-[560px] sm:px-8 sm:pb-28">
+            <div className="max-w-2xl">
+              <span className="inline-flex rounded-full border border-dore-300/60 bg-dore-400 px-4 py-2 text-sm font-extrabold text-[#09284b] shadow-lg">Bienvenue sur ImmoSénégal</span>
+              <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-6xl lg:text-7xl">Trouvez votre <span className="text-dore-400">bien idéal</span></h1>
+              <p className="mt-5 max-w-xl text-lg font-medium leading-relaxed text-white sm:text-xl">Maisons, appartements, villas et terrains au Sénégal, en toute confiance.</p>
+              <div className="mt-7 flex flex-wrap gap-5 text-sm font-semibold text-white">
+                <span className="inline-flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-dore-400" /> Transactions sécurisées</span>
+                <span className="inline-flex items-center gap-2"><Handshake className="h-5 w-5 text-dore-400" /> Accompagnement personnalisé</span>
+                <span className="inline-flex items-center gap-2"><House className="h-5 w-5 text-dore-400" /> Annonces immobilières</span>
+              </div>
             </div>
-            {total > 0 && <p className="mt-6 text-sm font-medium text-white/90">{total} bien{total > 1 ? 's' : ''} publié{total > 1 ? 's' : ''} actuellement</p>}
           </div>
+        </div>
+        <div className="relative z-10 mx-auto -mt-12 max-w-6xl px-4 pb-8 sm:-mt-14">
+          <form action="/catalogue" method="get" aria-label="Rechercher un bien immobilier" className="grid gap-3 rounded-[1.75rem] border border-slate-100 bg-white p-3 shadow-[0_18px_55px_-18px_rgba(3,24,49,0.45)] sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center sm:gap-2 sm:rounded-full sm:p-3">
+            <label className="flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#102b49]"><House className="h-5 w-5 shrink-0 text-[#102b49]" /><select name="type" aria-label="Type de bien" defaultValue="" className="w-full min-w-0 bg-transparent font-semibold outline-none"><option value="">Tous les types</option><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="VILLA">Villa</option><option value="TERRAIN">Terrain</option><option value="STUDIO">Studio</option></select></label>
+            <label className="flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#102b49]"><MapPin className="h-5 w-5 shrink-0 text-[#102b49]" /><input name="ville" placeholder="Toutes les villes" aria-label="Ville" className="w-full min-w-0 bg-transparent font-semibold outline-none placeholder:text-slate-400" /></label>
+            <label className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm text-[#102b49] sm:rounded-none sm:border-y-0 sm:border-r-0 sm:border-l"><Search className="h-5 w-5 shrink-0 text-[#102b49]" /><select name="transaction" aria-label="Type de transaction" defaultValue="" className="w-full min-w-0 bg-transparent font-semibold outline-none"><option value="">Location ou vente</option><option value="LOCATION">À louer</option><option value="VENTE">À vendre</option></select></label>
+            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f8cf55] to-[#e9a900] px-7 py-3.5 font-extrabold text-[#102b49] shadow-md transition hover:-translate-y-0.5 hover:brightness-105"><Search className="h-5 w-5" /> Rechercher</button>
+          </form>
         </div>
       </section>
 
@@ -111,6 +120,16 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-[#edf3fa] py-16 sm:py-20" aria-labelledby="titre-types">
+        <div className="mx-auto max-w-6xl px-4">
+          <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
+          <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
+          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Types de bien">
+            {types.filter(({ type }) => type !== "STUDIO").map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-[1.5rem] bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-t from-[#06284e]/95 via-[#06284e]/45 to-transparent" /><span className="relative flex h-full w-full flex-col justify-end p-5 text-white"><Icone aria-hidden className="mb-3 h-7 w-7 text-dore-300" /><span className="font-titre text-xl font-semibold text-white">{nom}</span><span className="mt-1 text-xs text-white/90">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
+          </ul>
+        </div>
+      </section>
+
       <section className="bg-white/80 py-16 sm:py-20 backdrop-blur-sm" aria-labelledby="titre-annonces">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-5">
@@ -122,16 +141,6 @@ export default function Home() {
           </div>
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
           <p className="mt-8 text-center"><Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-emeraude-300 px-6 py-3 font-semibold text-nuit-900 transition hover:bg-emeraude-800 hover:text-white">Explorer tous les biens <ArrowRight className="h-4 w-4" /></Link></p>
-        </div>
-      </section>
-
-      <section className="bg-[#edf3fa] py-16 sm:py-20" aria-labelledby="titre-types">
-        <div className="mx-auto max-w-6xl px-4">
-          <TitreSection id="titre-types" petit="Explorez selon vos envies" titre="Nos" accent="catégories" />
-          <p className="mt-3 max-w-xl text-slate-600">Un large choix de biens pour chaque projet, partout au Sénégal.</p>
-          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Types de bien">
-            {types.map(({ type, nom, description, icone: Icone, image }) => <li key={type}><Link to={`/catalogue?type=${type}`} aria-label={nom} className="group relative flex h-48 overflow-hidden rounded-[1.5rem] bg-nuit-900 shadow-carte transition hover:-translate-y-1 hover:shadow-carte-haut"><img src={image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" /><span aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#f7faf7]/95 via-[#f7faf7]/80 to-transparent" /><span className="relative flex h-full w-[82%] flex-col justify-center p-4 text-nuit-900"><Icone aria-hidden className="mb-3 h-7 w-7 text-nuit-900" /><span className="font-titre text-xl font-semibold">{nom}</span><span className="mt-1 text-xs text-slate-600">{description}</span><span className="mt-3 inline-flex items-center gap-1 text-xs font-bold">Voir plus <ArrowRight className="h-3 w-3" /></span></span></Link></li>)}
-          </ul>
         </div>
       </section>
 
