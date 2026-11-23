@@ -131,6 +131,12 @@ public class AnnonceService {
         return AnnonceResponse.pourGestion(annonce, photosDe(List.of(id)).getOrDefault(id, List.of()));
     }
 
+    /** Met à jour la version de l'annonce pour forcer le rafraîchissement des photos dans le catalogue. */
+    @Transactional
+    public void marquerPhotosModifiees(UUID id) {
+        trouver(id).setModifieLe(Instant.now());
+    }
+
     /** Les opérations photo directes de l'administrateur sont réservées aux annonces de l'agence. */
     void verifierGestionPhotoAdmin(UUID annonceId, AuthenticatedUser utilisateur) {
         if (utilisateur != null && utilisateur.role() == Role.ADMIN) {
