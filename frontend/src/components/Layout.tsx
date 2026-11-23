@@ -28,6 +28,7 @@ export default function Layout() {
   const [menuPlusOuvert, setMenuPlusOuvert] = useState(false)
   const [defile, setDefile] = useState(false)
   const { pathname } = useLocation()
+  const espaceAdministration = pathname.startsWith('/admin/')
 
   useEffect(() => {
     const surDefilement = () => setDefile(window.scrollY > 8)
@@ -61,7 +62,7 @@ export default function Layout() {
         Aller au contenu
       </a>
 
-      <header
+      {!espaceAdministration && <header
         className={`sticky top-0 z-40 border-b border-dore-500/40 bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 text-white transition-shadow ${
           defile ? 'shadow-[0_10px_30px_-12px_rgb(2_12_27/0.65)]' : ''
         }`}
@@ -233,15 +234,15 @@ export default function Layout() {
             </ul>
           </nav>
         )}
-      </header>
+      </header>}
 
-      <BandeauServeurLent />
+      {!espaceAdministration && <BandeauServeurLent />}
 
       <main id="contenu" className="flex-1">
         <Outlet />
       </main>
 
-      <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-[0.82rem] leading-relaxed text-white/80">
+      {!espaceAdministration && <footer className="bg-gradient-to-b from-nuit-900 to-nuit-950 text-[0.82rem] leading-relaxed text-white/80">
         <div className="h-px bg-gradient-to-r from-transparent via-dore-500/70 to-transparent" aria-hidden />
         <div className="mx-auto grid max-w-6xl gap-5 px-4 py-5 sm:grid-cols-2 lg:grid-cols-[1.25fr_0.9fr_0.9fr_1.25fr]">
           <div>
@@ -318,7 +319,7 @@ export default function Layout() {
             <Link to="/mentions-legales" className="transition-colors hover:text-dore-300 hover:underline">Mentions légales</Link>
           </div>
         </div>
-      </footer>
+      </footer>}
     </div>
   )
 }
