@@ -59,9 +59,7 @@ export default function AdminPhotos() {
   const charger = useCallback(async () => {
     setChargement(true)
     try {
-      const [page, historique] = await Promise.all([
-        appelApi<Page<AnnoncePhoto>>('/api/admin/annonces?statut=PUBLIEE&taille=50', { token: jeton }),
-      ])
+      const page = await appelApi<Page<AnnoncePhoto>>('/api/admin/annonces?statut=PUBLIEE&taille=50', { token: jeton })
       setAnnonces(page.contenu)
       setErreur(null)
     } catch (e) {
