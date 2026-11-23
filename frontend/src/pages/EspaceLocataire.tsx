@@ -83,7 +83,7 @@ export default function EspaceLocataire() {
   const historique = contrats.filter(c => c.etat === 'TERMINE' || c.etat === 'RESILIE')
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
 
-  return <main className="mx-auto max-w-6xl px-4 py-10">
+  return <main className="espace-locataire-page mx-auto max-w-6xl px-4 py-10">
     <header className="rounded-3xl bg-nuit-900 p-6 text-white sm:p-8">
       <p className="text-xs font-bold uppercase tracking-widest text-dore-300">Espace personnel · Locataire</p>
       <h1 className="mt-2 text-3xl font-bold">Bonjour {utilisateur?.nomComplet || ''}</h1>
