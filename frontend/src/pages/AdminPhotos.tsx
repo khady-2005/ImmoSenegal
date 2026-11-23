@@ -191,7 +191,7 @@ export default function AdminPhotos() {
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
+    <main className="admin-photos-page min-h-screen bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-7">
         <header className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 p-6 text-white shadow-xl sm:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
