@@ -304,7 +304,6 @@ export default function AdminPhotos() {
 
                 </div>
 
-              </article>      </details>
               </article>
             ))}</div>}
           </section>
