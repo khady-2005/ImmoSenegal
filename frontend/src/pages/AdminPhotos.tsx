@@ -174,11 +174,13 @@ export default function AdminPhotos() {
                     <div className="space-y-3 bg-slate-50 p-4">
                       {a.publieeParAgence ? (
                         <>
-                          <label className="block text-sm font-semibold text-slate-700">Remplacer cette photo
-                            <input type="file" accept="image/jpeg,image/png"
-                              onChange={(e) => setFichiersRemplacement((v) => ({ ...v, [photoId]: e.target.files?.[0] }))}
-                              className="mt-2 block w-full rounded-xl border border-dore-200 bg-dore-50 p-3 text-sm" />
-                          </label>
+                          <div className="space-y-2">
+                            <span className="block text-base font-bold text-slate-900">Remplacer cette photo</span>
+                            <label htmlFor={`remplacer-${photoId}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une nouvelle photo</label>
+                            <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
+                              onChange={(e) => setFichiersRemplacement((v) => ({ ...v, [photoId]: e.target.files?.[0] }))} />
+                            <p aria-live="polite" className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-medium text-slate-700">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier sélectionné'}</p>
+                          </div>
                           <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                             onClick={() => void remplacerPhoto(a, photoId)}
                             className="w-full rounded-xl bg-nuit-900 px-4 py-3 text-base font-bold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-40">Remplacer la photo sélectionnée</button>
@@ -202,10 +204,13 @@ export default function AdminPhotos() {
               </div>
               {a.publieeParAgence && (
                 <div className="mt-5 flex flex-col items-start gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-end">
-                  <label className="text-sm font-medium">Ajouter une photo
-                    <input type="file" accept="image/jpeg,image/png" onChange={(e) => setFichiers((v) => ({ ...v, [a.id]: e.target.files?.[0] }))}
-                      className="mt-2 block w-full rounded-xl border border-dore-200 bg-dore-50 p-3 text-sm" />
-                  </label>
+                  <div className="space-y-2">
+                    <span className="block text-base font-bold text-slate-900">Ajouter une photo</span>
+                    <label htmlFor={`ajouter-${a.id}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une photo</label>
+                    <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
+                      onChange={(e) => setFichiers((v) => ({ ...v, [a.id]: e.target.files?.[0] }))} />
+                    <p aria-live="polite" className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700">{fichiers[a.id]?.name ?? 'Aucun fichier sélectionné'}</p>
+                  </div>
                   <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
                     className="rounded-xl bg-nuit-900 px-5 py-3 text-base font-bold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-40">Ajouter la photo sélectionnée</button>
                 </div>
