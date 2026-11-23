@@ -992,9 +992,14 @@ svg.lucide,
   }
 }
 
-/* Masquer de façon fiable les pictogrammes Lucide dans toutes les pages. */
+/* Garder uniquement les icônes de visibilité (œil / œil barré pour les mots de passe). */
 #root svg.lucide,
 #root svg[class~="lucide"],
 #root svg[class*="lucide-"] {
   display: none !important;
+}
+#root svg.lucide-eye,
+#root svg.lucide-eye-off,
+#root svg[class*="lucide-eye"] {
+  display: inline-block !important;
 }
