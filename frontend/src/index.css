@@ -501,3 +501,39 @@ body.fond-pages #contenu::before {
   font-size: 1rem;
   font-weight: 700;
 }
+
+
+/* Gestion du catalogue : préserver les couleurs des boutons malgré les règles globales. */
+#contenu .admin-photos-page .bg-white button,
+#contenu .admin-photos-page .bg-white label[for^="remplacer-"],
+#contenu .admin-photos-page .bg-white label[for^="ajouter-"] {
+  text-shadow: none !important;
+}
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r,
+#contenu .admin-photos-page .bg-white label.bg-gradient-to-r,
+#contenu .admin-photos-page .bg-white label.bg-slate-900 {
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-amber-300,
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-amber-300 *,
+#contenu .admin-photos-page .bg-white button:disabled {
+  color: #172b40 !important;
+}
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-rose-700,
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-rose-700 * {
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page .bg-white label[for^="remplacer-"],
+#contenu .admin-photos-page .bg-white label[for^="ajouter-"] {
+  background: linear-gradient(110deg, #102b49, #245783) !important;
+  border-color: #102b49 !important;
+  color: #ffffff !important;
+}
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-amber-300 {
+  background: linear-gradient(110deg, #f8d46b, #f2b800, #e4a900) !important;
+  border-color: #b77b00 !important;
+}
+#contenu .admin-photos-page .bg-white button.bg-gradient-to-r.from-rose-700 {
+  background: linear-gradient(110deg, #be123c, #991b1b) !important;
+  border-color: #881337 !important;
+}
