@@ -202,12 +202,12 @@ export default function AdminPhotos() {
                 Retrouve rapidement les annonces par type de bien ou par origine de publication. Les photos et fiches restent accessibles depuis chaque annonce.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
               <button type="button" onClick={() => void charger()} disabled={chargement}
-                className="min-h-12 rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-slate-100 disabled:opacity-60">
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-slate-300 bg-white px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
                 {chargement ? 'Actualisation…' : 'Actualiser la liste'}
               </button>
-              <Link to="/admin/annonces" className="inline-flex min-h-10 items-center justify-center rounded-full border-2 border-amber-500 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-amber-300">
+              <Link to="/admin/annonces" className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 sm:w-auto">
                 Modération des annonces
               </Link>
             </div>
@@ -271,12 +271,14 @@ export default function AdminPhotos() {
                       <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
-                    <button type="button" onClick={() => ouvrirEdition(a)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-200">
-                      ✎ Modifier l’annonce
-                    </button>
-                    {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-full border-2 border-red-700 bg-red-600 px-4 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-red-700 disabled:opacity-50">Retirer l’annonce du catalogue</button>}
-                    <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
-                    <Link to={'/annonces/' + a.id} className="mt-2 inline-flex rounded-full border-2 border-amber-500 bg-amber-50 px-4 py-2 text-xs font-extrabold text-amber-950 hover:bg-amber-100">Voir la fiche de l’annonce</Link>
+                    <p className="mt-2 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200 sm:w-auto">
+                        ✎ Modifier l’annonce
+                      </button>
+                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-red-700 bg-red-600 px-4 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">Retirer du catalogue</button>}
+                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-white px-4 py-2 text-sm font-extrabold text-blue-950 transition hover:bg-blue-50 sm:w-auto">Voir la fiche</Link>
+                    </div>
                   </div>
 
                 </div>
@@ -340,7 +342,7 @@ export default function AdminPhotos() {
                       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                         <div className="space-y-2">
                           <label htmlFor={`ajouter-${a.id}`} className="block text-sm font-extrabold text-slate-950">Nouvelle photo</label>
-                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-blue-950 bg-gradient-to-r from-blue-950 via-blue-900 to-slate-800 px-5 py-2.5 text-center text-sm font-extrabold !text-white shadow-[0_5px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_0_#c58a16] active:translate-y-1 active:shadow-none focus-within:outline-none focus-within:ring-4 focus-within:ring-amber-200">＋ Choisir un fichier</label>
+                          <label htmlFor={`ajouter-${a.id}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-blue-950 bg-gradient-to-r from-blue-950 via-blue-900 to-slate-800 px-5 py-2.5 text-center text-sm font-extrabold !text-white shadow-[0_5px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_7px_0_#c58a16] active:translate-y-1 active:shadow-none focus-within:outline-none focus-within:ring-4 focus-within:ring-amber-200">＋ Choisir un fichier</label>
                           <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                             onChange={async (e) => {
                               const fichier = e.target.files?.[0]
@@ -357,7 +359,7 @@ export default function AdminPhotos() {
                           <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
                         </div>
                         <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-11 rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
+                          className="min-h-11 w-full rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] sm:w-auto transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
                           {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
                         </button>
                       </div>
