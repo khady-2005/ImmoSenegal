@@ -279,7 +279,7 @@ export default function AdminPhotos() {
                     </div>
                     <p className="text-xs text-slate-500">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />>
+                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
                         Modifier
                       </button>
                       {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-[#102b49] transition hover:border-amber-400 hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>}
