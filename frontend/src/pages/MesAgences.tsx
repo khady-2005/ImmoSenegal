@@ -94,7 +94,7 @@ export default function MesAgences() {
         </div>
         <div className="flex flex-wrap gap-2"><Link to="/rejoindre-agence" className="inline-flex items-center justify-center rounded-xl bg-dore-400 px-5 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-300">Découvrir les agences</Link><button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-5 py-3 text-base font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-50">
           <RefreshCw className={`h-4 w-4 ${chargement ? 'animate-spin' : ''}`} /> Actualiser
-        </button>
+        </button></div>
       </div>
 
       {chargement ? (
