@@ -91,7 +91,7 @@ export default function Messagerie() {
     } finally { setEnvoi(false) }
   }
 
-  if (utilisateur?.role !== 'CLIENT' && utilisateur?.role !== 'PROPRIETAIRE' && utilisateur?.role !== 'AGENT') {
+  if (utilisateur?.role !== 'CLIENT' && utilisateur?.role !== 'PROPRIETAIRE' && utilisateur?.role !== 'AGENT' && utilisateur?.role !== 'ADMIN') {
     return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">La messagerie est réservée aux utilisateurs concernés par une réservation ou un mandat de gestion.</p></main>
   }
 
