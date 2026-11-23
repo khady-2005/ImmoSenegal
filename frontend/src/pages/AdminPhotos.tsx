@@ -248,9 +248,9 @@ export default function AdminPhotos() {
               </div>
               {a.publieeParAgence && (
                 <div className="mt-5 flex flex-col items-start gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-end">
-                  <div className="space-y-2">
-                    <span className="block text-base font-bold text-slate-900">Ajouter une photo</span>
-                    <label htmlFor={`ajouter-${a.id}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une photo</label>
+                  <div className="w-full space-y-2 sm:w-auto">
+                    <span className="block text-lg font-extrabold text-slate-950">Ajouter une photo au catalogue</span>
+                    <label htmlFor={`ajouter-${a.id}`} className="inline-flex min-h-14 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-amber-700 bg-amber-300 px-6 py-4 text-base font-extrabold text-slate-950 shadow-lg hover:bg-amber-200 focus-within:ring-4 focus-within:ring-amber-400 sm:w-auto">+ Choisir une photo</label>
                     <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                       onChange={async (e) => {
                         const fichier = e.target.files?.[0]
@@ -267,7 +267,9 @@ export default function AdminPhotos() {
                     <p aria-live="polite" className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700">{fichiers[a.id]?.name ?? 'Aucun fichier sélectionné'}</p>
                   </div>
                   <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                    className="min-h-12 rounded-xl border-2 border-nuit-900 bg-nuit-900 px-5 py-3 text-base font-bold text-white shadow-md hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">Ajouter la photo sélectionnée</button>
+                    className="min-h-14 w-full rounded-xl border-2 border-blue-950 bg-blue-800 px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:bg-blue-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500 sm:w-auto">
+                    {envoi === a.id ? 'Ajout en cours…' : 'Ajouter la photo sélectionnée'}
+                  </button>
                 </div>
               )}
             </section>
