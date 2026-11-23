@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin, ShieldCheck, Headset, Handshake, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Building2, BedSingle, House, LandPlot, MapPin, Search, ShieldCheck, Headset, Handshake, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CommentCaMarche from '../components/CommentCaMarche'
 import ListeAnnonces from '../components/ListeAnnonces'
@@ -43,8 +43,6 @@ export default function Home() {
   const suivante = () => setInspiration((i) => (i + 1) % inspirations.length)
   const slide = inspirations[inspiration]
   const { etat, reessayer } = useAnnonces(`taille=6&tri=recent${onglet === 'TOUT' ? '' : `&transaction=${onglet}`}`)
-  const { etat: etatReelles } = useAnnonces('taille=1&exemple=false')
-  const total = etatReelles.statut === 'ok' ? etatReelles.page.totalElements : 0
 
   return (
     <>
