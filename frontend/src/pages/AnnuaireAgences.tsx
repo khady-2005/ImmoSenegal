@@ -79,14 +79,14 @@ export default function AnnuaireAgences() {
   const candidaturePour = (agenceId: string) => candidatures.find(c => c.agenceId === agenceId && c.statut === 'EN_ATTENTE')
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 text-[18px] leading-8 sm:px-6 sm:py-12">
-      <Link to="/tableau-de-bord" className="inline-flex items-center gap-2 text-lg font-extrabold text-slate-950 hover:text-amber-700">
+    <main className="mx-auto max-w-7xl bg-slate-50 px-4 py-8 text-[18px] leading-8 text-slate-950 sm:px-6 sm:py-12">
+      <Link to="/tableau-de-bord" className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-lg font-extrabold text-slate-950 shadow-sm hover:bg-amber-100">
         <ArrowLeft className="h-4 w-4" /> Retour à mon espace
       </Link>
-      <section className="mt-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 p-7 text-white shadow-lg sm:p-10">
-        <p className="text-base font-extrabold uppercase tracking-[0.12em] text-amber-300">Espace professionnel</p>
-        <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">Rejoindre une agence</h1>
-        <p className="mt-3 max-w-3xl text-lg font-medium leading-8 text-white">
+      <section className="mt-6 rounded-3xl border-2 border-amber-500 bg-amber-100 p-7 text-slate-950 shadow-lg sm:p-10">
+        <p className="text-base font-extrabold uppercase tracking-wide text-amber-950">Espace professionnel</p>
+        <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-950 sm:text-5xl">Rejoindre une agence</h1>
+        <p className="mt-3 max-w-3xl text-xl font-semibold leading-9 text-slate-950">
           Découvrez les agences partenaires et envoyez une candidature pour devenir agent immobilier ou gestionnaire.
         </p>
       </section>
@@ -106,7 +106,7 @@ export default function AnnuaireAgences() {
               const dejaMembre = mesEspaces.some(espace => espace.id === agence.id)
               const ancienne = candidatures.find(c => c.agenceId === agence.id)
               return (
-                <article key={agence.id} className="rounded-2xl border-2 border-slate-300 bg-white p-7 shadow-sm transition-shadow hover:shadow-md">
+                <article key={agence.id} className="rounded-2xl border-2 border-slate-400 bg-white p-7 text-slate-950 shadow-md transition-shadow hover:shadow-lg">
                   <div className="flex items-start gap-3">
                     <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-6 w-6" /></span>
                     <div className="min-w-0">
@@ -128,7 +128,7 @@ export default function AnnuaireAgences() {
                       <label className="sr-only" htmlFor={'fonction-' + agence.id}>Fonction souhaitée</label>
                       <select id={'fonction-' + agence.id} value={fonctions[agence.id] ?? 'AGENT'}
                         onChange={e => setFonctions(current => ({ ...current, [agence.id]: e.target.value as 'AGENT' | 'GESTIONNAIRE' }))}
-                        className="min-h-14 min-w-0 flex-1 rounded-xl border-2 border-slate-400 bg-white px-4 py-3 text-lg font-semibold text-slate-950">
+                        className="min-h-14 min-w-0 flex-1 rounded-xl border-2 border-slate-500 bg-white px-4 py-3 text-lg font-bold text-slate-950">
                         <option value="AGENT">Agent immobilier</option>
                         <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
                       </select>
@@ -148,7 +148,7 @@ export default function AnnuaireAgences() {
         )}
       </section>
 
-      <section className="mt-10 rounded-2xl border-2 border-slate-300 bg-white p-7 shadow-sm">
+      <section className="mt-10 rounded-2xl border-2 border-slate-400 bg-white p-7 text-slate-950 shadow-md">
         <h2 className="text-3xl font-extrabold leading-tight text-slate-950">Mes candidatures</h2>
         {candidatures.length === 0 ? <p className="mt-4 text-lg font-medium text-slate-900">Vous n’avez envoyé aucune candidature.</p> : (
           <ul className="mt-5 divide-y divide-slate-200">
