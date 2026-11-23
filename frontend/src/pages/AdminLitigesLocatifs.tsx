@@ -68,9 +68,9 @@ export default function AdminLitigesLocatifs() {
     URL.revokeObjectURL(url)
   }
   return <main className="mx-auto max-w-6xl px-4 py-10">
-    <p className="text-base font-bold uppercase tracking-wider text-amber-700">Administration</p>
+    <p className="inline-flex rounded-lg bg-amber-100 px-4 py-2 text-lg font-extrabold uppercase tracking-wide text-slate-950">Administration</p>
     <h1 className="mt-2 text-4xl font-bold text-nuit-900">Supervision des litiges locatifs</h1>
-    <p className="mt-3 text-base leading-relaxed text-slate-600">Vue de suivi des incidents non clôturés et des désaccords sur les états des lieux ou les dépôts de garantie. Cette page facilite le suivi, sans remplacer une médiation ni une décision juridique.</p>
+    <p className="mt-3 max-w-4xl rounded-xl border-2 border-blue-200 bg-blue-50 px-5 py-4 text-lg font-semibold leading-8 text-slate-950">Vue de suivi des incidents non clôturés et des désaccords sur les états des lieux ou les dépôts de garantie. Cette page facilite le suivi, sans remplacer une médiation ni une décision juridique.</p>
     {erreur && <p role="alert" className="mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
     <section className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
       <div><p className="text-xs text-slate-500">Dossiers à suivre</p><p className="text-2xl font-bold text-nuit-900">{lignes.length}</p></div>
