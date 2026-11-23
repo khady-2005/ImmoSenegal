@@ -29,14 +29,14 @@ const ACTIONS_PAR_STATUT: Partial<Record<StatutAnnonce, Action[]>> = {
 const LIBELLE_ACTION: Record<Action, string> = {
   valider: 'Réactiver',
   refuser: 'Refuser',
-  suspendre: 'Suspendre',
+  suspendre: 'Supprimer du catalogue',
   'demander-correction': 'Demander une correction',
 }
 
 const CONFIRMATION: Record<Action, string> = {
   valider: 'Publication rétablie après contrôle.',
   refuser: 'Annonce refusée. Le motif est visible par son propriétaire.',
-  suspendre: 'Annonce suspendue : elle ne figure plus au catalogue.',
+  suspendre: 'Annonce retirée du catalogue. Le propriétaire a reçu le motif par notification.',
   'demander-correction': 'Correction demandée au propriétaire.',
 }
 
@@ -130,7 +130,7 @@ export default function AdminModeration() {
         </Link>
       </div>
       <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-base leading-relaxed text-slate-800">
-        Les propriétaires publient directement leurs annonces pendant 30 jours. Cet espace sert à traiter les signalements et les non-conformités. Une annonce arrivée à échéance doit être couverte par un abonnement ou un mandat accepté ; elle ne peut pas être validée par l’administration.
+        L’administrateur peut retirer une annonce du catalogue lorsqu’elle ne respecte pas les règles ou après un signalement. Le motif est obligatoire et envoyé au propriétaire. Le retrait est réversible : l’annonce est conservée dans l’espace de modération et peut être réactivée après contrôle.
       </p>
 
       <div role="group" aria-label="Filtrer par statut" className="mt-5 flex flex-wrap gap-2">
