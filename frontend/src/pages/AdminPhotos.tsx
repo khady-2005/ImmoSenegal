@@ -12,6 +12,39 @@ type AnnoncePhoto = {
   photos: string[]
 }
 type Page<T> = { contenu: T[] }
+
+// Réduit les photos volumineuses dans le navigateur avant l'envoi (limite serveur : 5 Mo).
+async function preparerPhoto(fichier: File): Promise<File> {
+  if (!fichier.type.startsWith('image/')) throw new Error('Sélectionne un fichier image.')
+  const image = await createImageBitmap(fichier)
+  try {
+    const coteMax = 1600
+    const echelle = Math.min(1, coteMax / Math.max(image.width, image.height))
+    const largeur = Math.max(1, Math.round(image.width * echelle))
+    const hauteur = Math.max(1, Math.round(image.height * echelle))
+    const canvas = document.createElement('canvas')
+    canvas.width = largeur
+    canvas.height = hauteur
+    const contexte = canvas.getContext('2d')
+    if (!contexte) throw new Error('Impossible de préparer cette image.')
+    contexte.fillStyle = '#ffffff'
+    contexte.fillRect(0, 0, largeur, hauteur)
+    contexte.drawImage(image, 0, 0, largeur, hauteur)
+    let qualite = 0.86
+    let blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', qualite))
+    while (blob && blob.size > 4.5 * 1024 * 1024 && qualite > 0.45) {
+      qualite -= 0.1
+      blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', qualite))
+    }
+    if (!blob || blob.size > 4.5 * 1024 * 1024) {
+      throw new Error('Cette image reste trop volumineuse après compression. Choisis une image plus petite.')
+    }
+    const nom = fichier.name.replace(/\.[^.]+$/, '') + '.jpg'
+    return new File([blob], nom, { type: 'image/jpeg', lastModified: Date.now() })
+  } finally {
+    image.close()
+  }
+}
 type Avertissement = {
   id: string
   annonceId: string
@@ -178,12 +211,23 @@ export default function AdminPhotos() {
                             <span className="block text-base font-bold text-slate-900">Remplacer cette photo</span>
                             <label htmlFor={`remplacer-${photoId}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une nouvelle photo</label>
                             <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                              onChange={(e) => setFichiersRemplacement((v) => ({ ...v, [photoId]: e.target.files?.[0] }))} />
+                              onChange={async (e) => {
+                                const fichier = e.target.files?.[0]
+                                if (!fichier) return
+                                try {
+                                  const prepare = await preparerPhoto(fichier)
+                                  setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
+                                  setErreur(null)
+                                } catch (erreurPhoto) {
+                                  setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                                  setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
+                                }
+                              }} />
                             <p aria-live="polite" className="rounded-lg border border-slate-200 bg-white p-3 text-sm font-medium text-slate-700">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier sélectionné'}</p>
                           </div>
                           <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                             onClick={() => void remplacerPhoto(a, photoId)}
-                            className="w-full rounded-xl bg-nuit-900 px-4 py-3 text-base font-bold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-40">Remplacer la photo sélectionnée</button>
+                            className="w-full min-h-12 rounded-xl border-2 border-dore-500 bg-dore-400 px-4 py-3 text-base font-extrabold text-nuit-950 shadow-md hover:bg-dore-300 disabled:cursor-not-allowed disabled:opacity-60">Remplacer la photo sélectionnée</button>
                           <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
                             className="w-full rounded-xl border-2 border-red-300 bg-white px-4 py-3 text-base font-bold text-red-800 hover:bg-red-50 disabled:opacity-50">Supprimer cette photo</button>
                         </>
@@ -208,11 +252,22 @@ export default function AdminPhotos() {
                     <span className="block text-base font-bold text-slate-900">Ajouter une photo</span>
                     <label htmlFor={`ajouter-${a.id}`} className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-100 px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-dore-200">Choisir une photo</label>
                     <input id={`ajouter-${a.id}`} type="file" accept="image/jpeg,image/png" className="sr-only"
-                      onChange={(e) => setFichiers((v) => ({ ...v, [a.id]: e.target.files?.[0] }))} />
+                      onChange={async (e) => {
+                        const fichier = e.target.files?.[0]
+                        if (!fichier) return
+                        try {
+                          const prepare = await preparerPhoto(fichier)
+                          setFichiers((v) => ({ ...v, [a.id]: prepare }))
+                          setErreur(null)
+                        } catch (erreurPhoto) {
+                          setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
+                          setFichiers((v) => ({ ...v, [a.id]: undefined }))
+                        }
+                      }} />
                     <p aria-live="polite" className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-medium text-slate-700">{fichiers[a.id]?.name ?? 'Aucun fichier sélectionné'}</p>
                   </div>
                   <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                    className="rounded-xl bg-nuit-900 px-5 py-3 text-base font-bold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-40">Ajouter la photo sélectionnée</button>
+                    className="min-h-12 rounded-xl border-2 border-nuit-900 bg-nuit-900 px-5 py-3 text-base font-bold text-white shadow-md hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">Ajouter la photo sélectionnée</button>
                 </div>
               )}
             </section>
