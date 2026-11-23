@@ -189,7 +189,7 @@ export default function AdminPhotos() {
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="admin-photos-page fixed inset-0 z-[80] flex overflow-hidden bg-[#f4f6fb] text-[#08284d]">
+    <main className="admin-photos-page fixed inset-0 z-[80] flex h-screen w-screen min-w-0 overflow-hidden bg-[#f4f6fb] text-[#08284d]">
       <aside className={`absolute inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-[#062b55] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${menuMobile ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="relative flex min-h-40 flex-col items-center justify-center overflow-hidden border-b border-white/10 px-5 py-6">
           <div className="absolute inset-0 bg-gradient-to-b from-[#062b55] via-[#062b55]/95 to-[#062b55]/65" />
@@ -311,7 +311,7 @@ export default function AdminPhotos() {
                   {a.photos.length === 0 ? (
                     <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-800">Aucune photo pour cette annonce.</div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="admin-photo-grid grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
                       {a.photos.map((photoId, index) => (
                         <article key={photoId} className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
                           <div className="relative overflow-hidden bg-slate-200">
