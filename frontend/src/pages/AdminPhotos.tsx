@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatFcfa } from '../format'
-import { Building2, MapPin, Ruler, BedDouble, Search, Plus, Image as ImageIcon, Pencil, Trash2, Eye, RefreshCw } from 'lucide-react'
+import { Building2, MapPin, Ruler, BedDouble, Search, Plus, Image as ImageIcon, Pencil, Trash2, Eye, RefreshCw, Home as HomeIcon, LayoutGrid, ClipboardList, CalendarDays, Mail, Users, Settings, LogOut, Menu, Filter, ChevronDown, UserCircle } from 'lucide-react'
 import { ApiError, appelApi, urlApi } from '../api'
 import { useAuth } from '../auth'
 
@@ -71,6 +71,8 @@ export default function AdminPhotos() {
   const [info, setInfo] = useState<string | null>(null)
   const [categorie, setCategorie] = useState('TOUTES')
   const [recherche, setRecherche] = useState('')
+  const [villeFiltre, setVilleFiltre] = useState('TOUTES')
+  const [menuMobile, setMenuMobile] = useState(false)
   const [annonceEnEdition, setAnnonceEnEdition] = useState<AnnoncePhoto | null>(null)
   const [motifEdition, setMotifEdition] = useState('')
   const [edition, setEdition] = useState({ titre: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
@@ -183,59 +185,93 @@ export default function AdminPhotos() {
     { id: 'AGENCE', label: 'ImmoSénégal', count: annonces.filter((a) => a.publieeParAgence).length },
     { id: 'PROPRIETAIRE', label: 'Propriétaires', count: annonces.filter((a) => !a.publieeParAgence).length },
   ]
+  const villes = Array.from(new Set(annonces.map((a) => a.ville).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'fr'))
   const annoncesFiltrees = annonces.filter((a) => {
     const correspondCategorie = categorie === 'TOUTES' || categorie === 'AGENCE' && a.publieeParAgence || categorie === 'PROPRIETAIRE' && !a.publieeParAgence || a.typeBien === categorie
     const terme = recherche.trim().toLocaleLowerCase('fr')
     const correspondRecherche = !terme || [a.titre, a.ville, a.quartier, a.proprietaire.nomComplet].some((v) => v.toLocaleLowerCase('fr').includes(terme))
-    return correspondCategorie && correspondRecherche
+    const correspondVille = villeFiltre === 'TOUTES' || a.ville === villeFiltre
+    return correspondCategorie && correspondRecherche && correspondVille
   })
 
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="admin-photos-page min-h-screen bg-[#f4f6fa] px-3 py-5 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1500px] space-y-6">
-        <header className="flex flex-col gap-5 border-b border-amber-300 bg-white px-5 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-7">
-
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Administration · ImmoSénégal</p>
-              <h1 className="mt-1 text-3xl font-black leading-tight text-[#102b49] sm:text-4xl">Gestion du catalogue</h1>
-              <p className="mt-1 text-sm text-slate-600 sm:text-base">Gérez facilement toutes vos annonces immobilières</p>
+    <main className="fixed inset-0 z-[80] flex overflow-hidden bg-[#f4f6fb] text-[#08284d]">
+      <aside className={`absolute inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-[#062b55] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${menuMobile ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="relative flex min-h-40 flex-col items-center justify-center overflow-hidden border-b border-white/10 px-5 py-6">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#062b55] via-[#062b55]/95 to-[#062b55]/65" />
+          <div className="relative text-center">
+            <div className="mx-auto flex h-14 w-20 items-center justify-center text-[#ffd45c]"><HomeIcon className="h-14 w-14" strokeWidth={1.7} /></div>
+            <p className="mt-1 text-[1.7rem] font-black tracking-tight text-[#ffd45c]">ImmoSénégal</p>
+            <p className="text-sm text-white/90">Trouvez votre bien idéal</p>
+          </div>
+        </div>
+        <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-6 text-sm font-semibold">
+          <Link to="/tableau-de-bord" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><HomeIcon className="h-5 w-5" />Tableau de bord</Link>
+          <Link to="/admin/photos" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#ffd45c] to-[#f3b92e] px-4 py-3 font-extrabold text-[#08284d] shadow-lg"><LayoutGrid className="h-5 w-5" />Gestion du catalogue</Link>
+          <Link to="/admin/demandes" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Demandes</Link>
+          <Link to="/mes-reservations" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><CalendarDays className="h-5 w-5" />Réservations</Link>
+          <Link to="/messagerie" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Mail className="h-5 w-5" />Messages</Link>
+          <Link to="/admin/utilisateurs" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Users className="h-5 w-5" />Utilisateurs</Link>
+          <Link to="/admin/abonnements" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Settings className="h-5 w-5" />Paramètres</Link>
+        </nav>
+        <div className="border-t border-white/10 p-3">
+          <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><LogOut className="h-5 w-5" />Quitter l'administration</Link>
+        </div>
+        <div className="pointer-events-none absolute bottom-0 left-0 -z-0 h-40 w-full bg-gradient-to-t from-[#031d3b] to-transparent" />
+      </aside>
+      {menuMobile && <button type="button" aria-label="Fermer le menu" onClick={() => setMenuMobile(false)} className="absolute inset-0 z-30 bg-[#061b35]/50 lg:hidden" />}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="relative z-10 flex min-h-[100px] flex-col justify-center border-b-[3px] border-[#f5c84c] bg-white px-4 py-4 shadow-sm sm:px-7 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-4">
+              <button type="button" aria-label="Ouvrir le menu" onClick={() => setMenuMobile((v) => !v)} className="rounded-lg p-2 text-[#08284d] hover:bg-slate-100 lg:hidden"><Menu className="h-7 w-7" /></button>
+              <div className="hidden h-10 w-px bg-slate-200 lg:block" />
+              <LayoutGrid className="h-10 w-10 shrink-0 text-[#174b91]" />
+              <div className="min-w-0">
+                <h1 className="truncate text-xl font-black tracking-tight text-[#08284d] sm:text-3xl">Gestion du catalogue</h1>
+                <p className="hidden text-sm text-[#18385e] sm:block">Gérez facilement toutes vos annonces immobilières</p>
+              </div>
             </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-              <button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:brightness-110 disabled:opacity-60"><RefreshCw className="h-4 w-4" />{chargement ? 'Actualisation…' : 'Actualiser'}</button>
-              <Link to="/annonces/nouvelle" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-amber-500 bg-gradient-to-r from-amber-300 to-yellow-400 px-5 py-2.5 text-sm font-extrabold text-[#102b49] shadow-md hover:brightness-105"><Plus className="h-4 w-4" />Ajouter une annonce</Link>
-              <Link to="/admin/annonces" className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-[#102b49] hover:bg-slate-50">Modération</Link>
+            <div className="flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm sm:px-4">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-b from-[#164fbd] to-[#08284d] text-white"><UserCircle className="h-7 w-7" /></span>
+              <span className="hidden text-sm font-semibold text-[#08284d] sm:inline">Administrateur</span>
+              <ChevronDown className="h-4 w-4 text-[#08284d]" />
             </div>
+          </div>
+          <div className="mt-3 flex justify-end">
+            <Link to="/annonces/nouvelle" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border-2 border-[#eeb52b] bg-gradient-to-r from-[#08284d] to-[#174b83] px-5 py-2 text-sm font-extrabold text-white shadow-md transition hover:brightness-110"><Plus className="h-5 w-5" />Ajouter une annonce</Link>
           </div>
         </header>
-
-        <section aria-label="Statistiques du catalogue" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm">
-            <div><p className="text-sm font-bold uppercase tracking-wide text-slate-700">Annonces publiées</p><p className="mt-1 text-sm text-slate-600">Total du catalogue</p></div>
-            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-slate-950">{annonces.length}</p>
-          </article>
-          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5 shadow-sm">
-            <div><p className="text-sm font-bold uppercase tracking-wide text-blue-950">Annonces ImmoSénégal</p><p className="mt-1 text-sm text-blue-900">Gérées par l'agence</p></div>
-            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-blue-950">{annonces.filter((a) => a.publieeParAgence).length}</p>
-          </article>
-          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 shadow-sm">
-            <div><p className="text-sm font-bold uppercase tracking-wide text-amber-950">Annonces propriétaires</p><p className="mt-1 text-sm text-amber-900">Gérées par leurs propriétaires</p></div>
-            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-amber-950">{annonces.filter((a) => !a.publieeParAgence).length}</p>
-          </article>
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <h2 className="text-lg font-extrabold text-[#102b49]">Règles de gestion des annonces</h2>
-          <div className="mt-2 grid gap-2 text-sm leading-relaxed text-slate-700 sm:grid-cols-2">
-            <p><strong>Annonces ImmoSénégal :</strong> l’administrateur peut ajouter, remplacer ou supprimer les photos.</p>
-            <p><strong>Annonces des propriétaires :</strong> l’administrateur peut modifier la fiche avec un motif, ou retirer l’annonce du catalogue avec notification au propriétaire. Les photos restent gérées par le propriétaire.</p>
-          </div>
-        </section>
-
-        {info && <p role="status" className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-base font-bold text-amber-950">{info}</p>}
-        {erreur && <p role="alert" className="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-base font-bold text-blue-950">{erreur}</p>}
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 lg:px-7">
+          <div className="mx-auto max-w-[1600px] space-y-5">
+            <section aria-label="Filtres du catalogue" className="grid gap-2 rounded-[1.4rem] border border-slate-200 bg-white p-2 shadow-md sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-3 sm:p-3">
+              <label className="flex min-h-11 items-center gap-3 rounded-full border border-slate-200 px-4 text-sm text-[#08284d] shadow-inner">
+                <Search className="h-5 w-5 shrink-0" />
+                <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce..." aria-label="Rechercher dans le catalogue" className="w-full min-w-0 bg-transparent py-2 font-medium text-[#08284d] outline-none placeholder:text-slate-500" />
+              </label>
+              <label className="flex min-h-11 items-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-[#08284d]">
+                <HomeIcon className="h-5 w-5 shrink-0" />
+                <select value={categorie} onChange={(e) => setCategorie(e.target.value)} aria-label="Type de bien" className="w-full min-w-0 bg-transparent py-2 outline-none"><option value="TOUTES">Tous types</option><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="VILLA">Villa</option><option value="STUDIO">Studio</option><option value="TERRAIN">Terrain</option><option value="AGENCE">ImmoSénégal</option><option value="PROPRIETAIRE">Propriétaires</option></select>
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              </label>
+              <label className="flex min-h-11 items-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-[#08284d]">
+                <MapPin className="h-5 w-5 shrink-0" />
+                <select value={villeFiltre} onChange={(e) => setVilleFiltre(e.target.value)} aria-label="Ville" className="w-full min-w-0 bg-transparent py-2 outline-none"><option value="TOUTES">Toutes les villes</option>{villes.map((ville) => <option key={ville} value={ville}>{ville}</option>)}</select>
+                <ChevronDown className="h-4 w-4 shrink-0" />
+              </label>
+              <button type="button" onClick={() => { setRecherche(''); setCategorie('TOUTES'); setVilleFiltre('TOUTES') }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#ffdc70] to-[#f4bd36] px-6 py-2.5 text-sm font-extrabold text-[#08284d] shadow-sm transition hover:brightness-105"><Filter className="h-5 w-5" />Filtrer</button>
+            </section>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#b07b09]">Espace administrateur</p><h2 className="text-xl font-black text-[#08284d] sm:text-2xl">Annonces immobilières</h2></div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#08284d] shadow-sm">{annoncesFiltrees.length} annonce(s)</span>
+                <button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex h-10 items-center gap-2 rounded-full border border-[#cbd5e1] bg-white px-4 text-sm font-bold text-[#08284d] hover:bg-slate-50 disabled:opacity-60"><RefreshCw className="h-4 w-4" />Actualiser</button>
+              </div>
+            </div>
+            {info && <p role="status" className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-base font-bold text-amber-950">{info}</p>}
+            {erreur && <p role="alert" className="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-base font-bold text-blue-950">{erreur}</p>}
 
         {chargement ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-lg font-semibold text-slate-700">Chargement des annonces…</div>
@@ -256,14 +292,14 @@ export default function AdminPhotos() {
                 {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-xs font-extrabold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
               </div>
             </div>
-            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2 2xl:grid-cols-3">{annoncesFiltrees.map((a) => (
-              <article key={a.id} className="group overflow-hidden rounded-[1.7rem] border border-slate-200/80 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-56">
+            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">{annoncesFiltrees.map((a) => (
+              <article key={a.id} className="group overflow-hidden rounded-[1.45rem] border border-slate-200/80 bg-white shadow-[0_5px_16px_rgba(8,40,77,0.13)] transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-52">
                   {a.photos.length > 0 ? <img src={urlApi('/api/annonces/' + a.id + '/photos/' + a.photos[0] + '?v=' + (versionImages[a.photos[0]] ?? a.id))} alt={a.titre} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <Building2 className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 text-white/50" />}
                   <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#071a31]/90 to-transparent" />
                   <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-amber-300 px-4 py-1.5 text-sm font-extrabold text-[#102b49] shadow-lg">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
                   <Link to={'/annonces/' + a.id} aria-label={'Voir ' + a.titre} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#102b49] shadow-lg transition hover:bg-amber-100"><Eye className="h-5 w-5" /></Link>
-                  <p className="absolute bottom-3 left-4 rounded-full border-2 border-amber-300 bg-[#102b49] px-4 py-2 text-lg font-black text-white shadow-xl">{formatFcfa(a.prix)}{a.transaction === 'LOCATION' ? <span className="ml-1 text-xs font-semibold text-amber-200">/ mois</span> : null}</p>
+                  <p className="absolute bottom-3 left-3 rounded-full border-2 border-[#f4c54b] bg-[#08284d] px-4 py-1.5 text-lg font-black text-white shadow-xl">{formatFcfa(a.prix)}{a.transaction === 'LOCATION' ? <span className="ml-1 text-xs font-semibold text-amber-200">/ mois</span> : null}</p>
                 </div>
                 <div className="space-y-3 p-4 sm:p-5">
                   <div className="min-w-0">
@@ -278,18 +314,20 @@ export default function AdminPhotos() {
                       {a.pieces !== null && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4 text-slate-500" />{a.pieces} pièces</span>}
                     </div>
                     <p className="text-xs text-slate-500">Propriétaire : {a.proprietaire.nomComplet}</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
+                    <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
                         Modifier
                       </button>
-                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-[#102b49] transition hover:border-amber-400 hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>}
-                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-amber-400 bg-amber-200 px-3 py-2 text-sm font-bold text-[#102b49] transition hover:bg-amber-300 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</Link>
+                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#174b83] bg-white px-3 py-2 text-sm font-bold text-[#08284d] transition hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>}
+                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] transition hover:brightness-105 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</Link>
                     </div>
                   </div>
 
                 </div>
 
-                <div className="p-5 sm:p-6">
+                <details className="border-t border-slate-100 bg-[#fbfcff]">
+                  <summary className="cursor-pointer px-5 py-3 text-sm font-extrabold text-[#08284d] hover:bg-amber-50">Gérer les photos ({a.photos.length})</summary>
+                  <div className="p-5 sm:p-6">
                   <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
                   {a.photos.length === 0 ? (
                     <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-700">Aucune photo pour cette annonce.</div>
@@ -371,7 +409,8 @@ export default function AdminPhotos() {
                       </div>
                     </div>
                   )}
-                </div>
+                  </div>
+                </details>
               </article>
             ))}</div>}
           </section>
@@ -379,7 +418,7 @@ export default function AdminPhotos() {
 
 
 
-        {annonceEnEdition && (
+            {annonceEnEdition && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4">
             <form onSubmit={enregistrerEdition} className="my-6 w-full max-w-3xl space-y-4 rounded-3xl border-2 border-blue-200 bg-white p-5 shadow-2xl sm:p-7">
               <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
@@ -405,8 +444,9 @@ export default function AdminPhotos() {
               </div>
             </form>
           </div>
-        )}
-
+            )}
+          </div>
+        </div>
       </div>
     </main>
   )
