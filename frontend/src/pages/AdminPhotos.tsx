@@ -189,7 +189,7 @@ export default function AdminPhotos() {
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="fixed inset-0 z-[80] flex overflow-hidden bg-[#f4f6fb] text-[#08284d]">
+    <main className="admin-photos-page fixed inset-0 z-[80] flex overflow-hidden bg-[#f4f6fb] text-[#08284d]">
       <aside className={`absolute inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-[#062b55] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${menuMobile ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="relative flex min-h-40 flex-col items-center justify-center overflow-hidden border-b border-white/10 px-5 py-6">
           <div className="absolute inset-0 bg-gradient-to-b from-[#062b55] via-[#062b55]/95 to-[#062b55]/65" />
@@ -240,7 +240,7 @@ export default function AdminPhotos() {
             <section aria-label="Filtres du catalogue" className="grid gap-2 rounded-[1.4rem] border border-slate-200 bg-white p-2 shadow-md sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-center sm:gap-3 sm:p-3">
               <label className="flex min-h-11 items-center gap-3 rounded-full border border-slate-200 px-4 text-sm text-[#08284d] shadow-inner">
                 <Search className="h-5 w-5 shrink-0" />
-                <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce..." aria-label="Rechercher dans le catalogue" className="w-full min-w-0 bg-transparent py-2 font-medium text-[#08284d] outline-none placeholder:text-slate-500" />
+                <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce..." aria-label="Rechercher dans le catalogue" className="w-full min-w-0 bg-transparent py-2 font-medium text-[#08284d] outline-none placeholder:text-slate-800" />
               </label>
               <label className="flex min-h-11 items-center gap-2 rounded-full border border-slate-200 px-4 text-sm font-semibold text-[#08284d]">
                 <HomeIcon className="h-5 w-5 shrink-0" />
@@ -265,36 +265,36 @@ export default function AdminPhotos() {
             {erreur && <p role="alert" className="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-base font-bold text-blue-950">{erreur}</p>}
 
         {chargement ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-lg font-semibold text-slate-700">Chargement des annonces…</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-lg font-semibold text-slate-800">Chargement des annonces…</div>
         ) : annonces.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center">
             <h2 className="text-xl font-extrabold text-slate-950">Aucune annonce publiée</h2>
-            <p className="mt-2 text-base text-slate-700">Les annonces publiées apparaîtront ici pour la gestion de leurs photos.</p>
+            <p className="mt-2 text-base text-slate-800">Les annonces publiées apparaîtront ici pour la gestion de leurs photos.</p>
           </div>
         ) : (
           <section className="space-y-6">
-            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche(''); setVilleFiltre('TOUTES') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">{annoncesFiltrees.map((a) => (
+            {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-800">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche(''); setVilleFiltre('TOUTES') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 xl:grid-cols-3">{annoncesFiltrees.map((a) => (
               <article key={a.id} className="group overflow-hidden rounded-[1.45rem] border border-slate-200/80 bg-white shadow-[0_5px_16px_rgba(8,40,77,0.13)] transition duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-52">
                   {a.photos.length > 0 ? <img src={urlApi('/api/annonces/' + a.id + '/photos/' + a.photos[0] + '?v=' + (versionImages[a.photos[0]] ?? a.id))} alt={a.titre} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <Building2 className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 text-white/50" />}
                   <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#071a31]/90 to-transparent" />
-                  <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-amber-300 px-4 py-1.5 text-sm font-extrabold text-[#102b49] shadow-lg">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
+                  <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-amber-300 px-4 py-1.5 text-sm font-extrabold text-[#08284d] shadow-lg">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
                   <Link to={'/annonces/' + a.id} aria-label={'Voir ' + a.titre} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#102b49] shadow-lg transition hover:bg-amber-100"><Eye className="h-5 w-5" /></Link>
                   <p className="absolute bottom-3 left-3 rounded-full border-2 border-[#f4c54b] bg-[#08284d] px-4 py-1.5 text-lg font-black text-white shadow-xl">{formatFcfa(a.prix)}{a.transaction === 'LOCATION' ? <span className="ml-1 text-xs font-semibold text-amber-200">/ mois</span> : null}</p>
                 </div>
                 <div className="space-y-3 p-4 sm:p-5">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={a.publieeParAgence ? "rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-900" : "rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900"}>{a.publieeParAgence ? 'ImmoSénégal' : 'Propriétaire'}</span>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{a.photos.length} photo(s)</span>
+                      <span className={a.publieeParAgence ? "rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#08284d]" : "rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-[#603d00]"}>{a.publieeParAgence ? 'ImmoSénégal' : 'Propriétaire'}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-800">{a.photos.length} photo(s)</span>
                     </div>
                     <h3 className="mt-1 break-words text-xl font-black leading-tight text-[#102b49]">{a.titre}</h3>
-                    <p className="flex items-center gap-1.5 text-sm text-slate-600"><MapPin className="h-4 w-4 shrink-0 text-amber-500" />{a.quartier}, {a.ville}</p>
-                    <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-3 text-sm font-medium text-slate-700">
+                    <p className="flex items-center gap-1.5 text-sm text-slate-800"><MapPin className="h-4 w-4 shrink-0 text-amber-500" />{a.quartier}, {a.ville}</p>
+                    <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-3 text-sm font-medium text-slate-800">
                       <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-amber-500" />{a.superficie} m²</span>
-                      {a.pieces !== null && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4 text-slate-500" />{a.pieces} pièces</span>}
+                      {a.pieces !== null && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4 text-slate-800" />{a.pieces} pièces</span>}
                     </div>
-                    <p className="text-xs text-slate-500">Propriétaire : {a.proprietaire.nomComplet}</p>
+                    <p className="text-xs text-slate-800">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />
                         Modifier
@@ -311,7 +311,7 @@ export default function AdminPhotos() {
                   <div className="p-5 sm:p-6">
                   <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
                   {a.photos.length === 0 ? (
-                    <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-700">Aucune photo pour cette annonce.</div>
+                    <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-800">Aucune photo pour cette annonce.</div>
                   ) : (
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                       {a.photos.map((photoId, index) => (
@@ -319,13 +319,13 @@ export default function AdminPhotos() {
                           <div className="relative overflow-hidden bg-slate-200">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
                               alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
-                            <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-nuit-950/85 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-sm">Photo {index + 1}</span>
+                            <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-[#08284d]/95 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm backdrop-blur-sm">Photo {index + 1}</span>
                           </div>
                           <div className="space-y-3.5 bg-white p-4 sm:p-5">
                             {a.publieeParAgence ? (
                               <>
-                                <label htmlFor={`remplacer-${photoId}`} className="block text-xs font-bold uppercase tracking-wide text-slate-600">Choisir la nouvelle image</label>
-                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-nuit-800 bg-nuit-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-nuit-800 focus-within:outline-none focus-within:ring-4 focus-within:ring-dore-200">📁 Choisir un fichier</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="block text-xs font-bold uppercase tracking-wide text-slate-800">Choisir la nouvelle image</label>
+                                <label htmlFor={`remplacer-${photoId}`} className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#174b83] bg-[#08284d] px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-[#174b83] focus-within:outline-none focus-within:ring-4 focus-within:ring-dore-200">📁 Choisir un fichier</label>
                                 <input id={`remplacer-${photoId}`} type="file" accept="image/jpeg,image/png" className="sr-only"
                                   onChange={async (e) => {
                                     const fichier = e.target.files?.[0]
@@ -339,14 +339,14 @@ export default function AdminPhotos() {
                                       setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
                                     }
                                   }} />
-                                <p aria-live="polite" className="min-h-11 break-all rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-600">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
+                                <p aria-live="polite" className="min-h-11 break-all rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
                                 <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]}
                                   onClick={() => void remplacerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border border-nuit-900 bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-nuit-800 focus:outline-none focus:ring-4 focus:ring-dore-200 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none">
+                                  className="min-h-11 w-full rounded-xl border border-[#08284d] bg-nuit-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-nuit-800 focus:outline-none focus:ring-4 focus:ring-dore-200 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-600 disabled:shadow-none">
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-nuit-900 transition-colors hover:border-dore-500 hover:bg-dore-50 focus:outline-none focus:ring-4 focus:ring-dore-100 disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
+                                  className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-[#08284d] transition-colors hover:border-dore-500 hover:bg-dore-50 focus:outline-none focus:ring-4 focus:ring-dore-100 disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
@@ -384,7 +384,7 @@ export default function AdminPhotos() {
                           <p aria-live="polite" className="min-h-11 break-all rounded-lg border border-blue-200 bg-white p-3 text-sm font-semibold text-slate-800">{fichiers[a.id]?.name ?? 'Aucun fichier choisi'}</p>
                         </div>
                         <button type="button" disabled={envoi === a.id || !fichiers[a.id]} onClick={() => void ajouterPhoto(a)}
-                          className="min-h-11 w-full rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] sm:w-auto transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-500 disabled:shadow-none">
+                          className="min-h-11 w-full rounded-full border-2 border-amber-600 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-500 px-6 py-2.5 text-sm font-black !text-slate-950 shadow-[0_4px_0_#9a670b] sm:w-auto transition duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_6px_0_#9a670b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:!text-slate-800 disabled:shadow-none">
                           {envoi === a.id ? 'Ajout en cours…' : 'Ajouter au catalogue'}
                         </button>
                       </div>
@@ -403,7 +403,7 @@ export default function AdminPhotos() {
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/70 p-4">
             <form onSubmit={enregistrerEdition} className="my-6 w-full max-w-3xl space-y-4 rounded-3xl border-2 border-blue-200 bg-white p-5 shadow-2xl sm:p-7">
               <div className="flex items-start justify-between gap-3 border-b border-slate-200 pb-4">
-                <div><p className="text-xs font-black uppercase tracking-widest text-blue-800">Administration · Intervention justifiée</p><h2 className="mt-1 text-2xl font-black text-slate-950">Modifier l’annonce</h2><p className="mt-1 text-sm text-slate-600">Le propriétaire sera automatiquement informé de cette modification.</p></div>
+                <div><p className="text-xs font-black uppercase tracking-widest text-blue-800">Administration · Intervention justifiée</p><h2 className="mt-1 text-2xl font-black text-slate-950">Modifier l’annonce</h2><p className="mt-1 text-sm text-slate-800">Le propriétaire sera automatiquement informé de cette modification.</p></div>
                 <button type="button" onClick={() => setAnnonceEnEdition(null)} className="rounded-full border-2 border-slate-300 bg-slate-100 px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-200">Fermer</button>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
