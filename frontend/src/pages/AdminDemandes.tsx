@@ -49,7 +49,7 @@ export default function AdminDemandes() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-bold">Demandes de rôle en attente</h1>
+      <h1 className="text-4xl font-extrabold leading-tight text-slate-950">Demandes de rôle en attente</h1>
       {erreur && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       {!demandes && !erreur && <p role="status" className="mt-6 text-slate-500">Chargement…</p>}
       {demandes && demandes.length === 0 && <p className="mt-6 text-slate-600">Aucune demande en attente.</p>}
