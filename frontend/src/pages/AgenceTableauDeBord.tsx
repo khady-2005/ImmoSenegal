@@ -302,7 +302,7 @@ export default function AgenceTableauDeBord() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
+    <main className="espace-partenaire-page mx-auto max-w-6xl px-4 py-10 sm:py-12">
       <Link to="/mes-agences" className="inline-flex items-center gap-2 text-sm font-semibold text-nuit-800 hover:text-amber-700">
         <ArrowLeft className="h-4 w-4" /> Retour à Mes agences
       </Link>
