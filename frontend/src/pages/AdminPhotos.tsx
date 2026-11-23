@@ -136,20 +136,22 @@ export default function AdminPhotos() {
               </Link>
             </div>
           </div>
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-              <p className="text-sm font-semibold text-slate-200">Annonces publiées</p>
-              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-              <p className="text-sm font-semibold text-slate-200">Annonces ImmoSénégal</p>
-              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.filter((a) => a.publieeParAgence).length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
-              <p className="text-sm font-semibold text-slate-200">Annonces propriétaires</p>
-              <p className="mt-1 text-3xl font-black tabular-nums">{annonces.filter((a) => !a.publieeParAgence).length}</p>
-            </div>
-          </div>
+        </header>
+
+        <section aria-label="Statistiques du catalogue" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-slate-200 bg-white p-5 shadow-sm">
+            <div><p className="text-sm font-bold uppercase tracking-wide text-slate-700">Annonces publiées</p><p className="mt-1 text-sm text-slate-600">Total du catalogue</p></div>
+            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-slate-950">{annonces.length}</p>
+          </article>
+          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-blue-200 bg-blue-50 p-5 shadow-sm">
+            <div><p className="text-sm font-bold uppercase tracking-wide text-blue-950">Annonces ImmoSénégal</p><p className="mt-1 text-sm text-blue-900">Gérées par l'agence</p></div>
+            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-blue-950">{annonces.filter((a) => a.publieeParAgence).length}</p>
+          </article>
+          <article className="flex min-h-28 items-center justify-between gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 shadow-sm">
+            <div><p className="text-sm font-bold uppercase tracking-wide text-amber-950">Annonces propriétaires</p><p className="mt-1 text-sm text-amber-900">Gérées par leurs propriétaires</p></div>
+            <p className="shrink-0 text-4xl font-black leading-none tabular-nums text-amber-950">{annonces.filter((a) => !a.publieeParAgence).length}</p>
+          </article>
+        </section>
         </header>
 
         <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
