@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { formatFcfa } from '../format'
+import { Building2, MapPin, Ruler, BedDouble, Search, Plus, Image as ImageIcon, Pencil, Trash2, Eye, RefreshCw } from 'lucide-react'
 import { ApiError, appelApi, urlApi } from '../api'
 import { useAuth } from '../auth'
 
@@ -191,25 +193,20 @@ export default function AdminPhotos() {
   if (utilisateur?.role !== 'ADMIN') return <div className="mx-auto max-w-3xl px-4 py-10">Accès réservé aux administrateurs.</div>
 
   return (
-    <main className="admin-photos-page min-h-screen bg-slate-100 px-4 py-7 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl space-y-7">
-        <header className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 p-6 text-white shadow-xl sm:p-8">
+    <main className="admin-photos-page min-h-screen bg-[#f4f6fa] px-3 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1500px] space-y-6">
+        <header className="flex flex-col gap-5 border-b border-amber-300 bg-white px-5 py-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-7">
+
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
-              <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
-              <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl" style={{ color: "#ffffff" }}>Gestion du catalogue</h1>
-              <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
-                Retrouve rapidement les annonces par type de bien ou par origine de publication. Les photos et fiches restent accessibles depuis chaque annonce.
-              </p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">Administration · ImmoSénégal</p>
+              <h1 className="mt-1 text-3xl font-black leading-tight text-[#102b49] sm:text-4xl">Gestion du catalogue</h1>
+              <p className="mt-1 text-sm text-slate-600 sm:text-base">Gérez facilement toutes vos annonces immobilières</p>
             </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-              <button type="button" onClick={() => void charger()} disabled={chargement}
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-slate-300 bg-white px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
-                {chargement ? 'Actualisation…' : 'Actualiser la liste'}
-              </button>
-              <Link to="/admin/annonces" className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 sm:w-auto">
-                Modération des annonces
-              </Link>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:brightness-110 disabled:opacity-60"><RefreshCw className="h-4 w-4" />{chargement ? 'Actualisation…' : 'Actualiser'}</button>
+              <Link to="/annonces/nouvelle" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-amber-500 bg-gradient-to-r from-amber-300 to-yellow-400 px-5 py-2.5 text-sm font-extrabold text-[#102b49] shadow-md hover:brightness-105"><Plus className="h-4 w-4" />Ajouter une annonce</Link>
+              <Link to="/admin/annonces" className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-[#102b49] hover:bg-slate-50">Modération</Link>
             </div>
           </div>
         </header>
@@ -229,9 +226,9 @@ export default function AdminPhotos() {
           </article>
         </section>
 
-        <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
-          <h2 className="text-lg font-extrabold text-blue-950">Règles de gestion des annonces</h2>
-          <div className="mt-2 grid gap-2 text-sm leading-relaxed text-blue-950 sm:grid-cols-2">
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="text-lg font-extrabold text-[#102b49]">Règles de gestion des annonces</h2>
+          <div className="mt-2 grid gap-2 text-sm leading-relaxed text-slate-700 sm:grid-cols-2">
             <p><strong>Annonces ImmoSénégal :</strong> l’administrateur peut ajouter, remplacer ou supprimer les photos.</p>
             <p><strong>Annonces des propriétaires :</strong> l’administrateur peut modifier la fiche avec un motif, ou retirer l’annonce du catalogue avec notification au propriétaire. Les photos restent gérées par le propriétaire.</p>
           </div>
@@ -249,35 +246,44 @@ export default function AdminPhotos() {
           </div>
         ) : (
           <section className="space-y-6">
-            <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div><h2 className="text-2xl font-black text-slate-950">Annonces du catalogue</h2><p className="mt-1 text-sm text-slate-700">Choisis une catégorie ou recherche un bien par son titre, sa ville ou son propriétaire.</p></div>
                 <span className="rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-800">{annoncesFiltrees.length} résultat(s)</span>
               </div>
-              <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce, une ville, un quartier…" aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-4 py-3 text-base font-medium text-slate-950 outline-none placeholder:text-slate-500 focus:border-blue-800 focus:ring-4 focus:ring-blue-100" />
+              <div className="relative"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#102b49]" /><input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher une annonce..." aria-label="Rechercher dans le catalogue" className="min-h-12 w-full rounded-full border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-base font-medium text-[#102b49] outline-none placeholder:text-slate-500 focus:border-amber-400 focus:ring-4 focus:ring-amber-100" /></div>
               <div className="flex flex-wrap gap-2" aria-label="Catégories du catalogue">
                 {categories.map((item) => <button key={item.id} type="button" onClick={() => setCategorie(item.id)} aria-pressed={categorie === item.id} className={categorie === item.id ? 'rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 shadow-sm' : 'rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-xs font-extrabold text-slate-800 hover:border-amber-500 hover:bg-amber-50'}>{item.label} <span className={categorie === item.id ? 'ml-1 text-slate-900' : 'ml-1 text-amber-800'}>{item.count}</span></button>)}
               </div>
             </div>
             {annoncesFiltrees.length === 0 ? <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-8 text-center"><h3 className="text-lg font-extrabold text-slate-950">Aucune annonce dans cette catégorie</h3><p className="mt-2 text-sm text-slate-700">Essaie une autre catégorie ou modifie ta recherche.</p><button type="button" onClick={() => { setCategorie('TOUTES'); setRecherche('') }} className="mt-4 rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-xs font-extrabold text-slate-950 hover:bg-amber-300">Afficher toutes les annonces</button></div> : annoncesFiltrees.map((a) => (
-              <article key={a.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
-                <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <article key={a.id} className="group overflow-hidden rounded-[1.7rem] border border-slate-200/80 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div className="relative h-52 overflow-hidden bg-gradient-to-br from-[#102b49] to-[#24547a] sm:h-56">
+                  {a.photos.length > 0 ? <img src={urlApi('/api/annonces/' + a.id + '/photos/' + a.photos[0] + '?v=' + (versionImages[a.photos[0]] ?? a.id))} alt={a.titre} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" /> : <Building2 className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 text-white/50" />}
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#071a31]/90 to-transparent" />
+                  <span className="absolute left-4 top-4 rounded-full border border-white/80 bg-amber-300 px-4 py-1.5 text-sm font-extrabold text-[#102b49] shadow-lg">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
+                  <Link to={'/annonces/' + a.id} aria-label={'Voir ' + a.titre} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#102b49] shadow-lg transition hover:bg-amber-100"><Eye className="h-5 w-5" /></Link>
+                  <p className="absolute bottom-3 left-4 rounded-full border-2 border-amber-300 bg-[#102b49] px-4 py-2 text-lg font-black text-white shadow-xl">{formatFcfa(a.prix)}{a.transaction === 'LOCATION' ? <span className="ml-1 text-xs font-semibold text-amber-200">/ mois</span> : null}</p>
+                </div>
+                <div className="space-y-3 p-4 sm:p-5">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className={a.publieeParAgence ? "rounded-full bg-blue-100 px-3 py-1.5 text-sm font-extrabold text-blue-950" : "rounded-full bg-amber-100 px-3 py-1.5 text-sm font-extrabold text-amber-950"}>
-                        {a.publieeParAgence ? 'Annonce ImmoSénégal' : 'Annonce propriétaire'}
-                      </span>
-                      <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.typeBien === 'MAISON' ? 'Maison' : a.typeBien === 'APPARTEMENT' ? 'Appartement' : a.typeBien === 'STUDIO' ? 'Studio' : a.typeBien === 'VILLA' ? 'Villa' : 'Terrain'}</span>
-                      <span className="rounded-full bg-slate-200 px-3 py-1.5 text-sm font-bold text-slate-800">{a.photos.length} photo(s)</span>
+                      <span className={a.publieeParAgence ? "rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-900" : "rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900"}>{a.publieeParAgence ? 'ImmoSénégal' : 'Propriétaire'}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{a.photos.length} photo(s)</span>
                     </div>
-                    <h3 className="mt-3 break-words text-xl font-black text-slate-950">{a.titre}</h3>
-                    <p className="mt-2 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200 sm:w-auto">
-                        ✎ Modifier l’annonce
+                    <h3 className="mt-1 break-words text-xl font-black leading-tight text-[#102b49]">{a.titre}</h3>
+                    <p className="flex items-center gap-1.5 text-sm text-slate-600"><MapPin className="h-4 w-4 shrink-0 text-amber-500" />{a.quartier}, {a.ville}</p>
+                    <div className="flex flex-wrap items-center gap-4 border-b border-slate-100 pb-3 text-sm font-medium text-slate-700">
+                      <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-amber-500" />{a.superficie} m²</span>
+                      {a.pieces !== null && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4 text-slate-500" />{a.pieces} pièces</span>}
+                    </div>
+                    <p className="text-xs text-slate-500">Propriétaire : {a.proprietaire.nomComplet}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#102b49] bg-gradient-to-r from-[#102b49] to-[#174675] px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-110 sm:flex-none"><Pencil className="h-4 w-4" />>
+                        Modifier
                       </button>
-                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-11 w-full items-center justify-center rounded-full border-2 border-dore-600 bg-dore-300 px-5 py-2.5 text-sm font-black text-nuit-950 shadow-md transition hover:bg-dore-400 focus:outline-none focus:ring-4 focus:ring-dore-200 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto">Retirer du catalogue</button>}
-                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-white px-4 py-2 text-sm font-extrabold text-blue-950 transition hover:bg-blue-50 sm:w-auto">Voir la fiche</Link>
+                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-[#102b49] transition hover:border-amber-400 hover:bg-amber-50 disabled:opacity-50 sm:flex-none"><Trash2 className="h-4 w-4" />Retirer</button>}
+                      <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-amber-400 bg-amber-200 px-3 py-2 text-sm font-bold text-[#102b49] transition hover:bg-amber-300 sm:flex-none"><ImageIcon className="h-4 w-4" />Photos</Link>
                     </div>
                   </div>
 
