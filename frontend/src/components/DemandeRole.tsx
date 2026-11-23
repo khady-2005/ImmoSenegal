@@ -28,7 +28,7 @@ export default function DemandeRole() {
     <section aria-labelledby="demande-role" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="demande-role" className="text-lg font-semibold">Publier des annonces</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Votre compte est un compte Client. Pour publier des biens, demandez un rôle : un administrateur doit le valider.
+        Votre compte commence comme Client. Choisissez Propriétaire si vous souhaitez publier vos propres biens, ou Agent immobilier si vous souhaitez travailler dans une agence. La demande est examinée par l’administration. Le statut Gestionnaire est attribué par invitation du responsable d’une agence.
       </p>
       {succes ? (
         <p role="status" className="mt-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
@@ -40,7 +40,7 @@ export default function DemandeRole() {
             <label htmlFor="role-demande" className="mb-1 block text-sm font-medium text-slate-700">Rôle souhaité</label>
             <select id="role-demande" value={role} onChange={(e) => setRole(e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2.5">
               <option value="PROPRIETAIRE">Propriétaire</option>
-              <option value="AGENT">Agent immobilier</option>
+              <option value="AGENT">Agent immobilier (rejoindre une agence ensuite)</option>
             </select>
           </div>
           <button type="submit" disabled={envoi} className="rounded-lg bg-emeraude-600 px-4 py-2.5 font-semibold text-white hover:bg-emeraude-700 disabled:opacity-60">
