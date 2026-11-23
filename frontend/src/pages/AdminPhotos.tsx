@@ -4,6 +4,7 @@ import { formatFcfa } from '../format'
 import { Building2, MapPin, Ruler, BedDouble, Search, Plus, Image as ImageIcon, Pencil, Trash2, Eye, RefreshCw, Home as HomeIcon, LayoutGrid, ClipboardList, CalendarDays, Mail, Users, Settings, LogOut, Menu, Filter, ChevronDown, UserCircle } from 'lucide-react'
 import { ApiError, appelApi, urlApi } from '../api'
 import { useAuth } from '../auth'
+import { Marque } from '../components/Logo'
 
 type AnnoncePhoto = {
   id: string
@@ -192,10 +193,9 @@ export default function AdminPhotos() {
       <aside className={`absolute inset-y-0 left-0 z-40 flex w-64 flex-col overflow-hidden bg-[#062b55] text-white shadow-2xl transition-transform duration-300 lg:static lg:translate-x-0 ${menuMobile ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="relative flex min-h-40 flex-col items-center justify-center overflow-hidden border-b border-white/10 px-5 py-6">
           <div className="absolute inset-0 bg-gradient-to-b from-[#062b55] via-[#062b55]/95 to-[#062b55]/65" />
-          <div className="relative text-center">
-            <div className="mx-auto flex h-14 w-20 items-center justify-center text-[#ffd45c]"><HomeIcon className="h-14 w-14" strokeWidth={1.7} /></div>
-            <p className="mt-1 text-[1.7rem] font-black tracking-tight text-[#ffd45c]">ImmoSénégal</p>
-            <p className="text-sm text-white/90">Trouvez votre bien idéal</p>
+          <div className="relative flex flex-col items-center text-center">
+            <Marque taille="md" sombre />
+            <p className="mt-2 text-sm font-medium text-white/90">Trouvez votre bien idéal</p>
           </div>
         </div>
         <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-6 text-sm font-semibold">
@@ -210,7 +210,7 @@ export default function AdminPhotos() {
         <div className="border-t border-white/10 p-3">
           <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><LogOut className="h-5 w-5" />Quitter l'administration</Link>
         </div>
-        <div className="pointer-events-none absolute bottom-0 left-0 -z-0 h-40 w-full bg-gradient-to-t from-[#031d3b] to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute bottom-0 left-0 -z-0 h-40 w-full bg-cover bg-center opacity-60" style={{ backgroundImage: "linear-gradient(to top, rgba(3,29,59,.98), rgba(3,29,59,.08)), url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=85)" }} />
       </aside>
       {menuMobile && <button type="button" aria-label="Fermer le menu" onClick={() => setMenuMobile(false)} className="absolute inset-0 z-30 bg-[#061b35]/50 lg:hidden" />}
       <div className="flex min-w-0 flex-1 flex-col">
