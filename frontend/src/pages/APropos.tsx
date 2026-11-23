@@ -153,18 +153,6 @@ export default function APropos() {
             ))}
           </div>
 
-          <div className="mt-14 grid gap-6 rounded-3xl bg-nuit-950 p-8 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emeraude-300">Un projet universitaire</p>
-              <h2 className="mt-3 font-titre text-2xl font-semibold sm:text-3xl">Développé à l’Université Assane Seck de Ziguinchor.</h2>
-              <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
-                ImmoSénégal est un projet universitaire développé dans le cadre d’un mémoire de Licence 3 en Ingénierie Informatique à l’Université Assane Seck de Ziguinchor. Il permet de mettre en pratique les compétences acquises en analyse, conception et développement d’applications web, à travers la réalisation d’une plateforme dédiée au secteur immobilier sénégalais.
-              </p>
-            </div>
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emeraude-300/30 bg-emeraude-500/15 text-emeraude-300">
-              <Building2 className="h-8 w-8" />
-            </div>
-          </div>
         </div>
       </section>
     </div>
