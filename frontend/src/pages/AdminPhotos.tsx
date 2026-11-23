@@ -237,8 +237,8 @@ export default function AdminPhotos() {
           </div>
         </section>
 
-        {info && <p role="status" className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-base font-bold text-emerald-950">{info}</p>}
-        {erreur && <p role="alert" className="rounded-xl border-2 border-red-300 bg-red-50 p-4 text-base font-bold text-red-950">{erreur}</p>}
+        {info && <p role="status" className="rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-base font-bold text-amber-950">{info}</p>}
+        {erreur && <p role="alert" className="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-base font-bold text-blue-950">{erreur}</p>}
 
         {chargement ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-lg font-semibold text-slate-700">Chargement des annonces…</div>
@@ -276,7 +276,7 @@ export default function AdminPhotos() {
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-amber-600 bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-950 shadow-sm transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-amber-200 sm:w-auto">
                         ✎ Modifier l’annonce
                       </button>
-                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-red-700 bg-red-600 px-4 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">Retirer du catalogue</button>}
+                      {!a.publieeParAgence && <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-blue-950 px-4 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">Retirer du catalogue</button>}
                       <Link to={'/annonces/' + a.id} className="inline-flex min-h-10 w-full items-center justify-center rounded-full border-2 border-blue-900 bg-white px-4 py-2 text-sm font-extrabold text-blue-950 transition hover:bg-blue-50 sm:w-auto">Voir la fiche</Link>
                     </div>
                   </div>
@@ -321,7 +321,7 @@ export default function AdminPhotos() {
                                   {envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}
                                 </button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)}
-                                  className="min-h-11 w-full rounded-full border-2 border-rose-900 bg-gradient-to-r from-rose-700 to-red-800 px-4 py-2.5 text-sm font-black !text-white shadow-[0_4px_0_#64151b] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_0_#64151b] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
+                                  className="min-h-11 w-full rounded-full border-2 border-blue-900 bg-gradient-to-r from-blue-950 to-blue-800 px-4 py-2.5 text-sm font-black !text-white shadow-[0_4px_0_#c58a16] transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_6px_0_#c58a16] active:translate-y-1 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50">🗑 Supprimer</button>
                               </>
                             ) : (
                               <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
