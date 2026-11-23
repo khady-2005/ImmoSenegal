@@ -304,16 +304,16 @@ export default function AdminPhotos() {
 
                 </div>
 
-                <details open={!!photosOuvertes[a.id]} className="border-t border-slate-100 bg-[#fbfcff]">
+                <details open={!!photosOuvertes[a.id]} className="admin-photo-details w-full min-w-0 border-t border-slate-100 bg-[#fbfcff]">
                   <summary className="cursor-pointer px-5 py-3 text-sm font-extrabold text-[#08284d] hover:bg-amber-50">Gérer les photos ({a.photos.length})</summary>
                   <div className="p-5 sm:p-6">
                   <h4 className="mb-4 text-lg font-extrabold text-slate-950">Photos actuellement enregistrées</h4>
                   {a.photos.length === 0 ? (
                     <div className="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-base font-semibold text-slate-800">Aucune photo pour cette annonce.</div>
                   ) : (
-                    <div className="admin-photo-grid grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
+                    <div className="admin-photo-gallery admin-photo-grid">
                       {a.photos.map((photoId, index) => (
-                        <article key={photoId} className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
+                        <article key={photoId} className="admin-photo-item group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
                           <div className="relative overflow-hidden bg-slate-200">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))}
                               alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
