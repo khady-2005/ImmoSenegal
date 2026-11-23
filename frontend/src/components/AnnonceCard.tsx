@@ -10,22 +10,22 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
   const location = annonce.transaction === 'LOCATION'
   const disponible = annonce.statut === 'PUBLIEE'
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/80 bg-white shadow-carte ring-1 ring-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-haut motion-reduce:transform-none">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-nuit-900 to-nuit-700">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,35,60,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(15,35,60,0.15)] motion-reduce:transform-none">
+      <div className="relative aspect-[5/4] overflow-hidden bg-gradient-to-br from-nuit-900 to-nuit-700">
         <BoutonFavori annonceId={annonce.id} />
         {annonce.photos.length > 0 ? (
           <img
             src={urlPhoto(annonce.id, annonce.photos[0], annonce.modifieLe)}
             alt={`Photo du type de bien présenté : ${annonce.titre}`}
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover brightness-[1.08] saturate-[1.08] transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
+            className="absolute inset-0 h-full w-full object-cover brightness-100 saturate-[1.12] transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
           />
         ) : (
           <Building2 aria-hidden className="absolute left-1/2 top-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2 text-white/25" />
         )}
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-nuit-950/80 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-nuit-950/45 to-transparent" />
 
-        <span className="absolute left-3 top-3 rounded-full bg-dore-300 px-3 py-1 text-xs font-bold text-nuit-900 shadow-sm">
+        <span className="absolute left-3 top-3 rounded-full border border-white/70 bg-nuit-900/90 px-3.5 py-1.5 text-xs font-bold tracking-wide text-white shadow-md">
           {location ? 'À louer' : 'À vendre'}
         </span>
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
@@ -36,17 +36,17 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           )}
         </div>
 
-        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-full border-2 border-dore-400 bg-[#fff4cf] px-4 py-3 text-2xl font-extrabold leading-none text-[#102b49] shadow-[0_4px_16px_rgba(15,35,60,0.28)]">
+        <p className="font-titre absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-baseline gap-1.5 rounded-xl border border-dore-300 bg-nuit-900/95 px-4 py-3 text-xl font-extrabold leading-none text-white shadow-[0_6px_18px_rgba(15,35,60,0.3)]">
           <span className="truncate">{formatFcfa(annonce.prix)}</span>
-          {location && <span className="shrink-0 font-sans text-sm font-bold text-[#294766]">/ mois</span>}
+          {location && <span className="shrink-0 font-sans text-xs font-semibold text-dore-300">/ mois</span>}
         </p>
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <p className="text-sm font-medium text-amber-800">{libelleTypeBien[annonce.typeBien]}</p>
-        <h3 className="font-titre text-lg font-semibold leading-snug text-nuit-900">
+      <div className="flex flex-1 flex-col gap-2.5 p-4">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800">{libelleTypeBien[annonce.typeBien]}</p>
+        <h3 className="font-titre line-clamp-2 min-h-[3.25rem] text-lg font-bold leading-snug text-nuit-900">
           {/* Le lien couvre toute la carte : un clic n'importe où ouvre la fiche. */}
-          <Link to={`/annonces/${annonce.id}`} className="after:absolute after:inset-0 after:content-[''] hover:underline">
+          <Link to={`/annonces/${annonce.id}`} className="after:absolute after:inset-0 after:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-dore-500">
             {annonce.titre}
           </Link>
         </h3>
@@ -54,7 +54,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           <MapPin aria-hidden className="h-4 w-4 shrink-0 text-amber-600" />
           {annonce.quartier}, {annonce.ville}
         </p>
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-sm text-slate-700">
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-sm text-slate-700">
           <p className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <Ruler aria-hidden className="h-4 w-4 text-slate-400" />
