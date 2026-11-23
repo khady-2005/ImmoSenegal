@@ -46,30 +46,67 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="home-hero relative isolate overflow-visible bg-[#08284d] text-white">
-        <div className="relative min-h-[500px] overflow-hidden sm:min-h-[560px]">
-          <img src={photoVilla} alt="Villa contemporaine avec piscine" width={1800} height={1100} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#031a35]/95 via-[#06264b]/78 to-[#06264b]/25" />
-          <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-[#06264b]/45 to-transparent" />
-          <div className="mx-auto flex min-h-[500px] max-w-7xl items-center px-5 pb-24 pt-16 sm:min-h-[560px] sm:px-8 sm:pb-28">
-            <div className="max-w-2xl">
-              <span className="inline-flex rounded-full border border-dore-300/60 bg-dore-400 px-4 py-2 text-sm font-extrabold text-[#09284b] shadow-lg">Bienvenue sur ImmoSénégal</span>
-              <h1 id="titre-accueil" className="font-marque mt-6 max-w-3xl text-5xl font-black leading-[1.02] tracking-tight text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] sm:text-6xl lg:text-7xl">Trouvez votre <span className="text-dore-400">bien idéal</span></h1>
-              <p className="mt-5 max-w-xl text-lg font-semibold leading-relaxed text-white drop-shadow-md sm:text-xl">Maisons, appartements, villas et terrains au Sénégal, en toute confiance.</p>
-              <div className="mt-7 flex flex-wrap gap-5 text-sm font-semibold text-white">
-                <span className="inline-flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-dore-400" /> Transactions sécurisées</span>
-                <span className="inline-flex items-center gap-2"><Handshake className="h-5 w-5 text-dore-400" /> Accompagnement personnalisé</span>
-                <span className="inline-flex items-center gap-2"><House className="h-5 w-5 text-dore-400" /> Annonces immobilières</span>
+      <section aria-labelledby="titre-accueil" className="home-hero relative isolate overflow-visible bg-[#061b35] text-white">
+        <div className="relative min-h-[610px] overflow-hidden sm:min-h-[690px]">
+          <img src={photoVilla} alt="Villa contemporaine lumineuse au Sénégal" width={1800} height={1100} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#04172e]/95 via-[#06284b]/78 to-[#06284b]/35" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-[#04172e]/65 via-transparent to-[#04172e]/15" />
+          <div className="mx-auto grid min-h-[610px] max-w-7xl items-center gap-10 px-5 pb-24 pt-16 sm:min-h-[690px] sm:px-8 sm:pb-32 lg:grid-cols-[1.1fr_.9fr]">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#ffe08a]/70 bg-[#102b49]/70 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-[#ffe08a] shadow-lg backdrop-blur-sm">
+                <span className="h-2 w-2 rounded-full bg-[#ffd45c] shadow-[0_0_12px_#ffd45c]" /> Votre projet immobilier au Sénégal
+              </span>
+              <h1 id="titre-accueil" className="font-marque mt-7 max-w-3xl text-5xl font-black leading-[1.02] tracking-[-0.045em] text-white drop-shadow-[0_5px_22px_rgba(0,0,0,.65)] sm:text-6xl lg:text-[4.5rem]">
+                Le lieu qui vous ressemble <span className="text-[#ffd45c]">vous attend.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] sm:text-xl">
+                Trouvez votre maison, appartement, villa ou terrain. Explorez des annonces immobilières partout au Sénégal et donnez vie à votre prochain projet.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link to="/catalogue" className="inline-flex items-center gap-2 rounded-full border border-[#ffe08a] bg-gradient-to-r from-[#ffe08a] via-[#f7c94c] to-[#e9a900] px-7 py-4 text-base font-extrabold text-[#09284b] shadow-[0_12px_35px_rgba(0,0,0,.28)] transition hover:-translate-y-1 hover:brightness-105">
+                  Découvrir les annonces <ArrowRight className="h-5 w-5" />
+                </Link>
+                <Link to="/carte" className="inline-flex items-center gap-2 rounded-full border border-white/65 bg-white/10 px-6 py-4 text-base font-bold text-white backdrop-blur-sm transition hover:bg-white/20">
+                  <MapPin className="h-5 w-5 text-[#ffd45c]" /> Explorer la carte
+                </Link>
+              </div>
+              <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-sm font-semibold text-white">
+                <span className="inline-flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-[#ffd45c]" /> Parcours sécurisé</span>
+                <span className="inline-flex items-center gap-2"><Handshake className="h-5 w-5 text-[#ffd45c]" /> Accompagnement</span>
+                <span className="inline-flex items-center gap-2"><House className="h-5 w-5 text-[#ffd45c]" /> Biens au Sénégal</span>
+              </div>
+            </div>
+            <div className="relative mx-auto hidden w-full max-w-[440px] lg:block">
+              <div className="absolute -inset-5 rounded-[2.5rem] border border-white/20 bg-white/5 rotate-3 backdrop-blur-[2px]" />
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/35 bg-white p-3 shadow-[0_28px_80px_rgba(0,0,0,.38)]">
+                <div className="relative h-[340px] overflow-hidden rounded-[1.45rem]">
+                  <img src={photoSalon} alt="Intérieur élégant et lumineux" loading="eager" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#061b35]/75 via-transparent to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5 text-white">
+                    <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#ffe08a]">ImmoSénégal</p>
+                    <p className="mt-1 font-titre text-3xl font-semibold">Un nouveau chez-vous.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 p-3 pb-1">
+                  <div className="rounded-2xl bg-[#f2f6fb] p-3">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[#64748b]">À découvrir</p>
+                    <p className="mt-1 text-sm font-extrabold text-[#102b49]">Maisons & villas</p>
+                  </div>
+                  <div className="rounded-2xl bg-[#fff6dc] p-3">
+                    <p className="text-xs font-bold uppercase tracking-wide text-[#8a650b]">Votre recherche</p>
+                    <p className="mt-1 text-sm font-extrabold text-[#102b49]">Location & vente</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="relative z-10 mx-auto -mt-12 max-w-6xl px-4 pb-8 sm:-mt-14">
-          <form action="/catalogue" method="get" aria-label="Rechercher un bien immobilier" className="grid gap-3 rounded-[1.75rem] border border-slate-100 bg-white p-3 shadow-[0_18px_55px_-18px_rgba(3,24,49,0.45)] sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-center sm:gap-2 sm:rounded-full sm:p-3">
-            <label className="flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#102b49]"><House className="h-5 w-5 shrink-0 text-[#102b49]" /><select name="type" aria-label="Type de bien" defaultValue="" className="w-full min-w-0 bg-transparent font-semibold outline-none"><option value="">Tous les types</option><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="VILLA">Villa</option><option value="TERRAIN">Terrain</option><option value="STUDIO">Studio</option></select></label>
-            <label className="flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#102b49]"><MapPin className="h-5 w-5 shrink-0 text-[#102b49]" /><input name="ville" placeholder="Toutes les villes" aria-label="Ville" className="w-full min-w-0 bg-transparent font-semibold outline-none placeholder:text-slate-400" /></label>
-            <label className="flex items-center gap-2 rounded-full border border-slate-200 px-3 py-2 text-sm text-[#102b49] sm:rounded-none sm:border-y-0 sm:border-r-0 sm:border-l"><Search className="h-5 w-5 shrink-0 text-[#102b49]" /><select name="transaction" aria-label="Type de transaction" defaultValue="" className="w-full min-w-0 bg-transparent font-semibold outline-none"><option value="">Location ou vente</option><option value="LOCATION">À louer</option><option value="VENTE">À vendre</option></select></label>
-            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f8cf55] to-[#e9a900] px-7 py-3.5 font-extrabold text-[#102b49] shadow-md transition hover:-translate-y-0.5 hover:brightness-105"><Search className="h-5 w-5" /> Rechercher</button>
+        <div className="relative z-10 mx-auto -mt-16 max-w-6xl px-4 pb-10 sm:-mt-[4.5rem]">
+          <form action="/catalogue" method="get" aria-label="Rechercher un bien immobilier" className="grid gap-3 rounded-[1.8rem] border border-[#dce5ef] bg-white p-4 shadow-[0_22px_65px_-18px_rgba(3,24,49,.55)] sm:grid-cols-[1fr_1fr_1.2fr_auto] sm:items-center sm:gap-2 sm:rounded-full sm:p-3">
+            <label className="flex items-center gap-3 rounded-full bg-[#f4f7fb] px-4 py-3 text-sm text-[#102b49]"><House className="h-5 w-5 shrink-0 text-[#b47b00]" /><select name="type" aria-label="Type de bien" defaultValue="" className="w-full min-w-0 bg-transparent font-bold text-[#102b49] outline-none"><option value="">Tous les types</option><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="VILLA">Villa</option><option value="TERRAIN">Terrain</option><option value="STUDIO">Studio</option></select></label>
+            <label className="flex items-center gap-3 rounded-full bg-[#f4f7fb] px-4 py-3 text-sm text-[#102b49]"><MapPin className="h-5 w-5 shrink-0 text-[#b47b00]" /><input name="ville" placeholder="Toutes les villes" aria-label="Ville" className="w-full min-w-0 bg-transparent font-bold text-[#102b49] outline-none placeholder:text-slate-500" /></label>
+            <label className="flex items-center gap-3 rounded-full bg-[#f4f7fb] px-4 py-3 text-sm text-[#102b49]"><Search className="h-5 w-5 shrink-0 text-[#b47b00]" /><select name="transaction" aria-label="Type de transaction" defaultValue="" className="w-full min-w-0 bg-transparent font-bold text-[#102b49] outline-none"><option value="">Location ou vente</option><option value="LOCATION">À louer</option><option value="VENTE">À vendre</option></select></label>
+            <button type="submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#f8d66b] via-[#f2b800] to-[#e3a300] px-8 py-4 font-extrabold text-[#102b49] shadow-lg transition hover:-translate-y-0.5 hover:brightness-105"><Search className="h-5 w-5" /> Rechercher</button>
           </form>
         </div>
       </section>
