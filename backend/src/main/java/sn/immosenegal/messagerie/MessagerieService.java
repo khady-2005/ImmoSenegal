@@ -12,6 +12,7 @@ import sn.immosenegal.reservation.ReservationRepository;
 import sn.immosenegal.security.AuthenticatedUser;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
+import sn.immosenegal.user.UserRepository;
 
 @Service
 public class MessagerieService {
@@ -20,11 +21,12 @@ public class MessagerieService {
     private final NotificationService notifications;
     private final MandatGestionRepository mandats;
     private final MembreAgenceRepository membres;
+    private final UserRepository users;
 
     public MessagerieService(ReservationRepository reservations, MessageConversationRepository messages,
-            NotificationService notifications, MandatGestionRepository mandats, MembreAgenceRepository membres) {
+            NotificationService notifications, MandatGestionRepository mandats, MembreAgenceRepository membres, UserRepository users) {
         this.reservations = reservations; this.messages = messages; this.notifications = notifications;
-        this.mandats = mandats; this.membres = membres;
+        this.mandats = mandats; this.membres = membres; this.users = users;
     }
 
     @Transactional(readOnly = true)
@@ -34,6 +36,8 @@ public class MessagerieService {
             liste = reservations.findByClientIdOrderByCreeLeDesc(acteur.id());
         } else if (acteur.role() == Role.PROPRIETAIRE) {
             liste = reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id());
+        } else if (acteur.role() == Role.ADMIN) {
+            liste = reservations.findAllByOrderByCreeLeDesc();
         } else if (acteur.role() == Role.AGENT) {
             List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
@@ -47,7 +51,9 @@ public class MessagerieService {
         }
         return liste.stream().map(r -> {
             String interlocuteur;
-            if (acteur.role() == Role.CLIENT) {
+            if (acteur.role() == Role.ADMIN) {
+                interlocuteur = "Client : " + r.getClient().getNomComplet() + " · Propriétaire : " + r.getAnnonce().getProprietaire().getNomComplet();
+            } else if (acteur.role() == Role.CLIENT) {
                 List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
                     r.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
                 interlocuteur = actifs.isEmpty() ? r.getAnnonce().getProprietaire().getNomComplet()
@@ -72,7 +78,9 @@ public class MessagerieService {
         if (contenu == null || contenu.isBlank() || contenu.length() > 2000)
             throw new ApiException(HttpStatus.BAD_REQUEST, "Le message doit contenir entre 1 et 2000 caractères.");
         User expediteur;
-        if (reservation.getClient().getId().equals(acteur.id())) expediteur = reservation.getClient();
+        if (acteur.role() == Role.ADMIN) expediteur = users.findById(acteur.id())
+            .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Compte administrateur introuvable."));
+        else if (reservation.getClient().getId().equals(acteur.id())) expediteur = reservation.getClient();
         else if (reservation.getAnnonce().getProprietaire().getId().equals(acteur.id())) expediteur = reservation.getAnnonce().getProprietaire();
         else expediteur = membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
@@ -86,7 +94,12 @@ public class MessagerieService {
         List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
             reservation.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
         boolean client = reservation.getClient().getId().equals(acteur.id());
-        if (client && !actifs.isEmpty()) {
+        if (acteur.role() == Role.ADMIN) {
+            notifications.creer(reservation.getClient(), "NOUVEAU_MESSAGE", "Message de l’administration",
+                "L’administration vous a écrit au sujet de « " + reservation.getAnnonce().getTitre() + " ».", "/messagerie");
+            notifications.creer(reservation.getAnnonce().getProprietaire(), "NOUVEAU_MESSAGE", "Message de l’administration",
+                "L’administration vous a écrit au sujet de « " + reservation.getAnnonce().getTitre() + " ».", "/messagerie");
+        } else if (client && !actifs.isEmpty()) {
             for (MandatGestion mandat : actifs) {
                 membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)
                     .forEach(m -> notifications.creer(m.getUtilisateur(), "NOUVEAU_MESSAGE",
@@ -113,7 +126,8 @@ public class MessagerieService {
             .anyMatch(m -> mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
                 r.getAnnonce().getId(), StatutMandatGestion.ACCEPTE).stream()
                 .anyMatch(g -> g.getAgence().getId().equals(m.getAgence().getId())));
-        if (!client && !proprietaire && !agent)
+        boolean admin = acteur.role() == Role.ADMIN;
+        if (!admin && !client && !proprietaire && !agent)
             throw new ApiException(HttpStatus.FORBIDDEN, "Vous ne participez pas à cette conversation.");
         return r;
     }
