@@ -41,9 +41,9 @@ export default function AdminAbonnements() {
   if (utilisateur?.role !== 'ADMIN') return <main className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Accès réservé à l’administration.</p></main>
 
   return <main className="mx-auto max-w-5xl px-4 py-10">
-    <p className="text-xs font-bold uppercase tracking-widest text-amber-800">Administration</p>
+    <p className="text-base font-extrabold uppercase tracking-wide text-amber-900">Administration</p>
     <h1 className="mt-2 text-3xl font-bold text-nuit-900">Validation des abonnements</h1>
-    <p className="mt-2 text-sm text-slate-600">Vérifiez le paiement auprès du canal officiel avant d’activer un forfait.</p>
+    <p className="mt-3 max-w-3xl rounded-xl border-2 border-blue-200 bg-blue-50 px-5 py-4 text-lg font-semibold leading-8 text-slate-950">Vérifiez le paiement auprès du canal officiel avant d’activer un forfait.</p>
     {erreur && <p role="alert" className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
     {message && <p role="status" className="mt-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-800">{message}</p>}
     {chargement ? <p className="mt-6 text-sm text-slate-500">Chargement…</p> : demandes.length === 0 ? <p className="mt-6 rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-600">Aucune demande d’abonnement en attente.</p> :
