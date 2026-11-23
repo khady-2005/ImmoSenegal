@@ -99,12 +99,17 @@ export default function AdminLitigesLocatifs() {
           <p className="mt-2 text-xs text-slate-500">La note est ajoutée au dossier et transmise aux deux parties. Elle ne remplace pas leur accord ni une décision juridique.</p>
         </div>}
         {l.type === 'INCIDENT' && l.statut !== 'CLOTURE' && <div className="mt-4 border-t border-slate-100 pt-4">
-          <label className="block text-sm font-medium text-slate-700">Note de suivi administratif
-            <textarea rows={3} maxLength={1500} value={notesAdmin[l.id] || ''} onChange={e => setNotesAdmin(v => ({ ...v, [l.id]: e.target.value }))} placeholder="Notez les démarches effectuées ou les prochaines étapes convenues avec les parties…" className="mt-1 w-full rounded-lg border border-slate-300 p-3 font-normal" />
+          <label className="block text-base font-bold text-slate-900">Note de suivi administratif <span className="text-red-700">(obligatoire)</span>
+            <textarea rows={3} maxLength={1500} value={notesAdmin[l.id] || ''} onChange={e => setNotesAdmin(v => ({ ...v, [l.id]: e.target.value }))} placeholder="Saisissez les démarches effectuées ou les prochaines étapes convenues avec les parties…" className="mt-2 w-full rounded-xl border-2 border-slate-400 bg-white p-3 text-base font-normal text-slate-950 placeholder:text-slate-500 focus:border-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-100" />
           </label>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {l.statut !== 'EN_COURS' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'EN_COURS')} className="rounded-lg border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800 disabled:opacity-50">Prendre en charge</button>}
-            {l.statut !== 'RESOLU' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'RESOLU')} className="rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Proposer comme résolu</button>}
+          <p className="mt-2 text-sm font-medium text-slate-700">Renseignez d’abord cette note : elle sera transmise au propriétaire et au locataire avec la mise à jour du dossier.</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {l.statut !== 'EN_COURS' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'EN_COURS')} className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-blue-950 bg-blue-800 px-5 py-3 text-base font-extrabold text-white shadow-md transition hover:bg-blue-950 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 disabled:cursor-wait disabled:bg-slate-400 disabled:text-white">
+              {actionEnCours === l.id ? 'Mise à jour…' : 'Prendre en charge'}
+            </button>}
+            {l.statut !== 'RESOLU' && <button type="button" disabled={actionEnCours === l.id} onClick={() => void traiterIncident(l, 'RESOLU')} className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-slate-950 bg-slate-900 px-5 py-3 text-base font-extrabold text-white shadow-md transition hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-300 disabled:cursor-wait disabled:bg-slate-400">
+              {actionEnCours === l.id ? 'Mise à jour…' : 'Proposer comme résolu'}
+            </button>}
           </div>
           <p className="mt-2 text-xs text-slate-500">Les deux parties reçoivent la note. La clôture définitive reste confirmée par la personne qui a signalé l’incident.</p>
         </div>}
