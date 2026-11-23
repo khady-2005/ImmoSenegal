@@ -45,25 +45,9 @@ async function preparerPhoto(fichier: File): Promise<File> {
     image.close()
   }
 }
-type Avertissement = {
-  id: string
-  annonceId: string
-  photoId: string
-  titreAnnonce: string
-  nomProprietaire: string
-  motif: string
-  creeLe: string
-  echeanceLe: string
-  statut: 'EN_ATTENTE' | 'REPONDU' | 'CORRIGE' | 'RETIRE'
-  reponseProprietaire: string | null
-  reponduLe: string | null
-}
-
 export default function AdminPhotos() {
   const { utilisateur, jeton } = useAuth()
   const [annonces, setAnnonces] = useState<AnnoncePhoto[]>([])
-  const [avertissements, setAvertissements] = useState<Avertissement[]>([])
-  const [motifs, setMotifs] = useState<Record<string, string>>({})
   const [fichiers, setFichiers] = useState<Record<string, File | undefined>>({})
   const [fichiersRemplacement, setFichiersRemplacement] = useState<Record<string, File | undefined>>({})
   const [versionImages, setVersionImages] = useState<Record<string, number>>({})
@@ -77,10 +61,8 @@ export default function AdminPhotos() {
     try {
       const [page, historique] = await Promise.all([
         appelApi<Page<AnnoncePhoto>>('/api/admin/annonces?statut=PUBLIEE&taille=50', { token: jeton }),
-        appelApi<Avertissement[]>('/api/admin/photos/avertissements', { token: jeton }),
       ])
       setAnnonces(page.contenu)
-      setAvertissements(historique)
       setErreur(null)
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les photos.')
@@ -88,46 +70,6 @@ export default function AdminPhotos() {
   }, [jeton])
 
   useEffect(() => { if (utilisateur?.role === 'ADMIN') void charger() }, [charger, utilisateur?.role])
-
-  async function definirOrigine(a: AnnoncePhoto, publieeParAgence: boolean) {
-    setEnvoi(a.id); setErreur(null); setInfo(null)
-    try {
-      await appelApi('/api/admin/annonces/' + a.id + '/publication-agence', {
-        method: 'PATCH', token: jeton, body: { publieeParAgence },
-      })
-      setInfo(publieeParAgence ? 'Annonce identifiée comme publiée par ImmoSénégal.' : 'Annonce identifiée comme appartenant à un propriétaire.')
-      await charger()
-    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Modification impossible.') }
-    finally { setEnvoi(null) }
-  }
-
-  async function avertir(a: AnnoncePhoto, photoId: string) {
-    const motif = (motifs[photoId] ?? '').trim()
-    if (!motif) { setErreur('Indique le motif de l’avertissement.'); return }
-    setEnvoi(photoId); setErreur(null); setInfo(null)
-    try {
-      await appelApi('/api/admin/photos/' + a.id + '/' + photoId + '/avertir', {
-        method: 'POST', token: jeton, body: { motif },
-      })
-      setInfo('Avertissement envoyé au propriétaire. Le délai de 48 heures commence.')
-      setMotifs((v) => ({ ...v, [photoId]: '' }))
-      await charger()
-    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Envoi impossible.') }
-    finally { setEnvoi(null) }
-  }
-
-  async function deciderAvertissement(a: Avertissement, retirer: boolean) {
-    if (retirer && !window.confirm('Retirer cette photo après examen de la réponse du propriétaire ?')) return
-    setEnvoi(a.id); setErreur(null); setInfo(null)
-    try {
-      await appelApi('/api/admin/photos/avertissements/' + a.id + '/decision', {
-        method: 'POST', token: jeton, body: { retirer },
-      })
-      setInfo(retirer ? 'Photo retirée après examen de la réponse.' : 'Avertissement clôturé après examen de la réponse.')
-      await charger()
-    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Décision impossible.') }
-    finally { setEnvoi(null) }
-  }
 
   async function supprimerPhoto(a: AnnoncePhoto, photoId: string) {
     if (!window.confirm('Supprimer définitivement cette photo de l’annonce ImmoSénégal ?')) return
@@ -183,7 +125,7 @@ export default function AdminPhotos() {
               <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-amber-300">Administration · ImmoSénégal</p>
               <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">Gestion du catalogue</h1>
               <p className="mt-3 text-base leading-relaxed text-slate-100 sm:text-lg">
-                Remplace les photos incorrectes, ajoute de nouvelles vues et vérifie les images qui seront visibles dans le catalogue public.
+                Gère uniquement les photos des annonces publiées par ImmoSénégal. Les propriétaires conservent la maîtrise de leurs propres annonces.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -213,10 +155,10 @@ export default function AdminPhotos() {
         </header>
 
         <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
-          <h2 className="text-lg font-extrabold text-blue-950">Comment gérer les photos ?</h2>
+          <h2 className="text-lg font-extrabold text-blue-950">Règles de gestion des annonces</h2>
           <div className="mt-2 grid gap-2 text-sm leading-relaxed text-blue-950 sm:grid-cols-2">
-            <p><strong>Annonces ImmoSénégal :</strong> tu peux ajouter, remplacer ou supprimer les photos directement.</p>
-            <p><strong>Annonces propriétaires :</strong> l’espace admin permet d’envoyer un avertissement ; le propriétaire garde la gestion de ses photos.</p>
+            <p><strong>Annonces ImmoSénégal :</strong> l’administrateur peut ajouter, remplacer ou supprimer les photos.</p>
+            <p><strong>Annonces des propriétaires :</strong> elles sont affichées en consultation uniquement. Le propriétaire modifie lui-même son annonce et ses photos. La modération se fait dans l’espace dédié.</p>
           </div>
         </section>
 
@@ -253,10 +195,7 @@ export default function AdminPhotos() {
                     <p className="mt-1 text-sm font-medium text-slate-700">Propriétaire : {a.proprietaire.nomComplet}</p>
                     <Link to={'/annonces/' + a.id} className="mt-2 inline-flex font-bold text-blue-800 underline decoration-2 underline-offset-2 hover:text-blue-950">Voir la fiche de l’annonce</Link>
                   </div>
-                  <button type="button" disabled={envoi === a.id} onClick={() => void definirOrigine(a, !a.publieeParAgence)}
-                    className="min-h-12 shrink-0 rounded-xl border-2 border-slate-900 bg-white px-4 py-3 text-sm font-extrabold text-slate-950 shadow-sm hover:bg-slate-100 disabled:opacity-60">
-                    {a.publieeParAgence ? 'Changer en annonce propriétaire' : 'Classer comme annonce ImmoSénégal'}
-                  </button>
+
                 </div>
 
                 <div className="p-5 sm:p-6">
@@ -300,15 +239,10 @@ export default function AdminPhotos() {
                                   className="min-h-11 w-full rounded-xl border-2 border-red-700 bg-white px-4 py-2.5 text-sm font-extrabold text-red-800 hover:bg-red-50 disabled:opacity-50">Supprimer cette photo</button>
                               </>
                             ) : (
-                              <>
-                                <label className="block text-sm font-extrabold text-slate-900" htmlFor={'motif-' + photoId}>Motif de l’avertissement au propriétaire</label>
-                                <textarea id={'motif-' + photoId} value={motifs[photoId] ?? ''} maxLength={500} rows={3}
-                                  onChange={(e) => setMotifs((v) => ({ ...v, [photoId]: e.target.value }))}
-                                  className="w-full rounded-xl border-2 border-slate-400 bg-white p-3 text-sm text-slate-950 placeholder:text-slate-500 focus:border-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-200" placeholder="Explique clairement le problème constaté…" />
-                                <button type="button" disabled={envoi === photoId || !(motifs[photoId] ?? '').trim()}
-                                  onClick={() => void avertir(a, photoId)}
-                                  className="min-h-12 w-full rounded-xl border-2 border-slate-950 bg-slate-900 px-4 py-3 text-sm font-extrabold text-white hover:bg-slate-800 disabled:opacity-50">Envoyer l’avertissement (48 h)</button>
-                              </>
+                              <div className="rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
+                                <p className="text-base font-extrabold text-slate-950">Photo gérée par le propriétaire</p>
+                                <p className="mt-2 text-sm leading-relaxed text-slate-800">L’administrateur peut consulter cette photo, mais ne peut ni la remplacer ni la supprimer depuis cet espace. Toute demande de correction passe par la modération.</p>
+                              </div>
                             )}
                           </div>
                         </article>
@@ -352,38 +286,7 @@ export default function AdminPhotos() {
           </section>
         )}
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-2xl font-black text-slate-950">Historique des avertissements</h2>
-              <p className="mt-1 text-sm text-slate-700">Suivi des signalements envoyés aux propriétaires.</p>
-            </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-800">{avertissements.length} dossier(s)</span>
-          </div>
-          {avertissements.length === 0 ? <p className="mt-4 rounded-xl bg-slate-50 p-4 text-base text-slate-700">Aucun avertissement envoyé.</p> : (
-            <div className="mt-4 space-y-3">
-              {avertissements.map((a) => (
-                <article key={a.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-wrap justify-between gap-2">
-                    <strong className="text-base text-slate-950">{a.titreAnnonce} · {a.nomProprietaire}</strong>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-slate-800">{a.statut === 'EN_ATTENTE' ? 'En attente' : a.statut === 'REPONDU' ? 'Réponse reçue' : a.statut === 'CORRIGE' ? 'Photo corrigée' : 'Photo retirée'}</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-800">{a.motif}</p>
-                  {a.statut === 'EN_ATTENTE' && <p className="mt-2 text-sm font-semibold text-slate-700">Échéance : {new Date(a.echeanceLe).toLocaleString('fr-FR')}</p>}
-                  {a.reponseProprietaire && <p className="mt-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900">Réponse : {a.reponseProprietaire}</p>}
-                  {a.statut === 'REPONDU' && (
-                    <div className="mt-3 flex flex-wrap gap-3">
-                      <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, false)}
-                        className="min-h-11 rounded-xl border-2 border-slate-800 bg-white px-4 py-2 text-sm font-extrabold text-slate-950 hover:bg-slate-100">Clôturer sans retrait</button>
-                      <button type="button" disabled={envoi === a.id} onClick={() => void deciderAvertissement(a, true)}
-                        className="min-h-11 rounded-xl border-2 border-red-700 bg-red-700 px-4 py-2 text-sm font-extrabold text-white hover:bg-red-800">Retirer après examen</button>
-                    </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+
       </div>
     </main>
   )
