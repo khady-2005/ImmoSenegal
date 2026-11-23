@@ -111,12 +111,12 @@ export default function Layout() {
                 aria-expanded={menuPlusOuvert}
                 aria-haspopup="menu"
                 aria-label="Afficher les autres rubriques"
-                className={`ml-1 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#ffd45c] bg-[#102b49] text-[#ffe08a] shadow-[0_4px_14px_rgba(0,0,0,.35)] transition hover:bg-[#173b62] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${menuPlusOuvert ? 'bg-[#173b62] text-white' : ''}`}
+                className={`ml-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white transition hover:bg-white/10 hover:text-dore-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-300 ${menuPlusOuvert ? 'bg-white/10 text-dore-300' : ''}`}
               >
-                <span aria-hidden="true" className="flex items-center justify-center gap-[5px]">
-                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
-                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
-                  <span className="h-[7px] w-[7px] rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.9)]" />
+                <span aria-hidden="true" className="flex w-7 flex-col items-center gap-[6px]">
+                  <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
+                  <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
+                  <span className="h-[3px] w-7 rounded-full bg-white shadow-[0_0_6px_rgba(255,255,255,0.85)]" />
                 </span>
               </button>
               {menuPlusOuvert && (
