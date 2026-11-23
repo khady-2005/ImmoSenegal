@@ -76,6 +76,7 @@ export default function App() {
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/agences" element={<RequireRole roles={["ADMIN"]}><AdminAgences /></RequireRole>} />
           <Route path="admin/abonnements" element={<RequireRole roles={["ADMIN"]}><AdminAbonnements /></RequireRole>} />
+          <Route path="admin/reservations" element={<RequireRole roles={["ADMIN"]}><Reservations /></RequireRole>} />
           <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
           <Route path="admin/litiges-locatifs" element={<RequireRole roles={["ADMIN"]}><AdminLitigesLocatifs /></RequireRole>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
