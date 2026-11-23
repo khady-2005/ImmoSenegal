@@ -57,7 +57,7 @@ export default function Home() {
                 <span className="h-2 w-2 rounded-full bg-[#ffd45c] shadow-[0_0_12px_#ffd45c]" /> Votre projet immobilier au Sénégal
               </span>
               <h1 id="titre-accueil" className="font-marque mt-7 max-w-3xl text-5xl font-black leading-[1.02] tracking-[-0.045em] text-white drop-shadow-[0_5px_22px_rgba(0,0,0,.65)] sm:text-6xl lg:text-[4.5rem]">
-                Le lieu qui vous ressemble <span className="text-[#ffd45c]">vous attend.</span>
+                Votre prochain <span className="text-[#ffd45c]">chez-vous</span> commence ici.
               </h1>
               <p className="mt-6 max-w-xl text-lg font-medium leading-relaxed text-white drop-shadow-[0_2px_10px_rgba(0,0,0,.8)] sm:text-xl">
                 Trouvez votre maison, appartement, villa ou terrain. Explorez des annonces immobilières partout au Sénégal et donnez vie à votre prochain projet.
@@ -76,7 +76,7 @@ export default function Home() {
                 <span className="inline-flex items-center gap-2"><House className="h-5 w-5 text-[#ffd45c]" /> Biens au Sénégal</span>
               </div>
             </div>
-            <div className="relative mx-auto hidden w-full max-w-[440px] lg:block">
+            <div className="relative mx-auto hidden w-full max-w-[440px] translate-y-5 lg:block">
               <div className="absolute -inset-5 rounded-[2.5rem] border border-white/20 bg-white/5 rotate-3 backdrop-blur-[2px]" />
               <div className="relative overflow-hidden rounded-[2rem] border border-white/35 bg-white p-3 shadow-[0_28px_80px_rgba(0,0,0,.38)]">
                 <div className="relative h-[340px] overflow-hidden rounded-[1.45rem]">
@@ -87,7 +87,7 @@ export default function Home() {
                     <p className="mt-1 font-titre text-3xl font-semibold">Un nouveau chez-vous.</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 p-3 pb-1">
+                <div className="home-hero-info grid grid-cols-2 gap-3 p-3 pb-1">
                   <div className="rounded-2xl bg-[#f2f6fb] p-3">
                     <p className="text-xs font-bold uppercase tracking-wide text-[#64748b]">À découvrir</p>
                     <p className="mt-1 text-sm font-extrabold text-[#102b49]">Maisons & villas</p>
