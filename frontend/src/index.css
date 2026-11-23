@@ -954,3 +954,10 @@ body.fond-pages #contenu::before {
     border-radius: 1rem !important;
   }
 }
+
+/* Préférence d'interface : aucun pictogramme décoratif dans l'application.
+   Les logos de marque, cartes et photos restent inchangés. */
+svg.lucide,
+.lucide {
+  display: none !important;
+}
