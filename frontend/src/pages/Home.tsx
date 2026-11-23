@@ -46,16 +46,16 @@ export default function Home() {
 
   return (
     <>
-      <section aria-labelledby="titre-accueil" className="relative isolate overflow-visible bg-[#08284d] text-white">
+      <section aria-labelledby="titre-accueil" className="home-hero relative isolate overflow-visible bg-[#08284d] text-white">
         <div className="relative min-h-[500px] overflow-hidden sm:min-h-[560px]">
           <img src={photoVilla} alt="Villa contemporaine avec piscine" width={1800} height={1100} fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#06264b]/95 via-[#06264b]/70 to-[#06264b]/10" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#031a35]/95 via-[#06264b]/78 to-[#06264b]/25" />
           <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-[#06264b]/45 to-transparent" />
           <div className="mx-auto flex min-h-[500px] max-w-7xl items-center px-5 pb-24 pt-16 sm:min-h-[560px] sm:px-8 sm:pb-28">
             <div className="max-w-2xl">
               <span className="inline-flex rounded-full border border-dore-300/60 bg-dore-400 px-4 py-2 text-sm font-extrabold text-[#09284b] shadow-lg">Bienvenue sur ImmoSénégal</span>
-              <h1 id="titre-accueil" className="font-marque mt-6 text-5xl font-black leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-6xl lg:text-7xl">Trouvez votre <span className="text-dore-400">bien idéal</span></h1>
-              <p className="mt-5 max-w-xl text-lg font-medium leading-relaxed text-white sm:text-xl">Maisons, appartements, villas et terrains au Sénégal, en toute confiance.</p>
+              <h1 id="titre-accueil" className="font-marque mt-6 max-w-3xl text-5xl font-black leading-[1.02] tracking-tight text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.75)] sm:text-6xl lg:text-7xl">Trouvez votre <span className="text-dore-400">bien idéal</span></h1>
+              <p className="mt-5 max-w-xl text-lg font-semibold leading-relaxed text-white drop-shadow-md sm:text-xl">Maisons, appartements, villas et terrains au Sénégal, en toute confiance.</p>
               <div className="mt-7 flex flex-wrap gap-5 text-sm font-semibold text-white">
                 <span className="inline-flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-dore-400" /> Transactions sécurisées</span>
                 <span className="inline-flex items-center gap-2"><Handshake className="h-5 w-5 text-dore-400" /> Accompagnement personnalisé</span>
@@ -96,7 +96,7 @@ export default function Home() {
             </div>
             <Link to="/catalogue" className="inline-flex items-center gap-2 font-bold text-nuit-900 hover:text-dore-600">Explorer les biens <ArrowRight className="h-4 w-4" /></Link>
           </div>
-          <div className="relative isolate min-h-[360px] overflow-hidden rounded-[2rem] bg-nuit-900 shadow-carte-haut sm:min-h-[430px]">
+          <div className="home-inspiration relative isolate min-h-[360px] overflow-hidden rounded-[2rem] bg-nuit-900 shadow-carte-haut sm:min-h-[430px]">
             <img key={slide.image} src={slide.image} alt="Inspiration immobilière" loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover transition-opacity duration-700" />
             <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#102b49]/90 via-[#102b49]/55 to-[#102b49]/10" />
             <div className="flex min-h-[360px] flex-col justify-end p-7 pb-24 text-white sm:min-h-[430px] sm:max-w-2xl sm:p-12 sm:pb-28">
