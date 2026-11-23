@@ -56,6 +56,22 @@ public class AdminAnnonceController {
 
     public record OriginePublication(@jakarta.validation.constraints.NotNull Boolean publieeParAgence) {}
 
+    @PutMapping("/{id}/intervention")
+    @Operation(summary = "Modifier une annonce avec motif obligatoire, notifier le propriétaire et journaliser l'intervention")
+    public AnnonceResponse modifierAvecMotif(@PathVariable UUID id,
+            @Valid @RequestBody AdminModificationAnnonceRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.modifierParAdmin(id, requete.annonce(), requete.motif(), admin);
+    }
+
+    @PostMapping("/{id}/archiver")
+    @Operation(summary = "Archiver de façon réversible une annonce (suspension) avec motif obligatoire")
+    public AnnonceResponse archiver(@PathVariable UUID id,
+            @Valid @RequestBody ModerationRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.archiverParAdmin(id, requete.motif(), admin);
+    }
+
     @PostMapping("/{id}/valider")
     @Operation(summary = "Réactiver une annonce suspendue ; les annonces expirées nécessitent un abonnement ou un mandat accepté")
     public AnnonceResponse valider(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser admin) {
