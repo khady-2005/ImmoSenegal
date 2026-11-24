@@ -171,7 +171,6 @@ export default function AdminModeration() {
               </div>
               <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-800">{libelleStatut[a.statut]}</span>
             </div>
-            {a.exemple && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-base text-slate-700">Annonce d'exemple (le bien n'existe pas).</p>}
             {!a.exemple && (
               <div className="mt-3 max-w-xl">
                 <label htmlFor={'proprietaire-' + a.id} className="mb-2 block text-base font-bold text-slate-800">Rattacher cette annonce au propriétaire réel</label>
