@@ -112,7 +112,7 @@ export default function AdminPhotos() {
           ville: edition.ville.trim(), adresse: edition.adresse.trim() || null,
           equipements: edition.equipements.split(',').map((x) => x.trim()).filter(Boolean),
           latitude: annonceEnEdition.latitude, longitude: annonceEnEdition.longitude,
-          equipements: annonceEnEdition.equipements ?? [], statut: annonceEnEdition.statut
+          statut: annonceEnEdition.statut
         } }
       })
       setInfo('Annonce modifiée. Le propriétaire a été informé.')
