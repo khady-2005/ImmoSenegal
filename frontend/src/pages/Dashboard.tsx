@@ -95,7 +95,7 @@ export default function Dashboard() {
     { titre: 'Catalogue des biens', description: 'Explorez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
     { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour orienter une recherche immobilière.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
-  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'PROPRIETAIRE' ? accesProprietaire : affiche.role === 'ADMIN' ? accesAdmin : affiche.role === 'AGENT' ? accesAgent : [
+  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'ADMIN' ? accesAdmin : affiche.role === 'AGENT' ? accesAgent : [
     { titre: 'Explorer les annonces', description: 'Consultez les biens disponibles sur ImmoSénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
@@ -104,11 +104,9 @@ export default function Dashboard() {
 
   const introduction = affiche.role === 'CLIENT'
     ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'
-    : affiche.role === 'PROPRIETAIRE'
-      ? 'Gérez vos annonces, vos demandes et le suivi de vos locations.'
-      : affiche.role === 'ADMIN'
-        ? 'Accédez aux outils de gestion et de suivi de la plateforme.'
-        : 'Retrouvez les principaux outils disponibles sur la plateforme.'
+    : affiche.role === 'ADMIN'
+      ? 'Accédez aux outils de gestion et de suivi de la plateforme.'
+      : 'Retrouvez les principaux outils disponibles sur la plateforme.'
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
