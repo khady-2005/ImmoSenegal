@@ -76,7 +76,7 @@ export default function AdminPhotos() {
   const [annoncePhotosOuverteId, setAnnoncePhotosOuverteId] = useState<string | null>(null)
   const [annonceEnEdition, setAnnonceEnEdition] = useState<AnnoncePhoto | null>(null)
   const [motifEdition, setMotifEdition] = useState('')
-  const [edition, setEdition] = useState({ titre: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
+  const [edition, setEdition] = useState({ titre: '', equipements: '', description: '', typeBien: 'MAISON' as AnnoncePhoto['typeBien'], transaction: 'LOCATION' as 'LOCATION' | 'VENTE', prix: '', superficie: '', pieces: '', quartier: '', ville: '', adresse: '' })
 
   const charger = useCallback(async () => {
     setChargement(true)
@@ -94,7 +94,7 @@ export default function AdminPhotos() {
   function ouvrirEdition(a: AnnoncePhoto) {
     setAnnonceEnEdition(a)
     setMotifEdition('')
-    setEdition({ titre: a.titre, description: a.description ?? '', typeBien: a.typeBien, transaction: a.transaction, prix: String(a.prix), superficie: String(a.superficie), pieces: a.pieces == null ? '' : String(a.pieces), quartier: a.quartier, ville: a.ville, adresse: a.adresse ?? '' })
+    setEdition({ titre: a.titre, equipements: (a.equipements ?? []).join(', '), description: a.description ?? '', typeBien: a.typeBien, transaction: a.transaction, prix: String(a.prix), superficie: String(a.superficie), pieces: a.pieces == null ? '' : String(a.pieces), quartier: a.quartier, ville: a.ville, adresse: a.adresse ?? '' })
   }
 
   async function enregistrerEdition(e: React.FormEvent<HTMLFormElement>) {
@@ -110,6 +110,7 @@ export default function AdminPhotos() {
           transaction: edition.transaction, prix: Number(edition.prix), superficie: Number(edition.superficie),
           pieces: edition.pieces === '' ? null : Number(edition.pieces), quartier: edition.quartier.trim(),
           ville: edition.ville.trim(), adresse: edition.adresse.trim() || null,
+          equipements: edition.equipements.split(',').map((x) => x.trim()).filter(Boolean),
           latitude: annonceEnEdition.latitude, longitude: annonceEnEdition.longitude,
           equipements: annonceEnEdition.equipements ?? [], statut: annonceEnEdition.statut
         } }
@@ -427,6 +428,7 @@ export default function AdminPhotos() {
                 <label className="space-y-1 text-sm font-bold text-slate-800">Ville<input required maxLength={100} value={edition.ville} onChange={e=>setEdition(v=>({...v,ville:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
                 <label className="space-y-1 text-sm font-bold text-slate-800">Quartier<input required maxLength={100} value={edition.quartier} onChange={e=>setEdition(v=>({...v,quartier:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Adresse<input maxLength={255} value={edition.adresse} onChange={e=>setEdition(v=>({...v,adresse:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
+                <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Équipements<input maxLength={1000} value={edition.equipements} onChange={e=>setEdition(v=>({...v,equipements:e.target.value}))} placeholder="Wi-Fi, parking, climatisation, piscine… (séparés par des virgules)" className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Description<textarea rows={4} maxLength={5000} value={edition.description} onChange={e=>setEdition(v=>({...v,description:e.target.value}))} className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-base text-slate-950"/></label>
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Motif obligatoire de la modification<textarea required minLength={1} maxLength={500} rows={2} value={motifEdition} onChange={e=>setMotifEdition(e.target.value)} placeholder="Explique pourquoi l’administration modifie cette annonce…" className="w-full rounded-xl border-2 border-amber-400 bg-amber-50 p-3 text-base text-slate-950"/></label>
               </div>
