@@ -26,7 +26,8 @@ export function peutPublier(role: string | undefined) {
 export default function FormulaireAnnonce() {
   const { id } = useParams()
   const edition = Boolean(id)
-  const { utilisateur, jeton } = useAuth()
+  const { utilisateur, jeton, majUtilisateur } = useAuth()
+  const [profilVerifie, setProfilVerifie] = useState(false)
   const navigate = useNavigate()
   const [photos, setPhotos] = useState<string[]>([])
   const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
@@ -43,6 +44,25 @@ export default function FormulaireAnnonce() {
   const [messageCarte, setMessageCarte] = useState('')
   const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
   const [proprietaireId, setProprietaireId] = useState('')
+
+  // Recharge le rôle depuis le serveur avant d'autoriser la publication.
+  // Cela évite de bloquer un propriétaire dont le statut vient d'être approuvé.
+  useEffect(() => {
+    if (!jeton) {
+      setProfilVerifie(true)
+      return
+    }
+    let annule = false
+    appelApi<import('../types').Utilisateur>('/api/auth/me', { token: jeton })
+      .then((profil) => {
+        if (!annule) majUtilisateur(profil)
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!annule) setProfilVerifie(true)
+      })
+    return () => { annule = true }
+  }, [jeton, majUtilisateur])
 
   useEffect(() => {
     if (utilisateur?.role !== 'ADMIN' || edition) return
@@ -75,13 +95,15 @@ export default function FormulaireAnnonce() {
     }
   }, [id, jeton])
 
+  if (!profilVerifie) return <p role="status" className="p-8 text-center text-slate-500">Vérification de votre compte…</p>
   if (!peutPublier(utilisateur?.role)) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
         <h1 className="text-2xl font-bold">Publier une annonce</h1>
         <p role="alert" className="mt-4 rounded-lg bg-amber-50 p-4 text-sm text-slate-800">
-          Seuls les comptes Propriétaire et Administrateur peuvent publier une annonce. Si vous êtes Client, demandez le rôle Propriétaire depuis votre tableau de bord ; un administrateur devra valider votre demande.
+          Votre compte est actuellement enregistré comme « {utilisateur?.role ?? 'non identifié'} ». La publication est réservée aux comptes Propriétaire et Administrateur. Ouvrez votre tableau de bord pour demander le statut Propriétaire. Si votre demande vient d’être approuvée, déconnectez-vous puis reconnectez-vous avant de réessayer.
         </p>
+        <Link to="/tableau-de-bord" className="mt-4 inline-flex rounded-lg bg-nuit-900 px-5 py-3 font-semibold text-white">Ouvrir mon tableau de bord</Link>
       </div>
     )
   }
