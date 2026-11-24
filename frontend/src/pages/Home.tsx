@@ -171,7 +171,7 @@ export default function Home() {
             <TitreSection id="titre-annonces" petit="" titre="Biens" accent="vedette" />
             <Link to="/catalogue" className="inline-flex items-center gap-2 pb-1 text-sm font-bold text-nuit-900 hover:text-emeraude-700">Voir tout le catalogue <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
-          <div className="mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
+          <div className="home-featured-filters mt-6 flex flex-wrap gap-2" role="group" aria-label="Type d’annonce">
             {([['TOUT', 'Tout'], ['VENTE', 'À vendre'], ['LOCATION', 'À louer']] as const).map(([valeur, nom]) => <button key={valeur} type="button" aria-pressed={onglet === valeur} onClick={() => setOnglet(valeur)} className={`rounded-full border-2 px-5 py-2 text-sm font-extrabold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b88722] ${onglet === valeur ? 'border-[#102b49] bg-[#102b49] text-white shadow hover:!bg-[#102b49] hover:!text-white' : 'border-[#b88722] bg-[#fff7df] text-[#263238] hover:!border-[#9a6b08] hover:!bg-[#f2c75c] hover:!text-[#172b43] hover:shadow-md'}`}>{nom}</button>)}
           </div>
           <div className="mt-7"><ListeAnnonces etat={etat} reessayer={reessayer} vide={onglet === 'TOUT' ? "Aucune annonce n'est encore publiée. Vous avez un bien à proposer ? Créez un compte : la première annonce peut être la vôtre." : 'Aucune annonce de ce type pour le moment.'} /></div>
