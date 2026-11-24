@@ -231,7 +231,10 @@ export default function FormulaireAnnonce() {
             <p className="mt-1 text-xs text-slate-500">Les demandes de visite pour cette annonce seront envoyées à ce propriétaire. L'administration conservera l'accès de suivi.</p>
           </div>
         )}
-        <Champ id="titre" name="titre" libelle="Titre" required maxLength={150} defaultValue={a?.titre} erreur={champs.titre} />
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="titre-infos-annonce">
+          <h2 id="titre-infos-annonce" className="mb-3 font-semibold text-nuit-900">Informations principales</h2>
+          <Champ id="titre" name="titre" libelle="Titre de l’annonce" required maxLength={150} defaultValue={a?.titre} erreur={champs.titre} />
+        </section>
         <div>
           <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">Description</label>
           <textarea id="description" name="description" rows={4} maxLength={5000} defaultValue={a?.description ?? ''} className={classeSelect} />
@@ -296,7 +299,11 @@ export default function FormulaireAnnonce() {
           )}
           <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser la maison sur la carte » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
         </section>
-        <Champ id="equipements" name="equipements" libelle="Équipements" aide="Séparés par des virgules : wifi, parking, climatisation" defaultValue={a?.equipements.join(', ')} erreur={champs.equipements} />
+        <section className="rounded-2xl border border-dore-200 bg-dore-50/60 p-4 sm:p-5" aria-labelledby="titre-equipements-annonce">
+          <h2 id="titre-equipements-annonce" className="mb-2 font-semibold text-nuit-900">Équipements du logement</h2>
+          <p className="mb-3 text-sm text-slate-600">Ajoutez ou modifiez les équipements, séparés par des virgules : Wi-Fi, parking, climatisation, piscine, cuisine équipée…</p>
+          <Champ id="equipements" name="equipements" libelle="Liste des équipements" aide="Ex. : Wi-Fi, parking, climatisation" defaultValue={a?.equipements.join(', ')} erreur={champs.equipements} />
+        </section>
         {edition && a && statutsCommerciaux.includes(a.statut) && (
           <div>
             <label htmlFor="statut" className="mb-1 block text-sm font-medium text-slate-700">Statut</label>
