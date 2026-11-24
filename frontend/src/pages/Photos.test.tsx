@@ -41,7 +41,7 @@ describe('Gestion des photos (propriétaire)', () => {
     await user.upload(screen.getByLabelText('Ajouter des photos'), fichier('salon.jpg'))
 
     expect(await screen.findByAltText('Photo 1')).toHaveAttribute('src', `/api/annonces/${ID}/photos/${P1}`)
-    expect(screen.getByRole('heading', { name: 'Photos (1/8)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Photos (1/15)' })).toBeInTheDocument()
 
     const [, init] = api.mock.calls.find(([u, i]) => u === `/api/annonces/${ID}/photos` && i?.method === 'POST')!
     expect(init!.body).toBeInstanceOf(FormData)
@@ -78,14 +78,14 @@ describe('Gestion des photos (propriétaire)', () => {
     expect(api.mock.calls.some(([u, i]) => u === `/api/annonces/${ID}/photos/${P1}` && i?.method === 'DELETE')).toBe(true)
   })
 
-  it('masque le champ d\'envoi quand la limite de 8 photos est atteinte', async () => {
-    const huit = Array.from({ length: 8 }, (_, i) => `b000000${i}-0000-0000-0000-000000000000`)
+  it('masque le champ d\'envoi quand la limite de 15 photos est atteinte', async () => {
+    const quinze = Array.from({ length: 15 }, (_, i) => `b000000${i}-0000-0000-0000-000000000000`)
     simulerApi({
       'POST /api/auth/refresh': () => reponseConnexion(proprio),
-      [`GET /api/annonces/${ID}`]: () => json(200, annonceTest({ photos: huit })),
+      [`GET /api/annonces/${ID}`]: () => json(200, annonceTest({ photos: quinze })),
     })
     afficher(`/annonces/${ID}/modifier`)
-    expect(await screen.findByRole('heading', { name: 'Photos (8/8)' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Photos (15/15)' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Ajouter des photos')).not.toBeInTheDocument()
   })
 })
