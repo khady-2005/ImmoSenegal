@@ -344,7 +344,7 @@ export default function AdminPhotos() {
                         <article key={photoId} className="admin-gallery-card overflow-hidden rounded-2xl border border-[#d7e0e9] bg-white shadow-[0_5px_18px_rgba(8,40,77,.09)]">
                           <div className="relative aspect-[4/3] overflow-hidden bg-[#e6edf4]">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))} alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-full w-full object-cover" />
-                            <span className="absolute left-3 top-3 admin-photo-number absolute left-3 top-3 rounded-full border-2 border-[#f2c451] bg-[#08284d] px-3 py-1.5 text-xs font-extrabold text-white shadow-lg">Photo {index + 1}</span>
+                            <span className="admin-photo-number absolute left-3 top-3 rounded-full border-2 border-[#f2c451] bg-[#08284d] px-3 py-1.5 text-xs font-extrabold text-white shadow-lg">Photo {index + 1}</span>
                           </div>
                           <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
