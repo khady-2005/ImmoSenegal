@@ -218,10 +218,10 @@ class PhotoTest extends AbstractApiTest {
     }
 
     @Test
-    void uneAnnonceNePeutPasAvoirPlusDeHuitPhotos() throws Exception {
+    void uneAnnonceNePeutPasAvoirPlusDeQuinzePhotos() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
         String annonce = annonceDe(jeton);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 15; i++) {
             ajouterPhoto(annonce, jeton);
         }
         envoyer(annonce, jeton, "p.jpg", "image/jpeg", image("jpg", 10, 10)).andExpect(status().isBadRequest());
