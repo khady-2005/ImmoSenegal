@@ -344,13 +344,13 @@ export default function AdminPhotos() {
                         <article key={photoId} className="admin-gallery-card overflow-hidden rounded-2xl border border-[#d7e0e9] bg-white shadow-[0_5px_18px_rgba(8,40,77,.09)]">
                           <div className="relative aspect-[4/3] overflow-hidden bg-[#e6edf4]">
                             <img src={urlApi('/api/annonces/' + a.id + '/photos/' + photoId + '?v=' + (versionImages[photoId] ?? a.id))} alt={'Photo ' + (index + 1) + ' de ' + a.titre} className="h-full w-full object-cover" />
-                            <span className="absolute left-3 top-3 rounded-full border border-white/80 bg-[#08284d]/95 px-3 py-1.5 text-xs font-extrabold text-white shadow">Photo {index + 1}</span>
+                            <span className="absolute left-3 top-3 admin-photo-number absolute left-3 top-3 rounded-full border-2 border-[#f2c451] bg-[#08284d] px-3 py-1.5 text-xs font-extrabold text-white shadow-lg">Photo {index + 1}</span>
                           </div>
                           <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
                               <>
                                 <label htmlFor={'remplacer-' + photoId} className="block text-sm font-bold text-[#173b63]">Remplacer cette photo</label>
-                                <label htmlFor={'remplacer-' + photoId} className="flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#174b83] bg-[#12385f] px-3 py-2 text-center text-sm font-bold text-white hover:bg-[#174b83]">📁 Choisir une nouvelle image</label>
+                                <label htmlFor={'remplacer-' + photoId} className="admin-photo-upload-label flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#174b83] bg-[#12385f] px-3 py-2 text-center text-sm font-bold text-white hover:bg-[#174b83]">📁 Choisir une nouvelle image</label>
                                 <input id={'remplacer-' + photoId} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={async (e) => {
                                   const fichier = e.target.files?.[0]
                                   if (!fichier) return
@@ -364,7 +364,7 @@ export default function AdminPhotos() {
                                   }
                                 }} />
                                 <p aria-live="polite" className="min-h-10 break-all rounded-lg border border-[#d7e0e9] bg-[#f7f9fc] px-3 py-2.5 text-sm text-[#38536f]">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
-                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]} onClick={() => void remplacerPhoto(a, photoId)} className="min-h-11 w-full rounded-full border border-[#12385f] bg-[#12385f] px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-[#1c4e7b] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">{envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}</button>
+                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]} onClick={() => void remplacerPhoto(a, photoId)} className="admin-photo-action-button min-h-11 w-full rounded-full border border-[#12385f] bg-[#12385f] px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-[#1c4e7b] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">{envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}</button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)} className="min-h-11 w-full rounded-full border border-[#b8c8d8] bg-white px-4 py-2.5 text-sm font-bold text-[#173b63] hover:border-[#d6aa34] hover:bg-[#fff8e4] disabled:opacity-50">Supprimer la photo</button>
                               </>
                             ) : (
@@ -383,7 +383,7 @@ export default function AdminPhotos() {
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <h3 className="text-lg font-black text-[#08284d]">Ajouter une photo</h3>
-                          <p className="mt-1 text-sm text-[#49627d]">JPG ou PNG · 5 Mo maximum après préparation · Jusqu’à 8 photos par annonce</p>
+                          <p className="mt-1 text-sm text-[#49627d]">JPG ou PNG · 5 Mo maximum après préparation · Jusqu’à 15 photos par annonce</p>
                         </div>
                         <ImageIcon className="h-8 w-8 text-[#c08a10]" />
                       </div>
