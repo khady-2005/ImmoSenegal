@@ -7,4 +7,4 @@ export function urlPhoto(annonceId: string, photoId: string, version?: string): 
 }
 
 export const TAILLE_MAX_OCTETS = 5 * 1024 * 1024
-export const PHOTOS_MAX = 8
+export const PHOTOS_MAX = 15
