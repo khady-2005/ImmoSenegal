@@ -1106,3 +1106,34 @@ svg.lucide,
   background-color: #f2c75c !important;
   border-color: #9a6b08 !important;
 }
+
+/* Galerie d'administration : conserver un contraste fort sur les commandes bleues
+   et les numéros de photo, même à l'intérieur des panneaux blancs. */
+#contenu .admin-photos-page .admin-photo-action-button,
+#contenu .admin-photos-page .admin-photo-action-button *,
+#contenu .admin-photos-page .admin-photo-upload-label,
+#contenu .admin-photos-page .admin-photo-upload-label * {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+#contenu .admin-photos-page .admin-photo-action-button:not(:disabled) {
+  background: #12385f !important;
+  border-color: #12385f !important;
+}
+#contenu .admin-photos-page .admin-photo-action-button:not(:disabled):hover {
+  background: #1c4e7b !important;
+  border-color: #1c4e7b !important;
+}
+#contenu .admin-photos-page .admin-photo-action-button:disabled {
+  color: #475569 !important;
+  background: #e8edf3 !important;
+  border-color: #cbd5e1 !important;
+}
+#contenu .admin-photos-page .admin-photo-number,
+#contenu .admin-photos-page .admin-photo-number * {
+  color: #ffffff !important;
+  background: #08284d !important;
+  border-color: #f2c451 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .65) !important;
+  opacity: 1 !important;
+}
