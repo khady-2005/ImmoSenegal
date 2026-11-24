@@ -40,7 +40,7 @@ public class PhotoController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Ajouter une photo (JPEG ou PNG, 5 Mo max, 8 par annonce)",
+    @Operation(summary = "Ajouter une photo (JPEG ou PNG, 5 Mo max, 15 par annonce)",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<Map<String, UUID>> ajouter(@PathVariable UUID annonceId,
                                                      @RequestParam("fichier") MultipartFile fichier,
