@@ -69,13 +69,6 @@ export default function Dashboard() {
     { titre: 'Découvrir les biens', description: 'Consultez les annonces disponibles et trouvez un logement ou un terrain au Sénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Décrivez votre recherche pour obtenir de l’aide afin de trouver un bien adapté.', lien: '/assistant', icone: ClipboardList, action: 'Parler à l’assistant' },
   ]
-  const accesProprietaire: Acces[] = [
-    { titre: 'Gérer mes annonces', description: 'Consultez vos biens publiés et suivez leur état de validation.', lien: '/mes-annonces', icone: Building2, action: 'Gérer mes annonces' },
-    { titre: 'Demandes de visite reçues', description: 'Consultez les demandes des personnes intéressées et acceptez, refusez ou proposez un autre créneau.', lien: '/visites-recues', icone: CalendarDays, action: 'Traiter les demandes' },
-    { titre: 'Réservations reçues', description: 'Consultez les demandes de réservation de vos logements et acceptez ou refusez chaque demande.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Traiter les réservations' },
-    { titre: 'Mon espace propriétaire', description: 'Suivez vos contrats de location, les paiements déclarés et les logements loués.', lien: '/espace-proprietaire', icone: FileCheck2, action: 'Ouvrir mon espace propriétaire' },
-    { titre: 'Publier un bien', description: 'Ajoutez une maison, un appartement, une villa, un studio ou un terrain.', lien: '/annonces/nouvelle', icone: FileCheck2, action: 'Créer une annonce' },
-  ]
   const accesAdmin: Acces[] = [
     { titre: 'Modération des annonces', description: 'Examinez les annonces soumises et gérez leur publication.', lien: '/admin/annonces', icone: Building2, action: 'Modérer les annonces' },
     { titre: 'Demandes de rôle', description: 'Consultez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
