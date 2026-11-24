@@ -64,7 +64,6 @@ export default function AdminPhotos() {
   const { utilisateur, jeton } = useAuth()
   const [annonces, setAnnonces] = useState<AnnoncePhoto[]>([])
   const [fichiers, setFichiers] = useState<Record<string, File | undefined>>({})
-  const [fichiersRemplacement, setFichiersRemplacement] = useState<Record<string, File | undefined>>({})
   const [versionImages, setVersionImages] = useState<Record<string, number>>({})
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState<string | null>(null)
@@ -145,9 +144,7 @@ export default function AdminPhotos() {
     finally { setEnvoi(null) }
   }
 
-  async function remplacerPhoto(a: AnnoncePhoto, photoId: string) {
-    const fichier = fichiersRemplacement[photoId]
-    if (!fichier) { setErreur('Choisis une nouvelle image.'); return }
+  async function remplacerPhoto(a: AnnoncePhoto, photoId: string, fichier: File) {
     const form = new FormData()
     form.append('fichier', fichier)
     setEnvoi(photoId); setErreur(null); setInfo(null)
@@ -155,7 +152,6 @@ export default function AdminPhotos() {
       await appelApi('/api/annonces/' + a.id + '/photos/' + photoId, { method: 'PUT', token: jeton, body: form })
       setInfo('Photo remplacée.')
       setVersionImages((v) => ({ ...v, [photoId]: Date.now() }))
-      setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
       await charger()
     } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Remplacement impossible.') }
     finally { setEnvoi(null) }
@@ -349,22 +345,19 @@ export default function AdminPhotos() {
                           <div className="space-y-3 p-4">
                             {a.publieeParAgence ? (
                               <>
-                                <label htmlFor={'remplacer-' + photoId} className="block text-sm font-bold text-[#173b63]">Remplacer cette photo</label>
-                                <label htmlFor={'remplacer-' + photoId} className="admin-photo-upload-label flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-[#174b83] bg-[#12385f] px-3 py-2 text-center text-sm font-bold text-white hover:bg-[#174b83]">📁 Choisir une nouvelle image</label>
-                                <input id={'remplacer-' + photoId} type="file" accept="image/jpeg,image/png" className="sr-only" onChange={async (e) => {
+                                <label htmlFor={'remplacer-' + photoId} className={`admin-photo-action-button flex min-h-11 w-full cursor-pointer items-center justify-center rounded-full border border-[#12385f] bg-[#12385f] px-4 py-2.5 text-center text-sm font-extrabold text-white shadow-sm hover:bg-[#1c4e7b] ${envoi === photoId ? 'pointer-events-none opacity-60' : ''}`}>{envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}</label>
+                                <input id={'remplacer-' + photoId} type="file" accept="image/jpeg,image/png" disabled={envoi === photoId} className="sr-only" onChange={async (e) => {
                                   const fichier = e.target.files?.[0]
                                   if (!fichier) return
                                   try {
                                     const prepare = await preparerPhoto(fichier)
-                                    setFichiersRemplacement((v) => ({ ...v, [photoId]: prepare }))
-                                    setErreur(null)
+                                    await remplacerPhoto(a, photoId, prepare)
                                   } catch (erreurPhoto) {
                                     setErreur(erreurPhoto instanceof Error ? erreurPhoto.message : 'Préparation de la photo impossible.')
-                                    setFichiersRemplacement((v) => ({ ...v, [photoId]: undefined }))
+                                  } finally {
+                                    e.target.value = ''
                                   }
                                 }} />
-                                <p aria-live="polite" className="min-h-10 break-all rounded-lg border border-[#d7e0e9] bg-[#f7f9fc] px-3 py-2.5 text-sm text-[#38536f]">{fichiersRemplacement[photoId]?.name ?? 'Aucun fichier choisi'}</p>
-                                <button type="button" disabled={envoi === photoId || !fichiersRemplacement[photoId]} onClick={() => void remplacerPhoto(a, photoId)} className="admin-photo-action-button min-h-11 w-full rounded-full border border-[#12385f] bg-[#12385f] px-4 py-2.5 text-sm font-extrabold text-white shadow-sm hover:bg-[#1c4e7b] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-100 disabled:text-slate-500">{envoi === photoId ? 'Remplacement en cours…' : 'Remplacer la photo'}</button>
                                 <button type="button" disabled={envoi === photoId} onClick={() => void supprimerPhoto(a, photoId)} className="min-h-11 w-full rounded-full border border-[#b8c8d8] bg-white px-4 py-2.5 text-sm font-bold text-[#173b63] hover:border-[#d6aa34] hover:bg-[#fff8e4] disabled:opacity-50">Supprimer la photo</button>
                               </>
                             ) : (
