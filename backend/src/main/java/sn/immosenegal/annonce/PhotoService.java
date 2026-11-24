@@ -17,13 +17,13 @@ import sn.immosenegal.security.AuthenticatedUser;
 /**
  * Photos d'annonces. Règles : seul le propriétaire de l'annonce (ou un ADMIN) ajoute/supprime ; le type réel du fichier
  * est reconnu par son contenu (jamais par son nom ni par l'en-tête envoyé), l'image est ré-encodée (métadonnées supprimées) ;
- * 5 Mo et 8 photos au maximum.
+ * 5 Mo et 15 photos au maximum.
  */
 @Service
 public class PhotoService {
 
     static final int TAILLE_MAX_OCTETS = 5 * 1024 * 1024;
-    static final int PHOTOS_MAX = 8;
+    static final int PHOTOS_MAX = 15;
 
     private final PhotoRepository photos;
     private final AnnonceService annonces;
