@@ -193,7 +193,7 @@ export default function FormulaireAnnonce() {
           {annonceCreeeStatut === 'PUBLIEE'
             ? dateFinPublication
               ? "Votre annonce est publiée immédiatement et sa couverture actuelle va jusqu’au " + new Date(dateFinPublication + 'T00:00:00').toLocaleDateString('fr-FR') + ". Sans abonnement actif, les 15 premiers jours sont gratuits. Avant cette échéance, choisissez un abonnement ou négociez un mandat avec une agence pour maintenir la publication."
-              : "Votre annonce est publiée dans le catalogue et sa publication est couverte par votre abonnement ou sa prise en charge. Vous pouvez maintenant ajouter jusqu'à 8 photos et, si vous le souhaitez, une vidéo de présentation."
+              : "Votre annonce est publiée dans le catalogue et sa publication est couverte par votre abonnement ou sa prise en charge. Vous pouvez maintenant ajouter jusqu'à 15 photos et, si vous le souhaitez, une vidéo de présentation."
             : "Votre bien est enregistré, mais reste invisible du catalogue. Vous pouvez ajouter ses photos et sa vidéo, puis demander sa prise en charge à une agence depuis « Mes annonces »."} Vous gardez la main sur votre bien ; l’administration peut intervenir en cas de signalement ou de non-respect des règles.
         </p>
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
