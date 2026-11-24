@@ -25,7 +25,7 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
         )}
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-nuit-950/45 to-transparent" />
 
-        <span className="pointer-events-none absolute left-3 top-3 z-30 rounded-lg border-2 border-[#b88722] bg-[#fffdf5] px-3.5 py-1.5 text-xs font-extrabold tracking-wide text-[#172b43] shadow-[0_3px_12px_rgba(0,0,0,0.35)]">
+        <span className="annonce-transaction-badge pointer-events-none absolute left-3 top-3 z-50 rounded-lg border-2 border-[#b88722] bg-[#fffdf5] px-3.5 py-1.5 text-xs font-extrabold tracking-wide text-[#172b43] shadow-[0_3px_12px_rgba(0,0,0,0.35)]">
           {location ? 'À louer' : 'À vendre'}
         </span>
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
