@@ -5,6 +5,7 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import DemandeRole from '../components/DemandeRole'
 import ProfilCompte from '../components/ProfilCompte'
+import EspaceProprietaire from './EspaceProprietaire'
 import { libelleRole, type Utilisateur } from '../types'
 
 type Acces = { titre: string; description: string; lien: string; icone: typeof Building2; action: string }
@@ -58,6 +59,7 @@ export default function Dashboard() {
 
   const affiche = profil ?? depuisConnexion
   if (!affiche) return null
+  if (affiche.role === 'PROPRIETAIRE') return <EspaceProprietaire />
 
   const accesClient: Acces[] = [
     { titre: 'Mes favoris', description: 'Retrouvez les annonces que vous avez enregistrées avec le cœur.', lien: '/mes-favoris', icone: Heart, action: 'Voir mes favoris' },
