@@ -101,8 +101,8 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     <section aria-labelledby="titre-photos" className="mt-6 rounded-2xl bg-white p-5 shadow">
       <h2 id="titre-photos" className="text-lg font-semibold">Photos ({photos.length}/{PHOTOS_MAX})</h2>
       <div className="mt-2 rounded-xl border border-dore-200 bg-dore-50/70 p-3 text-sm leading-relaxed text-nuit-900">
-        <p className="font-semibold">Classez les photos par pièce du logement (8 maximum).</p>
-        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi.</p>
+        <p className="font-semibold">Classez les photos par pièce du logement (15 maximum).</p>
+        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi. Jusqu’à 15 photos peuvent être ajoutées pour une annonce.</p>
         <label htmlFor="categorie-nouvelles-photos" className="mt-3 block font-semibold">Catégorie des prochaines photos</label>
         <select id="categorie-nouvelles-photos" value={piece} onChange={(e) => setPiece(e.target.value)} className="mt-1 w-full rounded-lg border border-dore-300 bg-white px-3 py-2 text-sm text-slate-900">
           <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
