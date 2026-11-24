@@ -1070,3 +1070,39 @@ svg.lucide,
 #contenu .espace-partenaire-page > section:first-of-type :where(p,h1,h2,span) { color: inherit; }
 #contenu .espace-partenaire-page > section:first-of-type .text-white\/75,
 #contenu .espace-partenaire-page > section:first-of-type .text-white\/80 { color: rgba(255,255,255,.88) !important; }
+
+
+/* Correctifs ciblés pour les badges des annonces et les filtres de la section Biens vedette. */
+#contenu .annonce-transaction-badge {
+  z-index: 50 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  background: #fffdf5 !important;
+  color: #172b43 !important;
+  border: 2px solid #b88722 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: none !important;
+}
+#contenu .home-featured-filters button,
+#contenu .home-featured-filters button:hover,
+#contenu .home-featured-filters button:focus-visible,
+#contenu .home-featured-filters button:active {
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: none !important;
+}
+#contenu .home-featured-filters button[aria-pressed="true"],
+#contenu .home-featured-filters button[aria-pressed="true"]:hover,
+#contenu .home-featured-filters button[aria-pressed="true"]:focus-visible {
+  color: #ffffff !important;
+  background-color: #173b63 !important;
+  border-color: #173b63 !important;
+}
+#contenu .home-featured-filters button[aria-pressed="false"],
+#contenu .home-featured-filters button[aria-pressed="false"]:hover,
+#contenu .home-featured-filters button[aria-pressed="false"]:focus-visible {
+  color: #172b43 !important;
+  background-color: #f2c75c !important;
+  border-color: #9a6b08 !important;
+}
