@@ -88,10 +88,19 @@ export default function Dashboard() {
     { titre: 'Catalogue des biens', description: 'Explorez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
     { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour orienter une recherche immobilière.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
-  const acces = affiche.role === 'CLIENT' ? accesClient : affiche.role === 'ADMIN' ? accesAdmin : affiche.role === 'AGENT' ? accesAgent : [
-    { titre: 'Explorer les annonces', description: 'Consultez les biens disponibles sur ImmoSénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
-    { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
+
+  const accesEquipeAgence: Acces[] = [
+    { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences auxquelles vous appartenez et vos outils de travail.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
+    { titre: 'Catalogue des biens', description: 'Consultez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
   ]
+  const acces = affiche.role === 'CLIENT' ? accesClient
+    : affiche.role === 'ADMIN' ? accesAdmin
+      : affiche.role === 'AGENT' ? accesAgent
+        : ['GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE'].includes(affiche.role) ? accesEquipeAgence
+          : [
+            { titre: 'Explorer les annonces', description: 'Consultez les annonces disponibles sur ImmoSénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
+            { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
+          ]
 
   const accesAvecAgences: Acces[] = accesAgence ? [...acces, { titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }] : acces
 
