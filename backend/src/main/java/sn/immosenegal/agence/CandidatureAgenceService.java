@@ -29,9 +29,12 @@ public class CandidatureAgenceService {
     }
 
     public CandidatureResume postuler(UUID agenceId, FonctionAgence fonction, AuthenticatedUser acteur) {
-        if (fonction == null || fonction == FonctionAgence.RESPONSABLE) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Vous pouvez candidater comme agent immobilier ou gestionnaire.");
+        // Le parcours public de candidature est réservé aux agents immobiliers.
+        // Les gestionnaires, caissiers et assistants administratifs sont recrutés
+        // sur invitation du responsable de l'agence.
+        if (!"AGENT".equals(acteur.role().name()) || fonction != FonctionAgence.AGENT) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Seuls les comptes Agent immobilier peuvent candidater. Les autres fonctions rejoignent une agence sur invitation de son responsable.");
         }
         Agence agence = agenceActive(agenceId);
         User utilisateur = utilisateurs.findById(acteur.id())
