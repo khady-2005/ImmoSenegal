@@ -356,7 +356,7 @@ export default function FormulaireAnnonce() {
             <div><h2 id="titre-adresse-bien" className="font-semibold text-nuit-900">Adresse du bien</h2><p className="text-xs text-slate-500">Indiquez où se trouve le logement.</p></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} onChange={(e) => setVilleCarte(e.target.value)} erreur={champs.ville} />
+            <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} onChange={(e) => { setVilleCarte(e.target.value); setLatitude(''); setLongitude(''); setMessageCarte('Ville modifiée. Cliquez sur « Localiser le bien sur la carte » pour rechercher son nouvel emplacement.') }} erreur={champs.ville} />
             <Champ id="quartier" name="quartier" libelle="Quartier" required defaultValue={a?.quartier} onChange={(e) => setQuartierCarte(e.target.value)} erreur={champs.quartier} />
             <div className="sm:col-span-2"><Champ id="adresse" name="adresse" libelle="Adresse précise (facultatif)" defaultValue={a?.adresse ?? ''} erreur={champs.adresse} /></div>
           </div>
