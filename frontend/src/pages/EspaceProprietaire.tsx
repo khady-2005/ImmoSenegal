@@ -109,7 +109,6 @@ export default function EspaceProprietaire() {
   const actifs = useMemo(() => contrats.filter(c => c.etat === 'ACTIF' || c.etat === 'RESILIATION_PLANIFIEE'), [contrats])
   const loyer = actifs.reduce((s, c) => s + Number(c.loyerMensuel || 0), 0)
   const annoncesPubliees = annonces.filter(a => a.statut === 'PUBLIEE').length
-  const annoncesEnAttente = annonces.filter(a => a.statut === 'EN_ATTENTE').length
   const annoncesModerees = annonces.filter(a => ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut)).length
   const publicationsAExpirer = annonces.filter(a => a.statut === 'PUBLIEE' && a.dateFinPublication && a.dateFinPublication <= new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)).length
 
