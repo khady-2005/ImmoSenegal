@@ -328,6 +328,7 @@ export default function AgenceTableauDeBord() {
         <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Mandats en attente</p><p className="mt-1 text-2xl font-bold text-nuit-900">{mandatsEnAttente}</p></article>
       </section>
       {agence && <MissionsAgence agenceId={agenceId} fonction="RESPONSABLE" />}
+      <CaisseAgence agenceId={agenceId} fonction="RESPONSABLE" />
       <PortefeuilleAgence agenceId={agenceId} />
       <AffectationBiensAgence agenceId={agenceId} />
 
