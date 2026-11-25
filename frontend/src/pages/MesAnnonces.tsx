@@ -5,6 +5,7 @@ import { useAuth } from '../auth'
 import { formatFcfa } from '../format'
 import { libelleStatut, type Annonce, type PagePaginee } from '../types'
 import { peutPublier } from './FormulaireAnnonce'
+import GestionPhotos from '../components/GestionPhotos'
 
 type Agence = { id: string; nom: string; slug: string; description: string | null; adresse: string | null; logoUrl: string | null }
 type AvertissementPhoto = {
@@ -316,6 +317,13 @@ export default function MesAnnonces() {
                 </div>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
+              {!a.exemple && !['REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
+                <GestionPhotos
+                  annonceId={a.id}
+                  photos={a.photos ?? []}
+                  onChange={(photos) => setAnnonces((courantes) => courantes?.map((item) => item.id === a.id ? { ...item, photos } : item) ?? null)}
+                />
+              )}
               {a.statut === 'PUBLIEE' && a.dateFinPublication && <p className="mt-2 rounded-lg border border-dore-200 bg-dore-50 p-2 text-sm text-nuit-900">Publication couverte jusqu’au <strong>{new Date(a.dateFinPublication + 'T00:00:00').toLocaleDateString('fr-FR')}</strong>. Pour continuer après cette date, choisissez un abonnement ou un mandat d’agence.</p>}
               {a.statut === 'EN_ATTENTE' && (
                 <div className="mt-2">
