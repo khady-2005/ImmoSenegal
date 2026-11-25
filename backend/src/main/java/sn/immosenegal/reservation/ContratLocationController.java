@@ -20,6 +20,8 @@ public class ContratLocationController{
  @PostMapping("/{contratId}/paiements") @ResponseStatus(HttpStatus.CREATED)
  public ContratLocationService.PaiementResume paiement(@PathVariable UUID contratId,@Valid @RequestBody PaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.enregistrerPaiement(contratId,new ContratLocationService.CreationPaiement(q.montant(),q.periode(),q.datePaiement(),q.reference()),a);}
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
+ @PatchMapping("/{contratId}/paiements/{paiementId}/confirmation")
+ public ContratLocationService.PaiementResume confirmerPaiement(@PathVariable UUID contratId,@PathVariable UUID paiementId,@Valid @RequestBody ConfirmationPaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerPaiement(contratId,paiementId,q.accepte(),a);}
  @PatchMapping("/{contratId}/confirmation-lecture")
  public ContratLocationService.ContratResume confirmerLecture(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerLecture(contratId,a);}
  @PatchMapping("/{contratId}/resiliation-demande")
@@ -32,4 +34,5 @@ public class ContratLocationController{
  public record DecisionResiliationRequest(@NotNull Boolean accepter){}
  public record DemandeResiliationRequest(@NotBlank @Size(max=1000) String motif,@NotNull LocalDate dateFinSouhaitee){}
  public record PaiementRequest(@NotNull @DecimalMin("0.01") BigDecimal montant,@NotNull LocalDate periode,@NotNull LocalDate datePaiement,@Size(max=500) String reference){}
+ public record ConfirmationPaiementRequest(@NotNull Boolean accepte){}
 }
