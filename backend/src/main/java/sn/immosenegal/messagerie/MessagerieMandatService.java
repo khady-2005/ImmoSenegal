@@ -38,7 +38,8 @@ public class MessagerieMandatService {
         }
         return liste.stream().collect(java.util.stream.Collectors.toMap(
             MandatGestion::getId, m -> m, (a,b) -> a, LinkedHashMap::new))
-            .values().stream().map(m -> ConversationMandatResponse.de(m, acteur.id())).toList();
+            .values().stream().map(m -> ConversationMandatResponse.de(m, acteur.id(),
+                messages.findTopByMandatIdOrderByEnvoyeLeDesc(m.getId()).orElse(null))).toList();
     }
 
     @Transactional(readOnly = true)
