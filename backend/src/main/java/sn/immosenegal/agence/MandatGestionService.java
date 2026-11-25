@@ -105,8 +105,40 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                 "Vous devez être membre actif de cette agence pour consulter son portefeuille.");
         }
-        return mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
-            agenceId, StatutMandatGestion.ACCEPTE).stream().map(this::versResume).toList();
+        List<MandatGestion> biens = mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+            agenceId, StatutMandatGestion.ACCEPTE);
+        boolean responsable = acteur.role().name().equals("ADMIN")
+            || membres.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
+        if (!responsable) {
+            biens = biens.stream().filter(m -> m.getGestionnaire() != null
+                && m.getGestionnaire().getUtilisateur().getId().equals(acteur.id())).toList();
+        }
+        return biens.stream().map(this::versResume).toList();
+    }
+
+    /** Le responsable attribue un mandat accepté à un gestionnaire actif de son agence. */
+    public MandatResume affecterGestionnaire(UUID mandatId, UUID membreId, AuthenticatedUser acteur) {
+        MandatGestion mandat = mandats.findById(mandatId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
+        UUID agenceId = mandat.getAgence().getId();
+        verifierResponsable(agenceId, acteur);
+        if (mandat.getStatut() != StatutMandatGestion.ACCEPTE) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Seul un mandat accepté peut être attribué.");
+        }
+        MembreAgence gestionnaire = membres.findById(membreId)
+            .filter(m -> m.getAgence().getId().equals(agenceId))
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getFonction() == FonctionAgence.GESTIONNAIRE)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Choisissez un gestionnaire actif de cette agence."));
+        mandat.affecterGestionnaire(gestionnaire);
+        notifications.creer(gestionnaire.getUtilisateur(), "BIEN_ATTRIBUE_GESTION",
+            "Nouveau bien dans votre portefeuille",
+            "Le bien « " + mandat.getAnnonce().getTitre() + " » vous a été attribué.",
+            "/mes-agences/" + agenceId + "/espace");
+        return versResume(mandat);
     }
 
     @Transactional(readOnly = true)
@@ -316,10 +348,12 @@ public class MandatGestionService {
             m.getProprietaire().getId(), m.getProprietaire().getNomComplet(),
             m.getOrigine().name(), m.getStatut().name(), m.getCreeLe(), m.getDecideLe(),
             m.getResiliationDemandeePar() == null ? null : m.getResiliationDemandeePar().getId(),
-            m.getTauxCommissionMensuel(), m.getProposePar().getId());
+            m.getTauxCommissionMensuel(), m.getProposePar().getId(),
+            m.getGestionnaire() == null ? null : m.getGestionnaire().getId(),
+            m.getGestionnaire() == null ? null : m.getGestionnaire().getUtilisateur().getNomComplet());
     }
 
     public record MandatResume(UUID id, UUID agenceId, String agenceNom, UUID annonceId,
             String annonceTitre, String ville, UUID proprietaireId, String proprietaireNom,
-            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId, BigDecimal tauxCommissionMensuel, UUID proposeParId) {}
+            String origine, String statut, java.time.Instant creeLe, java.time.Instant decideLe, UUID resiliationDemandeeParId, BigDecimal tauxCommissionMensuel, UUID proposeParId, UUID gestionnaireMembreId, String gestionnaireNom) {}
 }
