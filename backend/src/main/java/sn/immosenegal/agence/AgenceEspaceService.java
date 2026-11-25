@@ -140,7 +140,9 @@ public class AgenceEspaceService {
         sn.immosenegal.user.Role roleActuel = membre.getUtilisateur().getRole();
         if (roleActuel == sn.immosenegal.user.Role.CLIENT
                 || roleActuel == sn.immosenegal.user.Role.AGENT
-                || roleActuel == sn.immosenegal.user.Role.GESTIONNAIRE) {
+                || roleActuel == sn.immosenegal.user.Role.GESTIONNAIRE
+                || roleActuel == sn.immosenegal.user.Role.CAISSIER
+                || roleActuel == sn.immosenegal.user.Role.ASSISTANT_ADMINISTRATIF) {
             membre.getUtilisateur().setRole(sn.immosenegal.user.Role.valueOf(fonction.name()));
         }
 
