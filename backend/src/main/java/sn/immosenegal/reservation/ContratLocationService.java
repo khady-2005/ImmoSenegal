@@ -41,17 +41,34 @@ public class ContratLocationService {
  public PaiementResume enregistrerPaiement(UUID id,CreationPaiement q,AuthenticatedUser a){
   finaliserResiliationsEchues();
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
-  if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Vous ne participez pas à ce contrat.");
+  if(!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le locataire peut déclarer le paiement de son loyer.");
   if((c.getEtat()!=EtatContratLocation.ACTIF&&c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE)||q.montant()==null||q.montant().signum()<=0||q.periode()==null||q.datePaiement()==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Informations de paiement invalides ou contrat inactif.");
   User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
-  PaiementLoyer p=paiements.save(new PaiementLoyer(c,u,q.montant(),q.periode(),q.datePaiement(),q.reference()==null?null:q.reference().trim()));
-  mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE)
-   .filter(m->m.getTauxCommissionMensuel()!=null)
-   .ifPresent(m->{BigDecimal commission=q.montant().multiply(m.getTauxCommissionMensuel())
-      .divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
-    commissions.save(new CommissionLocationAgence(m.getAgence(),m,c,p,m.getTauxCommissionMensuel(),q.montant(),commission));});
-  User autre=c.getProprietaire().getId().equals(a.id())?c.getLocataire():c.getProprietaire();
-  notifications.creer(autre,"PAIEMENT_LOYER_ENREGISTRE","Paiement de loyer enregistré","Un paiement de "+q.montant()+" FCFA pour la période "+q.periode()+" a été déclaré. Vérifiez-le avec l'autre partie.","/mes-contrats-location");
+  var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
+  String type="PROPRIETAIRE"; UUID beneficiaireId=c.getProprietaire().getId(); String beneficiaireNom=c.getProprietaire().getNomComplet();
+  if(mandat.isPresent()){type="AGENCE";beneficiaireId=mandat.get().getAgence().getId();beneficiaireNom=mandat.get().getAgence().getNom();}
+  PaiementLoyer p=paiements.save(new PaiementLoyer(c,u,q.montant(),q.periode(),q.datePaiement(),q.reference()==null?null:q.reference().trim(),type,beneficiaireId,beneficiaireNom));
+  mandat.filter(m->m.getTauxCommissionMensuel()!=null).ifPresent(m->{
+   BigDecimal commission=q.montant().multiply(m.getTauxCommissionMensuel()).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+   commissions.save(new CommissionLocationAgence(m.getAgence(),m,c,p,m.getTauxCommissionMensuel(),q.montant(),commission));
+  });
+  if(type.equals("PROPRIETAIRE")) notifications.creer(c.getProprietaire(),"PAIEMENT_LOYER_A_CONFIRMER","Paiement à confirmer","Le locataire a déclaré un paiement de "+q.montant()+" FCFA pour "+c.getAnnonce().getTitre()+". Confirmez sa réception dans les contrats de location.","/mes-contrats-location");
+  else membres.findAllByAgenceIdAndStatut(beneficiaireId,StatutMembreAgence.ACTIF).stream()
+    .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE).findFirst()
+    .ifPresent(m->notifications.creer(m.getUtilisateur(),"PAIEMENT_LOYER_A_CONFIRMER","Paiement à confirmer","Un locataire a déclaré un paiement de "+q.montant()+" FCFA pour "+c.getAnnonce().getTitre()+". Confirmez sa réception.","/mes-contrats-location"));
+  return versPaiementResume(p);
+ }
+ public PaiementResume confirmerPaiement(UUID contratId,UUID paiementId,boolean accepte,AuthenticatedUser a){
+  ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  PaiementLoyer p=paiements.findById(paiementId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable."));
+  if(!p.getBeneficiaireId().equals(a.id())){
+   boolean membreAutorise=p.getBeneficiaireType().equals("AGENCE")&&membres.findByAgenceIdAndUtilisateurId(p.getBeneficiaireId(),a.id()).filter(m->m.getStatut()==StatutMembreAgence.ACTIF).isPresent();
+   if(!membreAutorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le bénéficiaire du paiement ou un membre actif de son agence peut confirmer sa réception.");
+  }
+  if(!p.getStatutConfirmation().equals("EN_ATTENTE")) throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce paiement a déjà été traité.");
+  if(!p.getId().equals(paiementId)||!c.getId().equals(p.getContrat().getId())) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable pour ce contrat.");
+  p.confirmer(accepte);
+  notifications.creer(p.getEnregistrePar(),accepte?"PAIEMENT_LOYER_CONFIRME":"PAIEMENT_LOYER_REFUSE",accepte?"Paiement confirmé":"Paiement refusé",accepte?"Le bénéficiaire a confirmé la réception de votre paiement de "+p.getMontant()+" FCFA.":"Le bénéficiaire n'a pas confirmé la réception de votre paiement de "+p.getMontant()+" FCFA. Contactez-le pour vérifier la situation.","/mes-contrats-location");
   return versPaiementResume(p);
  }
  @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(this::versPaiementResume).toList();}
@@ -113,7 +130,8 @@ public class ContratLocationService {
   return new PaiementResume(p.getId(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),
    p.getReference(),p.getEnregistrePar().getNomComplet(),
    commission==null?null:commission.getTauxApplique(),
-   commission==null?null:commission.getMontantCommission());
+   commission==null?null:commission.getMontantCommission(),p.getBeneficiaireType(),p.getBeneficiaireId(),
+   p.getBeneficiaireNom(),p.getStatutConfirmation(),p.getConfirmeLe());
  }
  public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
@@ -138,7 +156,7 @@ public class ContratLocationService {
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe){}
- public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence){}
+ public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe){}
  public record CommissionLocationResume(UUID id,UUID agenceId,String agenceNom,UUID contratId,String annonceTitre,LocalDate periode,BigDecimal tauxApplique,BigDecimal baseCalcul,BigDecimal montantCommission,Instant creeLe){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
 }
