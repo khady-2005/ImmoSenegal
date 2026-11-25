@@ -37,7 +37,19 @@ public class ContratLocationService {
   if(!owner.getId().equals(a.id())) notifications.creer(owner,"CONTRAT_LOCATION_PREPARE","Contrat préparé par l’agence","Un agent mandaté a préparé le contrat pour "+r.getAnnonce().getTitre()+". Consultez-le avec le locataire.","/mes-contrats-location");
   return resume(c);
  }
- public List<ContratResume> mesContrats(AuthenticatedUser a){finaliserResiliationsEchues();List<ContratLocation> l=new ArrayList<>();l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));return l.stream().distinct().map(this::resume).toList();}
+ public List<ContratResume> mesContrats(AuthenticatedUser a){
+  finaliserResiliationsEchues();List<ContratLocation> l=new ArrayList<>();
+  l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));
+  l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));
+  if(a.role()==Role.AGENT||a.role()==Role.ADMIN){
+   List<UUID> annonces=membres.findAllByUtilisateurId(a.id()).stream()
+    .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
+    .flatMap(m->mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(m.getAgence().getId(),StatutMandatGestion.ACCEPTE).stream())
+    .map(m->m.getAnnonce().getId()).distinct().toList();
+   if(!annonces.isEmpty()) l.addAll(contrats.findAllByAnnonceIdInOrderByCreeLeDesc(annonces));
+  }
+  return l.stream().distinct().map(this::resume).toList();
+ }
  public PaiementResume enregistrerPaiement(UUID id,CreationPaiement q,AuthenticatedUser a){
   finaliserResiliationsEchues();
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
@@ -71,7 +83,15 @@ public class ContratLocationService {
   notifications.creer(p.getEnregistrePar(),accepte?"PAIEMENT_LOYER_CONFIRME":"PAIEMENT_LOYER_REFUSE",accepte?"Paiement confirmé":"Paiement refusé",accepte?"Le bénéficiaire a confirmé la réception de votre paiement de "+p.getMontant()+" FCFA.":"Le bénéficiaire n'a pas confirmé la réception de votre paiement de "+p.getMontant()+" FCFA. Contactez-le pour vérifier la situation.","/mes-contrats-location");
   return versPaiementResume(p);
  }
- @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));verifierParticipant(c,a);return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(this::versPaiementResume).toList();}
+ @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  boolean participant=c.getProprietaire().getId().equals(a.id())||c.getLocataire().getId().equals(a.id());
+  boolean agentMandate=a.role()==Role.AGENT&&membres.findAllByUtilisateurId(a.id()).stream()
+   .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
+   .anyMatch(m->mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE));
+  if(!participant&&!agentMandate) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat ou à l'agence mandatée.");
+  return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(this::versPaiementResume).toList();
+ }
  public ContratResume confirmerLecture(UUID id, AuthenticatedUser a) {
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   verifierParticipant(c,a);
