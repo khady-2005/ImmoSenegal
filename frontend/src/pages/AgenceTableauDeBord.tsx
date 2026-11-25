@@ -5,6 +5,7 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import type { Annonce, PagePaginee } from '../types'
 import MissionsAgence from '../components/MissionsAgence'
+import CaisseAgence from '../components/CaisseAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import AffectationBiensAgence from '../components/AffectationBiensAgence'
 
