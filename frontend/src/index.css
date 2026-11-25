@@ -1137,3 +1137,55 @@ svg.lucide,
   text-shadow: 0 1px 2px rgba(0, 0, 0, .65) !important;
   opacity: 1 !important;
 }
+
+
+/* Espace propriétaire : contraste explicite, indépendant des règles globales. */
+#contenu .espace-proprietaire-page {
+  color: #173b63 !important;
+}
+#contenu .espace-proprietaire-page > header {
+  background: #0b2340 !important;
+  color: #ffffff !important;
+}
+#contenu .espace-proprietaire-page > header :where(h1, h2, h3, p, span) {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+#contenu .espace-proprietaire-page > header .text-\[\#f2d991\],
+#contenu .espace-proprietaire-page > header .text-\[\#f2d991\] * {
+  color: #f2d991 !important;
+}
+#contenu .espace-proprietaire-page > header a:first-of-type {
+  color: #142b45 !important;
+  background: #e7c46f !important;
+}
+#contenu .espace-proprietaire-page > header a:last-of-type {
+  color: #ffffff !important;
+}
+#contenu .espace-proprietaire-page :where(h1, h2, h3, h4) {
+  color: #102b49;
+  text-shadow: none !important;
+}
+#contenu .espace-proprietaire-page :where(p, li, span, strong, label) {
+  text-shadow: none !important;
+}
+#contenu .espace-proprietaire-page .bg-white {
+  background-color: #ffffff !important;
+  color: #173b63 !important;
+}
+#contenu .espace-proprietaire-page .bg-white :where(h1,h2,h3,h4,p,span,strong) {
+  color: #173b63;
+}
+#contenu .espace-proprietaire-page .text-slate-400,
+#contenu .espace-proprietaire-page .text-slate-500,
+#contenu .espace-proprietaire-page .text-slate-600 {
+  color: #52677f !important;
+}
+#contenu .espace-proprietaire-page .text-nuit-900,
+#contenu .espace-proprietaire-page .text-nuit-950 {
+  color: #102b49 !important;
+}
+#contenu .espace-proprietaire-page button:disabled {
+  color: #52677f !important;
+  opacity: .65;
+}
