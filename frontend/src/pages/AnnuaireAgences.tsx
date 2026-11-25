@@ -20,7 +20,7 @@ const libelles: Record<string, string> = {
 }
 
 export default function AnnuaireAgences() {
-  const { jeton, utilisateur } = useAuth()
+  const { jeton } = useAuth()
   const [agences, setAgences] = useState<Agence[]>([])
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [mesEspaces, setMesEspaces] = useState<EspaceAgence[]>([])
