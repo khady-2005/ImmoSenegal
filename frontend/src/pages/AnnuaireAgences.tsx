@@ -133,7 +133,7 @@ export default function AnnuaireAgences() {
                         <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
                       </select>
                       <button type="button" onClick={() => void postuler(agence)} disabled={envoi !== null}
-                        className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-slate-950 px-7 py-3 text-lg font-extrabold text-white hover:bg-slate-800 disabled:opacity-50">
+                        className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-amber-700 bg-amber-400 px-8 py-3 text-lg font-extrabold text-slate-950 shadow-md transition-colors hover:bg-amber-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-amber-700 disabled:cursor-not-allowed disabled:border-slate-400 disabled:bg-slate-200 disabled:text-slate-700 disabled:opacity-100">
                         <Send className="h-4 w-4" /> {envoi === agence.id ? 'Envoi…' : 'Postuler'}
                       </button>
                     </div>
