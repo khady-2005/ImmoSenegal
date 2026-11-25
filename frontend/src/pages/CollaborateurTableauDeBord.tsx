@@ -23,11 +23,12 @@ const roles: Record<string, { titre: string; mission: string; responsabilites: s
   },
   GESTIONNAIRE: {
     titre: 'Gestionnaire immobilier',
-    mission: 'Votre espace est consacré au suivi opérationnel des biens confiés et des demandes liées à leur gestion.',
+    mission: 'Votre espace est consacré à la gestion quotidienne des biens qui vous sont personnellement attribués par le responsable.',
     responsabilites: [
-      'Suivre le portefeuille des biens confiés à l’agence.',
-      'Traiter les demandes de visite liées aux biens suivis et coordonner les interventions.',
-      'Suivre les missions attribuées et transmettre les comptes rendus au responsable.',
+      'Suivre uniquement les biens confiés à l’agence et qui vous sont attribués.',
+      'Assurer le suivi quotidien des biens, des propriétaires et des locataires.',
+      'Suivre les contrats, les échéances de loyers et les incidents liés aux biens attribués.',
+      'Transmettre les comptes rendus de gestion au responsable de l’agence.',
     ],
   },
 }
@@ -106,7 +107,6 @@ export default function CollaborateurTableauDeBord() {
       {agence.fonction === 'GESTIONNAIRE' && (
         <>
           <PortefeuilleAgence agenceId={agenceId} />
-          <VisitesAgence agenceId={agenceId} />
         </>
       )}
 
@@ -135,7 +135,7 @@ export default function CollaborateurTableauDeBord() {
             Votre accès est limité à votre compte et à votre appartenance active à cette agence. La gestion de l’équipe et des paramètres de l’agence reste réservée au responsable.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Les missions, contacts, visites, biens confiés et dossiers de vente affichés dans cet espace dépendent de votre fonction et de votre appartenance active à l’agence. Les actions sensibles sont également vérifiées par le serveur.
+            Les missions et les biens confiés affichés dans cet espace dépendent de votre fonction, de votre affectation et de votre appartenance active à l’agence. Les visites et les ventes relèvent de l’Agent immobilier. Les actions sensibles sont également vérifiées par le serveur.
           </p>
         </article>
       </section>
