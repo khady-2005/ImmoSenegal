@@ -130,7 +130,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
       </div>
 
       {photos.length > 0 && (
-        <ul className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {photos.map((photo, i) => (
             <li key={photo} className="group min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#d6b65e] hover:shadow-lg">
               <div className="relative overflow-hidden rounded-xl bg-slate-100">
@@ -138,15 +138,15 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                 <span className="absolute left-2 top-2 rounded-full border border-white/30 bg-[#101d35]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#f2d27f] backdrop-blur">Photo {i + 1}</span>
                 {i === 0 && <span className="absolute bottom-2 left-2 rounded-full bg-[#e8c56f] px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#18243a]">Couverture</span>}
               </div>
-              <label className="mt-2 block text-xs font-semibold text-slate-700">Pièce associée
-                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-10 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 outline-none transition focus:border-[#c9a64f] focus:bg-white focus:ring-2 focus:ring-[#e8c56f]/30">
+              <label className="mt-3 block text-sm font-semibold leading-5 text-slate-800">Pièce associée
+                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-[#c9a64f] focus:bg-white focus:ring-2 focus:ring-[#e8c56f]/30">
                   <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
                 </select>
               </label>
               <div className="mt-2 grid grid-cols-[1fr_1fr_1.35fr] gap-1.5">
                 <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
                   aria-label={`Déplacer la photo ${i + 1} vers le début`}
-                  className="min-h-10 rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-35">↑</button>
+                  className="min-h-11 rounded-xl border border-slate-300 bg-white px-2 py-2 text-base font-bold text-slate-800 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-40">↑</button>
                 <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
                   aria-label={`Déplacer la photo ${i + 1} vers la fin`}
                   className="min-h-10 rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-35">↓</button>
@@ -155,7 +155,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                 disabled={enCours}
                 onClick={() => supprimer(photo)}
                 aria-label={`Supprimer la photo ${i + 1}`}
-                className="min-h-10 w-full rounded-xl border border-rose-200 bg-rose-50 px-2 py-2 text-xs font-bold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                className="min-h-11 w-full rounded-xl border border-rose-300 bg-rose-50 px-2 py-2 text-sm font-bold text-rose-800 transition hover:border-rose-400 hover:bg-rose-100"
               >
                 Supprimer
               </button>
