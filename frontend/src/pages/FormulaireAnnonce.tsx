@@ -178,71 +178,74 @@ export default function FormulaireAnnonce() {
     const form = document.querySelector<HTMLFormElement>('form[aria-label="Formulaire d\'annonce"]')
     if (!form) return
     const data = new FormData(form)
-    const adresseComplete = [data.get('adresse'), data.get('quartier'), data.get('ville'), 'Sénégal']
-      .map(v => String(v ?? '').trim()).filter(Boolean).join(', ')
-    if (!String(data.get('quartier') ?? '').trim() || !String(data.get('ville') ?? '').trim()) {
+    const ville = String(data.get('ville') ?? '').trim()
+    const quartier = String(data.get('quartier') ?? '').trim()
+    const adresse = String(data.get('adresse') ?? '').trim()
+    if (!quartier || !ville) {
       setMessageCarte('Renseignez d’abord le quartier et la ville.')
       return
     }
+
     setLocalisationEnCours(true)
-    setMessageCarte('Recherche de cette adresse sur la carte…')
+    setMessageCarte('Recherche de l’adresse, puis de la ville si nécessaire…')
     try {
-      // Photon accepte les recherches géographiques depuis le navigateur (CORS)
-      // et fournit souvent de meilleurs résultats pour les quartiers.
-      const photonUrl = new URL('https://photon.komoot.io/api/')
-      photonUrl.search = new URLSearchParams({ q: adresseComplete, limit: '5', lang: 'fr' }).toString()
-      const photonResponse = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
+      const requetes = [
+        [adresse, quartier, ville, 'Sénégal'].filter(Boolean).join(', '),
+        [ville, 'Sénégal'].join(', '),
+      ]
       let latitudeTrouvee = ''
       let longitudeTrouvee = ''
       let libelleTrouve = ''
-      if (photonResponse.ok) {
-        const photon = await photonResponse.json() as {
-          features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { name?: string; city?: string; district?: string; street?: string; country?: string } }>
-        }
-        const resultat = photon.features?.find((item) => {
-          const coords = item.geometry?.coordinates
-          return Array.isArray(coords) && Number.isFinite(coords[0]) && Number.isFinite(coords[1])
-        })
-        if (resultat?.geometry?.coordinates) {
-          const [lng, lat] = resultat.geometry.coordinates
-          longitudeTrouvee = String(lng)
-          latitudeTrouvee = String(lat)
-          libelleTrouve = [
-            resultat.properties?.name,
-            resultat.properties?.district,
-            resultat.properties?.city,
-            resultat.properties?.country,
-          ].filter(Boolean).join(', ')
+      let villeSeulement = false
+
+      // Photon est essayé d'abord, avec une seconde recherche sur la ville
+      // si le quartier ou l'adresse précise ne figure pas dans la carte.
+      for (let i = 0; i < requetes.length && !latitudeTrouvee; i++) {
+        const photonUrl = new URL('https://photon.komoot.io/api/')
+        photonUrl.search = new URLSearchParams({ q: requetes[i], limit: '5', lang: 'fr' }).toString()
+        const response = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
+        if (response.ok) {
+          const photon = await response.json() as {
+            features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { name?: string; city?: string; district?: string; country?: string } }>
+          }
+          const resultat = photon.features?.find((item) => {
+            const coords = item.geometry?.coordinates
+            return Array.isArray(coords) && Number.isFinite(coords[0]) && Number.isFinite(coords[1])
+          })
+          if (resultat?.geometry?.coordinates) {
+            const [lng, lat] = resultat.geometry.coordinates
+            longitudeTrouvee = String(lng)
+            latitudeTrouvee = String(lat)
+            libelleTrouve = [resultat.properties?.name, resultat.properties?.district, resultat.properties?.city, resultat.properties?.country].filter(Boolean).join(', ')
+            villeSeulement = i === 1
+          }
         }
       }
 
-      // Deuxième fournisseur si Photon ne trouve rien.
-      if (!latitudeTrouvee || !longitudeTrouvee) {
-        const nominatimUrl = new URL('https://nominatim.openstreetmap.org/search')
-        nominatimUrl.search = new URLSearchParams({
-          q: adresseComplete,
-          format: 'jsonv2',
-          limit: '1',
-          countrycodes: 'sn',
-          addressdetails: '1',
-        }).toString()
-        const nominatimResponse = await fetch(nominatimUrl, { headers: { Accept: 'application/json' } })
-        if (nominatimResponse.ok) {
-          const resultats = await nominatimResponse.json() as Array<{ lat: string; lon: string; display_name: string }>
+      // Nominatim sert de deuxième fournisseur et suit les mêmes deux étapes.
+      for (let i = 0; i < requetes.length && !latitudeTrouvee; i++) {
+        const url = new URL('https://nominatim.openstreetmap.org/search')
+        url.search = new URLSearchParams({ q: requetes[i], format: 'jsonv2', limit: '1', countrycodes: 'sn', addressdetails: '1' }).toString()
+        const response = await fetch(url, { headers: { Accept: 'application/json' } })
+        if (response.ok) {
+          const resultats = await response.json() as Array<{ lat: string; lon: string; display_name: string }>
           if (resultats.length) {
             latitudeTrouvee = resultats[0].lat
             longitudeTrouvee = resultats[0].lon
             libelleTrouve = resultats[0].display_name
+            villeSeulement = i === 1
           }
         }
       }
 
       if (!latitudeTrouvee || !longitudeTrouvee) {
-        throw new Error('Adresse non trouvée. Essayez avec le nom du quartier suivi de la ville, par exemple : HLM, Dakar.')
+        throw new Error('Ville introuvable. Vérifiez son orthographe ou placez directement le repère sur la carte.')
       }
       setLatitude(latitudeTrouvee)
       setLongitude(longitudeTrouvee)
-      setMessageCarte('Emplacement trouvé : ' + (libelleTrouve || adresseComplete) + '. Vérifiez et ajustez le repère sur la carte.')
+      setMessageCarte(villeSeulement
+        ? 'La ville a été localisée (' + (libelleTrouve || ville) + '). Le quartier n’étant pas référencé, déplacez le repère sur la carte jusqu’au logement.'
+        : 'Emplacement trouvé : ' + (libelleTrouve || requetes[0]) + '. Vérifiez et ajustez le repère sur la carte.')
     } catch (e) {
       setMessageCarte(e instanceof Error ? e.message : 'Impossible de localiser cette adresse. Vous pouvez placer le repère directement sur la carte.')
     } finally {
