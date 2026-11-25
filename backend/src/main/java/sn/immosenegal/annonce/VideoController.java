@@ -33,7 +33,7 @@ public class VideoController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Ajouter ou remplacer la vidéo d'une annonce (MP4 ou WebM, 50 Mo max)",
+    @Operation(summary = "Ajouter ou remplacer la vidéo d'une annonce (MP4 ou WebM, 1150 Mo max)",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<Map<String, UUID>> ajouter(@PathVariable UUID annonceId,
             @RequestParam("fichier") MultipartFile fichier,
