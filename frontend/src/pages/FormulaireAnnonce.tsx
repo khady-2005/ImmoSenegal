@@ -195,6 +195,7 @@ export default function FormulaireAnnonce() {
     try {
       const requetes = [
         [adresse, quartier, ville, 'Sénégal'].filter(Boolean).join(', '),
+        [quartier, ville, 'Sénégal'].filter(Boolean).join(', '),
         [ville, 'Sénégal'].join(', '),
       ]
       let latitudeTrouvee = ''
@@ -218,18 +219,28 @@ export default function FormulaireAnnonce() {
         const response = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
         if (response.ok) {
           const photon = await response.json() as {
-            features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { name?: string; city?: string; district?: string; country?: string } }>
+            features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { name?: string; city?: string; district?: string; county?: string; state?: string; country?: string } }>
           }
-          const resultat = photon.features?.find((item) => {
+          const candidats = (photon.features ?? []).filter((item) => {
             const coords = item.geometry?.coordinates
             return Array.isArray(coords) && Number.isFinite(coords[0]) && Number.isFinite(coords[1])
           })
+          // Prioriser les résultats explicitement rattachés à Ziguinchor et au Sénégal.
+          const resultat = candidats.sort((a, b) => {
+            const score = (item: typeof a) => {
+              const p = item.properties
+              const localite = [p?.city, p?.district, p?.county, p?.state].filter(Boolean).join(' ').toLowerCase()
+              const pays = (p?.country ?? '').toLowerCase()
+              return (/ziguinchor/.test(localite) ? 4 : 0) + (/sénégal|senegal/.test(pays) ? 3 : 0)
+            }
+            return score(b) - score(a)
+          })[0]
           if (resultat?.geometry?.coordinates) {
             const [lng, lat] = resultat.geometry.coordinates
             longitudeTrouvee = String(lng)
             latitudeTrouvee = String(lat)
             libelleTrouve = [resultat.properties?.name, resultat.properties?.district, resultat.properties?.city, resultat.properties?.country].filter(Boolean).join(', ')
-            villeSeulement = i === 1
+            villeSeulement = i === requetes.length - 1
           }
         }
       }
@@ -241,11 +252,12 @@ export default function FormulaireAnnonce() {
         const response = await fetch(url, { headers: { Accept: 'application/json' } })
         if (response.ok) {
           const resultats = await response.json() as Array<{ lat: string; lon: string; display_name: string }>
-          if (resultats.length) {
-            latitudeTrouvee = resultats[0].lat
-            longitudeTrouvee = resultats[0].lon
-            libelleTrouve = resultats[0].display_name
-            villeSeulement = i === 1
+          const resultat = resultats.find((item) => /ziguinchor/i.test(item.display_name)) ?? resultats[0]
+          if (resultat) {
+            latitudeTrouvee = resultat.lat
+            longitudeTrouvee = resultat.lon
+            libelleTrouve = resultat.display_name
+            villeSeulement = i === requetes.length - 1
           }
         }
       }
