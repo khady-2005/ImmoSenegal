@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Building2, CalendarDays, ClipboardList, Compass, MapPinned, ShieldCheck, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Building2, ClipboardList, Compass, MapPinned, ShieldCheck, MessageCircle } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import MissionsAgence from '../components/MissionsAgence'
