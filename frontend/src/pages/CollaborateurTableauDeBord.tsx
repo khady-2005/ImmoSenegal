@@ -94,6 +94,22 @@ export default function CollaborateurTableauDeBord() {
         <p className="mt-5 max-w-3xl text-sm leading-relaxed text-white/80">{role.mission}</p>
       </section>
 
+      {agence.fonction === 'AGENT' && (
+        <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-amber-800">Espace commercial</p>
+          <h2 className="mt-1 text-xl font-bold text-nuit-900">Vos outils d’agent immobilier</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700">Vous prenez en charge les prospects et les clients, organisez les visites, présentez les biens et renseignez les ventes. Vous ne gérez pas les contrats locatifs ni l’administration de l’agence.</p>
+        </section>
+      )}
+
+      {agence.fonction === 'GESTIONNAIRE' && (
+        <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-blue-800">Espace gestion locative</p>
+          <h2 className="mt-1 text-xl font-bold text-nuit-900">Vos outils de gestionnaire immobilier</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700">Vous prenez en charge uniquement les biens qui vous sont attribués. Vous suivez leur état, les propriétaires et les locataires, puis rendez compte au responsable. Vous ne gérez pas les prospects commerciaux, les ventes ni les paramètres de l’agence.</p>
+        </section>
+      )}
+
       <MissionsAgence agenceId={agenceId} fonction={agence.fonction} />
 
       {agence.fonction === 'AGENT' && (
@@ -104,11 +120,7 @@ export default function CollaborateurTableauDeBord() {
         </>
       )}
 
-      {agence.fonction === 'GESTIONNAIRE' && (
-        <>
-          <PortefeuilleAgence agenceId={agenceId} />
-        </>
-      )}
+      {agence.fonction === 'GESTIONNAIRE' && <PortefeuilleAgence agenceId={agenceId} />}
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -135,7 +147,9 @@ export default function CollaborateurTableauDeBord() {
             Votre accès est limité à votre compte et à votre appartenance active à cette agence. La gestion de l’équipe et des paramètres de l’agence reste réservée au responsable.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Les missions et les biens confiés affichés dans cet espace dépendent de votre fonction, de votre affectation et de votre appartenance active à l’agence. Les visites et les ventes relèvent de l’Agent immobilier. Les actions sensibles sont également vérifiées par le serveur.
+            {agence.fonction === 'AGENT'
+              ? 'Vous accédez au CRM commercial, aux visites de l’agence, aux ventes et aux missions qui vous sont attribuées. Les biens confiés, les contrats locatifs et la gestion de l’équipe ne relèvent pas de votre fonction.'
+              : 'Vous accédez aux biens qui vous sont personnellement attribués et aux missions qui vous sont confiées. Le CRM commercial, les visites commerciales et les ventes relèvent de l’Agent immobilier. Les actions sensibles sont vérifiées par le serveur.'}
           </p>
         </article>
       </section>
@@ -154,20 +168,10 @@ export default function CollaborateurTableauDeBord() {
             <h3 className="mt-3 font-semibold text-nuit-900">Carte des biens</h3>
             <p className="mt-1 text-xs text-slate-500">Explorer les biens par localisation.</p>
           </Link>
-          <Link to="/mes-visites" className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-dore-400 hover:shadow-sm">
-            <CalendarDays className="h-6 w-6 text-nuit-800" />
-            <h3 className="mt-3 font-semibold text-nuit-900">Mes visites</h3>
-            <p className="mt-1 text-xs text-slate-500">Retrouver les visites liées à votre compte.</p>
-          </Link>
           <Link to="/messagerie" className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-dore-400 hover:shadow-sm">
             <MessageCircle className="h-6 w-6 text-nuit-800" />
             <h3 className="mt-3 font-semibold text-nuit-900">Messagerie professionnelle</h3>
             <p className="mt-1 text-xs text-slate-500">Échanger avec les propriétaires et les clients selon vos accès.</p>
-          </Link>
-          <Link to="/mes-reservations" className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-dore-400 hover:shadow-sm">
-            <ClipboardList className="h-6 w-6 text-nuit-800" />
-            <h3 className="mt-3 font-semibold text-nuit-900">Mes réservations</h3>
-            <p className="mt-1 text-xs text-slate-500">Consulter vos réservations personnelles.</p>
           </Link>
         </div>
       </section>
