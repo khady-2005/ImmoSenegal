@@ -63,6 +63,8 @@ const fonctions: Record<string, string> = {
   RESPONSABLE: 'Responsable',
   GESTIONNAIRE: 'Gestionnaire',
   AGENT: 'Agent immobilier',
+  CAISSIER: 'Caissier',
+  ASSISTANT_ADMINISTRATIF: 'Assistant administratif',
 }
 
 export default function AgenceTableauDeBord() {
@@ -78,7 +80,7 @@ export default function AgenceTableauDeBord() {
   const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
   const [annonceChoisie, setAnnonceChoisie] = useState('')
   const [email, setEmail] = useState('')
-  const [fonction, setFonction] = useState<'GESTIONNAIRE' | 'AGENT'>('AGENT')
+  const [fonction, setFonction] = useState<'GESTIONNAIRE' | 'AGENT' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF'>('AGENT')
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState(false)
   const [membreEnCours, setMembreEnCours] = useState<string | null>(null)
@@ -280,7 +282,7 @@ export default function AgenceTableauDeBord() {
     }
   }
 
-  const changerFonction = async (membre: Membre, nouvelleFonction: 'GESTIONNAIRE' | 'AGENT') => {
+  const changerFonction = async (membre: Membre, nouvelleFonction: 'GESTIONNAIRE' | 'AGENT' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF') => {
     setMembreEnCours(membre.id)
     setErreur(null)
     setMessage(null)
@@ -538,6 +540,8 @@ export default function AgenceTableauDeBord() {
                       >
                         <option value="AGENT">Agent immobilier</option>
                         <option value="GESTIONNAIRE">Gestionnaire</option>
+                        <option value="CAISSIER">Caissier</option>
+                        <option value="ASSISTANT_ADMINISTRATIF">Assistant administratif</option>
                       </select>
                       <button
                         type="button"
@@ -567,9 +571,11 @@ export default function AgenceTableauDeBord() {
             </div>
             <div>
               <label htmlFor="fonction-collaborateur" className="mb-1.5 block text-sm font-medium text-slate-700">Fonction dans l’agence</label>
-              <select id="fonction-collaborateur" value={fonction} onChange={(event) => setFonction(event.target.value as 'GESTIONNAIRE' | 'AGENT')} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm">
+              <select id="fonction-collaborateur" value={fonction} onChange={(event) => setFonction(event.target.value as 'GESTIONNAIRE' | 'AGENT' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF')} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm">
                 <option value="AGENT">Agent immobilier</option>
                 <option value="GESTIONNAIRE">Gestionnaire</option>
+                <option value="CAISSIER">Caissier</option>
+                <option value="ASSISTANT_ADMINISTRATIF">Assistant administratif</option>
               </select>
             </div>
             <button type="submit" disabled={envoi || !email.trim()} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-nuit-900 px-5 py-3 text-sm font-semibold text-white hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-50">
