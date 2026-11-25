@@ -1395,3 +1395,44 @@ svg.lucide,
 }
 
 /* Les icônes décoratives peuvent conserver leur couleur de marque. */
+
+
+/* CORRECTION FINALE : ne jamais associer un fond bleu et un texte bleu
+   de même intensité. Les surfaces foncées portent du texte blanc ;
+   les encarts bleus clairs portent du texte bleu nuit. */
+#root :is(
+  .bg-nuit-950, .bg-nuit-900, .bg-nuit-800,
+  .bg-blue-950, .bg-blue-900, .bg-blue-800, .bg-blue-700,
+  .bg-sky-950, .bg-sky-900, .bg-sky-800,
+  .bg-indigo-950, .bg-indigo-900, .bg-indigo-800
+) {
+  color: #ffffff !important;
+}
+#root :is(
+  .bg-nuit-950, .bg-nuit-900, .bg-nuit-800,
+  .bg-blue-950, .bg-blue-900, .bg-blue-800, .bg-blue-700,
+  .bg-sky-950, .bg-sky-900, .bg-sky-800,
+  .bg-indigo-950, .bg-indigo-900, .bg-indigo-800
+) :where(p, span, strong, small, label, a, button, h1, h2, h3, h4, li) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+/* Les textes dorés restent dorés sur les panneaux bleu nuit. */
+#root :is(
+  .bg-nuit-950, .bg-nuit-900, .bg-nuit-800,
+  .bg-blue-950, .bg-blue-900, .bg-blue-800, .bg-blue-700,
+  .bg-sky-950, .bg-sky-900, .bg-sky-800,
+  .bg-indigo-950, .bg-indigo-900, .bg-indigo-800
+) :where(.text-dore-300, .text-dore-400, .text-amber-300, .text-amber-400) {
+  color: #ffdc72 !important;
+  -webkit-text-fill-color: #ffdc72 !important;
+}
+/* Les encarts bleu clair restent clairs avec une écriture bleu nuit. */
+#root :is(.bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-sky-100) {
+  color: #173b63 !important;
+}
+#root :is(.bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-sky-100)
+  :where(p, span, strong, small, label, a, h1, h2, h3, h4, li) {
+  color: #173b63 !important;
+  -webkit-text-fill-color: #173b63 !important;
+}
