@@ -1303,3 +1303,50 @@ svg.lucide,
 ):disabled {
   color: #ffffff !important;
 }
+
+
+/* CORRECTION GLOBALE DE CONTRASTE — boutons bleus dans toute l'application.
+   Cette règle est volontairement placée en dernier pour neutraliser les couleurs
+   de texte héritées des cartes blanches et des composants imbriqués. */
+:where(#root, #root #contenu) :is(button, a, [role="button"], input[type="button"], input[type="submit"]):is(
+  [class*="bg-blue-"],
+  [class*="bg-nuit-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="bg-cyan-"],
+  [class*="bg-[#"],
+  [class*="from-blue-"],
+  [class*="from-nuit-"],
+  [class*="from-sky-"],
+  [class*="from-indigo-"],
+  [class*="from-[#"],
+  [class*="to-blue-"],
+  [class*="to-nuit-"],
+  [class*="to-sky-"],
+  [class*="to-indigo-"],
+  [class*="to-[#"]
+),
+:where(#root, #root #contenu) :is(button, a, [role="button"], input[type="button"], input[type="submit"]):is(
+  [class*="bg-blue-"],
+  [class*="bg-nuit-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="bg-cyan-"],
+  [class*="bg-[#"],
+  [class*="from-blue-"],
+  [class*="from-nuit-"],
+  [class*="from-sky-"],
+  [class*="from-indigo-"],
+  [class*="from-[#"],
+  [class*="to-blue-"],
+  [class*="to-nuit-"],
+  [class*="to-sky-"],
+  [class*="to-indigo-"],
+  [class*="to-[#"]
+) * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Les boutons dorés, rouges, gris et les champs de formulaire ne sont pas modifiés. */
