@@ -133,6 +133,17 @@ public class AgenceEspaceService {
         }
         FonctionAgence ancienneFonction = membre.getFonction();
         membre.setFonction(fonction);
+
+        // Le rôle du compte suit la fonction d'agence pour les profils professionnels.
+        // Un compte PROPRIETAIRE conserve son rôle principal : il peut aussi collaborer
+        // avec une agence sans perdre ses fonctionnalités de propriétaire.
+        sn.immosenegal.user.Role roleActuel = membre.getUtilisateur().getRole();
+        if (roleActuel == sn.immosenegal.user.Role.CLIENT
+                || roleActuel == sn.immosenegal.user.Role.AGENT
+                || roleActuel == sn.immosenegal.user.Role.GESTIONNAIRE) {
+            membre.getUtilisateur().setRole(sn.immosenegal.user.Role.valueOf(fonction.name()));
+        }
+
         notifications.creer(membre.getUtilisateur(), "FONCTION_AGENCE_MODIFIEE",
             "Votre fonction dans l’agence a changé",
             "Votre fonction au sein de " + membre.getAgence().getNom() + " est passée de "
