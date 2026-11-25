@@ -1261,3 +1261,45 @@ svg.lucide,
   color: #173b63;
   border-radius: .9rem;
 }
+
+
+/* Contraste global : tous les boutons à fond bleu utilisent une écriture blanche.
+   Les boutons dorés, rouges et les commandes désactivées gardent leurs couleurs. */
+#contenu :is(button, a, [role="button"]):is(
+  [class*="bg-blue-"],
+  [class*="bg-nuit-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="from-blue-"],
+  [class*="from-nuit-"],
+  [class*="to-blue-"],
+  [class*="to-nuit-"]
+):not(:disabled),
+#contenu :is(button, a, [role="button"]):is(
+  [class*="bg-blue-"],
+  [class*="bg-nuit-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="from-blue-"],
+  [class*="from-nuit-"],
+  [class*="to-blue-"],
+  [class*="to-nuit-"]
+):not(:disabled) :where(span, strong, svg) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Boutons bleus désactivés : garder un contraste lisible sans les confondre
+   avec les actions disponibles. */
+#contenu :is(button, a, [role="button"]):is(
+  [class*="bg-blue-"],
+  [class*="bg-nuit-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="from-blue-"],
+  [class*="from-nuit-"],
+  [class*="to-blue-"],
+  [class*="to-nuit-"]
+):disabled {
+  color: #ffffff !important;
+}
