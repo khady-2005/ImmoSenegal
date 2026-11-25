@@ -187,17 +187,64 @@ export default function FormulaireAnnonce() {
     setLocalisationEnCours(true)
     setMessageCarte('Recherche de cette adresse sur la carte…')
     try {
-      const url = new URL('https://nominatim.openstreetmap.org/search')
-      url.search = new URLSearchParams({ q: adresseComplete, format: 'jsonv2', limit: '1', countrycodes: 'sn' }).toString()
-      const response = await fetch(url, { headers: { Accept: 'application/json' } })
-      if (!response.ok) throw new Error('La recherche de l’adresse est momentanément indisponible.')
-      const resultats = await response.json() as Array<{ lat: string; lon: string; display_name: string }>
-      if (!resultats.length) throw new Error('Adresse introuvable. Essayez de préciser le quartier ou la rue.')
-      setLatitude(resultats[0].lat)
-      setLongitude(resultats[0].lon)
-      setMessageCarte('Emplacement trouvé : ' + resultats[0].display_name + '. Vérifiez le repère sur la carte.')
+      // Photon accepte les recherches géographiques depuis le navigateur (CORS)
+      // et fournit souvent de meilleurs résultats pour les quartiers.
+      const photonUrl = new URL('https://photon.komoot.io/api/')
+      photonUrl.search = new URLSearchParams({ q: adresseComplete, limit: '5', lang: 'fr' }).toString()
+      const photonResponse = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
+      let latitudeTrouvee = ''
+      let longitudeTrouvee = ''
+      let libelleTrouve = ''
+      if (photonResponse.ok) {
+        const photon = await photonResponse.json() as {
+          features?: Array<{ geometry?: { coordinates?: [number, number] }; properties?: { name?: string; city?: string; district?: string; street?: string; country?: string } }>
+        }
+        const resultat = photon.features?.find((item) => {
+          const coords = item.geometry?.coordinates
+          return Array.isArray(coords) && Number.isFinite(coords[0]) && Number.isFinite(coords[1])
+        })
+        if (resultat?.geometry?.coordinates) {
+          const [lng, lat] = resultat.geometry.coordinates
+          longitudeTrouvee = String(lng)
+          latitudeTrouvee = String(lat)
+          libelleTrouve = [
+            resultat.properties?.name,
+            resultat.properties?.district,
+            resultat.properties?.city,
+            resultat.properties?.country,
+          ].filter(Boolean).join(', ')
+        }
+      }
+
+      // Deuxième fournisseur si Photon ne trouve rien.
+      if (!latitudeTrouvee || !longitudeTrouvee) {
+        const nominatimUrl = new URL('https://nominatim.openstreetmap.org/search')
+        nominatimUrl.search = new URLSearchParams({
+          q: adresseComplete,
+          format: 'jsonv2',
+          limit: '1',
+          countrycodes: 'sn',
+          addressdetails: '1',
+        }).toString()
+        const nominatimResponse = await fetch(nominatimUrl, { headers: { Accept: 'application/json' } })
+        if (nominatimResponse.ok) {
+          const resultats = await nominatimResponse.json() as Array<{ lat: string; lon: string; display_name: string }>
+          if (resultats.length) {
+            latitudeTrouvee = resultats[0].lat
+            longitudeTrouvee = resultats[0].lon
+            libelleTrouve = resultats[0].display_name
+          }
+        }
+      }
+
+      if (!latitudeTrouvee || !longitudeTrouvee) {
+        throw new Error('Adresse non trouvée. Essayez avec le nom du quartier suivi de la ville, par exemple : HLM, Dakar.')
+      }
+      setLatitude(latitudeTrouvee)
+      setLongitude(longitudeTrouvee)
+      setMessageCarte('Emplacement trouvé : ' + (libelleTrouve || adresseComplete) + '. Vérifiez et ajustez le repère sur la carte.')
     } catch (e) {
-      setMessageCarte(e instanceof Error ? e.message : 'Impossible de localiser cette adresse.')
+      setMessageCarte(e instanceof Error ? e.message : 'Impossible de localiser cette adresse. Vous pouvez placer le repère directement sur la carte.')
     } finally {
       setLocalisationEnCours(false)
     }
