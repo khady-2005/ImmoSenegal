@@ -19,9 +19,9 @@ spring:
             enable: true
   servlet:
     multipart:
-      # Photos : 5 Mo ; vidéos facultatives : 30 Mo maximum.
-      max-file-size: 30MB
-      max-request-size: 31MB
+      # Photos : 5 Mo ; vidéos facultatives : 50 Mo maximum.
+      max-file-size: 50MB
+      max-request-size: 51MB
   jpa:
     open-in-view: false
     hibernate:
