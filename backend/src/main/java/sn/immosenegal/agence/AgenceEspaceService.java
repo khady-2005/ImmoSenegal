@@ -89,7 +89,7 @@ public class AgenceEspaceService {
         MembreAgence membre = membres.save(new MembreAgence(agence, utilisateur, fonction));
         notifications.creer(utilisateur, "INVITATION_AGENCE", "Invitation à rejoindre une agence",
             "L’agence " + agence.getNom() + " vous invite à rejoindre son équipe comme "
-                + (fonction == FonctionAgence.AGENT ? "agent immobilier" : "gestionnaire immobilier") + ".",
+                + switch (fonction) { case AGENT -> "agent immobilier"; case GESTIONNAIRE -> "gestionnaire immobilier"; case CAISSIER -> "caissier"; case ASSISTANT_ADMINISTRATIF -> "assistant administratif"; default -> "collaborateur"; } + ".",
             "/mes-agences");
         return new InvitationResume(membre.getId(), agence.getId(), agence.getNom(),
             fonction.name(), membre.getCreeLe());
