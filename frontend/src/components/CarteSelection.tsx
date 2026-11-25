@@ -20,6 +20,7 @@ const iconeRepere = L.icon({
 })
 
 type Props = {
+  ville?: string
   latitude: string
   longitude: string
   onChange: (latitude: number, longitude: number) => void
@@ -34,17 +35,27 @@ function ClicCarte({ onChange }: { onChange: Props['onChange'] }) {
   return null
 }
 
-function CentrerCarte({ position }: { position: [number, number] }) {
+function CentrerCarte({ position, zoom }: { position: [number, number]; zoom: number }) {
   const map = useMap()
 
   useEffect(() => {
-    map.setView(position, map.getZoom())
-  }, [map, position[0], position[1]])
+    map.setView(position, zoom)
+  }, [map, position[0], position[1], zoom])
 
   return null
 }
 
+function positionVille(ville: string): [number, number] {
+  const nom = ville.toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (nom.includes('ziguinchor')) return [12.568, -16.273]
+  if (nom.includes('dakar')) return [14.7167, -17.4677]
+  if (nom.includes('kaolack')) return [14.15, -16.07]
+  if (nom.includes('saint')) return [16.0179, -16.4896]
+  return [14.5, -14.5]
+}
+
 export default function CarteSelection({
+  ville = 'Ziguinchor',
   latitude,
   longitude,
   onChange,
@@ -62,7 +73,8 @@ export default function CarteSelection({
 
   const position: [number, number] = coordonneesValides
     ? [lat, lng]
-    : [14.5, -14.5]
+    : positionVille(ville)
+  const zoom = coordonneesValides ? 16 : (position[0] === 14.5 ? 6 : 13)
 
   function deplacerRepere(e: LeafletEvent) {
     const nouvellePosition: LatLng = (e.target as L.Marker).getLatLng()
@@ -73,7 +85,7 @@ export default function CarteSelection({
     <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
       <MapContainer
         center={position}
-        zoom={coordonneesValides ? 16 : (/ziguinchor|dakar|kaolack|saint.?louis/i.test(ville) ? 13 : 6)}
+        zoom={zoom}
         scrollWheelZoom
         className="h-80 w-full"
       >
@@ -82,7 +94,7 @@ export default function CarteSelection({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ClicCarte onChange={onChange} />
-        <CentrerCarte position={position} />
+        <CentrerCarte position={position} zoom={zoom} />
         {coordonneesValides && (
           <Marker
             position={position}
