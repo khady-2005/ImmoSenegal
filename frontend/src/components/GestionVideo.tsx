@@ -25,8 +25,8 @@ export default function GestionVideo({ annonceId }: Props) {
   async function envoyer(fichier: File | undefined) {
     if (!fichier) return
     setErreur('')
-    if (fichier.size > 30 * 1024 * 1024) {
-      setErreur('La vidéo dépasse 30 Mo.')
+    if (fichier.size > 50 * 1024 * 1024) {
+      setErreur('La vidéo dépasse 50 Mo.')
       if (champ.current) champ.current.value = ''
       return
     }
@@ -60,7 +60,7 @@ export default function GestionVideo({ annonceId }: Props) {
   return (
     <section className="mt-6 rounded-2xl bg-white p-5 shadow" aria-labelledby="titre-video-annonce">
       <h2 id="titre-video-annonce" className="text-lg font-semibold">Vidéo de présentation (facultative)</h2>
-      <p className="mt-1 text-sm text-slate-600">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 30 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
+      <p className="mt-1 text-sm text-slate-600">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 50 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
       {disponible && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
           <span>Une vidéo est enregistrée pour cette annonce.</span>
