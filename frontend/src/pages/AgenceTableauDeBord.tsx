@@ -5,10 +5,7 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import type { Annonce, PagePaginee } from '../types'
 import MissionsAgence from '../components/MissionsAgence'
-import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
-import CRMAgence from '../components/CRMAgence'
-import VentesAgence from '../components/VentesAgence'
 import AffectationBiensAgence from '../components/AffectationBiensAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
@@ -314,7 +311,7 @@ export default function AgenceTableauDeBord() {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-dore-300"><Building2 className="h-6 w-6" /></span>
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl">{agence?.nom ?? 'Tableau de bord de l’agence'}</h1>
-            <p className="mt-1 text-sm text-white/75">Gérez votre équipe et les accès à cet espace.</p>
+            <p className="mt-1 text-sm text-white/75">Organisez le travail de l’agence, attribuez les biens et les missions, puis suivez les résultats de votre équipe.</p>
           </div>
         </div>
       </section>
@@ -329,11 +326,8 @@ export default function AgenceTableauDeBord() {
         <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Mandats en attente</p><p className="mt-1 text-2xl font-bold text-nuit-900">{mandatsEnAttente}</p></article>
       </section>
       {agence && <MissionsAgence agenceId={agenceId} fonction="RESPONSABLE" />}
-      {agence && <CRMAgence agenceId={agenceId} fonction="RESPONSABLE" />}
-      {agence && <VisitesAgence agenceId={agenceId} />}
       <PortefeuilleAgence agenceId={agenceId} />
       <AffectationBiensAgence agenceId={agenceId} />
-      {agence && <VentesAgence agenceId={agenceId} fonction="RESPONSABLE" />}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
