@@ -233,7 +233,7 @@ export default function FormulaireAnnonce() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
+    <div className="formulaire-annonce-page mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold">{edition ? "Modifier l'annonce" : 'Publier une annonce'}</h1>
       {!edition && (
         <p className="mt-3 rounded-xl bg-blue-50 p-3 text-sm leading-6 text-blue-900">
@@ -312,13 +312,23 @@ export default function FormulaireAnnonce() {
             </button>
           </div>
           {messageCarte && <p role="status" className="mt-3 text-sm text-nuit-900">{messageCarte}</p>}
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div><label htmlFor="latitude-bien" className="mb-1 block text-xs font-medium text-slate-600">Latitude GPS</label><input id="latitude-bien" type="number" step="any" value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="Ex. 14.7167" className={classeSelect} /></div>
-            <div><label htmlFor="longitude-bien" className="mb-1 block text-xs font-medium text-slate-600">Longitude GPS</label><input id="longitude-bien" type="number" step="any" value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="Ex. -17.4677" className={classeSelect} /></div>
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+            <p className="text-sm font-semibold text-nuit-900">Coordonnées GPS automatiques</p>
+            <p className="mt-1 text-sm text-slate-600">Elles se remplissent dès que vous recherchez l’adresse ou cliquez sur la carte. Vous n’avez pas besoin de les saisir.</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg bg-slate-50 p-3">
+                <span className="block text-xs font-semibold text-slate-600">Latitude</span>
+                <output className="mt-1 block break-all text-base font-bold text-nuit-900">{coordonneesValides ? Number(latitude).toFixed(6) : 'À sélectionner sur la carte'}</output>
+              </div>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <span className="block text-xs font-semibold text-slate-600">Longitude</span>
+                <output className="mt-1 block break-all text-base font-bold text-nuit-900">{coordonneesValides ? Number(longitude).toFixed(6) : 'À sélectionner sur la carte'}</output>
+              </div>
+            </div>
           </div>
-          <CarteSelection latitude={latitude} longitude={longitude} onChange={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); setMessageCarte('Position GPS sélectionnée. Vous pouvez déplacer le repère pour ajuster l’emplacement.') }} />
-          {!coordonneesValides && <p className="mt-3 rounded-xl bg-white/80 p-3 text-xs text-slate-600">Cliquez sur la carte pour choisir l’emplacement exact du logement. Vous pouvez aussi déplacer le repère après sa création.</p>}
-          <p className="mt-3 text-xs text-slate-500">Conseil : utilisez « Localiser le bien sur la carte » puis vérifiez les coordonnées. Le GPS de votre appareil correspond à votre position actuelle, pas forcément à celle du logement si vous êtes ailleurs.</p>
+          <CarteSelection latitude={latitude} longitude={longitude} onChange={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); setMessageCarte('Position enregistrée automatiquement. Vous pouvez déplacer le repère pour ajuster l’emplacement.') }} />
+          {!coordonneesValides && <p className="mt-3 rounded-xl bg-white p-3 text-sm font-medium text-slate-700">Sur la carte, cliquez directement à l’endroit où se trouve le logement. Le repère et les coordonnées seront ajoutés automatiquement.</p>}
+          <p className="mt-3 text-sm text-slate-600">Astuce : recherchez d’abord le quartier et la ville avec le bouton ci-dessus, puis ajustez le repère sur la carte si nécessaire.</p>
         </section>
         <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
           <div className="flex items-center gap-3">
