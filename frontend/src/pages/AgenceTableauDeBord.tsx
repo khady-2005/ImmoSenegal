@@ -151,8 +151,10 @@ export default function AgenceTableauDeBord() {
         token: jeton,
         body: { accepter },
       })
-      setMessage(accepter ? 'La demande du propriétaire a été acceptée.' : 'La demande du propriétaire a été refusée.')
       await charger()
+      setMessage(accepter
+        ? '✓ Bien accepté avec succès ! Le propriétaire a été informé dans ses notifications ImmoSénégal.'
+        : 'La demande du propriétaire a été refusée. Le propriétaire en a été informé dans ses notifications.')
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de répondre à cette demande.')
     } finally {
@@ -320,7 +322,7 @@ export default function AgenceTableauDeBord() {
       </section>
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
-      {message && <p role="status" className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">{message}</p>}
+      {message && <div role="status" aria-live="polite" className="mt-5 flex items-start gap-3 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-sm font-bold leading-6 text-emerald-950 shadow-sm"><span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">✓</span><p>{message}</p></div>}
 
       <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Indicateurs de l’agence">
         <article className="rounded-2xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Collaborateurs actifs</p><p className="mt-1 text-2xl font-bold text-nuit-900">{membresActifs}</p></article>
