@@ -61,7 +61,8 @@ public class MessagerieService {
             } else {
                 interlocuteur = r.getClient().getNomComplet();
             }
-            return ConversationResponse.de(r, acteur.id(), interlocuteur);
+            return ConversationResponse.de(r, acteur.id(), interlocuteur,
+                messages.findTopByReservationIdOrderByEnvoyeLeDesc(r.getId()).orElse(null));
         }).toList();
     }
 
