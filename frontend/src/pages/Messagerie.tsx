@@ -10,6 +10,8 @@ type Conversation = {
   annonceTitre: string
   interlocuteurNom: string
   statut: string
+  dernierMessage: string | null
+  dernierMessageLe: string | null
 }
 type Message = {
   id: string
@@ -109,7 +111,7 @@ export default function Messagerie() {
           <h2 className="border-b border-slate-100 px-4 py-3 font-semibold text-nuit-900">Conversations</h2><div className="border-b border-slate-100 p-3"><label htmlFor="recherche-conversation" className="sr-only">Rechercher une conversation</label><input id="recherche-conversation" value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Rechercher…" className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"/></div>
           {chargement ? <p className="p-4 text-sm text-slate-500">Chargement…</p> : conversations.length === 0 ? <p className="p-5 text-sm text-slate-500">Aucune conversation. Une conversation apparaît après une demande de réservation.</p> : conversationsFiltrees.length === 0 ? <p className="p-4 text-sm text-slate-500">Aucun résultat.</p> : conversationsFiltrees.map(c => (
             <button key={c.reservationId} type="button" onClick={() => { setSelection(c.reservationId); setMessages([]) }} className={'block w-full border-b border-slate-100 px-4 py-4 text-left transition hover:bg-slate-50 ' + (selection === c.reservationId ? 'bg-amber-50' : '')}>
-              <span className="block truncate text-sm font-semibold text-nuit-900">{c.annonceTitre}</span><span className="mt-1 block text-xs text-slate-600">{c.interlocuteurNom}</span><span className="mt-1 block text-[11px] text-slate-400">Réservation : {c.statut.toLowerCase().replace('_', ' ')}</span>
+              <span className="block truncate text-sm font-semibold text-nuit-900">{c.annonceTitre}</span><span className="mt-1 block text-xs text-slate-600">{c.interlocuteurNom}</span><span className="mt-1 block truncate text-xs text-slate-500">{c.dernierMessage || "Aucun message pour le moment"}</span><span className="mt-1 block text-[11px] text-slate-400">{c.dernierMessageLe ? dateMessage(c.dernierMessageLe) : "Nouvelle conversation"} · Réservation : {c.statut.toLowerCase().replace('_', ' ')}</span>
             </button>
           ))}
         </aside>
