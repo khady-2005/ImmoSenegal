@@ -26,6 +26,9 @@ public class PaiementLoyer {
  public PaiementLoyer(ContratLocation c,User u,BigDecimal m,LocalDate p,LocalDate d,String r,String type,UUID id,String nom){
   contrat=c;enregistrePar=u;montant=m;periode=p;datePaiement=d;reference=r;beneficiaireType=type;beneficiaireId=id;beneficiaireNom=nom;
  }
+ public PaiementLoyer(ContratLocation c,User u,BigDecimal m,LocalDate p,LocalDate d,String r){
+  this(c,u,m,p,d,r,"PROPRIETAIRE",c.getProprietaire().getId(),c.getProprietaire().getNomComplet());
+ }
  public void confirmer(boolean accepte){statutConfirmation=accepte?"CONFIRME":"REFUSE";confirmeLe=Instant.now();}
  public UUID getId(){return id;} public ContratLocation getContrat(){return contrat;} public BigDecimal getMontant(){return montant;} public LocalDate getPeriode(){return periode;} public LocalDate getDatePaiement(){return datePaiement;} public String getReference(){return reference;} public Instant getCreeLe(){return creeLe;} public User getEnregistrePar(){return enregistrePar;}
  public String getBeneficiaireType(){return beneficiaireType;} public UUID getBeneficiaireId(){return beneficiaireId;} public String getBeneficiaireNom(){return beneficiaireNom;} public String getStatutConfirmation(){return statutConfirmation;} public Instant getConfirmeLe(){return confirmeLe;}
