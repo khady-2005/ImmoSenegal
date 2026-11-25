@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import { formatFcfa } from '../format'
+import GestionVideo from '../components/GestionVideo'
 import { libelleStatut, libelleTypeBien, type Annonce, type PagePaginee, type StatutAnnonce } from '../types'
 
 type Action = 'valider' | 'refuser' | 'suspendre' | 'demander-correction'
@@ -183,6 +184,10 @@ export default function AdminModeration() {
                 {proprietaires.length === 0 && <p className="mt-2 rounded-lg bg-amber-50 p-3 text-base font-medium text-amber-900">Aucun compte propriétaire actif disponible.</p>}
               </div>
             )}
+            <div className="mt-4 max-w-xl">
+              <GestionVideo annonceId={a.id} />
+            </div>
+
             {a.motifModeration && ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
               <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-base leading-relaxed text-slate-900"><strong>Motif :</strong> {a.motifModeration}</p>
             )}
