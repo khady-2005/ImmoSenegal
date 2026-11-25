@@ -83,6 +83,10 @@ public class CandidatureAgenceService {
             MembreAgence membre = new MembreAgence(candidature.getAgence(), utilisateur, candidature.getFonction());
             membre.setStatut(StatutMembreAgence.ACTIF);
             membres.save(membre);
+            // Le rôle global évolue après acceptation, sans écraser un rôle déjà acquis.
+            if (utilisateur.getRole() == sn.immosenegal.user.Role.CLIENT) {
+                utilisateur.setRole(sn.immosenegal.user.Role.valueOf(candidature.getFonction().name()));
+            }
             candidature.traiter(StatutCandidatureAgence.ACCEPTEE);
         } else {
             candidature.traiter(StatutCandidatureAgence.REFUSEE);
