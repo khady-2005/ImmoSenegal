@@ -39,7 +39,8 @@ export default function FormulaireAnnonce() {
   const [champs, setChamps] = useState<Record<string, string>>({})
   const [envoi, setEnvoi] = useState(false)
   const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')\n  const [villeCarte, setVilleCarte] = useState('Ziguinchor')
+  const [longitude, setLongitude] = useState('')
+  const [villeCarte, setVilleCarte] = useState('Ziguinchor')
   const [localisationEnCours, setLocalisationEnCours] = useState(false)
   const [messageCarte, setMessageCarte] = useState('')
   const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
@@ -83,7 +84,8 @@ export default function FormulaireAnnonce() {
     appelApi<Annonce>(`/api/annonces/${id}`, { token: jeton })
       .then((a) => {
         if (annule) return
-        setInitial(a)\n        setVilleCarte(a.ville || 'Ziguinchor')
+        setInitial(a)
+        setVilleCarte(a.ville || 'Ziguinchor')
         setPhotos(a.photos)
         setLatitude(a.latitude == null ? '' : String(a.latitude))
         setLongitude(a.longitude == null ? '' : String(a.longitude))
@@ -202,7 +204,15 @@ export default function FormulaireAnnonce() {
       // si le quartier ou l'adresse précise ne figure pas dans la carte.
       for (let i = 0; i < requetes.length && !latitudeTrouvee; i++) {
         const photonUrl = new URL('https://photon.komoot.io/api/')
-        const parametresPhoton: Record<string, string> = { q: requetes[i], limit: '5', lang: 'fr' }\n        // Biais de recherche vers Ziguinchor : cela aide à distinguer ses quartiers\n        // des lieux homonymes situés dans d'autres régions.\n        if (/ziguinchor/i.test(ville)) {\n          parametresPhoton.lat = '12.568';\n          parametresPhoton.lon = '-16.273';\n          parametresPhoton.zoom = '13';\n        }\n        photonUrl.search = new URLSearchParams(parametresPhoton).toString()
+        const parametresPhoton: Record<string, string> = { q: requetes[i], limit: '5', lang: 'fr' }
+        // Biais de recherche vers Ziguinchor : cela aide à distinguer ses quartiers
+        // des lieux homonymes situés dans d'autres régions.
+        if (/ziguinchor/i.test(ville)) {
+          parametresPhoton.lat = '12.568';
+          parametresPhoton.lon = '-16.273';
+          parametresPhoton.zoom = '13';
+        }
+        photonUrl.search = new URLSearchParams(parametresPhoton).toString()
         const response = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
         if (response.ok) {
           const photon = await response.json() as {
