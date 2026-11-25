@@ -57,8 +57,13 @@ public class ReservationService {
         if (annonce.getStatut() != StatutAnnonce.PUBLIEE) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Cette annonce n'est pas disponible à la réservation.");
         }
-        if (!visites.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutVisite.VISITEE)) {
-            throw new ApiException(HttpStatus.CONFLICT, "La réservation est possible uniquement après une visite effectivement réalisée et confirmée.");
+        boolean visiteAcceptee = visites.existsByAnnonceIdAndClientIdAndStatut(
+            annonceId, acteur.id(), StatutVisite.ACCEPTEE);
+        boolean visiteEffectuee = visites.existsByAnnonceIdAndClientIdAndStatut(
+            annonceId, acteur.id(), StatutVisite.VISITEE);
+        if (!visiteAcceptee && !visiteEffectuee) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                "La réservation est possible uniquement après l'acceptation de votre demande de visite.");
         }
         if (reservations.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutReservation.EN_ATTENTE)
                 || reservations.existsByAnnonceIdAndClientIdAndStatut(annonceId, acteur.id(), StatutReservation.ACCEPTEE)) {
