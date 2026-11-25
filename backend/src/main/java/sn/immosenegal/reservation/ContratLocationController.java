@@ -22,7 +22,7 @@ public class ContratLocationController{
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
  @PatchMapping("/{contratId}/paiements/{paiementId}/confirmation")
  public ContratLocationService.PaiementResume confirmerPaiement(@PathVariable UUID contratId,@PathVariable UUID paiementId,@Valid @RequestBody ConfirmationPaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerPaiement(contratId,paiementId,q.accepte(),a);}
- @PatchMapping("/{contratId}/confirmation-lecture")
+ @PostMapping("/{contratId}/signature")\n public ContratLocationService.ContratResume signer(@PathVariable UUID contratId,@Valid @RequestBody SignatureRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.signer(contratId,q.signature(),a);}\n @PatchMapping("/{contratId}/confirmation-lecture")
  public ContratLocationService.ContratResume confirmerLecture(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerLecture(contratId,a);}
  @PatchMapping("/{contratId}/resiliation-demande")
  public ContratLocationService.ContratResume demanderResiliation(@PathVariable UUID contratId,@Valid @RequestBody DemandeResiliationRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.demanderResiliation(contratId,q.motif(),q.dateFinSouhaitee(),a);}
@@ -34,5 +34,5 @@ public class ContratLocationController{
  public record DecisionResiliationRequest(@NotNull Boolean accepter){}
  public record DemandeResiliationRequest(@NotBlank @Size(max=1000) String motif,@NotNull LocalDate dateFinSouhaitee){}
  public record PaiementRequest(@NotNull @DecimalMin("0.01") BigDecimal montant,@NotNull LocalDate periode,@NotNull LocalDate datePaiement,@Size(max=500) String reference){}
- public record ConfirmationPaiementRequest(@NotNull Boolean accepte){}
+ public record ConfirmationPaiementRequest(@NotNull Boolean accepte){}\n public record SignatureRequest(@NotBlank @Size(max=220000) String signature){}
 }
