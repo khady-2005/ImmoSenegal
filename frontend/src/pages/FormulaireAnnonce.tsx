@@ -39,7 +39,7 @@ export default function FormulaireAnnonce() {
   const [champs, setChamps] = useState<Record<string, string>>({})
   const [envoi, setEnvoi] = useState(false)
   const [latitude, setLatitude] = useState('')
-  const [longitude, setLongitude] = useState('')
+  const [longitude, setLongitude] = useState('')\n  const [villeCarte, setVilleCarte] = useState('Ziguinchor')
   const [localisationEnCours, setLocalisationEnCours] = useState(false)
   const [messageCarte, setMessageCarte] = useState('')
   const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
@@ -83,7 +83,7 @@ export default function FormulaireAnnonce() {
     appelApi<Annonce>(`/api/annonces/${id}`, { token: jeton })
       .then((a) => {
         if (annule) return
-        setInitial(a)
+        setInitial(a)\n        setVilleCarte(a.ville || 'Ziguinchor')
         setPhotos(a.photos)
         setLatitude(a.latitude == null ? '' : String(a.latitude))
         setLongitude(a.longitude == null ? '' : String(a.longitude))
@@ -202,7 +202,7 @@ export default function FormulaireAnnonce() {
       // si le quartier ou l'adresse précise ne figure pas dans la carte.
       for (let i = 0; i < requetes.length && !latitudeTrouvee; i++) {
         const photonUrl = new URL('https://photon.komoot.io/api/')
-        photonUrl.search = new URLSearchParams({ q: requetes[i], limit: '5', lang: 'fr' }).toString()
+        const parametresPhoton: Record<string, string> = { q: requetes[i], limit: '5', lang: 'fr' }\n        // Biais de recherche vers Ziguinchor : cela aide à distinguer ses quartiers\n        // des lieux homonymes situés dans d'autres régions.\n        if (/ziguinchor/i.test(ville)) {\n          parametresPhoton.lat = '12.568';\n          parametresPhoton.lon = '-16.273';\n          parametresPhoton.zoom = '13';\n        }\n        photonUrl.search = new URLSearchParams(parametresPhoton).toString()
         const response = await fetch(photonUrl, { headers: { Accept: 'application/json' } })
         if (response.ok) {
           const photon = await response.json() as {
@@ -344,7 +344,7 @@ export default function FormulaireAnnonce() {
             <div><h2 id="titre-adresse-bien" className="font-semibold text-nuit-900">Adresse du bien</h2><p className="text-xs text-slate-500">Indiquez où se trouve le logement.</p></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} erreur={champs.ville} />
+            <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} onChange={(e) => setVilleCarte(e.target.value)} erreur={champs.ville} />
             <Champ id="quartier" name="quartier" libelle="Quartier" required defaultValue={a?.quartier} erreur={champs.quartier} />
             <div className="sm:col-span-2"><Champ id="adresse" name="adresse" libelle="Adresse précise (facultatif)" defaultValue={a?.adresse ?? ''} erreur={champs.adresse} /></div>
           </div>
@@ -376,7 +376,7 @@ export default function FormulaireAnnonce() {
               </div>
             </div>
           </div>
-          <CarteSelection latitude={latitude} longitude={longitude} onChange={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); setMessageCarte('Position enregistrée automatiquement. Vous pouvez déplacer le repère pour ajuster l’emplacement.') }} />
+          <CarteSelection ville={villeCarte} latitude={latitude} longitude={longitude} onChange={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); setMessageCarte('Position enregistrée automatiquement. Vous pouvez déplacer le repère pour ajuster l’emplacement.') }} />
           {!coordonneesValides && <p className="mt-3 rounded-xl bg-white p-3 text-sm font-medium text-slate-700">Sur la carte, cliquez directement à l’endroit où se trouve le logement. Le repère et les coordonnées seront ajoutés automatiquement.</p>}
           <p className="mt-3 text-sm text-slate-600">Astuce : recherchez d’abord le quartier et la ville avec le bouton ci-dessus, puis ajustez le repère sur la carte si nécessaire.</p>
         </section>
