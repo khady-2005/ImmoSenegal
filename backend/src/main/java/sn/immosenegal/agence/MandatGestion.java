@@ -49,6 +49,10 @@ public class MandatGestion {
     private BigDecimal tauxCommissionMensuel;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gestionnaire_id")
+    private MembreAgence gestionnaire;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resiliation_demandee_par")
     private User resiliationDemandeePar;
 
@@ -84,6 +88,8 @@ public class MandatGestion {
         }
         this.tauxCommissionMensuel = taux;
     }
+    public MembreAgence getGestionnaire() { return gestionnaire; }
+    public void affecterGestionnaire(MembreAgence gestionnaire) { this.gestionnaire = gestionnaire; }
     public User getResiliationDemandeePar() { return resiliationDemandeePar; }
 
     public void demanderResiliation(User demandeur) {
