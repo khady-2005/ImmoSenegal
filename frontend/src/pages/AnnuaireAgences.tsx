@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Building2, CheckCircle2, Send } from 'lucide-react'
+import { ArrowLeft, Building2, CheckCircle2, Send, Search, MapPin, Star, Users, RefreshCw } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
@@ -18,15 +18,17 @@ const libelles: Record<string, string> = {
 }
 
 export default function AnnuaireAgences() {
-  const { jeton } = useAuth()
+  const { jeton, utilisateur } = useAuth()
   const [agences, setAgences] = useState<Agence[]>([])
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [mesEspaces, setMesEspaces] = useState<EspaceAgence[]>([])
-  const [fonctions, setFonctions] = useState<Record<string, 'AGENT' | 'GESTIONNAIRE'>>({})
   const [chargement, setChargement] = useState(true)
   const [envoi, setEnvoi] = useState<string | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [recherche, setRecherche] = useState('')
+  const [tri, setTri] = useState<'NOM' | 'NOTE' | 'AVIS'>('NOM')
+  const [avisOuverts, setAvisOuverts] = useState<string[]>([])
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -57,7 +59,6 @@ export default function AnnuaireAgences() {
   useEffect(() => { void charger() }, [charger])
 
   const postuler = async (agence: Agence) => {
-    const fonction = fonctions[agence.id] ?? 'AGENT'
     setEnvoi(agence.id)
     setErreur(null)
     setMessage(null)
@@ -65,9 +66,9 @@ export default function AnnuaireAgences() {
       await appelApi('/api/agence/' + agence.id + '/candidatures', {
         method: 'POST',
         token: jeton,
-        body: { fonction },
+        body: { fonction: 'AGENT' },
       })
-      setMessage('Votre candidature a été envoyée à ' + agence.nom + '.')
+      setMessage('Votre candidature a été envoyée à ' + agence.nom + '. Vous pourrez suivre sa réponse dans « Mes candidatures ».')
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer votre candidature.')
@@ -77,70 +78,116 @@ export default function AnnuaireAgences() {
   }
 
   const candidaturePour = (agenceId: string) => candidatures.find(c => c.agenceId === agenceId && c.statut === 'EN_ATTENTE')
+  const agencesFiltrees = useMemo(() => {
+    const q = recherche.trim().toLocaleLowerCase('fr')
+    return agences.filter(a => !q || [a.nom, a.adresse ?? '', a.description ?? ''].some(v => v.toLocaleLowerCase('fr').includes(q)))
+      .sort((a, b) => tri === 'NOTE'
+        ? (b.moyenne ?? 0) - (a.moyenne ?? 0)
+        : tri === 'AVIS'
+          ? (b.nombreAvis ?? 0) - (a.nombreAvis ?? 0)
+          : a.nom.localeCompare(b.nom, 'fr'))
+  }, [agences, recherche, tri])
+
+  const toggleAvis = (id: string) => setAvisOuverts(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id])
+  const estAgent = utilisateur?.role === 'AGENT'
+  const membres = mesEspaces.length
+  const candidaturesEnAttente = candidatures.filter(c => c.statut === 'EN_ATTENTE').length
 
   return (
-    <main className="mx-auto max-w-7xl bg-slate-50 px-4 py-8 text-[18px] leading-8 text-slate-950 sm:px-6 sm:py-12">
-      <Link to="/tableau-de-bord" className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-lg font-extrabold text-slate-950 shadow-sm hover:bg-amber-100">
+    <main className="mx-auto max-w-7xl px-4 py-8 text-slate-950 sm:px-6 sm:py-12">
+      <Link to="/tableau-de-bord" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-nuit-950 shadow-sm hover:bg-slate-50">
         <ArrowLeft className="h-4 w-4" /> Retour à mon espace
       </Link>
-      <section className="mt-6 rounded-3xl border-2 border-amber-500 bg-amber-100 p-7 text-slate-950 shadow-lg sm:p-10">
-        <p className="text-base font-extrabold uppercase tracking-wide text-amber-950">Espace professionnel</p>
-        <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-950 sm:text-5xl">Rejoindre une agence</h1>
-        <p className="mt-3 max-w-3xl text-xl font-semibold leading-9 text-slate-950">
-          Découvrez les agences partenaires et envoyez une candidature pour devenir agent immobilier ou gestionnaire.
+
+      <section className="mt-6 overflow-hidden rounded-3xl bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 p-6 text-white shadow-xl sm:p-10">
+        <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-dore-400">Espace professionnel</p>
+        <h1 className="mt-3 text-3xl font-extrabold sm:text-5xl">Rejoindre une agence</h1>
+        <p className="mt-4 max-w-3xl text-base font-medium leading-8 text-white sm:text-lg">
+          Trouvez une agence active, consultez ses informations et ses avis, puis envoyez votre candidature d’agent immobilier.
         </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Building2 className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{agences.length}</p><p className="text-sm text-white">Agences disponibles</p></div>
+          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Users className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{membres}</p><p className="text-sm text-white">Vos agences</p></div>
+          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Send className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{candidaturesEnAttente}</p><p className="text-sm text-white">Candidatures en attente</p></div>
+        </div>
       </section>
 
-      {erreur && <p role="alert" className="mt-5 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-lg font-semibold leading-8 text-red-950">{erreur}</p>}
-      {message && <p role="status" className="mt-5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-lg font-semibold leading-8 text-emerald-950">{message}</p>}
+      {!estAgent && (
+        <section className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
+          <h2 className="text-lg font-extrabold text-amber-950">Accès aux candidatures réservé aux agents immobiliers</h2>
+          <p className="mt-2 text-base leading-7 text-amber-950">
+            Votre compte actuel est « {utilisateur?.role ?? 'non renseigné'} ». Pour postuler, vous devez d’abord obtenir le statut Agent immobilier depuis votre parcours de compte. Les gestionnaires, caissiers et assistants administratifs rejoignent une agence uniquement sur invitation de son responsable.
+          </p>
+          <Link to="/tableau-de-bord" className="mt-4 inline-flex rounded-xl bg-nuit-900 px-5 py-3 font-bold text-white hover:bg-nuit-800">Retourner à mon tableau de bord</Link>
+        </section>
+      )}
 
-      <section className="mt-8">
-        <h2 className="text-3xl font-extrabold leading-tight text-slate-950">Agences disponibles</h2>
-        <p className="mt-3 text-lg font-medium leading-8 text-slate-900">Votre adresse e-mail de compte sera communiquée uniquement à l’agence auprès de laquelle vous candidatez.</p>
-        {chargement ? <p role="status" className="mt-5 text-lg font-semibold text-slate-800">Chargement des agences…</p> : agences.length === 0 ? (
-          <p className="mt-5 rounded-xl border border-slate-300 bg-slate-50 p-5 text-lg font-medium text-slate-900">Aucune agence active n’est disponible pour le moment.</p>
+      {erreur && <p role="alert" className="mt-5 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-base font-semibold leading-7 text-red-950">{erreur}</p>}
+      {message && <p role="status" className="mt-5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-base font-semibold leading-7 text-emerald-950">{message}</p>}
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div><h2 className="text-2xl font-extrabold text-nuit-950">Annuaire des agences</h2><p className="mt-1 text-sm leading-6 text-slate-600">Recherchez par nom, adresse ou description.</p></div>
+          <button type="button" onClick={() => void charger()} disabled={chargement} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 font-bold text-slate-800 hover:bg-slate-50 disabled:opacity-60"><RefreshCw className={`h-4 w-4 ${chargement ? 'animate-spin' : ''}`} /> Actualiser</button>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_230px]">
+          <label className="block text-sm font-bold text-slate-700">Rechercher une agence
+            <span className="mt-1 flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3"><Search className="h-4 w-4 text-slate-500" /><input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Nom, ville, adresse…" className="min-h-12 w-full border-0 bg-transparent text-base font-medium text-slate-950 outline-none placeholder:text-slate-500" /></span>
+          </label>
+          <label className="block text-sm font-bold text-slate-700">Trier les agences
+            <select value={tri} onChange={e => setTri(e.target.value as 'NOM' | 'NOTE' | 'AVIS')} className="mt-1 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold text-slate-950">
+              <option value="NOM">Nom (A à Z)</option><option value="NOTE">Meilleure note</option><option value="AVIS">Plus d’avis</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section className="mt-7">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-2xl font-extrabold text-nuit-950">Agences disponibles</h2>
+          {!chargement && <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">{agencesFiltrees.length} résultat(s)</span>}
+        </div>
+        {chargement ? <p role="status" className="rounded-xl bg-slate-50 p-5 text-base font-semibold text-slate-800">Chargement des agences…</p> : agences.length === 0 ? (
+          <p className="rounded-xl border border-slate-300 bg-white p-5 text-base font-medium text-slate-900">Aucune agence active n’est disponible pour le moment.</p>
+        ) : agencesFiltrees.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center"><Search className="mx-auto h-8 w-8 text-slate-400" /><p className="mt-3 font-bold text-slate-800">Aucune agence ne correspond à votre recherche.</p><button type="button" onClick={() => setRecherche('')} className="mt-3 rounded-lg px-4 py-2 font-bold text-nuit-900 underline">Effacer la recherche</button></div>
         ) : (
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            {agences.map(agence => {
+          <div className="grid gap-5 lg:grid-cols-2">
+            {agencesFiltrees.map(agence => {
               const candidature = candidaturePour(agence.id)
               const dejaMembre = mesEspaces.some(espace => espace.id === agence.id)
               const ancienne = candidatures.find(c => c.agenceId === agence.id)
               return (
-                <article key={agence.id} className="rounded-2xl border-2 border-slate-400 bg-white p-7 text-slate-950 shadow-md transition-shadow hover:shadow-lg">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-6 w-6" /></span>
-                    <div className="min-w-0">
-                      <h3 className="text-2xl font-extrabold text-slate-950">{agence.nom}</h3>
-                      {typeof agence.nombreAvis === 'number' && agence.nombreAvis > 0 && <p className="mt-3 text-lg font-extrabold text-amber-800">★ {agence.moyenne?.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})}/5 <span className="font-semibold text-slate-700">· {agence.nombreAvis} avis</span></p>}
-                      {agence.adresse && <p className="mt-3 text-lg font-medium text-slate-800">{agence.adresse}</p>}
-                      {agence.description && <p className="mt-4 text-lg font-medium leading-8 text-slate-900">{agence.description}</p>}
-                      {agence.avis && agence.avis.length > 0 && <div className="mt-3 space-y-2">{agence.avis.slice(0, 2).map(avis => <blockquote key={avis.id} className="rounded-lg bg-slate-50 p-3"><p className="text-base font-extrabold text-amber-800">{'★'.repeat(avis.note)}{'☆'.repeat(5-avis.note)} · {avis.auteurNom}</p><p className="mt-2 text-lg font-medium leading-8 text-slate-900">{avis.commentaire}</p></blockquote>)}</div>}
+                <article key={agence.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg">
+                  <div className="flex items-start gap-4 border-b border-slate-100 p-5 sm:p-6">
+                    {agence.logoUrl ? <img src={agence.logoUrl} alt={`Logo de ${agence.nom}`} className="h-16 w-16 shrink-0 rounded-xl border border-slate-200 object-cover" /> : <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-7 w-7" /></span>}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xl font-extrabold text-nuit-950">{agence.nom}</h3>
+                      {agence.adresse && <p className="mt-2 flex items-start gap-2 text-sm font-medium text-slate-700"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-nuit-700" />{agence.adresse}</p>}
+                      {typeof agence.nombreAvis === 'number' && agence.nombreAvis > 0 ? <p className="mt-2 flex items-center gap-2 text-sm font-bold text-amber-800"><Star className="h-4 w-4 fill-amber-400 text-amber-500" />{agence.moyenne?.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1}) ?? '—'}/5 <span className="font-medium text-slate-600">({agence.nombreAvis} avis)</span></p> : <p className="mt-2 text-sm text-slate-500">Pas encore d’avis</p>}
                     </div>
                   </div>
-                  {dejaMembre ? (
-                    <p className="mt-6 flex items-center gap-3 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-lg font-bold text-emerald-950"><CheckCircle2 className="h-4 w-4" /> Vous êtes déjà membre — {mesEspaces.find(espace => espace.id === agence.id)?.fonction === 'RESPONSABLE' ? 'Responsable' : 'Collaborateur'}</p>
-                  ) : candidature ? (
-                    <p className="mt-6 flex items-center gap-3 rounded-xl border-2 border-amber-300 bg-amber-50 p-4 text-lg font-bold text-amber-950"><Send className="h-4 w-4" /> Candidature envoyée — en attente de réponse</p>
-                  ) : ancienne?.statut === 'ACCEPTEE' ? (
-                    <p className="mt-5 flex items-center gap-2 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-lg font-bold text-emerald-950"><CheckCircle2 className="h-4 w-4" /> Vous êtes membre de cette agence</p>
-                  ) : (
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                      <label className="sr-only" htmlFor={'fonction-' + agence.id}>Fonction souhaitée</label>
-                      <select id={'fonction-' + agence.id} value={fonctions[agence.id] ?? 'AGENT'}
-                        onChange={e => setFonctions(current => ({ ...current, [agence.id]: e.target.value as 'AGENT' | 'GESTIONNAIRE' }))}
-                        className="min-h-14 min-w-0 flex-1 rounded-xl border-2 border-slate-500 bg-white px-4 py-3 text-lg font-bold text-slate-950">
-                        <option value="AGENT">Agent immobilier</option>
-                        <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
-                      </select>
-                      <button type="button" onClick={() => void postuler(agence)} disabled={envoi !== null}
-                        className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl border-2 border-amber-700 bg-amber-400 px-8 py-3 text-lg font-extrabold text-slate-950 shadow-md transition-colors hover:bg-amber-300 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-amber-700 disabled:cursor-not-allowed disabled:border-slate-400 disabled:bg-slate-200 disabled:text-slate-700 disabled:opacity-100">
-                        <Send className="h-4 w-4" /> {envoi === agence.id ? 'Envoi…' : 'Postuler'}
+                  <div className="p-5 sm:p-6">
+                    {agence.description && <p className="text-sm leading-7 text-slate-800">{agence.description}</p>}
+                    {agence.avis && agence.avis.length > 0 && <div className="mt-4">
+                      <button type="button" onClick={() => toggleAvis(agence.id)} className="text-sm font-extrabold text-nuit-900 underline underline-offset-4">{avisOuverts.includes(agence.id) ? 'Masquer les avis' : `Lire les avis (${agence.avis.length})`}</button>
+                      {avisOuverts.includes(agence.id) && <div className="mt-3 space-y-3">{agence.avis.map(avis => <blockquote key={avis.id} className="rounded-xl bg-slate-50 p-4"><p className="font-bold text-amber-800">{'★'.repeat(Math.max(0, Math.min(5, avis.note)))}{'☆'.repeat(5-Math.max(0, Math.min(5, avis.note)))} <span className="text-slate-700">· {avis.auteurNom}</span></p><p className="mt-2 text-sm leading-6 text-slate-800">{avis.commentaire}</p><p className="mt-2 text-xs text-slate-500">{new Date(avis.creeLe).toLocaleDateString('fr-FR')}</p></blockquote>)}</div>}
+                    </div>}
+                    {dejaMembre ? (
+                      <p className="mt-5 flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm font-bold text-emerald-950"><CheckCircle2 className="h-5 w-5 shrink-0" /> Vous êtes déjà membre — {mesEspaces.find(espace => espace.id === agence.id)?.fonction}</p>
+                    ) : candidature ? (
+                      <p className="mt-5 flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-bold text-amber-950"><Send className="h-5 w-5 shrink-0" /> Candidature envoyée — en attente de réponse</p>
+                    ) : ancienne?.statut === 'ACCEPTEE' ? (
+                      <p className="mt-5 flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm font-bold text-emerald-950"><CheckCircle2 className="h-5 w-5" /> Vous êtes membre de cette agence</p>
+                    ) : estAgent ? (
+                      <button type="button" onClick={() => void postuler(agence)} disabled={envoi !== null} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-nuit-900 px-5 py-3 text-base font-extrabold text-white shadow-sm hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">
+                        <Send className="h-4 w-4" /> {envoi === agence.id ? 'Envoi de la candidature…' : 'Postuler auprès de cette agence'}
                       </button>
-                    </div>
-                  )}
-                  {ancienne && !candidature && ancienne.statut !== 'ACCEPTEE' && (
-                    <p className="mt-4 text-lg font-medium text-slate-800">Dernière candidature : {libelles[ancienne.statut] ?? ancienne.statut}</p>
-                  )}
+                    ) : (
+                      <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-700">La candidature sera disponible lorsque votre compte aura le statut Agent immobilier.</p>
+                    )}
+                    {ancienne && !candidature && ancienne.statut !== 'ACCEPTEE' && <p className="mt-3 text-sm font-medium text-slate-700">Dernière candidature : <span className={ancienne.statut === 'REFUSEE' ? 'font-bold text-red-700' : 'font-bold text-amber-800'}>{libelles[ancienne.statut] ?? ancienne.statut}</span>{ancienne.traiteeLe ? ` · traitée le ${new Date(ancienne.traiteeLe).toLocaleDateString('fr-FR')}` : ''}</p>}
+                  </div>
                 </article>
               )
             })}
@@ -148,16 +195,27 @@ export default function AnnuaireAgences() {
         )}
       </section>
 
-      <section className="mt-10 rounded-2xl border-2 border-slate-400 bg-white p-7 text-slate-950 shadow-md">
-        <h2 className="text-3xl font-extrabold leading-tight text-slate-950">Mes candidatures</h2>
-        {candidatures.length === 0 ? <p className="mt-4 text-lg font-medium text-slate-900">Vous n’avez envoyé aucune candidature.</p> : (
-          <ul className="mt-5 divide-y divide-slate-200">
-            {candidatures.map(c => <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-5 text-lg leading-8">
-              <span className="font-medium text-nuit-900">{c.agenceNom} · {libelles[c.fonction] ?? c.fonction}</span>
-              <span className={c.statut === 'ACCEPTEE' ? 'font-semibold text-emerald-700' : c.statut === 'REFUSEE' ? 'font-semibold text-red-700' : 'font-semibold text-amber-700'}>{libelles[c.statut] ?? c.statut}</span>
+      <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-extrabold text-nuit-950">Mes candidatures</h2><p className="mt-1 text-sm text-slate-600">Suivez les réponses des agences auxquelles vous avez postulé.</p></div><span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">{candidatures.length} candidature(s)</span></div>
+        {candidatures.length === 0 ? <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm font-medium text-slate-700">Vous n’avez envoyé aucune candidature.</p> : (
+          <ul className="mt-4 divide-y divide-slate-200">
+            {candidatures.map(c => <li key={c.id} className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div><p className="font-bold text-nuit-950">{c.agenceNom}</p><p className="mt-1 text-sm text-slate-600">{libelles[c.fonction] ?? c.fonction} · Envoyée le {new Date(c.creeLe).toLocaleDateString('fr-FR')}</p>{c.traiteeLe && <p className="mt-1 text-xs text-slate-500">Traitée le {new Date(c.traiteeLe).toLocaleDateString('fr-FR')}</p>}</div>
+              <span className={`inline-flex w-fit rounded-full px-3 py-1.5 text-sm font-bold ${c.statut === 'ACCEPTEE' ? 'bg-emerald-100 text-emerald-900' : c.statut === 'REFUSEE' ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950'}`}>{libelles[c.statut] ?? c.statut}</span>
             </li>)}
           </ul>
         )}
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h2 className="font-extrabold text-nuit-950">Comment rejoindre une agence ?</h2>
+        <ol className="mt-3 list-inside list-decimal space-y-2 text-sm leading-6 text-slate-800">
+          <li>Le compte doit d’abord avoir le statut Agent immobilier.</li>
+          <li>Choisissez une agence active et envoyez votre candidature.</li>
+          <li>Le responsable de l’agence étudie votre demande et l’accepte ou la refuse.</li>
+          <li>Après acceptation, l’agence apparaît dans « Mes agences » et votre espace professionnel devient accessible.</li>
+        </ol>
+        <p className="mt-3 text-sm leading-6 text-slate-700">Les gestionnaires, caissiers et assistants administratifs sont ajoutés par invitation du responsable. Le propriétaire utilise séparément « Confier un bien à une agence » : il ne devient pas collaborateur.</p>
       </section>
     </main>
   )
