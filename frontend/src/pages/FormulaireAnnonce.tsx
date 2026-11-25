@@ -41,6 +41,7 @@ export default function FormulaireAnnonce() {
   const [latitude, setLatitude] = useState('')
   const [longitude, setLongitude] = useState('')
   const [villeCarte, setVilleCarte] = useState('Ziguinchor')
+  const [quartierCarte, setQuartierCarte] = useState('')
   const [localisationEnCours, setLocalisationEnCours] = useState(false)
   const [messageCarte, setMessageCarte] = useState('')
   const [proprietaires, setProprietaires] = useState<ProprietaireOption[]>([])
@@ -86,6 +87,7 @@ export default function FormulaireAnnonce() {
         if (annule) return
         setInitial(a)
         setVilleCarte(a.ville || 'Ziguinchor')
+        setQuartierCarte(a.quartier || '')
         setPhotos(a.photos)
         setLatitude(a.latitude == null ? '' : String(a.latitude))
         setLongitude(a.longitude == null ? '' : String(a.longitude))
@@ -355,7 +357,7 @@ export default function FormulaireAnnonce() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Champ id="ville" name="ville" libelle="Ville" required defaultValue={a?.ville ?? 'Ziguinchor'} onChange={(e) => setVilleCarte(e.target.value)} erreur={champs.ville} />
-            <Champ id="quartier" name="quartier" libelle="Quartier" required defaultValue={a?.quartier} erreur={champs.quartier} />
+            <Champ id="quartier" name="quartier" libelle="Quartier" required defaultValue={a?.quartier} onChange={(e) => setQuartierCarte(e.target.value)} erreur={champs.quartier} />
             <div className="sm:col-span-2"><Champ id="adresse" name="adresse" libelle="Adresse précise (facultatif)" defaultValue={a?.adresse ?? ''} erreur={champs.adresse} /></div>
           </div>
         </section>
@@ -366,6 +368,11 @@ export default function FormulaireAnnonce() {
             <div><h2 id="titre-position-bien" className="font-semibold text-nuit-900">Position sur la carte</h2><p className="text-xs text-slate-600">Aidez les visiteurs à repérer le bien.</p></div>
           </div>
           <p className="text-sm leading-relaxed text-slate-600">Placez le repère à l’emplacement du logement. Cette position sera visible sur sa fiche pour aider les visiteurs à préparer leur déplacement.</p>
+          <div className="mt-3 rounded-xl border border-amber-300 bg-white p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Quartier indiqué pour le logement</p>
+            <p className="mt-1 text-base font-bold text-slate-900">{quartierCarte.trim() || 'À renseigner dans le champ Quartier'}{villeCarte.trim() ? ` — ${villeCarte.trim()}` : ''}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-600">Le nom du quartier reste enregistré dans l’annonce même si son étiquette n’apparaît pas sur le fond de carte.</p>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" onClick={() => void localiserAdresse()} disabled={localisationEnCours} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-nuit-900 px-5 py-2.5 text-sm font-bold !text-white shadow-sm transition hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">
               {localisationEnCours ? 'Recherche…' : 'Localiser le bien sur la carte'}
