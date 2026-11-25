@@ -5,6 +5,8 @@ public enum Role {
     PROPRIETAIRE,
     AGENT,
     GESTIONNAIRE,
+    CAISSIER,
+    ASSISTANT_ADMINISTRATIF,
     RESPONSABLE,
     ADMIN
 }
