@@ -319,7 +319,7 @@ export default function MesAnnonces() {
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
               {!a.exemple && !['REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
-                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                <div className="mt-4 grid grid-cols-1 gap-5">
                   <GestionPhotos
                     annonceId={a.id}
                     photos={a.photos ?? []}
