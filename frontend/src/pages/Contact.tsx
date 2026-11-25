@@ -49,8 +49,8 @@ export default function Contact() {
           <article className="rounded-3xl border border-dore-200 bg-white p-6 shadow-xl shadow-nuit-950/10 sm:p-8">
             <p className="text-sm font-bold uppercase tracking-wide text-amber-700">Retrouvez-nous</p>
             <h2 className="mt-2 text-2xl font-bold text-nuit-950">Ziguinchor, Sénégal</h2>
-            <p className="mt-3 leading-relaxed text-slate-600">ImmoSénégal est une plateforme immobilière développée dans le cadre d’un projet de mémoire de Licence 3 en Ingénierie Informatique à l’Université Assane Seck de Ziguinchor.</p>
-            <a href="https://www.google.com/maps/search/?api=1&query=Ziguinchor%2C%20S%C3%A9n%C3%A9gal" target="_blank" rel="noreferrer" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl border border-nuit-800 px-5 py-2.5 font-semibold text-nuit-900 transition hover:bg-nuit-100">Voir Ziguinchor sur la carte</a>
+            <p className="mt-3 leading-relaxed text-slate-600">ImmoSénégal est une plateforme numérique dédiée à la recherche, à la vente et à la location de biens immobiliers au Sénégal. Elle facilite la mise en relation entre propriétaires, agences et personnes à la recherche d’un logement.</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=Ziguinchor%2C%20S%C3%A9n%C3%A9gal" target="_blank" rel="noreferrer" className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-dore-500 bg-dore-400 px-6 py-3 text-center font-bold text-nuit-950 shadow-md transition hover:-translate-y-0.5 hover:bg-dore-300 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-nuit-900 sm:w-auto">Voir Ziguinchor sur la carte</a>
           </article>
           <article className="rounded-3xl bg-gradient-to-br from-nuit-950 to-nuit-800 p-6 text-white shadow-xl shadow-nuit-950/15 sm:p-8">
             <p className="text-sm font-bold uppercase tracking-wide text-dore-300">Besoin d’un logement ?</p>
