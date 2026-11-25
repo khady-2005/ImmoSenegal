@@ -14,7 +14,7 @@ import sn.immosenegal.security.AuthenticatedUser;
 
 @Service
 public class VideoService {
-    static final int TAILLE_MAX_OCTETS = 30 * 1024 * 1024;
+    static final int TAILLE_MAX_OCTETS = 50 * 1024 * 1024;
 
     private final VideoRepository videos;
     private final AnnonceService annonces;
@@ -33,7 +33,7 @@ public class VideoService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Aucune vidéo reçue.");
         }
         if (fichier.getSize() > TAILLE_MAX_OCTETS) {
-            throw new ApiException(HttpStatus.PAYLOAD_TOO_LARGE, "La vidéo dépasse 30 Mo.");
+            throw new ApiException(HttpStatus.PAYLOAD_TOO_LARGE, "La vidéo dépasse 50 Mo.");
         }
         byte[] contenu;
         try {
