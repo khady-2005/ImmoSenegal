@@ -11,6 +11,8 @@ const libelleFonction: Record<string, string> = {
   RESPONSABLE: 'Responsable',
   GESTIONNAIRE: 'Gestionnaire',
   AGENT: 'Agent immobilier',
+  CAISSIER: 'Caissier',
+  ASSISTANT_ADMINISTRATIF: 'Assistant administratif',
 }
 
 export default function MesAgences() {
