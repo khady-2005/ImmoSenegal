@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ApiError, appelApi, urlApi } from '../api'
 import { useAuth } from '../auth'
-import { PHOTOS_MAX, TAILLE_MAX_OCTETS, urlPhoto } from './photos'
+import { PHOTOS_MAX, urlPhoto } from './photos'
+import { preparerPhoto } from './preparerPhoto'
 
 interface Props {
   annonceId: string
@@ -38,12 +39,15 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
         problemes.push(`« ${fichier.name} » : maximum ${PHOTOS_MAX} photos par annonce.`)
         continue
       }
-      if (fichier.size > TAILLE_MAX_OCTETS) {
-        problemes.push(`« ${fichier.name} » : plus de 5 Mo.`)
+      let photoPreparee: File
+      try {
+        photoPreparee = await preparerPhoto(fichier)
+      } catch (e) {
+        problemes.push(`« ${fichier.name} » : ${e instanceof Error ? e.message : 'compression impossible.'}`)
         continue
       }
       const donnees = new FormData()
-      donnees.append('fichier', fichier)
+      donnees.append('fichier', photoPreparee)
       donnees.append('piece', piece)
       try {
         const r = await appelApi<{ id: string }>(`/api/annonces/${annonceId}/photos`, { method: 'POST', body: donnees, token: jeton })
@@ -118,7 +122,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
           <li>7. Balcon / terrasse</li>
           <li>8. Cour / parking / autre pièce</li>
         </ol>
-        <p className="mt-2 text-xs text-slate-600">JPEG ou PNG, 5 Mo maximum par image. La première photo devient la couverture. Vous pouvez modifier l'ordre avec les flèches. Les métadonnées privées (GPS, appareil) sont retirées à l'envoi.</p>
+        <p className="mt-2 text-xs text-slate-600">JPEG, PNG ou WebP acceptés. Les images sont automatiquement redimensionnées à 1600 px maximum et compressées avant l'envoi. La première photo devient la couverture. Vous pouvez modifier l'ordre avec les flèches. Les métadonnées privées (GPS, appareil) sont retirées à l'envoi.</p>
       </div>
 
       {photos.length > 0 && (
