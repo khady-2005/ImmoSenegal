@@ -42,6 +42,7 @@ export default function Reservations() {
   const [loyer, setLoyer] = useState('')
   const [depot, setDepot] = useState('0')
   const [debut, setDebut] = useState(new Date().toISOString().slice(0,10))
+  const [duree, setDuree] = useState<'INDETERMINEE' | 'DETERMINEE'>('INDETERMINEE')
   const [fin, setFin] = useState('')
   const [recherche, setRecherche] = useState('')
   const [filtre, setFiltre] = useState<'TOUS' | StatutReservation>('TOUS')
@@ -79,9 +80,9 @@ export default function Reservations() {
     try {
       await appelApi(`/api/locations/reservations/${id}/contrat`, {
         method: 'POST', token: jeton,
-        body: { loyerMensuel: Number(loyer), depotGarantie: Number(depot), dateDebut: debut, dateFin: fin || null },
+        body: { loyerMensuel: Number(loyer), depotGarantie: Number(depot), dateDebut: debut, dateFin: duree === 'DETERMINEE' ? fin : null },
       })
-      setContratOuvert(null); setLoyer(''); setDepot('0'); setFin('')
+      setContratOuvert(null); setLoyer(''); setDepot('0'); setFin(''); setDuree('INDETERMINEE')
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de créer le contrat. Vérifiez que l’annonce concerne une location.')
@@ -153,11 +154,23 @@ export default function Reservations() {
               <button type="button" onClick={() => setContratOuvert(contratOuvert === d.id ? null : d.id)} className="rounded-lg border border-amber-400 px-4 py-2 text-sm font-semibold text-amber-900">Préparer le contrat de location</button>
               {contratOuvert === d.id && <form onSubmit={e => void creerContrat(e,d.id)} className="mt-3 grid gap-3 rounded-xl bg-slate-50 p-4 sm:grid-cols-2">
                 <label className="text-sm">Loyer mensuel (FCFA)<input required type="number" min="1" step="0.01" value={loyer} onChange={e=>setLoyer(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label>
-                <label className="text-sm">Dépôt de garantie (FCFA)<input required type="number" min="0" step="0.01" value={depot} onChange={e=>setDepot(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label>
+                <label className="text-sm">Dépôt de garantie / caution (FCFA)
+                  <input required type="number" min="0" step="0.01" value={depot} onChange={e=>setDepot(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/>
+                  <span className="mt-1 block text-xs text-slate-500">Montant fixé d’un commun accord. Saisissez 0 si aucune caution n’est prévue.</span>
+                </label>
                 <label className="text-sm">Date de début<input required type="date" value={debut} onChange={e=>setDebut(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label>
-                <label className="text-sm">Date de fin (facultative)<input type="date" value={fin} onChange={e=>setFin(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/></label>
+                <label className="text-sm">Durée du contrat
+                  <select value={duree} onChange={e=>{setDuree(e.target.value as 'INDETERMINEE'|'DETERMINEE');if(e.target.value==='INDETERMINEE')setFin('')}} className="mt-1 w-full rounded-lg border bg-white p-2">
+                    <option value="INDETERMINEE">Durée indéterminée</option>
+                    <option value="DETERMINEE">Durée déterminée</option>
+                  </select>
+                </label>
+                {duree === 'DETERMINEE' && <label className="text-sm">Date de fin obligatoire
+                  <input required type="date" min={debut} value={fin} onChange={e=>setFin(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/>
+                </label>}
+
                 <button disabled={enCours===d.id} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">Créer le contrat</button>
-                <p className="text-xs text-slate-500 sm:col-span-2">Le contrat sera rattaché au propriétaire et visible par le locataire. L’agent ne signe pas à sa place : les parties doivent vérifier et formaliser leur accord.</p>
+                <p className="text-xs text-slate-500 sm:col-span-2">Sans date de fin, le contrat est enregistré à durée indéterminée. Pour une durée déterminée, choisissez obligatoirement une date de fin. Le contrat sera visible par le locataire ; les deux parties doivent vérifier les conditions avant de signer.</p>
               </form>}
             </div>}
             {client && d.statut === 'EN_ATTENTE' && <button disabled={enCours === d.id} onClick={() => void annuler(d.id)} className="mt-4 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Annuler la demande</button>}
