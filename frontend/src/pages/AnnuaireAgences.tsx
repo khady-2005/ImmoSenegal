@@ -12,6 +12,8 @@ type Candidature = { id: string; agenceId: string; agenceNom: string; fonction: 
 const libelles: Record<string, string> = {
   AGENT: 'Agent immobilier',
   GESTIONNAIRE: 'Gestionnaire immobilier',
+  CAISSIER: 'Caissier',
+  ASSISTANT_ADMINISTRATIF: 'Assistant administratif',
   EN_ATTENTE: 'En attente',
   ACCEPTEE: 'Acceptée',
   REFUSEE: 'Refusée',
@@ -28,6 +30,7 @@ export default function AnnuaireAgences() {
   const [message, setMessage] = useState<string | null>(null)
   const [recherche, setRecherche] = useState('')
   const [tri, setTri] = useState<'NOM' | 'NOTE' | 'AVIS'>('NOM')
+  const [fonctionChoisie, setFonctionChoisie] = useState<'AGENT' | 'GESTIONNAIRE' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF'>('AGENT')
   const [avisOuverts, setAvisOuverts] = useState<string[]>([])
 
   const charger = useCallback(async () => {
@@ -66,7 +69,7 @@ export default function AnnuaireAgences() {
       await appelApi('/api/agence/' + agence.id + '/candidatures', {
         method: 'POST',
         token: jeton,
-        body: { fonction: 'AGENT' },
+        body: { fonction: fonctionChoisie },
       })
       setMessage('Votre candidature a été envoyée à ' + agence.nom + '. Vous pourrez suivre sa réponse dans « Mes candidatures ».')
       await charger()
@@ -89,7 +92,6 @@ export default function AnnuaireAgences() {
   }, [agences, recherche, tri])
 
   const toggleAvis = (id: string) => setAvisOuverts(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id])
-  const estAgent = utilisateur?.role === 'AGENT'
   const membres = mesEspaces.length
   const candidaturesEnAttente = candidatures.filter(c => c.statut === 'EN_ATTENTE').length
 
@@ -103,7 +105,7 @@ export default function AnnuaireAgences() {
         <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-dore-400">Espace professionnel</p>
         <h1 className="mt-3 text-3xl font-extrabold sm:text-5xl">Rejoindre une agence</h1>
         <p className="mt-4 max-w-3xl text-base font-medium leading-8 text-white sm:text-lg">
-          Trouvez une agence active, consultez ses informations et ses avis, puis envoyez votre candidature d’agent immobilier.
+          Trouvez une agence active, consultez ses informations et ses avis, puis candidatez comme agent, gestionnaire, caissier ou assistant administratif.
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Building2 className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{agences.length}</p><p className="text-sm text-white">Agences disponibles</p></div>
@@ -111,16 +113,6 @@ export default function AnnuaireAgences() {
           <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Send className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{candidaturesEnAttente}</p><p className="text-sm text-white">Candidatures en attente</p></div>
         </div>
       </section>
-
-      {!estAgent && (
-        <section className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
-          <h2 className="text-lg font-extrabold text-amber-950">Accès aux candidatures réservé aux agents immobiliers</h2>
-          <p className="mt-2 text-base leading-7 text-amber-950">
-            Votre compte actuel est « {utilisateur?.role ?? 'non renseigné'} ». Pour postuler, vous devez d’abord obtenir le statut Agent immobilier depuis votre parcours de compte. Les gestionnaires, caissiers et assistants administratifs rejoignent une agence uniquement sur invitation de son responsable.
-          </p>
-          <Link to="/tableau-de-bord" className="mt-4 inline-flex rounded-xl bg-nuit-900 px-5 py-3 font-bold text-white hover:bg-nuit-800">Retourner à mon tableau de bord</Link>
-        </section>
-      )}
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-base font-semibold leading-7 text-red-950">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-base font-semibold leading-7 text-emerald-950">{message}</p>}
@@ -140,6 +132,18 @@ export default function AnnuaireAgences() {
             </select>
           </label>
         </div>
+      </section>
+
+      <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <label className="block text-base font-extrabold text-nuit-950">Fonction souhaitée dans l’agence
+          <select value={fonctionChoisie} onChange={e => setFonctionChoisie(e.target.value as typeof fonctionChoisie)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-semibold text-slate-950 sm:max-w-xl">
+            <option value="AGENT">Agent immobilier</option>
+            <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
+            <option value="CAISSIER">Caissier</option>
+            <option value="ASSISTANT_ADMINISTRATIF">Assistant administratif</option>
+          </select>
+        </label>
+        <p className="mt-2 text-sm leading-6 text-slate-600">Choisissez le poste correspondant à vos compétences. Le responsable de l’agence étudiera votre candidature et décidera de l’accepter ou de la refuser.</p>
       </section>
 
       <section className="mt-7">
@@ -179,12 +183,10 @@ export default function AnnuaireAgences() {
                       <p className="mt-5 flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-bold text-amber-950"><Send className="h-5 w-5 shrink-0" /> Candidature envoyée — en attente de réponse</p>
                     ) : ancienne?.statut === 'ACCEPTEE' ? (
                       <p className="mt-5 flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-sm font-bold text-emerald-950"><CheckCircle2 className="h-5 w-5" /> Vous êtes membre de cette agence</p>
-                    ) : estAgent ? (
-                      <button type="button" onClick={() => void postuler(agence)} disabled={envoi !== null} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-nuit-900 px-5 py-3 text-base font-extrabold text-white shadow-sm hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">
-                        <Send className="h-4 w-4" /> {envoi === agence.id ? 'Envoi de la candidature…' : 'Postuler auprès de cette agence'}
-                      </button>
                     ) : (
-                      <p className="mt-5 rounded-xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-700">La candidature sera disponible lorsque votre compte aura le statut Agent immobilier.</p>
+                      <button type="button" onClick={() => void postuler(agence)} disabled={envoi !== null} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-nuit-900 px-5 py-3 text-base font-extrabold text-white shadow-sm hover:bg-nuit-800 disabled:cursor-not-allowed disabled:opacity-60">
+                        <Send className="h-4 w-4" /> {envoi === agence.id ? 'Envoi de la candidature…' : 'Envoyer ma candidature'}
+                      </button>
                     )}
                     {ancienne && !candidature && ancienne.statut !== 'ACCEPTEE' && <p className="mt-3 text-sm font-medium text-slate-700">Dernière candidature : <span className={ancienne.statut === 'REFUSEE' ? 'font-bold text-red-700' : 'font-bold text-amber-800'}>{libelles[ancienne.statut] ?? ancienne.statut}</span>{ancienne.traiteeLe ? ` · traitée le ${new Date(ancienne.traiteeLe).toLocaleDateString('fr-FR')}` : ''}</p>}
                   </div>
@@ -210,12 +212,12 @@ export default function AnnuaireAgences() {
       <section className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <h2 className="font-extrabold text-nuit-950">Comment rejoindre une agence ?</h2>
         <ol className="mt-3 list-inside list-decimal space-y-2 text-sm leading-6 text-slate-800">
-          <li>Le compte doit d’abord avoir le statut Agent immobilier.</li>
+          <li>Choisissez la fonction souhaitée : Agent, Gestionnaire, Caissier ou Assistant administratif.</li>
           <li>Choisissez une agence active et envoyez votre candidature.</li>
           <li>Le responsable de l’agence étudie votre demande et l’accepte ou la refuse.</li>
           <li>Après acceptation, l’agence apparaît dans « Mes agences » et votre espace professionnel devient accessible.</li>
         </ol>
-        <p className="mt-3 text-sm leading-6 text-slate-700">Les gestionnaires, caissiers et assistants administratifs sont ajoutés par invitation du responsable. Le propriétaire utilise séparément « Confier un bien à une agence » : il ne devient pas collaborateur.</p>
+        <p className="mt-3 text-sm leading-6 text-slate-700">Le responsable peut également envoyer des invitations directes. Le propriétaire utilise séparément « Confier un bien à une agence » : il ne devient pas collaborateur.</p>
       </section>
     </main>
   )
