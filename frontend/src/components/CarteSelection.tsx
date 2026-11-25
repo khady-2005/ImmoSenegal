@@ -73,7 +73,7 @@ export default function CarteSelection({
     <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
       <MapContainer
         center={position}
-        zoom={coordonneesValides ? 15 : 6}
+        zoom={coordonneesValides ? 16 : (/ziguinchor|dakar|kaolack|saint.?louis/i.test(ville) ? 13 : 6)}
         scrollWheelZoom
         className="h-80 w-full"
       >
