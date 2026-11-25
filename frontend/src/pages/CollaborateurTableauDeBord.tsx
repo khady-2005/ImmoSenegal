@@ -14,20 +14,20 @@ type Agence = { id: string; nom: string; slug: string; fonction: string }
 const roles: Record<string, { titre: string; mission: string; responsabilites: string[] }> = {
   AGENT: {
     titre: 'Agent immobilier',
-    mission: 'Votre espace vous accompagne dans la prospection, la découverte des biens et le suivi des échanges avec les clients.',
+    mission: 'Votre espace est consacré au développement commercial : prospects, présentation des biens, visites et ventes.',
     responsabilites: [
-      'Présenter les biens disponibles aux personnes intéressées.',
-      'Accompagner les clients dans leurs recherches et leurs visites.',
-      'Faire remonter au responsable les informations utiles sur les dossiers.',
+      'Enregistrer et suivre les prospects dans le CRM.',
+      'Présenter les biens et organiser les visites avec les clients.',
+      'Renseigner les ventes réalisées et transmettre les comptes rendus au responsable.',
     ],
   },
   GESTIONNAIRE: {
     titre: 'Gestionnaire immobilier',
-    mission: 'Votre espace est orienté vers le suivi immobilier et la qualité du service rendu aux propriétaires et aux occupants.',
+    mission: 'Votre espace est consacré au suivi opérationnel des biens confiés et des demandes liées à leur gestion.',
     responsabilites: [
-      'Suivre les informations liées aux biens confiés à l’agence.',
-      'Accompagner le suivi des locations et les échanges avec les occupants.',
-      'Signaler au responsable les situations nécessitant une décision.',
+      'Suivre le portefeuille des biens confiés à l’agence.',
+      'Traiter les demandes de visite liées aux biens suivis et coordonner les interventions.',
+      'Suivre les missions attribuées et transmettre les comptes rendus au responsable.',
     ],
   },
 }
@@ -94,10 +94,21 @@ export default function CollaborateurTableauDeBord() {
       </section>
 
       <MissionsAgence agenceId={agenceId} fonction={agence.fonction} />
-      <CRMAgence agenceId={agenceId} fonction={agence.fonction} />
-      <VisitesAgence agenceId={agenceId} />
-      <PortefeuilleAgence agenceId={agenceId} />
-      <VentesAgence agenceId={agenceId} fonction={agence.fonction} />
+
+      {agence.fonction === 'AGENT' && (
+        <>
+          <CRMAgence agenceId={agenceId} fonction="AGENT" />
+          <VisitesAgence agenceId={agenceId} />
+          <VentesAgence agenceId={agenceId} fonction="AGENT" />
+        </>
+      )}
+
+      {agence.fonction === 'GESTIONNAIRE' && (
+        <>
+          <PortefeuilleAgence agenceId={agenceId} />
+          <VisitesAgence agenceId={agenceId} />
+        </>
+      )}
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
