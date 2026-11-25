@@ -12,6 +12,6 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 USER appuser
 # Offre gratuite à ~512 Mo de mémoire : on borne la JVM.
-ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=65 -XX:+UseSerialGC -Xss512k"
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=45 -XX:+UseSerialGC -Xss512k"
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
