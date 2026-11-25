@@ -161,7 +161,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                   className="min-h-10 rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-35">↑</button>
                 <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
                   aria-label={`Déplacer la photo ${i + 1} vers la fin`}
-                  className="rounded-lg border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 disabled:opacity-40">↓</button>
+                  className="min-h-10 rounded-xl border border-slate-200 bg-white px-2 py-2 text-sm font-bold text-slate-700 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-35">↓</button>
                 <button
                 type="button"
                 disabled={enCours}
