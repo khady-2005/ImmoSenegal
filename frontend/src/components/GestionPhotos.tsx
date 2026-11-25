@@ -127,18 +127,6 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
         <select id="categorie-nouvelles-photos" value={piece} onChange={(e) => setPiece(e.target.value)} className="mt-1 w-full rounded-lg border border-dore-300 bg-white px-3 py-2 text-sm text-slate-900">
           <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
         </select>
-        <p className="mt-2 font-semibold">Ordre conseillé pour présenter un appartement :</p>
-        <ol className="mt-1 grid gap-x-4 gap-y-1 sm:grid-cols-2">
-          <li>1. Façade / couverture</li>
-          <li>2. Salon / séjour</li>
-          <li>3. Cuisine</li>
-          <li>4. Chambre principale</li>
-          <li>5. Deuxième chambre</li>
-          <li>6. Salle de bain</li>
-          <li>7. Balcon / terrasse</li>
-          <li>8. Cour / parking / autre pièce</li>
-        </ol>
-        <p className="mt-2 text-xs text-slate-600">JPEG, PNG ou WebP acceptés. Les images sont automatiquement redimensionnées à 1600 px maximum et compressées avant l'envoi. La première photo devient la couverture. Vous pouvez modifier l'ordre avec les flèches. Les métadonnées privées (GPS, appareil) sont retirées à l'envoi.</p>
       </div>
 
       {photos.length > 0 && (
