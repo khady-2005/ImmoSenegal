@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 import EvaluationContrat from '../components/EvaluationContrat'
-import ResumeEvaluations from '../components/ResumeEvaluations'\nimport SignaturePad from '../components/SignaturePad'
+import ResumeEvaluations from '../components/ResumeEvaluations'
+import SignaturePad from '../components/SignaturePad'
 
 type Contrat = { id:string; annonceId:string; annonceTitre:string; proprietaireNom:string; locataireNom:string; loyerMensuel:number; depotGarantie:number; dateDebut:string; dateFin:string|null; etat:string; resiliationDemandeeParId:string|null; resiliationDemandeeParNom:string|null; resiliationDemandeeLe:string|null; resiliationMotif?:string|null; dateFinSouhaitee?:string|null; proprietaireConfirmeLe:string|null; locataireConfirmeLe:string|null; proprietaireSignature:string|null; locataireSignature:string|null; proprietaireSigneLe:string|null; locataireSigneLe:string|null }
 type Paiement = { id:string; montant:number; periode:string; datePaiement:string; reference:string|null; enregistrePar:string; tauxCommissionAgence:number|null; commissionAgence:number|null; beneficiaireType:string; beneficiaireId:string; beneficiaireNom:string; statutConfirmation:string; confirmeLe:string|null }
