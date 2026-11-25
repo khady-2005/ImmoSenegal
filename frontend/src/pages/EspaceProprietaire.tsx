@@ -112,7 +112,7 @@ export default function EspaceProprietaire() {
   const annoncesModerees = annonces.filter(a => ['A_CORRIGER', 'REFUSEE', 'SUSPENDUE'].includes(a.statut)).length
   const publicationsAExpirer = annonces.filter(a => a.statut === 'PUBLIEE' && a.dateFinPublication && a.dateFinPublication <= new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10)).length
 
-  return <main className="mx-auto max-w-6xl px-4 py-10">
+  return <main className="espace-proprietaire-page mx-auto max-w-6xl px-4 py-10">
     <header className="relative isolate overflow-hidden rounded-[2rem] bg-[#0b2340] px-7 py-9 text-white shadow-[0_24px_65px_rgba(7,23,45,.2)] sm:px-10 sm:py-12">
       <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full border-[42px] border-[#dcb65e]/10" />
       <div className="pointer-events-none absolute -bottom-32 right-1/4 h-72 w-72 rounded-full bg-[#dcb65e]/10 blur-3xl" />
