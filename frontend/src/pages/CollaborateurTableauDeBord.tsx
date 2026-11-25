@@ -8,6 +8,7 @@ import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import CRMAgence from '../components/CRMAgence'
 import VentesAgence from '../components/VentesAgence'
+import CaisseAgence from '../components/CaisseAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 
@@ -115,6 +116,7 @@ export default function CollaborateurTableauDeBord() {
       {agence.fonction === 'CAISSIER' && (
         <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-amber-800">Espace caisse</p><h2 className="mt-1 text-xl font-bold text-nuit-900">Suivi des recettes et dépenses</h2><p className="mt-2 text-sm leading-relaxed text-slate-700">Le caissier prépare et enregistre les mouvements de caisse. Le Responsable conserve le contrôle et la supervision. Les opérations de caisse dédiées restent à connecter au backend avant toute saisie réelle.</p></section>
       )}
+      {agence.fonction === 'CAISSIER' && <CaisseAgence agenceId={agenceId} fonction="CAISSIER" />}
       {agence.fonction === 'ASSISTANT_ADMINISTRATIF' && (
         <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-blue-800">Espace administratif</p><h2 className="mt-1 text-xl font-bold text-nuit-900">Suivi des dossiers</h2><p className="mt-2 text-sm leading-relaxed text-slate-700">L’assistant prépare et organise les dossiers, suit les documents et aide l’équipe. Les fonctions de classement et d’archivage dédiées restent à connecter au backend.</p></section>
       )}
