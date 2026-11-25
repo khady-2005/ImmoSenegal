@@ -21,6 +21,16 @@ const roles: Record<string, { titre: string; mission: string; responsabilites: s
       'Renseigner les ventes réalisées et transmettre les comptes rendus au responsable.',
     ],
   },
+  CAISSIER: {
+    titre: 'Caissier',
+    mission: 'Votre espace est consacré à l’enregistrement et au suivi des mouvements de caisse de l’agence, sous le contrôle du Responsable.',
+    responsabilites: ['Enregistrer les recettes et les dépenses avec leurs justificatifs.', 'Consulter l’historique des mouvements de caisse.', 'Préparer les états et rapports de caisse.', 'Signaler les écarts et transmettre les rapports au Responsable.'],
+  },
+  ASSISTANT_ADMINISTRATIF: {
+    titre: 'Assistant administratif',
+    mission: 'Votre espace est consacré au suivi administratif des dossiers et à l’organisation documentaire de l’agence.',
+    responsabilites: ['Préparer et classer les dossiers des propriétaires et locataires.', 'Suivre les pièces et documents manquants.', 'Préparer les courriers et documents administratifs.', 'Transmettre les dossiers et comptes rendus au Responsable.'],
+  },
   GESTIONNAIRE: {
     titre: 'Gestionnaire immobilier',
     mission: 'Votre espace est consacré à la gestion quotidienne des biens qui vous sont personnellement attribués par le responsable.',
@@ -50,7 +60,7 @@ export default function CollaborateurTableauDeBord() {
       try {
         const espaces = await appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton })
         const espace = espaces.find((item) => item.id === agenceId)
-        if (!espace || !['AGENT', 'GESTIONNAIRE'].includes(espace.fonction)) {
+        if (!espace || !['AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF'].includes(espace.fonction)) {
           navigate('/mes-agences', { replace: true })
           return
         }
@@ -102,6 +112,12 @@ export default function CollaborateurTableauDeBord() {
         </section>
       )}
 
+      {agence.fonction === 'CAISSIER' && (
+        <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-amber-800">Espace caisse</p><h2 className="mt-1 text-xl font-bold text-nuit-900">Suivi des recettes et dépenses</h2><p className="mt-2 text-sm leading-relaxed text-slate-700">Le caissier prépare et enregistre les mouvements de caisse. Le Responsable conserve le contrôle et la supervision. Les opérations de caisse dédiées restent à connecter au backend avant toute saisie réelle.</p></section>
+      )}
+      {agence.fonction === 'ASSISTANT_ADMINISTRATIF' && (
+        <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-blue-800">Espace administratif</p><h2 className="mt-1 text-xl font-bold text-nuit-900">Suivi des dossiers</h2><p className="mt-2 text-sm leading-relaxed text-slate-700">L’assistant prépare et organise les dossiers, suit les documents et aide l’équipe. Les fonctions de classement et d’archivage dédiées restent à connecter au backend.</p></section>
+      )}
       {agence.fonction === 'GESTIONNAIRE' && (
         <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6">
           <p className="text-xs font-bold uppercase tracking-wider text-blue-800">Espace gestion locative</p>
