@@ -107,6 +107,9 @@ public class AgenceEspaceService {
         }
         Agence agence = trouverAgenceActive(agenceId);
         membre.setStatut(StatutMembreAgence.ACTIF);
+        if (membre.getUtilisateur().getRole() == sn.immosenegal.user.Role.CLIENT) {
+            membre.getUtilisateur().setRole(sn.immosenegal.user.Role.valueOf(membre.getFonction().name()));
+        }
         membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
             .forEach(responsable -> notifications.creer(responsable.getUtilisateur(),
@@ -172,6 +175,9 @@ public class AgenceEspaceService {
             .orElseGet(() -> new MembreAgence(agence, utilisateur, FonctionAgence.RESPONSABLE));
         membre.setFonction(FonctionAgence.RESPONSABLE);
         membre.setStatut(StatutMembreAgence.ACTIF);
+        if (utilisateur.getRole() == sn.immosenegal.user.Role.CLIENT) {
+            utilisateur.setRole(sn.immosenegal.user.Role.RESPONSABLE);
+        }
         return versResume(membres.save(membre));
     }
 
