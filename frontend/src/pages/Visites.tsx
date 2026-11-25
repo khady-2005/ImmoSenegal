@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { CalendarDays, Check, Clock3, X } from 'lucide-react'
+import { CalendarDays, Check, Clock3, X, BookmarkCheck } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import type { Role } from '../types'
@@ -50,6 +50,7 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState('')
   const [enCours, setEnCours] = useState<string | null>(null)
+  const [reservationCreee, setReservationCreee] = useState<string | null>(null)
   const [recherche, setRecherche] = useState('')
   const [filtre, setFiltre] = useState<'TOUS' | StatutVisite>('TOUS')
 
@@ -88,6 +89,20 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de confirmer la réalisation de la visite.')
+    } finally { setEnCours(null) }
+  }
+
+  async function reserverBien(d: DemandeVisite) {
+    setEnCours(d.id)
+    setErreur('')
+    setReservationCreee(null)
+    try {
+      await appelApi('/api/reservations/annonces/' + d.annonceId, {
+        method: 'POST', token: jeton, body: { message: 'Demande de réservation après acceptation de la visite.' },
+      })
+      setReservationCreee(d.id)
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer la demande de réservation.')
     } finally { setEnCours(null) }
   }
 
@@ -158,6 +173,10 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
             <div className="mt-4 flex items-center gap-2 text-sm font-medium text-slate-800"><Clock3 className="h-4 w-4 text-amber-800" />{dateLisible(d.dateVisite)}</div>
             {client ? <p className="mt-2 text-sm text-slate-600">Propriétaire : {d.proprietaireNom}</p> : <div className="mt-2 text-sm text-slate-600"><p>Demandeur : <strong className="text-slate-800">{d.clientNom}</strong> · {d.clientEmail}{d.clientTelephone ? ' · ' + d.clientTelephone : ''}</p></div>}
             {d.message && <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">« {d.message} »</p>}
+            {client && (d.statut === 'ACCEPTEE' || d.statut === 'VISITEE') && <div className="mt-4 border-t border-slate-100 pt-4">
+              {reservationCreee === d.id ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">Votre demande de réservation a été envoyée. Retrouvez son suivi dans « Mes réservations ».</p> : <button disabled={enCours === d.id} onClick={() => void reserverBien(d)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-dore-600 bg-dore-500 px-5 py-3 text-sm font-extrabold text-nuit-950 shadow-md transition hover:bg-dore-400 disabled:cursor-not-allowed disabled:opacity-60"><BookmarkCheck className="h-4 w-4" /> Réserver ce bien</button>}
+              <p className="mt-2 text-xs text-slate-500">Cette action envoie une demande au propriétaire ou à l’agence gestionnaire. Elle ne confirme pas encore la location.</p>
+            </div>}
             {d.reponseProprietaire && <p className="mt-3 rounded-xl bg-dore-100 p-3 text-sm text-nuit-900">Réponse : {d.reponseProprietaire}</p>}
             {client && d.statut === 'PROPOSEE' && <div className="mt-4 flex flex-wrap gap-2"><button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'confirmer')} className="inline-flex items-center gap-2 rounded-lg bg-nuit-900 px-4 py-2 text-sm font-semibold text-white"><Check className="h-4 w-4" /> Confirmer ce créneau</button><button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'annuler')} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Annuler la demande</button></div>}
             {client && d.statut === 'EN_ATTENTE' && <button disabled={enCours === d.id} onClick={() => void actionClient(d.id, 'annuler')} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"><X className="h-4 w-4" /> Annuler la demande</button>}
