@@ -10,6 +10,8 @@ type ConversationMandat = {
   agenceNom: string
   proprietaireNom: string
   interlocuteurNom: string
+  dernierMessage: string | null
+  dernierMessageLe: string | null
 }
 type MessageMandat = {
   id: string
@@ -103,7 +105,8 @@ export default function MessagerieMandats() {
             <button key={c.mandatId} type="button" onClick={() => { setSelection(c.mandatId); setMessages([]) }} className={'block w-full border-b border-slate-100 px-4 py-3 text-left hover:bg-slate-50 ' + (selection === c.mandatId ? 'bg-amber-50' : '')}>
               <span className="block truncate text-sm font-semibold text-nuit-900">{c.annonceTitre}</span>
               <span className="mt-1 block text-xs text-slate-600">{c.interlocuteurNom}</span>
-              <span className="mt-1 block text-[11px] text-slate-400">{c.agenceNom}</span>
+              <span className="mt-1 block truncate text-xs text-slate-500">{c.dernierMessage || "Aucun message pour le moment"}</span>
+              <span className="mt-1 block text-[11px] text-slate-400">{c.dernierMessageLe ? new Date(c.dernierMessageLe).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : "Nouvelle conversation"} · {c.agenceNom}</span>
             </button>
           ))}
         </aside>
