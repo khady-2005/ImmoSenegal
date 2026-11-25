@@ -1356,38 +1356,38 @@ svg.lucide,
    Couvre aussi les paragraphes, cartes et liens-blocs (pas uniquement button/a).
    Les fonds bleu clair d'information ne sont volontairement pas concernés. */
 #root :is(
-  [class~="bg-nuit-950"],
-  [class~="bg-nuit-900"],
-  [class~="bg-nuit-800"],
-  [class~="bg-blue-950"],
-  [class~="bg-blue-900"],
-  [class~="bg-blue-800"],
-  [class~="bg-blue-700"],
-  [class~="bg-sky-950"],
-  [class~="bg-sky-900"],
-  [class~="bg-sky-800"],
-  [class~="bg-indigo-950"],
-  [class~="bg-indigo-900"],
-  [class~="bg-indigo-800"]
+  [class*="bg-nuit-950"],
+  [class*="bg-nuit-900"],
+  [class*="bg-nuit-800"],
+  [class*="bg-blue-950"],
+  [class*="bg-blue-900"],
+  [class*="bg-blue-800"],
+  [class*="bg-blue-700"],
+  [class*="bg-sky-950"],
+  [class*="bg-sky-900"],
+  [class*="bg-sky-800"],
+  [class*="bg-indigo-950"],
+  [class*="bg-indigo-900"],
+  [class*="bg-indigo-800"]
 ) {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   text-shadow: none !important;
 }
 #root :is(
-  [class~="bg-nuit-950"],
-  [class~="bg-nuit-900"],
-  [class~="bg-nuit-800"],
-  [class~="bg-blue-950"],
-  [class~="bg-blue-900"],
-  [class~="bg-blue-800"],
-  [class~="bg-blue-700"],
-  [class~="bg-sky-950"],
-  [class~="bg-sky-900"],
-  [class~="bg-sky-800"],
-  [class~="bg-indigo-950"],
-  [class~="bg-indigo-900"],
-  [class~="bg-indigo-800"]
+  [class*="bg-nuit-950"],
+  [class*="bg-nuit-900"],
+  [class*="bg-nuit-800"],
+  [class*="bg-blue-950"],
+  [class*="bg-blue-900"],
+  [class*="bg-blue-800"],
+  [class*="bg-blue-700"],
+  [class*="bg-sky-950"],
+  [class*="bg-sky-900"],
+  [class*="bg-sky-800"],
+  [class*="bg-indigo-950"],
+  [class*="bg-indigo-900"],
+  [class*="bg-indigo-800"]
 ) :where(p, span, strong, em, small, label, a, button, h1, h2, h3, h4, li) {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
