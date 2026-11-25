@@ -1,4 +1,4 @@
-export type Role = 'CLIENT' | 'PROPRIETAIRE' | 'AGENT' | 'ADMIN'
+export type Role = 'CLIENT' | 'PROPRIETAIRE' | 'AGENT' | 'GESTIONNAIRE' | 'RESPONSABLE' | 'ADMIN'
 
 export interface Utilisateur {
   id: string
@@ -20,6 +20,8 @@ export const libelleRole: Record<Role, string> = {
   CLIENT: 'Client',
   PROPRIETAIRE: 'Propriétaire',
   AGENT: 'Agent immobilier',
+  GESTIONNAIRE: 'Gestionnaire immobilier',
+  RESPONSABLE: 'Responsable d’agence',
   ADMIN: 'Administrateur',
 }
 
