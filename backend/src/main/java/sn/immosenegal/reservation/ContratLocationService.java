@@ -74,7 +74,10 @@ public class ContratLocationService {
   ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   PaiementLoyer p=paiements.findById(paiementId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable."));
   if(!p.getBeneficiaireId().equals(a.id())){
-   boolean membreAutorise=p.getBeneficiaireType().equals("AGENCE")&&membres.findByAgenceIdAndUtilisateurId(p.getBeneficiaireId(),a.id()).filter(m->m.getStatut()==StatutMembreAgence.ACTIF).isPresent();
+   boolean membreAutorise=p.getBeneficiaireType().equals("AGENCE")&&membres.findByAgenceIdAndUtilisateurId(p.getBeneficiaireId(),a.id())
+    .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
+    .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE)
+    .isPresent();
    if(!membreAutorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le bénéficiaire du paiement ou un membre actif de son agence peut confirmer sa réception.");
   }
   if(!p.getStatutConfirmation().equals("EN_ATTENTE")) throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce paiement a déjà été traité.");
