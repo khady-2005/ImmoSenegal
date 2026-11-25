@@ -9,6 +9,7 @@ import VisitesAgence from '../components/VisitesAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import CRMAgence from '../components/CRMAgence'
 import VentesAgence from '../components/VentesAgence'
+import AffectationBiensAgence from '../components/AffectationBiensAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -331,6 +332,7 @@ export default function AgenceTableauDeBord() {
       {agence && <CRMAgence agenceId={agenceId} fonction="RESPONSABLE" />}
       {agence && <VisitesAgence agenceId={agenceId} />}
       <PortefeuilleAgence agenceId={agenceId} />
+      <AffectationBiensAgence agenceId={agenceId} />
       {agence && <VentesAgence agenceId={agenceId} fonction="RESPONSABLE" />}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
