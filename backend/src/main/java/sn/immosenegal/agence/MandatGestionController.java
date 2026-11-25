@@ -65,6 +65,14 @@ public class MandatGestionController {
         return service.mesPropositions(acteur);
     }
 
+    @PatchMapping("/mandats/{mandatId}/gestionnaire")
+    @Operation(summary = "Attribuer un bien confié à un gestionnaire de l'agence")
+    public MandatGestionService.MandatResume affecterGestionnaire(@PathVariable UUID mandatId,
+            @Valid @RequestBody AffectationGestionnaireRequest request,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.affecterGestionnaire(mandatId, request.membreId(), acteur);
+    }
+
     @PatchMapping("/mandats/{mandatId}/commission")
     @Operation(summary = "Proposer le taux de commission mensuel du mandat")
     public MandatGestionService.MandatResume definirTauxCommission(@PathVariable UUID mandatId,
@@ -95,6 +103,7 @@ public class MandatGestionController {
         return service.repondreResiliation(mandatId, request.accepter(), acteur);
     }
 
+    public record AffectationGestionnaireRequest(@NotNull UUID membreId) {}
     public record PropositionRequest(@NotNull UUID annonceId) {}
     public record ReponseRequest(@NotNull Boolean accepter) {}
     public record CommissionRequest(@NotNull @DecimalMin("0.01") @DecimalMax("100.00") BigDecimal tauxCommissionMensuel) {}
