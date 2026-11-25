@@ -6,6 +6,7 @@ import { formatFcfa } from '../format'
 import { libelleStatut, type Annonce, type PagePaginee } from '../types'
 import { peutPublier } from './FormulaireAnnonce'
 import GestionPhotos from '../components/GestionPhotos'
+import GestionVideo from '../components/GestionVideo'
 
 type Agence = { id: string; nom: string; slug: string; description: string | null; adresse: string | null; logoUrl: string | null }
 type AvertissementPhoto = {
@@ -191,9 +192,9 @@ export default function MesAnnonces() {
   const nombreEnAttente = (annonces ?? []).filter(a => a.statut === 'EN_ATTENTE').length
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Mes annonces</h1>
+        <div><p className="text-xs font-bold uppercase tracking-[.18em] text-amber-700">Espace propriétaire</p><h1 className="mt-1 text-3xl font-black text-[#08284d]">Gestion de mes annonces</h1><p className="mt-2 text-sm text-slate-600">Modifiez vos biens et gérez leurs photos et vidéos depuis chaque fiche.</p></div>
         {peutPublier(utilisateur?.role) && (
           <Link to="/annonces/nouvelle" className="rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-800">
             Publier une annonce
@@ -309,20 +310,23 @@ export default function MesAnnonces() {
         {annoncesFiltrees.map((a) => {
           const mandat = mandatParAnnonce.get(a.id)
           return (
-            <li key={a.id} className="rounded-2xl bg-white p-4 shadow">
+            <li key={a.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <Link to={`/annonces/${a.id}`} className="break-words font-semibold hover:underline">{a.titre}</Link>
+                  <Link to={`/annonces/${a.id}`} className="break-words text-xl font-extrabold text-[#08284d] hover:underline">{a.titre}</Link>
                   <p className="text-sm text-slate-600">{a.quartier}, {a.ville} · {formatFcfa(a.prix)}</p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium">{libelleStatut[a.statut]}</span>
               </div>
               {!a.exemple && !['REFUSEE', 'SUSPENDUE'].includes(a.statut) && (
-                <GestionPhotos
-                  annonceId={a.id}
-                  photos={a.photos ?? []}
-                  onChange={(photos) => setAnnonces((courantes) => courantes?.map((item) => item.id === a.id ? { ...item, photos } : item) ?? null)}
-                />
+                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                  <GestionPhotos
+                    annonceId={a.id}
+                    photos={a.photos ?? []}
+                    onChange={(photos) => setAnnonces((courantes) => courantes?.map((item) => item.id === a.id ? { ...item, photos } : item) ?? null)}
+                  />
+                  <GestionVideo annonceId={a.id} />
+                </div>
               )}
               {a.statut === 'PUBLIEE' && a.dateFinPublication && <p className="mt-2 rounded-lg border border-dore-200 bg-dore-50 p-2 text-sm text-nuit-900">Publication couverte jusqu’au <strong>{new Date(a.dateFinPublication + 'T00:00:00').toLocaleDateString('fr-FR')}</strong>. Pour continuer après cette date, choisissez un abonnement ou un mandat d’agence.</p>}
               {a.statut === 'EN_ATTENTE' && (
@@ -359,8 +363,8 @@ export default function MesAnnonces() {
                 </div>
               )}
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link to={`/annonces/${a.id}/modifier`} className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium">Modifier</Link>
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+                <Link to={`/annonces/${a.id}/modifier`} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#08284d] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#174b83]">✎ Modifier l’annonce</Link>
                 {aSupprimer === a.id ? (
                   <>
                     <button onClick={() => supprimer(a.id)} className="rounded-lg bg-red-700 px-3 py-1.5 text-sm font-semibold text-white">Confirmer la suppression</button>
