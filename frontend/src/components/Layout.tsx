@@ -24,8 +24,6 @@ const boutonPublier =
 export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
   const peutPublier = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN'
-  const lienAgence = utilisateur?.role === 'PROPRIETAIRE' ? '/mes-annonces' : '/rejoindre-agence'
-  const libelleAgence = utilisateur?.role === 'PROPRIETAIRE' ? 'Confier un bien à une agence' : 'Rejoindre une agence'
   const [menuOuvert, setMenuOuvert] = useState(false)
   const [menuPlusOuvert, setMenuPlusOuvert] = useState(false)
   const [defile, setDefile] = useState(false)
@@ -83,7 +81,7 @@ export default function Layout() {
                 Mon espace
               </NavLink>
             )}
-            {utilisateur && (
+            {utilisateur && utilisateur.role !== 'PROPRIETAIRE' && (
               <NavLink to="/rejoindre-agence" className={lienDesktop}>
                 Rejoindre une agence
               </NavLink>
@@ -136,7 +134,7 @@ export default function Layout() {
                       <NavLink to="/mes-favoris" role="menuitem" onClick={fermerMenu} className={lienMobile}>Mes favoris</NavLink>
                       <NavLink to="/messagerie" role="menuitem" onClick={fermerMenu} className={lienMobile}>Messagerie</NavLink>
                       <NavLink to={utilisateur.role === 'PROPRIETAIRE' || utilisateur.role === 'AGENT' ? '/offres-recues' : '/mes-offres'} role="menuitem" onClick={fermerMenu} className={lienMobile}>Offres immobilières</NavLink>
-                      <NavLink to={lienAgence} role="menuitem" onClick={fermerMenu} className={lienMobile}>{libelleAgence}</NavLink>
+                      {utilisateur.role !== 'PROPRIETAIRE' && <NavLink to="/rejoindre-agence" role="menuitem" onClick={fermerMenu} className={lienMobile}>Rejoindre une agence</NavLink>}
                     </>
                   )}
                   <div className="my-2 border-t border-white/10" />
@@ -194,7 +192,7 @@ export default function Layout() {
               <li><NavLink to="/catalogue" className={lienMobile} onClick={fermerMenu}>Catalogue</NavLink></li>
               <li><NavLink to="/carte" className={lienMobile} onClick={fermerMenu}>Carte interactive</NavLink></li>
               <li><NavLink to="/assistant" className={lienMobile} onClick={fermerMenu}>Assistant immobilier</NavLink></li>
-              {utilisateur && <li><NavLink to={lienAgence} className={lienMobile} onClick={fermerMenu}>{libelleAgence}</NavLink></li>}
+              {utilisateur && utilisateur.role !== 'PROPRIETAIRE' && <li><NavLink to="/rejoindre-agence" className={lienMobile} onClick={fermerMenu}>Rejoindre une agence</NavLink></li>}
               <li><Link to="/a-propos" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>À propos</Link></li>
               <li><Link to="/faq" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>FAQ</Link></li>
               <li><Link to="/contact" className="block rounded-xl px-3 py-3 text-base font-medium transition-colors text-white/90 hover:bg-white/10 hover:text-dore-300" onClick={fermerMenu}>Contact</Link></li>
