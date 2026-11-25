@@ -74,7 +74,7 @@ public class DemandeVisiteService {
 
     @Transactional(readOnly = true)
     public List<DemandeVisiteResponse> demandesRecues(AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        if (acteur == null) throw new ApiException(HttpStatus.FORBIDDEN, "Connexion requise.");
         if (acteur.role() == Role.ADMIN) return toutes(acteur);
         if (acteur.role() == Role.PROPRIETAIRE)
             return demandes.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(DemandeVisiteResponse::de).toList();
@@ -96,7 +96,7 @@ public class DemandeVisiteService {
 
     @Transactional
     public DemandeVisiteResponse decider(UUID id, DecisionVisite requete, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        if (acteur == null) throw new ApiException(HttpStatus.FORBIDDEN, "Connexion requise.");
         DemandeVisite demande = trouver(id);
         if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(demande.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette demande ne concerne pas vos annonces.");
@@ -130,7 +130,7 @@ public class DemandeVisiteService {
 
     @Transactional
     public DemandeVisiteResponse marquerEffectuee(UUID id, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        if (acteur == null) throw new ApiException(HttpStatus.FORBIDDEN, "Connexion requise.");
         DemandeVisite demande = trouver(id);
         if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(demande.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette visite ne concerne pas vos annonces.");
@@ -181,8 +181,7 @@ public class DemandeVisiteService {
     }
 
     private boolean estInterlocuteurAutorise(Annonce annonce, AuthenticatedUser acteur) {
-        if (annonce.getProprietaire().getId().equals(acteur.id())) return true;
-        if (acteur.role() != Role.AGENT) return false;
+        if (annonce.getProprietaire() != null && annonce.getProprietaire().getId().equals(acteur.id())) return true;
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .anyMatch(m -> mandats.existsByAgenceIdAndAnnonceIdAndStatut(
