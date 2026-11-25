@@ -169,7 +169,7 @@ export default function Reservations() {
                   <input required type="date" min={debut} value={fin} onChange={e=>setFin(e.target.value)} className="mt-1 w-full rounded-lg border p-2"/>
                 </label>}
 
-                <button disabled={enCours===d.id} className="rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white sm:col-span-2">Créer le contrat</button>
+                <button type="submit" disabled={enCours===d.id} style={{ color: "#ffffff", backgroundColor: "#173b63", minHeight: 48, fontWeight: 700, fontSize: 15, opacity: enCours===d.id ? 0.65 : 1 }} className="flex w-full items-center justify-center rounded-xl px-4 py-3 text-center sm:col-span-2">{enCours===d.id ? "Création du contrat…" : "Créer le contrat"}</button>
                 <p className="text-xs text-slate-500 sm:col-span-2">Sans date de fin, le contrat est enregistré à durée indéterminée. Pour une durée déterminée, choisissez obligatoirement une date de fin. Le contrat sera visible par le locataire ; les deux parties doivent vérifier les conditions avant de signer.</p>
               </form>}
             </div>}
