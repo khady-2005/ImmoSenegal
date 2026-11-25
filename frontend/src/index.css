@@ -1189,3 +1189,75 @@ svg.lucide,
   color: #52677f !important;
   opacity: .65;
 }
+
+
+/* Formulaire de publication : contraste stable sur le fond photo des pages. */
+#contenu .formulaire-annonce-page {
+  color: #173b63 !important;
+}
+#contenu .formulaire-annonce-page > h1 {
+  color: #102b49 !important;
+}
+#contenu .formulaire-annonce-page > p {
+  color: #173b63 !important;
+  background: #eef5fc !important;
+}
+#contenu .formulaire-annonce-page form {
+  color: #173b63 !important;
+  background: #ffffff !important;
+  border: 1px solid #d5e0eb;
+}
+#contenu .formulaire-annonce-page form :where(h2, h3, label, p, span) {
+  text-shadow: none !important;
+}
+#contenu .formulaire-annonce-page form :where(h2, h3) {
+  color: #102b49 !important;
+}
+#contenu .formulaire-annonce-page form label {
+  color: #29445f !important;
+  font-size: .95rem !important;
+  font-weight: 700 !important;
+}
+#contenu .formulaire-annonce-page form :where(p, small) {
+  color: #465d75 !important;
+}
+#contenu .formulaire-annonce-page form input,
+#contenu .formulaire-annonce-page form textarea,
+#contenu .formulaire-annonce-page form select {
+  color: #172b40 !important;
+  background: #ffffff !important;
+  border: 1px solid #aebfd0 !important;
+  font-size: 1rem !important;
+}
+#contenu .formulaire-annonce-page form :where(input, textarea, select)::placeholder {
+  color: #65788b !important;
+  opacity: 1 !important;
+}
+#contenu .formulaire-annonce-page form input:focus,
+#contenu .formulaire-annonce-page form textarea:focus,
+#contenu .formulaire-annonce-page form select:focus {
+  border-color: #b77b00 !important;
+  box-shadow: 0 0 0 3px rgb(217 154 0 / 18%);
+}
+#contenu .formulaire-annonce-page form section {
+  background-color: #ffffff;
+  border-color: #cbd8e5 !important;
+}
+#contenu .formulaire-annonce-page form section[aria-labelledby="titre-position-bien"] {
+  background: #fffaf0 !important;
+  border-color: #e7c46f !important;
+}
+#contenu .formulaire-annonce-page form section[aria-labelledby="titre-position-bien"] output {
+  color: #102b49 !important;
+}
+#contenu .formulaire-annonce-page form button[type="submit"] {
+  color: #ffffff !important;
+}
+#contenu .formulaire-annonce-page form a {
+  color: #173b63;
+}
+#contenu .formulaire-annonce-page .leaflet-container {
+  z-index: 0;
+  color: #173b63;
+  border-radius: .9rem;
+}
