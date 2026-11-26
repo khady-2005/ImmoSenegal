@@ -108,9 +108,9 @@ export default function AnnuaireAgences() {
           Trouvez une agence active, consultez ses informations et ses avis, puis candidatez comme agent, gestionnaire, caissier ou assistant administratif.
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Building2 className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{agences.length}</p><p className="text-sm text-white">Agences disponibles</p></div>
-          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Users className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{membres}</p><p className="text-sm text-white">Vos agences</p></div>
-          <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><Send className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold">{candidaturesEnAttente}</p><p className="text-sm text-white">Candidatures en attente</p></div>
+          <div className="rounded-2xl border border-white/25 bg-white/15 p-4 text-white"><Building2 className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold !text-white">{agences.length}</p><p className="text-sm font-semibold !text-white">Agences disponibles</p></div>
+          <div className="rounded-2xl border border-white/25 bg-white/15 p-4 text-white"><Users className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold !text-white">{membres}</p><p className="text-sm font-semibold !text-white">Vos agences</p></div>
+          <div className="rounded-2xl border border-white/25 bg-white/15 p-4 text-white"><Send className="h-5 w-5 text-dore-400" /><p className="mt-2 text-2xl font-extrabold !text-white">{candidaturesEnAttente}</p><p className="text-sm font-semibold !text-white">Candidatures en attente</p></div>
         </div>
       </section>
 
