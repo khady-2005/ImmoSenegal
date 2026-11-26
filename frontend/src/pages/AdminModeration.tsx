@@ -169,6 +169,9 @@ export default function AdminModeration() {
                 <p className="mt-1 text-base leading-relaxed text-slate-600">
                   Propriétaire : {a.proprietaire.nomComplet} · déposée le {new Date(a.creeLe).toLocaleDateString('fr-FR')}
                 </p>
+                <p className="mt-1 text-sm font-semibold text-blue-800">
+                  Gestion : {a.publieeParAgence ? 'ImmoSénégal (agence interne)' : 'Directement par le propriétaire'}
+                </p>
               </div>
               <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-800">{libelleStatut[a.statut]}</span>
             </div>
