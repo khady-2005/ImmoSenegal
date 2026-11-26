@@ -1,4 +1,4 @@
--- V21 : autoriser toutes les fonctions opérationnelles dans les agences.
+-- V64 : autoriser toutes les fonctions opérationnelles dans les agences.
 -- Un responsable ne peut pas postuler à son propre poste : il est désigné par l'agence.
 
 ALTER TABLE agence_membres
