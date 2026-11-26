@@ -28,6 +28,13 @@ public class IncidentLocationController {
         return service.declarer(contratId, q, acteur);
     }
 
+    @PatchMapping("/admin/incidents/{incidentId}")
+    public IncidentLocationService.IncidentResume traiterParAdmin(@PathVariable UUID incidentId,
+            @RequestBody IncidentLocationService.MiseAJourIncident q,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.traiterParAdmin(incidentId, q, acteur);
+    }
+
     @PatchMapping("/incidents/{incidentId}")
     public IncidentLocationService.IncidentResume actualiser(@PathVariable UUID incidentId,
             @RequestBody IncidentLocationService.MiseAJourIncident q,
