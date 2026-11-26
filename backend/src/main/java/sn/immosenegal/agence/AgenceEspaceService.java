@@ -200,8 +200,29 @@ public class AgenceEspaceService {
         if (!agences.existsById(agenceId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable.");
         }
-        return membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+        return membres.findAllByAgenceId(agenceId).stream()
+            .filter(m -> m.getStatut() != StatutMembreAgence.INVITATION_EN_ATTENTE)
             .map(this::versResume).toList();
+    }
+
+    public MembreResume modifierStatutMembreAdmin(UUID agenceId, UUID membreId,
+            StatutMembreAgence statut, AuthenticatedUser admin) {
+        verifierAdmin(admin);
+        if (statut == StatutMembreAgence.INVITATION_EN_ATTENTE) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Un membre ne peut pas être replacé en attente.");
+        }
+        MembreAgence membre = trouverMembre(agenceId, membreId);
+        membre.setStatut(statut);
+        notifications.creer(membre.getUtilisateur(), "ACCES_AGENCE_MODIFIE",
+            statut == StatutMembreAgence.ACTIF
+                ? "Votre accès à l’agence a été réactivé"
+                : "Votre accès à l’agence a été suspendu par l’administration",
+            statut == StatutMembreAgence.ACTIF
+                ? "L’administration a réactivé votre accès à l’espace de " + membre.getAgence().getNom() + "."
+                : "L’administration a suspendu votre accès à l’espace de " + membre.getAgence().getNom() + ".",
+            "/mes-agences");
+        return versResume(membre);
     }
 
     @Transactional(readOnly = true)
