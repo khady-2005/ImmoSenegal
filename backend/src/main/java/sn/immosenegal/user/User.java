@@ -33,7 +33,7 @@ public class User {
     private String telephone;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     private Role role;
 
     @Column(nullable = false)
