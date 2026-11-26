@@ -103,7 +103,16 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationResponse> toutes(AuthenticatedUser acteur) {
         exigerRole(acteur, Role.ADMIN);
-        return reservations.findAllByOrderByCreeLeDesc().stream().map(ReservationResponse::de).toList();
+        return reservations.findAllByOrderByCreeLeDesc().stream().map(reservation -> {
+            ReservationResponse r = ReservationResponse.de(reservation);
+            var mandat = mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(
+                reservation.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
+            return new ReservationResponse(r.id(), r.annonceId(), r.annonceTitre(), r.ville(), r.quartier(),
+                r.clientId(), r.clientNom(), r.clientEmail(), r.clientTelephone(), r.proprietaireNom(),
+                r.message(), r.statut(), r.reponseProprietaire(), r.creeLe(), r.modifieLe(),
+                mandat.isPresent() ? "AGENCE" : "PROPRIETAIRE",
+                mandat.map(m -> m.getAgence().getNom()).orElse(null));
+        }).toList();
     }
 
     @Transactional
