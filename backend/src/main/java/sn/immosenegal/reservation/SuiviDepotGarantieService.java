@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import sn.immosenegal.notification.NotificationService;
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
 import sn.immosenegal.user.UserRepository;
 
