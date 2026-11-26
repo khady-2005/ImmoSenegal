@@ -28,6 +28,7 @@ export default function VisitesAgence({ agenceId }: { agenceId: string }) {
 
   const charger = useCallback(async () => {
     if (!jeton || !agenceId) return
+    setChargement(true)
     setErreur('')
     try {
       const donnees = await appelApi<DemandeVisite[]>(`/api/agence/${agenceId}/visites`, { token: jeton })
