@@ -160,7 +160,7 @@ export default function AdminAgences() {
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-5 w-5" /></span>
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-transparent text-nuit-900"><Building2 className="h-5 w-5" /></span>
                     <div><h3 className="font-semibold text-nuit-900">{agence.nom}</h3><p className="text-xs text-slate-500">{agence.type} · Créée le {new Date(agence.creeLe).toLocaleDateString('fr-FR')}</p></div>
                   </div>
                   <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
