@@ -90,11 +90,11 @@ export default function App() {
           <Route path="offres-recues" element={<RequireAuth><OffresImmobilieres /></RequireAuth>} />
           <Route path="reservations-recues" element={<RequireAuth><Reservations /></RequireAuth>} />
           <Route path="mes-contrats-location" element={<RequireAuth><MesContratsLocation /></RequireAuth>} />
-          <Route path="incidents-location" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE"]}><IncidentsLocation /></RequireRole>} />
-          <Route path="etats-des-lieux" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE"]}><EtatsDesLieux /></RequireRole>} />
-          <Route path="depot-garantie" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE"]}><DepotGarantie /></RequireRole>} />
-          <Route path="espace-locataire" element={<RequireRole roles={["CLIENT"]}><EspaceLocataire /></RequireRole>} />
-          <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE"]}><EspaceProprietaire /></RequireRole>} />
+          <Route path="incidents-location" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE", "ADMIN"]}><IncidentsLocation /></RequireRole>} />
+          <Route path="etats-des-lieux" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE", "ADMIN"]}><EtatsDesLieux /></RequireRole>} />
+          <Route path="depot-garantie" element={<RequireRole roles={["CLIENT", "PROPRIETAIRE", "ADMIN"]}><DepotGarantie /></RequireRole>} />
+          <Route path="espace-locataire" element={<RequireRole roles={["CLIENT", "ADMIN"]}><EspaceLocataire /></RequireRole>} />
+          <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE", "ADMIN"]}><EspaceProprietaire /></RequireRole>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
