@@ -130,7 +130,7 @@ export default function MesAgences() {
           {agences.map((agence) => (
             agence.fonction === 'RESPONSABLE' ? (
               <Link key={agence.id} to={`/mes-agences/${agence.id}`} className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-md transition hover:-translate-y-0.5 hover:border-dore-400 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-5 w-5" /></span>
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-transparent text-nuit-900"><Building2 className="h-5 w-5" /></span>
                 <h3 className="mt-4 text-xl font-bold text-nuit-950">{agence.nom}</h3>
                 <p className="mt-2 inline-flex rounded-full border border-dore-300 bg-dore-100 px-3 py-1.5 text-base font-bold text-nuit-950">{libelleFonction[agence.fonction] ?? agence.fonction}</p>
                 <p className="mt-5 rounded-xl bg-nuit-900 px-4 py-3 text-center text-base font-bold text-white">Ouvrir le tableau de bord →</p>
