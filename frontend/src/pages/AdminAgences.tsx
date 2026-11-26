@@ -4,6 +4,16 @@ import { ArrowLeft, Building2, RefreshCw, ShieldCheck, ShieldAlert } from 'lucid
 import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
+type Membre = {
+  id: string
+  utilisateurId: string
+  nom: string
+  email: string
+  fonction: string
+  statut: 'ACTIF' | 'SUSPENDU'
+  creeLe: string
+}
+
 type Agence = {
   id: string
   nom: string
@@ -33,6 +43,9 @@ export default function AdminAgences() {
   const [recherche, setRecherche] = useState('')
   const [filtreStatut, setFiltreStatut] = useState('TOUTES')
   const [emailsResponsables, setEmailsResponsables] = useState<Record<string, string>>({})
+  const [agenceMembresOuverte, setAgenceMembresOuverte] = useState<string | null>(null)
+  const [membresParAgence, setMembresParAgence] = useState<Record<string, Membre[]>>({})
+  const [chargementMembres, setChargementMembres] = useState<string | null>(null)
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -90,6 +103,50 @@ export default function AdminAgences() {
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de désigner ce responsable.')
+    } finally {
+      setAction(null)
+    }
+  }
+
+  const afficherMembres = async (agence: Agence) => {
+    if (agenceMembresOuverte === agence.id) {
+      setAgenceMembresOuverte(null)
+      return
+    }
+    setAgenceMembresOuverte(agence.id)
+    if (membresParAgence[agence.id]) return
+    setChargementMembres(agence.id)
+    setErreur(null)
+    try {
+      const membres = await appelApi<Membre[]>(`/api/admin/agences/${agence.id}/membres`, { token: jeton })
+      setMembresParAgence(current => ({ ...current, [agence.id]: membres }))
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les membres de cette agence.')
+    } finally {
+      setChargementMembres(null)
+    }
+  }
+
+  const modifierStatutMembre = async (agence: Agence, membre: Membre, statut: 'ACTIF' | 'SUSPENDU') => {
+    setAction(membre.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      const membreMisAJour = await appelApi<Membre>(`/api/admin/agences/${agence.id}/membres/${membre.id}/statut`, {
+        method: 'PATCH',
+        token: jeton,
+        body: { statut },
+      })
+      setMembresParAgence(current => ({
+        ...current,
+        [agence.id]: (current[agence.id] ?? []).map(m => m.id === membre.id ? membreMisAJour : m),
+      }))
+      setMessage(statut === 'SUSPENDU'
+        ? `L’accès de ${membre.nom} à l’agence « ${agence.nom} » a été suspendu.`
+        : `L’accès de ${membre.nom} à l’agence « ${agence.nom} » a été réactivé.`)
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de modifier l’accès de ce membre.')
     } finally {
       setAction(null)
     }
@@ -178,6 +235,38 @@ export default function AdminAgences() {
                   {agence.statut === 'ACTIVE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'SUSPENDUE')} className="inline-flex items-center gap-2 rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"><ShieldAlert className="h-4 w-4" /> Suspendre</button>}
                   {agence.statut === 'SUSPENDUE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Réactiver</button>}
                 </div>
+              </div>
+              <div className="mt-5 border-t border-slate-100 pt-4">
+                <button type="button" onClick={() => void afficherMembres(agence)} className="text-sm font-semibold text-nuit-900 underline decoration-amber-500 underline-offset-4 hover:text-amber-700">
+                  {agenceMembresOuverte === agence.id ? 'Masquer les membres' : 'Voir et gérer les membres'}
+                </button>
+                {agenceMembresOuverte === agence.id && (
+                  <div className="mt-3 space-y-2">
+                    {chargementMembres === agence.id ? (
+                      <p className="text-sm text-slate-500">Chargement des membres…</p>
+                    ) : (membresParAgence[agence.id] ?? []).length === 0 ? (
+                      <p className="text-sm text-slate-500">Aucun membre enregistré dans cette agence.</p>
+                    ) : (membresParAgence[agence.id] ?? []).map(membre => (
+                      <div key={membre.id} className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="font-semibold text-slate-800">{membre.nom} {membre.fonction === 'RESPONSABLE' && <span className="ml-1 text-xs font-bold text-amber-700">· RESPONSABLE</span>}</p>
+                          <p className="text-sm text-slate-600">{membre.email}</p>
+                          <p className="text-xs text-slate-500">{membre.fonction} · {membre.statut === 'ACTIF' ? 'Accès actif' : 'Accès suspendu'}</p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={action === membre.id}
+                          onClick={() => void modifierStatutMembre(agence, membre, membre.statut === 'ACTIF' ? 'SUSPENDU' : 'ACTIF')}
+                          className={membre.statut === 'ACTIF'
+                            ? 'rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50'
+                            : 'rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50'}
+                        >
+                          {action === membre.id ? 'Enregistrement…' : membre.statut === 'ACTIF' ? 'Suspendre cet accès' : 'Réactiver cet accès'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               {agence.statut === 'ACTIVE' && (
                 <form onSubmit={event => { event.preventDefault(); void designerResponsable(agence) }} className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:items-end">
