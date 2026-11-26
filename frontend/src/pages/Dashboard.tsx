@@ -101,7 +101,7 @@ export default function Dashboard() {
     { titre: 'Catalogue des biens', description: 'Consultez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
   ]
   const acces = affiche.role === 'CLIENT' ? accesClient
-    : affiche.role === 'ADMIN' ? [...accesAdmin, ...accesAdminComplementaires]
+    : affiche.role === 'ADMIN' ? []
       : affiche.role === 'AGENT' ? accesAgent
         : ['GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE'].includes(affiche.role) ? accesEquipeAgence
           : [
