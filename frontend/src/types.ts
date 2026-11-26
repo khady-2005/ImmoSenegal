@@ -50,6 +50,8 @@ export interface Annonce {
   equipements: string[]
   statut: StatutAnnonce
   proprietaire: { id: string; nomComplet: string }
+  /** Indique si l'annonce est publiée et prise en charge par l'agence interne ImmoSénégal. */
+  publieeParAgence?: boolean
   creeLe: string
   modifieLe: string
   /** Date de fin de la période gratuite de 30 jours, absente si abonnement actif. */
