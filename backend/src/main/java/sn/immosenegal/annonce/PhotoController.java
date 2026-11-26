@@ -52,8 +52,12 @@ public class PhotoController {
 
     @GetMapping("/metadata")
     @Operation(summary = "Lister les catégories des photos d’une annonce")
-    public List<PhotoService.PhotoMetadata> metadata(@PathVariable UUID annonceId) {
-        return service.metadata(annonceId);
+    public ResponseEntity<List<PhotoService.PhotoMetadata>> metadata(@PathVariable UUID annonceId) {
+        return ResponseEntity.ok()
+            // Les catégories et identifiants publics changent rarement ; ce cache évite
+            // de relire PostgreSQL à chaque retour sur une fiche d'annonce.
+            .cacheControl(CacheControl.maxAge(Duration.ofMinutes(1)).cachePublic())
+            .body(service.metadata(annonceId));
     }
 
     @PatchMapping("/{photoId}/piece")
