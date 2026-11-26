@@ -38,7 +38,10 @@ public class ContratLocationService {
   return resume(c);
  }
  public List<ContratResume> mesContrats(AuthenticatedUser a){
-  finaliserResiliationsEchues();List<ContratLocation> l=new ArrayList<>();
+  if(a==null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide.");
+  finaliserResiliationsEchues();
+  if(a.role()==Role.ADMIN) return contrats.findAllByOrderByCreeLeDesc().stream().map(this::resume).toList();
+  List<ContratLocation> l=new ArrayList<>();
   l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));
   l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));
   if(a.role()==Role.AGENT||a.role()==Role.ADMIN){
