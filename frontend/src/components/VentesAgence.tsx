@@ -45,8 +45,9 @@ export default function VentesAgence({ agenceId, fonction }: { agenceId: string;
   const [envoiPaiement, setEnvoiPaiement] = useState(false)
 
   const charger = useCallback(async () => {
-    if (!jeton) return
+    if (!jeton || !agenceId) return
     setChargement(true)
+    setErreur(null)
     try {
       const [liste, catalogue, mandats] = await Promise.all([
         appelApi<Vente[]>(`/api/agence/${agenceId}/ventes`, { token: jeton }),
