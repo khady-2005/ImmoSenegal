@@ -9,6 +9,7 @@ const monnaie = (n: number) => Number(n || 0).toLocaleString('fr-FR') + ' FCFA'
 export default function DepotGarantie() {
   const { jeton, utilisateur } = useAuth()
   const estProprietaire = utilisateur?.role === 'PROPRIETAIRE'
+  const estAdmin = utilisateur?.role === 'ADMIN'
   const [contrats, setContrats] = useState<Contrat[]>([])
   const [selection, setSelection] = useState('')
   const [suivi, setSuivi] = useState<Suivi | null>(null)
@@ -114,7 +115,7 @@ export default function DepotGarantie() {
             <p className={`mt-3 text-sm ${total === Number(contrat?.depotGarantie) ? 'text-emerald-700' : 'text-red-700'}`}>Total : {monnaie(total)} / {monnaie(Number(contrat?.depotGarantie))}</p>
             <button disabled={total !== Number(contrat?.depotGarantie)} className="mt-4 rounded-full bg-nuit-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40">Envoyer une nouvelle proposition</button>
           </form>}
-          {!estProprietaire && suivi.statut === 'A_CONFIRMER' && <div className="mt-5 border-t border-slate-100 pt-4">
+          {!estProprietaire && !estAdmin && suivi.statut === 'A_CONFIRMER' && <div className="mt-5 border-t border-slate-100 pt-4">
             <label className="block text-sm font-medium">Commentaire (obligatoire en cas de désaccord)
               <textarea rows={3} maxLength={1500} value={commentaire} onChange={e => setCommentaire(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-300 p-3"/>
             </label>
