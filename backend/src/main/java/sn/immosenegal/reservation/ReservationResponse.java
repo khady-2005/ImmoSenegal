@@ -18,7 +18,9 @@ public record ReservationResponse(
     StatutReservation statut,
     String reponseProprietaire,
     Instant creeLe,
-    Instant modifieLe
+    Instant modifieLe,
+    String gestionType,
+    String agenceNom
 ) {
     public static ReservationResponse de(Reservation r) {
         return new ReservationResponse(
@@ -28,7 +30,7 @@ public record ReservationResponse(
             r.getClient().getEmail(), r.getClient().getTelephone(),
             r.getAnnonce().getProprietaire().getNomComplet(),
             r.getMessage(), r.getStatut(), r.getReponseProprietaire(),
-            r.getCreeLe(), r.getModifieLe()
+            r.getCreeLe(), r.getModifieLe(), null, null
         );
     }
 }
