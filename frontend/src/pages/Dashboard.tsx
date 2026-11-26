@@ -69,36 +69,23 @@ export default function Dashboard() {
     { titre: 'Découvrir les biens', description: 'Consultez les annonces disponibles et trouvez un logement ou un terrain au Sénégal.', lien: '/catalogue', icone: Compass, action: 'Ouvrir le catalogue' },
     { titre: 'Assistant immobilier', description: 'Décrivez votre recherche pour obtenir de l’aide afin de trouver un bien adapté.', lien: '/assistant', icone: ClipboardList, action: 'Parler à l’assistant' },
   ]
-  const accesAdmin: Acces[] = [
-    { titre: 'Modération des annonces', description: 'Examinez les annonces soumises et gérez leur publication.', lien: '/admin/annonces', icone: Building2, action: 'Modérer les annonces' },
-    { titre: 'Demandes de rôle', description: 'Consultez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
-    { titre: 'Gestion des utilisateurs', description: 'Consultez et gérez les comptes de la plateforme.', lien: '/admin/utilisateurs', icone: Users, action: 'Gérer les comptes' },
-    { titre: 'Gestion des agences', description: 'Validez les nouvelles agences, consultez leurs membres et suspendez ou réactivez leurs accès.', lien: '/admin/agences', icone: Building2, action: 'Gérer les agences' },
-    { titre: 'Supervision locative', description: 'Consultez tous les contrats de location et les paiements déclarés sur la plateforme.', lien: '/admin/supervision-locative', icone: FileCheck2, action: 'Superviser les locations' },
-    { titre: 'Litiges locatifs', description: 'Suivez les incidents non clôturés et les désaccords signalés par les parties.', lien: '/admin/litiges-locatifs', icone: ShieldCheck, action: 'Voir les dossiers à suivre' },
-    { titre: 'Messagerie', description: 'Consultez les échanges liés aux réservations et contactez les parties lorsque nécessaire.', lien: '/messagerie', icone: ClipboardList, action: 'Ouvrir la messagerie' },
-    { titre: 'Toutes les demandes de visite', description: 'Consultez et traitez les demandes de visite de toute la plateforme : accepter, refuser ou proposer un autre créneau.', lien: '/admin/visites', icone: CalendarDays, action: 'Gérer les visites' },
-    { titre: 'Toutes les réservations', description: 'Consultez toutes les demandes de réservation associées aux annonces.', lien: '/admin/reservations', icone: BookmarkCheck, action: 'Voir les réservations' },
+  const accesEntreprise: Acces[] = [
+    { titre: 'Abonnements et paiements', description: 'Suivez les abonnements souscrits, les paiements et les recettes liées aux services ImmoSénégal.', lien: '/admin/abonnements', icone: FileCheck2, action: 'Gérer les abonnements' },
+    { titre: 'Agences partenaires', description: 'Gérez les agences inscrites, leurs responsables et leurs accès professionnels.', lien: '/admin/agences', icone: Building2, action: 'Gérer les agences' },
   ]
 
-  const accesAdminComplementaires: Acces[] = [
-    { titre: 'Créer une annonce', description: 'Publiez une nouvelle annonce immobilière depuis l’administration.', lien: '/annonces/nouvelle', icone: Building2, action: 'Créer une annonce' },
-    { titre: 'Toutes mes annonces', description: 'Accédez à la gestion des annonces et aux modifications des biens.', lien: '/mes-annonces', icone: Building2, action: 'Gérer les annonces' },
-    { titre: 'Espace propriétaire', description: 'Accédez aux outils de gestion des biens, demandes et revenus des propriétaires.', lien: '/espace-proprietaire', icone: Building2, action: 'Ouvrir l’espace propriétaire' },
-    { titre: 'Espace locataire', description: 'Consultez les outils locatifs, les contrats et le suivi des logements.', lien: '/espace-locataire', icone: FileCheck2, action: 'Ouvrir l’espace locataire' },
-    { titre: 'Contrats de location', description: 'Consultez les contrats et leurs informations.', lien: '/mes-contrats-location', icone: FileCheck2, action: 'Voir les contrats' },
-    { titre: 'Incidents locatifs', description: 'Consultez les incidents signalés concernant les locations.', lien: '/incidents-location', icone: ShieldCheck, action: 'Gérer les incidents' },
-    { titre: 'États des lieux', description: 'Accédez aux états des lieux d’entrée et de sortie.', lien: '/etats-des-lieux', icone: ClipboardList, action: 'Voir les états des lieux' },
-    { titre: 'Dépôts de garantie', description: 'Consultez le suivi des dépôts de garantie.', lien: '/depot-garantie', icone: FileCheck2, action: 'Suivre les dépôts' },
-    { titre: 'Offres immobilières', description: 'Consultez les offres envoyées et reçues.', lien: '/mes-offres', icone: ClipboardList, action: 'Voir les offres' },
-    { titre: 'Offres reçues', description: 'Consultez les propositions reçues sur les biens.', lien: '/offres-recues', icone: ClipboardList, action: 'Voir les offres reçues' },
-    { titre: 'Demandes reçues', description: 'Accédez aux demandes de visite et de réservation reçues.', lien: '/visites-recues', icone: CalendarDays, action: 'Voir les demandes reçues' },
-    { titre: 'Réservations reçues', description: 'Consultez les réservations associées aux annonces.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Voir les réservations reçues' },
-    { titre: 'Mes espaces professionnels', description: 'Accédez aux espaces d’agence et aux outils professionnels disponibles.', lien: '/mes-agences', icone: Users, action: 'Ouvrir les espaces professionnels' },
-    { titre: 'Annuaire des agences', description: 'Consultez les agences inscrites sur la plateforme.', lien: '/rejoindre-agence', icone: Building2, action: 'Consulter les agences' },
-    { titre: 'Carte des biens', description: 'Visualisez les annonces immobilières sur la carte.', lien: '/carte', icone: Compass, action: 'Ouvrir la carte' },
-    { titre: 'Favoris', description: 'Consultez les annonces enregistrées dans les favoris.', lien: '/mes-favoris', icone: Heart, action: 'Voir les favoris' },
-    { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour accompagner les recherches immobilières.', lien: '/assistant', icone: ClipboardList, action: 'Ouvrir l’assistant' },
+  const accesProprietaires: Acces[] = [
+    { titre: 'Propriétaires et comptes', description: 'Consultez les comptes des propriétaires et retrouvez les informations de leurs activités sur la plateforme.', lien: '/admin/utilisateurs', icone: Users, action: 'Consulter les comptes' },
+    { titre: 'Annonces des propriétaires', description: 'Consultez les biens publiés et intervenez uniquement dans le cadre de la modération.', lien: '/admin/annonces', icone: Building2, action: 'Suivre les annonces' },
+    { titre: 'Visites et réservations', description: 'Suivez les demandes liées aux biens et vérifiez leur bonne prise en charge par les propriétaires.', lien: '/admin/visites', icone: CalendarDays, action: 'Suivre les visites' },
+    { titre: 'Réservations', description: 'Consultez les demandes de réservation concernant les annonces de la plateforme.', lien: '/admin/reservations', icone: BookmarkCheck, action: 'Suivre les réservations' },
+    { titre: 'Contrats et locations', description: 'Consultez les contrats de location et les paiements déclarés sur la plateforme.', lien: '/admin/supervision-locative', icone: FileCheck2, action: 'Superviser les locations' },
+    { titre: 'Incidents et litiges', description: 'Suivez les incidents et désaccords signalés entre les parties à une location.', lien: '/admin/litiges-locatifs', icone: ShieldCheck, action: 'Suivre les dossiers' },
+  ]
+
+  const accesAdministration: Acces[] = [
+    { titre: 'Demandes de rôle', description: 'Examinez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
+    { titre: 'Messagerie', description: 'Consultez les échanges lorsque votre intervention administrative est nécessaire.', lien: '/messagerie', icone: ClipboardList, action: 'Ouvrir la messagerie' },
   ]
 
   const accesAgent: Acces[] = [
@@ -142,12 +129,27 @@ export default function Dashboard() {
       {erreur && <p role="alert" className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       {!profil && !erreur && <p role="status" className="mt-4 text-sm text-slate-500">Vérification de votre session…</p>}
 
-      <section className="mt-8">
-        <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {accesAvecAgences.map(item => <CarteAcces key={item.lien} item={item} />)}
-        </div>
-      </section>
+      {affiche.role === 'ADMIN' ? (
+        <>
+          <section className="mt-8">
+            <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">1. Gestion de l’entreprise ImmoSénégal</h2><p className="mt-1 text-sm text-slate-600">Les activités et services qui concernent directement l’entreprise et son réseau professionnel.</p></div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesEntreprise.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
+          </section>
+          <section className="mt-8">
+            <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">2. Suivi des propriétaires</h2><p className="mt-1 text-sm text-slate-600">Les biens et activités des propriétaires, consultés dans un rôle de supervision globale.</p></div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesProprietaires.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
+          </section>
+          <section className="mt-8">
+            <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">3. Administration de la plateforme</h2><p className="mt-1 text-sm text-slate-600">Les fonctions de contrôle et de gestion des comptes.</p></div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesAdministration.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
+          </section>
+        </>
+      ) : (
+        <section className="mt-8">
+          <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesAvecAgences.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
+        </section>
+      )}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <h2 className="text-lg font-semibold text-nuit-900">Informations de mon compte</h2>
