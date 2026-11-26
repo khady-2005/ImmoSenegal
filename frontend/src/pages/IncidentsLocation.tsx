@@ -84,7 +84,7 @@ export default function IncidentsLocation() {
   }
 
   const contratSelectionne = contrats.find(c => c.id === selection)
-  const peutDeclarer = contratSelectionne && (contratSelectionne.etat === 'ACTIF' || contratSelectionne.etat === 'RESILIATION_PLANIFIEE')
+  const peutDeclarer = !estAdmin && contratSelectionne && (contratSelectionne.etat === 'ACTIF' || contratSelectionne.etat === 'RESILIATION_PLANIFIEE')
 
   return <main className="mx-auto max-w-5xl px-4 py-10">
     <header>
