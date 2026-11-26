@@ -27,7 +27,11 @@ public class SuiviDepotGarantieService {
     @Transactional(readOnly = true)
     public SuiviResume consulter(UUID contratId, AuthenticatedUser acteur) {
         ContratLocation contrat = contrat(contratId);
-        verifierParticipant(contrat, acteur);
+        if (acteur == null || (acteur.role() != Role.ADMIN
+                && (!contrat.getProprietaire().getId().equals(acteur.id())
+                    && !contrat.getLocataire().getId().equals(acteur.id())))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux parties du contrat ou à l'administration.");
+        }
         return suivis.findByContratId(contratId).map(this::resume).orElse(null);
     }
 
