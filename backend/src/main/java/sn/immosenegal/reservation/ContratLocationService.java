@@ -60,8 +60,7 @@ public class ContratLocationService {
   if(!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le locataire peut déclarer le paiement de son loyer.");
   if((c.getEtat()!=EtatContratLocation.ACTIF&&c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE)||q.montant()==null||q.montant().signum()<=0||q.periode()==null||q.datePaiement()==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Informations de paiement invalides ou contrat inactif.");
   User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
-  var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE)
-    .filter(m->m.getAgence().getType()==AgenceType.INTERNE);
+  var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
   String type="PROPRIETAIRE"; UUID beneficiaireId=c.getProprietaire().getId(); String beneficiaireNom=c.getProprietaire().getNomComplet();
   if(mandat.isPresent()){type="AGENCE";beneficiaireId=mandat.get().getAgence().getId();beneficiaireNom=mandat.get().getAgence().getNom();}
   PaiementLoyer p=paiements.save(new PaiementLoyer(c,u,q.montant(),q.periode(),q.datePaiement(),q.reference()==null?null:q.reference().trim(),type,beneficiaireId,beneficiaireNom));
@@ -185,7 +184,8 @@ public class ContratLocationService {
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
   finaliserResiliationsEchues();
   return contrats.findAllByOrderByCreeLeDesc().stream().map(c->{
-   var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
+   var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE)
+    .filter(m->m.getAgence().getType()==AgenceType.INTERNE);
    return new SupervisionContratResume(
     resume(c),paiements.findAllByContratIdOrderByPeriodeDesc(c.getId()).stream()
      .map(this::versPaiementResume).toList(),
