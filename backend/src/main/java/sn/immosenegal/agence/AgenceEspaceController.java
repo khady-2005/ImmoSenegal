@@ -97,6 +97,15 @@ public class AgenceEspaceController {
         return service.listerMembresAdmin(agenceId, admin);
     }
 
+    @PatchMapping("/api/admin/agences/{agenceId}/membres/{membreId}/statut")
+    @Operation(summary = "Activer ou suspendre un membre d'agence (administrateur)")
+    public AgenceEspaceService.MembreResume modifierStatutMembreAdmin(
+            @PathVariable UUID agenceId, @PathVariable UUID membreId,
+            @Valid @RequestBody StatutRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.modifierStatutMembreAdmin(agenceId, membreId, requete.statut(), admin);
+    }
+
     @PostMapping("/api/admin/agences/{agenceId}/responsable")
     @Operation(summary = "Désigner le responsable d'une agence (administrateur)")
     public AgenceEspaceService.MembreResume definirResponsable(@PathVariable UUID agenceId,
