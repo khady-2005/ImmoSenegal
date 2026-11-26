@@ -51,7 +51,7 @@ public class VideoController {
     public ResponseEntity<byte[]> lire(@PathVariable UUID annonceId) {
         VideoAnnonce video = service.lire(annonceId);
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(video.getTypeMime()))
-            .cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic())
+            .cacheControl(CacheControl.maxAge(Duration.ofMinutes(10)).cachePublic())
             .header("X-Content-Type-Options", "nosniff")
             .body(video.getContenu());
     }
