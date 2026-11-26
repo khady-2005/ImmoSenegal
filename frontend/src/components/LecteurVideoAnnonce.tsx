@@ -15,7 +15,7 @@ export default function LecteurVideoAnnonce({ annonceId }: { annonceId: string }
   return (
     <section className="mt-10" aria-labelledby="titre-visite-video">
       <h2 id="titre-visite-video" className="font-titre text-2xl font-medium text-nuit-900">Visite vidéo du logement</h2>
-      <video className="mt-4 max-h-[32rem] w-full rounded-2xl bg-black shadow-carte" controls preload="metadata">
+      <video className="mt-4 max-h-[32rem] w-full rounded-2xl bg-black shadow-carte" controls preload="none">
         <source src={urlApi(`/api/annonces/${annonceId}/video`)} />
         Votre navigateur ne prend pas en charge la lecture vidéo.
       </video>
