@@ -20,6 +20,8 @@ interface Reservation {
   statut: StatutReservation
   reponseProprietaire: string | null
   creeLe: string
+  gestionType?: 'PROPRIETAIRE' | 'AGENCE'
+  agenceNom?: string | null
 }
 
 const libelles: Record<StatutReservation, string> = {
@@ -46,6 +48,7 @@ export default function Reservations() {
   const [fin, setFin] = useState('')
   const [recherche, setRecherche] = useState('')
   const [filtre, setFiltre] = useState<'TOUS' | StatutReservation>('TOUS')
+  const [filtreGestion, setFiltreGestion] = useState<'TOUS' | 'PROPRIETAIRE' | 'AGENCE'>('TOUS')
 
   const charger = useCallback(async () => {
     setErreur('')
@@ -107,8 +110,8 @@ export default function Reservations() {
   const demandesFiltrees = useMemo(() => demandes.filter(d => {
     const q = recherche.trim().toLocaleLowerCase()
     const correspond = !q || [d.annonceTitre, d.ville, d.quartier, d.clientNom, d.proprietaireNom].some(v => v.toLocaleLowerCase().includes(q))
-    return correspond && (filtre === 'TOUS' || d.statut === filtre)
-  }), [demandes, recherche, filtre])
+    return correspond && (filtre === 'TOUS' || d.statut === filtre) && (!admin || filtreGestion === 'TOUS' || d.gestionType === filtreGestion)
+  }), [demandes, recherche, filtre, filtreGestion, admin])
   const enAttente = demandes.filter(d => d.statut === 'EN_ATTENTE').length
   const acceptees = demandes.filter(d => d.statut === 'ACCEPTEE').length
   const refusees = demandes.filter(d => d.statut === 'REFUSEE').length
@@ -129,10 +132,11 @@ export default function Reservations() {
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Acceptées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{acceptees}</p></div>
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Refusées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{refusees}</p></div>
       </section>}
-      {!chargement && demandes.length > 0 && <section className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-[1fr_220px]">
+      {!chargement && demandes.length > 0 && <section className={`mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 ${admin ? "sm:grid-cols-[1fr_220px_220px]" : "sm:grid-cols-[1fr_220px]"}`}>
         <label className="text-sm font-medium text-slate-700">Rechercher une réservation
           <input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Logement, ville, demandeur…" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal"/>
         </label>
+        {admin && <label className="text-sm font-medium text-slate-700">Origine de la gestion<select value={filtreGestion} onChange={e => setFiltreGestion(e.target.value as typeof filtreGestion)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5"><option value="TOUS">Tous</option><option value="PROPRIETAIRE">Gestion directe propriétaire</option><option value="AGENCE">Gestion par agent / agence</option></select></label>}
         <label className="text-sm font-medium text-slate-700">État
           <select value={filtre} onChange={e => setFiltre(e.target.value as 'TOUS' | StatutReservation)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5"><option value="TOUS">Tous les états</option>{Object.entries(libelles).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
         </label>
@@ -145,7 +149,7 @@ export default function Reservations() {
               <div><h2 className="text-lg font-semibold text-nuit-900">{d.annonceTitre}</h2><p className="mt-1 text-sm text-slate-600">{d.quartier}, {d.ville}</p></div>
               <span className={'rounded-full px-3 py-1 text-xs font-semibold ' + (d.statut === 'ACCEPTEE' ? 'bg-dore-100 text-nuit-900' : d.statut === 'REFUSEE' || d.statut === 'ANNULEE' ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-900')}>{libelles[d.statut]}</span>
             </div>
-            <p className="mt-3 text-sm text-slate-600">{client ? 'Propriétaire' : 'Demandeur'} : <strong className="text-slate-800">{client ? d.proprietaireNom : d.clientNom}</strong>{!client ? ' · ' + d.clientEmail + (d.clientTelephone ? ' · ' + d.clientTelephone : '') : ''}</p>
+            <p className="mt-1 text-xs font-semibold text-blue-800">{admin ? (d.gestionType === "AGENCE" ? `Gestion par ${d.agenceNom || "une agence mandatée"}` : "Gestion directe par le propriétaire") : ""}</p><p className="mt-3 text-sm text-slate-600">{client ? 'Propriétaire' : 'Demandeur'} : <strong className="text-slate-800">{client ? d.proprietaireNom : d.clientNom}</strong>{!client ? ' · ' + d.clientEmail + (d.clientTelephone ? ' · ' + d.clientTelephone : '') : ''}</p>
             <p className="mt-1 text-xs text-slate-500">Demande envoyée le {new Date(d.creeLe).toLocaleString('fr-FR')}</p>
             {d.message && <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">« {d.message} »</p>}
             {d.reponseProprietaire && <p className="mt-3 rounded-xl bg-dore-100 p-3 text-sm text-nuit-900">Réponse : {d.reponseProprietaire}</p>}
