@@ -30,7 +30,8 @@ export default function MissionsAgence({ agenceId, fonction }: { agenceId: strin
   const [rapports, setRapports] = useState<Record<string, string>>({})
 
   const charger = useCallback(async () => {
-    if (!jeton) return
+    if (!jeton || !agenceId) return
+    setChargement(true)
     setErreur('')
     try {
       const liste = await appelApi<Mission[]>(`/api/agence/${agenceId}/missions`, { token: jeton })
