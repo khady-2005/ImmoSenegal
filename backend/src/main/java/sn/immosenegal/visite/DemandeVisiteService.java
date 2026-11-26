@@ -91,7 +91,16 @@ public class DemandeVisiteService {
     @Transactional(readOnly = true)
     public List<DemandeVisiteResponse> toutes(AuthenticatedUser acteur) {
         exigerRole(acteur, Role.ADMIN);
-        return demandes.findAllByOrderByCreeLeDesc().stream().map(DemandeVisiteResponse::de).toList();
+        return demandes.findAllByOrderByCreeLeDesc().stream().map(d -> {
+            DemandeVisiteResponse r = DemandeVisiteResponse.de(d);
+            var mandat = mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(
+                d.getAnnonce().getId(), StatutMandatGestion.ACCEPTE);
+            return new DemandeVisiteResponse(r.id(), r.annonceId(), r.annonceTitre(), r.ville(), r.quartier(),
+                r.clientId(), r.clientNom(), r.clientEmail(), r.clientTelephone(), r.proprietaireNom(),
+                r.dateVisite(), r.message(), r.statut(), r.reponseProprietaire(), r.creeLe(), r.modifieLe(),
+                mandat.isPresent() ? "AGENCE" : "PROPRIETAIRE",
+                mandat.map(m -> m.getAgence().getNom()).orElse(null));
+        }).toList();
     }
 
     @Transactional
