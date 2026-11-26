@@ -21,6 +21,8 @@ interface DemandeVisite {
   statut: StatutVisite
   reponseProprietaire: string | null
   creeLe: string
+  gestionType?: 'PROPRIETAIRE' | 'AGENCE'
+  agenceNom?: string | null
 }
 
 const libelles: Record<StatutVisite, string> = {
@@ -53,6 +55,7 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
   const [reservationCreee, setReservationCreee] = useState<string | null>(null)
   const [recherche, setRecherche] = useState('')
   const [filtre, setFiltre] = useState<'TOUS' | StatutVisite>('TOUS')
+  const [filtreGestion, setFiltreGestion] = useState<'TOUS' | 'PROPRIETAIRE' | 'AGENCE'>('TOUS')
 
   const charger = useCallback(async () => {
     setErreur('')
@@ -128,8 +131,8 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
   const demandesFiltrees = useMemo(() => demandes.filter(d => {
     const q = recherche.trim().toLocaleLowerCase()
     const correspond = !q || [d.annonceTitre, d.ville, d.quartier, d.clientNom, d.proprietaireNom].some(v => v.toLocaleLowerCase().includes(q))
-    return correspond && (filtre === 'TOUS' || d.statut === filtre)
-  }), [demandes, recherche, filtre])
+    return correspond && (filtre === 'TOUS' || d.statut === filtre) && (!admin || filtreGestion === 'TOUS' || d.gestionType === filtreGestion)
+  }), [demandes, recherche, filtre, filtreGestion, admin])
   const enAttente = demandes.filter(d => d.statut === 'EN_ATTENTE').length
   const confirmees = demandes.filter(d => d.statut === 'ACCEPTEE').length
   const aConfirmer = demandes.filter(d => d.statut === 'PROPOSEE').length
@@ -154,10 +157,11 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Visites acceptées</p><p className="mt-1 text-2xl font-bold text-nuit-900">{confirmees}</p></div>
         <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Créneaux à confirmer</p><p className="mt-1 text-2xl font-bold text-nuit-900">{aConfirmer}</p></div>
       </section>}
-      {!chargement && demandes.length > 0 && <section className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-[1fr_220px]">
+      {!chargement && demandes.length > 0 && <section className={`mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 ${admin ? "sm:grid-cols-[1fr_220px_220px]" : "sm:grid-cols-[1fr_220px]"}`}>
         <label className="text-sm font-medium text-slate-700">Rechercher une visite
           <input value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Logement, ville, demandeur…" className="mt-1 w-full rounded-lg border border-slate-300 p-2.5 font-normal"/>
         </label>
+        {admin && <label className="text-sm font-medium text-slate-700">Origine de la gestion<select value={filtreGestion} onChange={e => setFiltreGestion(e.target.value as typeof filtreGestion)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5"><option value="TOUS">Tous</option><option value="PROPRIETAIRE">Gestion directe propriétaire</option><option value="AGENCE">Gestion par agent / agence</option></select></label>}
         <label className="text-sm font-medium text-slate-700">État
           <select value={filtre} onChange={e => setFiltre(e.target.value as 'TOUS' | StatutVisite)} className="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5"><option value="TOUS">Tous les états</option>{Object.entries(libelles).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
         </label>
@@ -171,7 +175,7 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
               <span className={'rounded-full px-3 py-1 text-xs font-semibold ' + (d.statut === 'ACCEPTEE' ? 'bg-dore-100 text-nuit-900' : d.statut === 'REFUSEE' || d.statut === 'ANNULEE' ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-900')}>{libelles[d.statut]}</span>
             </div>
             <div className="mt-4 flex items-center gap-2 text-sm font-medium text-slate-800"><Clock3 className="h-4 w-4 text-amber-800" />{dateLisible(d.dateVisite)}</div>
-            {client ? <p className="mt-2 text-sm text-slate-600">Propriétaire : {d.proprietaireNom}</p> : <div className="mt-2 text-sm text-slate-600"><p>Demandeur : <strong className="text-slate-800">{d.clientNom}</strong> · {d.clientEmail}{d.clientTelephone ? ' · ' + d.clientTelephone : ''}</p></div>}
+            {client ? <p className="mt-2 text-sm text-slate-600">Propriétaire : {d.proprietaireNom}</p> : <p className="mt-1 text-xs font-semibold text-blue-800">{admin ? (d.gestionType === "AGENCE" ? `Gestion par ${d.agenceNom || "une agence mandatée"}` : "Gestion directe par le propriétaire") : ""}</p><div className="mt-2 text-sm text-slate-600"><p>Demandeur : <strong className="text-slate-800">{d.clientNom}</strong> · {d.clientEmail}{d.clientTelephone ? ' · ' + d.clientTelephone : ''}</p></div>}
             {d.message && <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">« {d.message} »</p>}
             {client && (d.statut === 'ACCEPTEE' || d.statut === 'VISITEE') && <div className="mt-4 border-t border-slate-100 pt-4">
               {reservationCreee === d.id ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">Votre demande de réservation a été envoyée. Retrouvez son suivi dans « Mes réservations ».</p> : <button disabled={enCours === d.id} onClick={() => void reserverBien(d)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-dore-600 bg-dore-500 px-5 py-3 text-sm font-extrabold text-nuit-950 shadow-md transition hover:bg-dore-400 disabled:cursor-not-allowed disabled:opacity-60"><BookmarkCheck className="h-4 w-4" /> Réserver ce bien</button>}
