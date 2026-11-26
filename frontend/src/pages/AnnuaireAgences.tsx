@@ -164,7 +164,7 @@ export default function AnnuaireAgences() {
               return (
                 <article key={agence.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg">
                   <div className="flex items-start gap-4 border-b border-slate-100 p-5 sm:p-6">
-                    {agence.logoUrl ? <img src={agence.logoUrl} alt={`Logo de ${agence.nom}`} className="h-16 w-16 shrink-0 rounded-xl border border-slate-200 object-cover" /> : <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Building2 className="h-7 w-7" /></span>}
+                    {agence.logoUrl ? <img src={agence.logoUrl} alt={`Logo de ${agence.nom}`} className="h-16 w-16 shrink-0 rounded-xl border border-slate-200 object-cover" /> : <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-transparent text-nuit-900"><Building2 className="h-7 w-7" /></span>}
                     <div className="min-w-0 flex-1">
                       <h3 className="text-xl font-extrabold text-nuit-950">{agence.nom}</h3>
                       {agence.adresse && <p className="mt-2 flex items-start gap-2 text-sm font-medium text-slate-700"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-nuit-700" />{agence.adresse}</p>}
