@@ -32,6 +32,7 @@ export default function AdminAgences() {
   const [message, setMessage] = useState<string | null>(null)
   const [recherche, setRecherche] = useState('')
   const [filtreStatut, setFiltreStatut] = useState('TOUTES')
+  const [emailsResponsables, setEmailsResponsables] = useState<Record<string, string>>({})
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -64,6 +65,31 @@ export default function AdminAgences() {
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de modifier le statut de cette agence.')
+    } finally {
+      setAction(null)
+    }
+  }
+
+  const designerResponsable = async (agence: Agence) => {
+    const email = (emailsResponsables[agence.id] ?? '').trim()
+    if (!email) {
+      setErreur('Saisissez l’adresse e-mail du responsable.')
+      return
+    }
+    setAction(agence.id)
+    setErreur(null)
+    setMessage(null)
+    try {
+      const membre = await appelApi<{ nom: string; email: string }>(`/api/admin/agences/${agence.id}/responsable`, {
+        method: 'POST',
+        token: jeton,
+        body: { email },
+      })
+      setMessage(`${membre.nom} est maintenant responsable de l’agence « ${agence.nom} ».`)
+      setEmailsResponsables(current => ({ ...current, [agence.id]: '' }))
+      await charger()
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Impossible de désigner ce responsable.')
     } finally {
       setAction(null)
     }
@@ -153,6 +179,24 @@ export default function AdminAgences() {
                   {agence.statut === 'SUSPENDUE' && <button type="button" disabled={action === agence.id} onClick={() => void modifierStatut(agence, 'ACTIVE')} className="inline-flex items-center gap-2 rounded-full bg-nuit-900 px-4 py-2 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50"><ShieldCheck className="h-4 w-4" /> Réactiver</button>}
                 </div>
               </div>
+              {agence.statut === 'ACTIVE' && (
+                <form onSubmit={event => { event.preventDefault(); void designerResponsable(agence) }} className="mt-5 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:items-end">
+                  <label className="flex-1 text-sm font-semibold text-slate-700">
+                    Désigner le responsable de cette agence
+                    <input
+                      type="email"
+                      required
+                      value={emailsResponsables[agence.id] ?? ''}
+                      onChange={event => setEmailsResponsables(current => ({ ...current, [agence.id]: event.target.value }))}
+                      placeholder="adresse@email.com"
+                      className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal"
+                    />
+                  </label>
+                  <button type="submit" disabled={action === agence.id} className="rounded-full bg-nuit-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-nuit-800 disabled:opacity-50">
+                    {action === agence.id ? 'Enregistrement…' : 'Désigner le responsable'}
+                  </button>
+                </form>
+              )}
             </article>
           ))}
         </div>
