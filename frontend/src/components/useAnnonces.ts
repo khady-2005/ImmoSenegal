@@ -7,7 +7,7 @@ export type EtatListe =
   | { statut: 'erreur'; message: string }
   | { statut: 'ok'; page: PagePaginee<Annonce> }
 
-/** Charge une page d'annonces et la rafraîchit quand l'utilisateur revient au catalogue. */
+/** Charge une page d'annonces et la rafraîchit lorsque l'onglet redevient visible. */
 export function useAnnonces(requete: string) {
   const [etat, setEtat] = useState<EtatListe>({ statut: 'chargement' })
   const [essai, setEssai] = useState(0)
@@ -29,11 +29,11 @@ export function useAnnonces(requete: string) {
     const actualiserAuRetour = () => {
       if (document.visibilityState === 'visible') charger(() => annule)
     }
-    window.addEventListener('focus', actualiserAuRetour)
+    // `focus` et `visibilitychange` se déclenchent souvent ensemble : un seul
+    // écouteur évite de lancer deux requêtes identiques à chaque retour.
     document.addEventListener('visibilitychange', actualiserAuRetour)
     return () => {
       annule = true
-      window.removeEventListener('focus', actualiserAuRetour)
       document.removeEventListener('visibilitychange', actualiserAuRetour)
     }
   }, [charger, essai])
