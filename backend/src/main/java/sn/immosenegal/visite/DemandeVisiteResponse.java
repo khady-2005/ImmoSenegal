@@ -20,7 +20,9 @@ public record DemandeVisiteResponse(
     StatutVisite statut,
     String reponseProprietaire,
     Instant creeLe,
-    Instant modifieLe
+    Instant modifieLe,
+    String gestionType,
+    String agenceNom
 ) {
     public static DemandeVisiteResponse de(DemandeVisite d) {
         return new DemandeVisiteResponse(
@@ -30,7 +32,7 @@ public record DemandeVisiteResponse(
             d.getClient().getEmail(), d.getClient().getTelephone(),
             d.getAnnonce().getProprietaire().getNomComplet(),
             d.getDateVisite(), d.getMessage(), d.getStatut(),
-            d.getReponseProprietaire(), d.getCreeLe(), d.getModifieLe()
+            d.getReponseProprietaire(), d.getCreeLe(), d.getModifieLe(), null, null
         );
     }
 }
