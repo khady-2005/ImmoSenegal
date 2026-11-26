@@ -26,6 +26,7 @@ export default function PortefeuilleAgence({ agenceId }: { agenceId: string }) {
 
   const charger = useCallback(async () => {
     if (!jeton || !agenceId) return
+    setChargement(true)
     setErreur('')
     try {
       const resultat = await appelApi<BienConfie[]>(`/api/agence/${agenceId}/portefeuille`, { token: jeton })
