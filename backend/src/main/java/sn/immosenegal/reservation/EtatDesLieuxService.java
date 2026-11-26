@@ -26,7 +26,12 @@ public class EtatDesLieuxService {
     }
 
     public List<EtatDesLieuxResume> lister(UUID contratId, AuthenticatedUser acteur) {
-        verifierParticipant(contrat(contratId), acteur);
+        ContratLocation contrat = contrat(contratId);
+        if (acteur == null || (acteur.role() != sn.immosenegal.user.Role.ADMIN
+                && (!contrat.getProprietaire().getId().equals(acteur.id())
+                    && !contrat.getLocataire().getId().equals(acteur.id())))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux parties du contrat ou à l'administration.");
+        }
         return etats.findAllByContratIdOrderByCreeLeDesc(contratId).stream().map(this::resume).toList();
     }
 
