@@ -44,21 +44,11 @@ export default function MesAgences() {
   useEffect(() => { void charger() }, [charger])
 
   useEffect(() => {
-    if (utilisateur?.role === 'ADMIN') return
-    if (!jeton) return
-    let annule = false
-    Promise.all([
-      appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
-      appelApi<Invitation[]>('/api/agence/mes-invitations', { token: jeton }),
-    ]).then(([espaces, demandes]) => {
-      if (!annule && espaces.length === 0 && demandes.length === 0) {
-        navigate('/tableau-de-bord', { replace: true })
-      }
-    }).catch(() => {
-      if (!annule) navigate('/tableau-de-bord', { replace: true })
-    })
-    return () => { annule = true }
-  }, [jeton, utilisateur?.role, navigate])
+    if (utilisateur?.role === 'ADMIN' || !jeton || chargement || erreur) return
+    if (agences.length === 0 && invitations.length === 0) {
+      navigate('/tableau-de-bord', { replace: true })
+    }
+  }, [agences, invitations, chargement, erreur, jeton, utilisateur?.role, navigate])
 
 
   const accepter = async (invitation: Invitation) => {
