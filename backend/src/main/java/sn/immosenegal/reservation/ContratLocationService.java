@@ -182,10 +182,15 @@ public class ContratLocationService {
  public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
   finaliserResiliationsEchues();
-  return contrats.findAllByOrderByCreeLeDesc().stream().map(c->new SupervisionContratResume(
-   resume(c),paiements.findAllByContratIdOrderByPeriodeDesc(c.getId()).stream()
-    .map(this::versPaiementResume).toList()
-  )).toList();
+  return contrats.findAllByOrderByCreeLeDesc().stream().map(c->{
+   var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
+   return new SupervisionContratResume(
+    resume(c),paiements.findAllByContratIdOrderByPeriodeDesc(c.getId()).stream()
+     .map(this::versPaiementResume).toList(),
+    mandat.isPresent()?"AGENCE":"PROPRIETAIRE",
+    mandat.map(m->m.getAgence().getNom()).orElse(null)
+   );
+  }).toList();
  }
  @Scheduled(fixedDelayString = "${app.locations.termination-check-delay-ms:60000}")
  public void finaliserResiliationsEchues(){LocalDate aujourdHui=LocalDate.now();contrats.findAllByOrderByCreeLeDesc().stream().filter(c->c.getEtat()==EtatContratLocation.RESILIATION_PLANIFIEE&&c.getDateFinSouhaitee()!=null&&!c.getDateFinSouhaitee().isAfter(aujourdHui)).forEach(ContratLocation::finaliserResiliation);}
@@ -204,5 +209,5 @@ public class ContratLocationService {
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe,String proprietaireSignature,String locataireSignature,Instant proprietaireSigneLe,Instant locataireSigneLe){}
  public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe){}
  public record CommissionLocationResume(UUID id,UUID agenceId,String agenceNom,UUID contratId,String annonceTitre,LocalDate periode,BigDecimal tauxApplique,BigDecimal baseCalcul,BigDecimal montantCommission,Instant creeLe){}
- public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements){}
+ public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements,String gestionType,String agenceNom){}
 }
