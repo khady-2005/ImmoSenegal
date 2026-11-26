@@ -14,7 +14,7 @@ function CarteAcces({ item }: { item: Acces }) {
   const Icone = item.icone
   return (
     <Link to={item.lien} className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-dore-400 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dore-500">
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-nuit-900 text-dore-400"><Icone className="h-5 w-5" aria-hidden /></span>
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-transparent text-nuit-900"><Icone className="h-5 w-5" aria-hidden /></span>
       <h2 className="mt-4 text-lg font-semibold text-nuit-900">{item.titre}</h2>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{item.description}</p>
       <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-nuit-800 group-hover:text-amber-700">{item.action}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
