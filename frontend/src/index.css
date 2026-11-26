@@ -1436,3 +1436,52 @@ svg.lucide,
   color: #173b63 !important;
   -webkit-text-fill-color: #173b63 !important;
 }
+
+/* CORRECTION FINALE DE LISIBILITE — panneaux et boutons bleus.
+   Un bouton bleu porte toujours un texte blanc ; une carte claire imbriquée
+   dans un panneau bleu retrouve un texte bleu nuit. */
+#root :is(button, a, [role="button"], input[type="button"], input[type="submit"]):is(
+  [class*="bg-blue-"], [class*="bg-nuit-"], [class*="bg-sky-"],
+  [class*="bg-indigo-"], [class*="bg-cyan-"],
+  [class*="from-blue-"], [class*="from-nuit-"], [class*="from-sky-"],
+  [class*="from-indigo-"], [class*="to-blue-"], [class*="to-nuit-"],
+  [class*="to-sky-"], [class*="to-indigo-"]
+),
+#root :is(button, a, [role="button"], input[type="button"], input[type="submit"]):is(
+  [class*="bg-blue-"], [class*="bg-nuit-"], [class*="bg-sky-"],
+  [class*="bg-indigo-"], [class*="bg-cyan-"],
+  [class*="from-blue-"], [class*="from-nuit-"], [class*="from-sky-"],
+  [class*="from-indigo-"], [class*="to-blue-"], [class*="to-nuit-"],
+  [class*="to-sky-"], [class*="to-indigo-"]
+) * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+}
+#root :is(
+  .bg-nuit-950, .bg-nuit-900, .bg-nuit-800,
+  .bg-blue-950, .bg-blue-900, .bg-blue-800, .bg-blue-700,
+  .bg-sky-950, .bg-sky-900, .bg-sky-800,
+  .bg-indigo-950, .bg-indigo-900, .bg-indigo-800
+) :is(.bg-white, .bg-slate-50, .bg-gray-50, .bg-blue-50, .bg-blue-100),
+#root :is(
+  .bg-nuit-950, .bg-nuit-900, .bg-nuit-800,
+  .bg-blue-950, .bg-blue-900, .bg-blue-800, .bg-blue-700,
+  .bg-sky-950, .bg-sky-900, .bg-sky-800,
+  .bg-indigo-950, .bg-indigo-900, .bg-indigo-800
+) :is(.bg-white, .bg-slate-50, .bg-gray-50, .bg-blue-50, .bg-blue-100) * {
+  color: #173b63 !important;
+  -webkit-text-fill-color: #173b63 !important;
+  text-shadow: none !important;
+}
+#root :is(button, a, [role="button"]):is(
+  [class*="bg-blue-"], [class*="bg-nuit-"], [class*="bg-sky-"],
+  [class*="bg-indigo-"], [class*="from-blue-"], [class*="from-nuit-"]
+):disabled,
+#root :is(button, a, [role="button"]):is(
+  [class*="bg-blue-"], [class*="bg-nuit-"], [class*="bg-sky-"],
+  [class*="bg-indigo-"], [class*="from-blue-"], [class*="from-nuit-"]
+):disabled * {
+  color: #e2e8f0 !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
