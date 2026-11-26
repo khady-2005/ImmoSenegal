@@ -81,6 +81,26 @@ export default function Dashboard() {
     { titre: 'Toutes les réservations', description: 'Consultez toutes les demandes de réservation associées aux annonces.', lien: '/admin/reservations', icone: BookmarkCheck, action: 'Voir les réservations' },
   ]
 
+  const accesAdminComplementaires: Acces[] = [
+    { titre: 'Créer une annonce', description: 'Publiez une nouvelle annonce immobilière depuis l’administration.', lien: '/annonces/nouvelle', icone: Building2, action: 'Créer une annonce' },
+    { titre: 'Toutes mes annonces', description: 'Accédez à la gestion des annonces et aux modifications des biens.', lien: '/mes-annonces', icone: Building2, action: 'Gérer les annonces' },
+    { titre: 'Espace propriétaire', description: 'Accédez aux outils de gestion des biens, demandes et revenus des propriétaires.', lien: '/espace-proprietaire', icone: Building2, action: 'Ouvrir l’espace propriétaire' },
+    { titre: 'Espace locataire', description: 'Consultez les outils locatifs, les contrats et le suivi des logements.', lien: '/espace-locataire', icone: FileCheck2, action: 'Ouvrir l’espace locataire' },
+    { titre: 'Contrats de location', description: 'Consultez les contrats et leurs informations.', lien: '/mes-contrats-location', icone: FileCheck2, action: 'Voir les contrats' },
+    { titre: 'Incidents locatifs', description: 'Consultez les incidents signalés concernant les locations.', lien: '/incidents-location', icone: ShieldCheck, action: 'Gérer les incidents' },
+    { titre: 'États des lieux', description: 'Accédez aux états des lieux d’entrée et de sortie.', lien: '/etats-des-lieux', icone: ClipboardList, action: 'Voir les états des lieux' },
+    { titre: 'Dépôts de garantie', description: 'Consultez le suivi des dépôts de garantie.', lien: '/depot-garantie', icone: FileCheck2, action: 'Suivre les dépôts' },
+    { titre: 'Offres immobilières', description: 'Consultez les offres envoyées et reçues.', lien: '/mes-offres', icone: ClipboardList, action: 'Voir les offres' },
+    { titre: 'Offres reçues', description: 'Consultez les propositions reçues sur les biens.', lien: '/offres-recues', icone: ClipboardList, action: 'Voir les offres reçues' },
+    { titre: 'Demandes reçues', description: 'Accédez aux demandes de visite et de réservation reçues.', lien: '/visites-recues', icone: CalendarDays, action: 'Voir les demandes reçues' },
+    { titre: 'Réservations reçues', description: 'Consultez les réservations associées aux annonces.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Voir les réservations reçues' },
+    { titre: 'Mes espaces professionnels', description: 'Accédez aux espaces d’agence et aux outils professionnels disponibles.', lien: '/mes-agences', icone: Users, action: 'Ouvrir les espaces professionnels' },
+    { titre: 'Annuaire des agences', description: 'Consultez les agences inscrites sur la plateforme.', lien: '/rejoindre-agence', icone: Building2, action: 'Consulter les agences' },
+    { titre: 'Carte des biens', description: 'Visualisez les annonces immobilières sur la carte.', lien: '/carte', icone: Compass, action: 'Ouvrir la carte' },
+    { titre: 'Favoris', description: 'Consultez les annonces enregistrées dans les favoris.', lien: '/mes-favoris', icone: Heart, action: 'Voir les favoris' },
+    { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour accompagner les recherches immobilières.', lien: '/assistant', icone: ClipboardList, action: 'Ouvrir l’assistant' },
+  ]
+
   const accesAgent: Acces[] = [
     { titre: 'Rejoindre une agence', description: 'Après validation de votre statut Agent, découvrez les agences et envoyez votre candidature. Un gestionnaire rejoint une agence sur invitation de son responsable.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
     { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences qui vous ont invité et les espaces auxquels vous appartenez.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
@@ -94,7 +114,7 @@ export default function Dashboard() {
     { titre: 'Catalogue des biens', description: 'Consultez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
   ]
   const acces = affiche.role === 'CLIENT' ? accesClient
-    : affiche.role === 'ADMIN' ? accesAdmin
+    : affiche.role === 'ADMIN' ? [...accesAdmin, ...accesAdminComplementaires]
       : affiche.role === 'AGENT' ? accesAgent
         : ['GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE'].includes(affiche.role) ? accesEquipeAgence
           : [
