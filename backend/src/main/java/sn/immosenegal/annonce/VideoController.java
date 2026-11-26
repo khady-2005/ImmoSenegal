@@ -42,8 +42,10 @@ public class VideoController {
     }
 
     @GetMapping("/info")
-    public Map<String, Boolean> info(@PathVariable UUID annonceId) {
-        return Map.of("disponible", service.existe(annonceId));
+    public ResponseEntity<Map<String, Boolean>> info(@PathVariable UUID annonceId) {
+        return ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic())
+            .body(Map.of("disponible", service.existe(annonceId)));
     }
 
     @GetMapping
