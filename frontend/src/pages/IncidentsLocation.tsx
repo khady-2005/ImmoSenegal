@@ -16,6 +16,7 @@ const dateFr = (v: string) => new Date(v).toLocaleString('fr-FR')
 export default function IncidentsLocation() {
   const { jeton, utilisateur } = useAuth()
   const estProprietaire = utilisateur?.role === 'PROPRIETAIRE'
+  const estAdmin = utilisateur?.role === 'ADMIN'
   const [contrats, setContrats] = useState<Contrat[]>([])
   const [selection, setSelection] = useState('')
   const [incidents, setIncidents] = useState<Incident[]>([])
@@ -71,7 +72,7 @@ export default function IncidentsLocation() {
   const actualiser = async (incident: Incident, statut: Incident['statut']) => {
     setErreur(''); setMessage('')
     try {
-      await appelApi(`/api/locations/incidents/${incident.id}`, {
+      await appelApi(estAdmin ? `/api/locations/admin/incidents/${incident.id}` : `/api/locations/incidents/${incident.id}`, {
         method: 'PATCH', token: jeton,
         body: { statut, commentaire: commentaires[incident.id] || '' },
       })
@@ -145,13 +146,13 @@ export default function IncidentsLocation() {
               </div>
               <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700">{i.description}</p>
               {i.commentaireResolution && <p className="mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700"><strong>Commentaire de suivi :</strong> {i.commentaireResolution}</p>}
-              {estProprietaire && i.statut !== 'CLOTURE' && <div className="mt-4 border-t border-slate-100 pt-4">
+              {(estProprietaire || estAdmin) && i.statut !== 'CLOTURE' && <div className="mt-4 border-t border-slate-100 pt-4">
                 <label className="block text-sm text-slate-700">Commentaire de suivi (facultatif)
-                  <textarea rows={2} maxLength={1500} value={commentaires[i.id] || ''} onChange={e => setCommentaires(v => ({ ...v, [i.id]: e.target.value }))} className="mt-1 w-full rounded-lg border border-slate-300 p-2.5" />
+                  <textarea rows={2} maxLength={1500} required={estAdmin} value={commentaires[i.id] || ''} onChange={e => setCommentaires(v => ({ ...v, [i.id]: e.target.value }))} className="mt-1 w-full rounded-lg border border-slate-300 p-2.5" />
                 </label>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {i.statut === 'OUVERT' && <button onClick={() => void actualiser(i, 'EN_COURS')} className="rounded-full border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800">Prendre en charge</button>}
-                  {(i.statut === 'OUVERT' || i.statut === 'EN_COURS') && <button onClick={() => void actualiser(i, 'RESOLU')} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">Marquer comme résolu</button>}
+                  {i.statut === 'OUVERT' && <button disabled={estAdmin && !(commentaires[i.id] || '').trim()} onClick={() => void actualiser(i, 'EN_COURS')} className="rounded-full border border-blue-300 px-4 py-2 text-sm font-semibold text-blue-800">Prendre en charge</button>}
+                  {(i.statut === 'OUVERT' || i.statut === 'EN_COURS') && <button disabled={estAdmin && !(commentaires[i.id] || '').trim()} onClick={() => void actualiser(i, 'RESOLU')} className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white">Marquer comme résolu</button>}
                 </div>
               </div>}
               {i.declareParId === utilisateur?.id && i.statut === 'RESOLU' &&
