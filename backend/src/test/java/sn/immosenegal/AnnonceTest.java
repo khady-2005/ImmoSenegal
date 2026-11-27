@@ -211,15 +211,21 @@ class AnnonceTest extends AbstractApiTest {
     }
 
     @Test
-    void unAdminPeutModererEnSupprimantLAnnonceDUnAutre() throws Exception {
+    void unAdminPeutModererEnArchivantLAnnonceDUnAutre() throws Exception {
         String jetonProprio = utilisateurConnecte(Role.PROPRIETAIRE);
         String jetonAdmin = utilisateurConnecte(Role.ADMIN);
         String id = publierEtRecupererId(jetonProprio, annonce("À modérer", quartierUnique()));
 
-        lire(id, jetonAdmin).andExpect(status().isOk());   // un administrateur peut aussi consulter les annonces publiées
+        lire(id, jetonAdmin).andExpect(status().isOk());
+        // Suppression directe refusée sur le bien d'un propriétaire (409) : l'admin doit archiver avec un motif.
         mvc.perform(delete("/api/annonces/" + id).header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin)))
-            .andExpect(status().isNoContent());
-        lire(id, jetonAdmin).andExpect(status().isNotFound());
+            .andExpect(status().isConflict());
+        mvc.perform(post("/api/admin/annonces/" + id + "/archiver")
+                .header(HttpHeaders.AUTHORIZATION, bearer(jetonAdmin))
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content("{\"motif\":\"Contenu non conforme\"}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statut").value("SUSPENDUE"));
     }
 
     @Test

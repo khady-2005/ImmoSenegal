@@ -101,13 +101,13 @@ class PhotoTest extends AbstractApiTest {
     }
 
     @Test
-    void unAdminPeutModererLesPhotos() throws Exception {
+    void unAdminDoitAvertirAvantDeModererLesPhotosDUnProprietaire() throws Exception {
         String proprietaire = utilisateurConnecte(Role.PROPRIETAIRE);
         String annonce = annonceDe(proprietaire);
         String photo = ajouterPhoto(annonce, proprietaire);
         String admin = nouvelAdminConnecte();
         mvc.perform(delete("/api/annonces/{a}/photos/{p}", annonce, photo).header(HttpHeaders.AUTHORIZATION, bearer(admin)))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isConflict());
     }
 
     // ---------- Formats et contenu ----------
