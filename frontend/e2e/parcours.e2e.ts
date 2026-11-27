@@ -128,11 +128,11 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   // La photo est lisible SANS être connecté (lecture publique) : l'image est réellement chargée par le navigateur.
   const couverture = visiteur.getByRole('article').filter({ hasText: TITRE }).getByRole('img')
   await expect.poll(() => couverture.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0)
-  // Ouvrir la fiche complète exige un compte : le serveur refuse (401) et le visiteur est renvoyé vers la connexion.
+  // Ouvrir la fiche complète sans compte : le serveur refuse (401) et un message d'erreur s'affiche.
   const lienFiche = (await visiteur.getByRole('link', { name: TITRE }).getAttribute('href'))!
   expect((await request.get(`/api${lienFiche}`)).status()).toBe(401)
   await visiteur.getByRole('link', { name: TITRE }).click()
-  await expect(visiteur.getByRole('heading', { name: 'Connexion' })).toBeVisible()
+  await expect(visiteur.getByRole('alert')).toBeVisible()
   await visiteur.close()
 
   // Une fois connecté (ici le propriétaire), la fiche s'ouvre avec son prix.
