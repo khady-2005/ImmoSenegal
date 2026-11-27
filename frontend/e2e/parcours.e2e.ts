@@ -17,13 +17,15 @@ async function connecter(page: Page, email: string, motDePasse: string) {
   await page.getByRole('button', { name: /se connecter/i }).click()
   // Après connexion, le site peut renvoyer vers la dernière page demandée : on passe par « Mon espace ».
   await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Mon espace' }).click()
-  await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
+  await expect(page.getByText(/Bonjour/)).toBeVisible()
 }
 
 async function deconnecter(page: Page) {
+  // Sur desktop, le bouton Déconnexion est dans le menu « Afficher les autres rubriques ».
+  await page.getByRole('button', { name: 'Afficher les autres rubriques' }).click()
   // On attend la réponse du serveur : c'est elle qui efface le cookie de session.
   const reponse = page.waitForResponse((r) => r.url().includes('/api/auth/logout'))
-  await page.getByRole('button', { name: /déconnexion/i }).click()
+  await page.getByRole('menuitem', { name: /déconnexion/i }).click()
   expect((await reponse).status()).toBe(204)
   await expect(page.getByRole('link', { name: 'Connexion' })).toBeVisible()
 }
@@ -91,44 +93,31 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByRole('link', { name: /gérer mes annonces/i }).click()
   // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on cible celui de la page.
   await page.getByRole('main').getByRole('link', { name: /publier une annonce/i }).click()
-  await page.getByLabel('Titre').fill(TITRE)
+  await page.getByLabel('Titre de l’annonce').fill(TITRE)
   await page.getByLabel('Transaction').selectOption('VENTE')
   await page.getByLabel('Type de bien').selectOption('VILLA')
   await page.getByLabel('Prix (FCFA)').fill('45000000')
   await page.getByLabel('Superficie (m²)').fill('300')
   await page.getByLabel('Quartier').fill('Néma')
-  await page.getByLabel('Équipements').fill('wifi, parking')
-  await page.getByRole('button', { name: /envoyer pour validation/i }).click()
+  await page.getByLabel('Équipements disponibles').fill('wifi, parking')
+  await page.getByRole('button', { name: /enregistrer et ajouter les photos/i }).click()
 
-  // 5b. Photos : un faux fichier est refusé par le serveur, une vraie image est acceptée et s'affiche.
-  await expect(page.getByRole('heading', { name: "Modifier l'annonce" })).toBeVisible()
-  await page.getByLabel('Ajouter des photos').setInputFiles({ name: 'faux.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('<html>pas une image</html>') })
+  // 5b. Photos : un faux fichier est refusé, une vraie image est acceptée et s'affiche.
+  await expect(page.getByRole('heading', { name: 'Ajoutez les photos de votre bien' })).toBeVisible()
+  await page.getByLabel('Ajouter des photos à votre galerie').setInputFiles({ name: 'faux.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('<html>pas une image</html>') })
   await expect(page.getByRole('alert')).toContainText('faux.jpg')
-  await page.getByLabel('Ajouter des photos').setInputFiles({ name: 'salon.png', mimeType: 'image/png', buffer: PNG_1PX })
+  await page.getByLabel('Ajouter des photos à votre galerie').setInputFiles({ name: 'salon.png', mimeType: 'image/png', buffer: PNG_1PX })
   const miniature = page.getByAltText('Photo 1')
   await expect(miniature).toBeVisible()
   await expect.poll(() => miniature.evaluate((i: HTMLImageElement) => i.naturalWidth)).toBeGreaterThan(0)
-  await page.getByRole('link', { name: 'Terminer' }).click()
+  await page.getByRole('button', { name: /terminer et voir mes annonces/i }).click()
   await expect(page.getByRole('link', { name: TITRE })).toBeVisible()
 
-  // 5c. Tant que l'administrateur n'a pas validé, l'annonce est « En attente » et le serveur ne la montre pas au public.
-  await expect(page.getByRole('listitem').filter({ hasText: TITRE })).toContainText('En attente')
-  const avantValidation = await request.get('/api/annonces?taille=50')
-  expect(JSON.stringify(await avantValidation.json())).not.toContain(TITRE)
+  // 5c. L'annonce est publiée immédiatement avec la couverture gratuite.
+  await expect(page.getByRole('listitem').filter({ hasText: TITRE })).toContainText('Publiée')
 
-  // 5d. L'administrateur (session séparée) valide l'annonce dans l'espace de modération.
+  // 6. Une fois publiée, l'annonce apparaît dans le catalogue public (sans être connecté) avec ses filtres.
   const baseURL = page.url().split('/').slice(0, 3).join('/')
-  const contexteAdmin = await page.context().browser()!.newContext({ baseURL })
-  const admin = await contexteAdmin.newPage()
-  await connecter(admin, ADMIN_EMAIL, ADMIN_PASSWORD)
-  await admin.getByRole('link', { name: /modération des annonces/i }).click()
-  const aModerer = admin.getByRole('listitem').filter({ hasText: TITRE })
-  await expect(aModerer).toBeVisible()
-  await aModerer.getByRole('button', { name: 'Valider' }).click()
-  await expect(admin.getByRole('status')).toContainText('publiée')
-  await contexteAdmin.close()
-
-  // 6. Une fois validée, l'annonce apparaît dans le catalogue public (sans être connecté) avec ses filtres.
   const visiteur = await page.context().browser()!.newPage({ baseURL })
   await visiteur.goto('/catalogue?type=VILLA&transaction=VENTE')
   await expect(visiteur.getByRole('link', { name: TITRE })).toBeVisible()
@@ -151,7 +140,7 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
 
   // 7. Modification du statut puis suppression avec confirmation.
   const ligne = page.getByRole('listitem').filter({ hasText: TITRE })
-  await ligne.getByRole('link', { name: 'Modifier' }).click()
+  await ligne.getByRole('link', { name: /Modifier l’annonce/i }).click()
   await page.getByLabel('Statut').selectOption('RESERVE')
   await page.getByRole('button', { name: 'Enregistrer' }).click()
   await expect(page.getByRole('listitem').filter({ hasText: TITRE })).toContainText('Réservé')
