@@ -74,13 +74,24 @@ public class AnnonceController {
         return service.mesAnnonces(utilisateur, page, taille);
     }
 
+    @GetMapping("/agence/{agenceId}")
+    @Operation(summary = "Annonces propres d'une agence (réservé aux membres actifs de l'agence ou ADMIN)",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public PageResponse<AnnonceResponse> annoncesAgence(@PathVariable UUID agenceId,
+                                                         @AuthenticationPrincipal AuthenticatedUser utilisateur,
+                                                         @RequestParam(required = false) Integer page,
+                                                         @RequestParam(required = false) Integer taille) {
+        return service.annoncesAgence(agenceId, utilisateur, page, taille);
+    }
+
     @PostMapping
-    @Operation(summary = "Créer une annonce (PROPRIETAIRE ou ADMIN) : publication immédiate avec 30 jours gratuits sans abonnement ; l'ADMIN peut rattacher l'annonce à un propriétaire", 
+    @Operation(summary = "Créer une annonce (PROPRIETAIRE, membre actif d'agence ou ADMIN)",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
     public ResponseEntity<AnnonceResponse> creer(@Valid @RequestBody AnnonceRequest requete,
                                                  @RequestParam(required = false) UUID proprietaireId,
+                                                 @RequestParam(required = false) UUID agenceId,
                                                  @AuthenticationPrincipal AuthenticatedUser utilisateur) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.creer(utilisateur, requete, proprietaireId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.creer(utilisateur, requete, proprietaireId, agenceId));
     }
 
     @org.springframework.web.bind.annotation.PatchMapping("/{id}/proprietaire")

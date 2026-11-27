@@ -21,6 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import sn.immosenegal.agence.Agence;
+import sn.immosenegal.agence.AgenceRepository;
+import sn.immosenegal.agence.FonctionAgence;
+import sn.immosenegal.agence.MandatGestion;
+import sn.immosenegal.agence.MandatGestionRepository;
+import sn.immosenegal.agence.MembreAgenceRepository;
+import sn.immosenegal.agence.StatutAgence;
+import sn.immosenegal.agence.StatutMandatGestion;
+import sn.immosenegal.agence.StatutMembreAgence;
 import sn.immosenegal.audit.AuditService;
 import sn.immosenegal.abonnement.AbonnementProprietaireRepository;
 import sn.immosenegal.abonnement.StatutAbonnement;
@@ -53,31 +62,46 @@ public class AnnonceService {
     private final PhotoRepository photos;
     private final AbonnementProprietaireRepository abonnements;
     private final NotificationService notifications;
+    private final AgenceRepository agences;
+    private final MembreAgenceRepository membresAgence;
+    private final MandatGestionRepository mandats;
 
     @Autowired
     public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos,
-            AbonnementProprietaireRepository abonnements, NotificationService notifications) {
+            AbonnementProprietaireRepository abonnements, NotificationService notifications,
+            AgenceRepository agences, MembreAgenceRepository membresAgence, MandatGestionRepository mandats) {
         this.annonces = annonces;
         this.users = users;
         this.audit = audit;
         this.photos = photos;
         this.abonnements = abonnements;
         this.notifications = notifications;
+        this.agences = agences;
+        this.membresAgence = membresAgence;
+        this.mandats = mandats;
     }
 
     /** Constructeur conservé pour les tests unitaires historiques. */
     public AnnonceService(AnnonceRepository annonces, UserRepository users, AuditService audit, PhotoRepository photos,
             AbonnementProprietaireRepository abonnements) {
-        this(annonces, users, audit, photos, abonnements, null);
+        this(annonces, users, audit, photos, abonnements, null, null, null, null);
     }
 
     @Transactional
     public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete) {
-        return creer(auteur, requete, null);
+        return creer(auteur, requete, null, null);
     }
 
     @Transactional
     public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete, UUID proprietaireId) {
+        return creer(auteur, requete, proprietaireId, null);
+    }
+
+    @Transactional
+    public AnnonceResponse creer(AuthenticatedUser auteur, AnnonceRequest requete, UUID proprietaireId, UUID agenceId) {
+        if (agenceId != null) {
+            return creerPourAgence(auteur, requete, proprietaireId, agenceId);
+        }
         if (!ROLES_PUBLICATION.contains(auteur.role())) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Seuls les propriétaires et les administrateurs peuvent publier une annonce.");
         }
@@ -113,6 +137,40 @@ public class AnnonceService {
             ? "Annonce " + annonce.getId() + " publiée avec un abonnement ou par administration"
             : "Annonce " + annonce.getId() + " couverte jusqu'au " + annonce.getDateFinPublication());
         return AnnonceResponse.pourGestion(annonce, List.of());
+    }
+
+    private AnnonceResponse creerPourAgence(AuthenticatedUser auteur, AnnonceRequest requete, UUID proprietaireId, UUID agenceId) {
+        if (agences == null || membresAgence == null) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Service agence indisponible.");
+        }
+        Agence agence = agences.findById(agenceId)
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
+        if (auteur.role() != Role.ADMIN && !estMembrePublicationAgence(agenceId, auteur.id())) {
+            throw new ApiException(HttpStatus.FORBIDDEN,
+                "Seul un collaborateur actif (responsable, gestionnaire ou agent) de cette agence peut publier un bien en son nom.");
+        }
+        User proprietaire;
+        if (proprietaireId != null) {
+            proprietaire = users.findById(proprietaireId)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Compte propriétaire introuvable."));
+            if (!proprietaire.isActif()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "Le compte choisi doit être actif.");
+            }
+        } else {
+            proprietaire = users.findById(auteur.id())
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        }
+        Annonce annonce = new Annonce(proprietaire);
+        appliquer(annonce, requete);
+        annonce.setAgence(agence);
+        annonce.setPublieeParAgence(true);
+        annonce.setStatut(StatutAnnonce.PUBLIEE);
+        annonce.setDateFinPublication(null);
+        annonces.save(annonce);
+        audit.enregistrer("ANNONCE_AGENCE_CREEE", auteur.id(),
+            "Annonce " + annonce.getId() + " publiée par l'agence " + agence.getNom());
+        return AnnonceResponse.pourGestion(annonce, List.of(), null);
     }
 
     @Transactional
@@ -249,12 +307,17 @@ public class AnnonceService {
     public AnnonceResponse obtenir(UUID id, AuthenticatedUser lecteur) {
         Annonce annonce = trouver(id);
         boolean gestionnaire = lecteur != null
-            && (lecteur.role() == Role.ADMIN || annonce.getProprietaire().getId().equals(lecteur.id()));
+            && (lecteur.role() == Role.ADMIN
+                || annonce.getProprietaire().getId().equals(lecteur.id())
+                || estMembrePublicationAnnonce(annonce, lecteur.id()));
         if (annonce.getStatut() != StatutAnnonce.PUBLIEE && !gestionnaire) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable.");
         }
         List<UUID> photosAnnonce = photosDe(List.of(id)).getOrDefault(id, List.of());
-        return gestionnaire ? AnnonceResponse.pourGestion(annonce, photosAnnonce) : AnnonceResponse.de(annonce, photosAnnonce);
+        AnnonceResponse.GestionnaireInfo gestionnaireInfo = gestionnairesDe(List.of(id)).get(id);
+        return gestionnaire
+            ? AnnonceResponse.pourGestion(annonce, photosAnnonce, gestionnaireInfo)
+            : AnnonceResponse.de(annonce, photosAnnonce, gestionnaireInfo);
     }
 
     /** Catalogue : uniquement les annonces PUBLIEE, quels que soient les critères reçus. */
@@ -267,6 +330,25 @@ public class AnnonceService {
     @Transactional(readOnly = true)
     public PageResponse<AnnonceResponse> mesAnnonces(AuthenticatedUser utilisateur, Integer page, Integer taille) {
         return enPage(annonces.findByProprietaireId(utilisateur.id(), pageable(page, taille, trier("recent"))), true);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<AnnonceResponse> annoncesAgence(UUID agenceId, AuthenticatedUser utilisateur, Integer page, Integer taille) {
+        if (agences == null || membresAgence == null) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Service agence indisponible.");
+        }
+        agences.findById(agenceId)
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
+        if (utilisateur.role() != Role.ADMIN) {
+            boolean membreActif = membresAgence.findByAgenceIdAndUtilisateurId(agenceId, utilisateur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .isPresent();
+            if (!membreActif) {
+                throw new ApiException(HttpStatus.FORBIDDEN, "Accès réservé aux membres actifs de cette agence.");
+            }
+        }
+        return enPage(annonces.findByAgenceId(agenceId, pageable(page, taille, trier("recent"))), true);
     }
 
     // ---------- Modération (administrateurs) ----------
@@ -398,10 +480,24 @@ public class AnnonceService {
     }
 
     private PageResponse<AnnonceResponse> enPage(Page<Annonce> page, boolean vueGestion) {
-        Map<UUID, List<UUID>> parAnnonce = photosDe(page.getContent().stream().map(Annonce::getId).toList());
+        List<UUID> ids = page.getContent().stream().map(Annonce::getId).toList();
+        Map<UUID, List<UUID>> parAnnonce = photosDe(ids);
+        Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesParAnnonce = gestionnairesDe(ids);
         return PageResponse.de(page.map(a -> vueGestion
-            ? AnnonceResponse.pourGestion(a, parAnnonce.getOrDefault(a.getId(), List.of()))
-            : AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()))));
+            ? AnnonceResponse.pourGestion(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId()))
+            : AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId()))));
+    }
+
+    private Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesDe(Collection<UUID> ids) {
+        if (mandats == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        return mandats.findAllByAnnonceIdInAndStatutOrderByDecideLeDesc(ids, StatutMandatGestion.ACCEPTE).stream()
+            .collect(Collectors.toMap(
+                m -> m.getAnnonce().getId(),
+                m -> new AnnonceResponse.GestionnaireInfo(
+                    m.getAgence().getId(), m.getAgence().getNom(), m.getAgence().getSlug()),
+                (premier, ignorer) -> premier));
     }
 
     /** Identifiants de photos par annonce, en une seule requête (sans charger les images). */
@@ -418,12 +514,26 @@ public class AnnonceService {
         return annonces.findById(id).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
     }
 
-    /** Seul le propriétaire de l'annonce, ou un ADMIN (modération), peut la modifier ou la supprimer. */
+    /** Seul le propriétaire de l'annonce, un collaborateur actif de son agence diffuseuse, ou un ADMIN peut la modifier ou la supprimer. */
     private void verifierDroits(Annonce annonce, AuthenticatedUser utilisateur) {
         boolean proprietaire = annonce.getProprietaire().getId().equals(utilisateur.id());
-        if (!proprietaire && utilisateur.role() != Role.ADMIN) {
+        if (!proprietaire && utilisateur.role() != Role.ADMIN && !estMembrePublicationAnnonce(annonce, utilisateur.id())) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette annonce ne vous appartient pas.");
         }
+    }
+
+    private boolean estMembrePublicationAnnonce(Annonce annonce, UUID utilisateurId) {
+        return annonce.getAgence() != null && estMembrePublicationAgence(annonce.getAgence().getId(), utilisateurId);
+    }
+
+    private boolean estMembrePublicationAgence(UUID agenceId, UUID utilisateurId) {
+        if (membresAgence == null) return false;
+        return membresAgence.findByAgenceIdAndUtilisateurId(agenceId, utilisateurId)
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE
+                || m.getFonction() == FonctionAgence.GESTIONNAIRE
+                || m.getFonction() == FonctionAgence.AGENT)
+            .isPresent();
     }
 
     /** Vrai si la requête change au moins un champ de contenu (le statut n'en fait pas partie). */

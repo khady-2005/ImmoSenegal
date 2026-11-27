@@ -22,7 +22,7 @@ async function seConnecter(role: 'CLIENT' | 'PROPRIETAIRE', routes: Parameters<t
   await user.type(await screen.findByLabelText(/email/i), 'khady@example.test')
   await user.type(screen.getByLabelText(/mot de passe/i), 'MotDePasse123!')
   await user.click(screen.getByRole('button', { name: /se connecter/i }))
-  if (depart === '/connexion') await screen.findByRole('heading', { name: /Bonjour/ })
+  if (depart === '/connexion') await screen.findByText(/Bonjour/)
   return { api, user }
 }
 
@@ -48,19 +48,19 @@ describe('Publication et gestion des annonces', () => {
     // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on vise celui de la page.
     await user.click(await within(screen.getByRole('main')).findByRole('link', { name: /publier une annonce/i }))
 
-    await user.type(screen.getByLabelText('Titre'), 'Villa neuve')
+    await user.type(screen.getByLabelText('Titre de l’annonce'), 'Villa neuve')
     await user.type(screen.getByLabelText('Prix (FCFA)'), '45000000')
     await user.type(screen.getByLabelText('Superficie (m²)'), '300')
     await user.type(screen.getByLabelText('Quartier'), 'Néma')
-    await user.type(screen.getByLabelText('Équipements'), 'wifi, parking')
+    await user.type(screen.getByLabelText('Équipements disponibles'), 'wifi, parking')
     await user.click(screen.getByRole('button', { name: /enregistrer et ajouter les photos/i }))
 
     // Après l'enregistrement, le propriétaire reste sur l'étape d'ajout des médias.
     expect(await screen.findByRole('heading', { name: 'Ajoutez les photos de votre bien' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('Votre annonce est publiée dans le catalogue')
-    expect(screen.getByLabelText('Ajouter des photos')).toBeInTheDocument()
+    expect(screen.getByLabelText('Ajouter des photos à votre galerie')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /terminer et voir mes annonces/i }))
-    await screen.findByRole('heading', { name: 'Mes annonces' })
+    await screen.findByRole('heading', { name: 'Gestion de mes annonces' })
     const appel = api.mock.calls.find(([u, i]) => u === '/api/annonces' && i?.method === 'POST')!
     const corps = JSON.parse(String(appel[1]!.body))
     expect(corps).toMatchObject({ titre: 'Villa neuve', prix: 45000000, superficie: 300, quartier: 'Néma', equipements: ['wifi', 'parking'] })
@@ -80,7 +80,7 @@ describe('Publication et gestion des annonces', () => {
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
     // Le menu et le pied de page ont aussi un lien « Publier une annonce » : on vise celui de la page.
     await user.click(await within(screen.getByRole('main')).findByRole('link', { name: /publier une annonce/i }))
-    await user.type(screen.getByLabelText('Titre'), 'X')
+    await user.type(screen.getByLabelText('Titre de l’annonce'), 'X')
     await user.click(screen.getByRole('button', { name: /enregistrer et ajouter les photos/i }))
     expect(await screen.findByText('doit être positif')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('Données invalides.')
@@ -130,11 +130,11 @@ describe('Publication et gestion des annonces', () => {
       },
     )
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
-    await user.click(await screen.findByRole('link', { name: 'Modifier' }))
-    expect(await screen.findByLabelText('Titre')).toHaveValue('Appartement lumineux')
+    await user.click(await screen.findByRole('link', { name: /Modifier l’annonce/i }))
+    expect(await screen.findByLabelText('Titre de l’annonce')).toHaveValue('Appartement lumineux')
     await user.selectOptions(screen.getByLabelText('Statut'), 'LOUE')
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
-    await screen.findByRole('heading', { name: 'Mes annonces' })
+    await screen.findByRole('heading', { name: 'Gestion de mes annonces' })
     const put = api.mock.calls.find(([, i]) => i?.method === 'PUT')!
     expect(JSON.parse(String(put[1]!.body)).statut).toBe('LOUE')
   })
@@ -147,15 +147,15 @@ describe('Publication et gestion des annonces', () => {
       [`PUT /api/annonces/${a.id}`]: () => json(200, a),
     })
     await user.click(screen.getByRole('link', { name: /gérer mes annonces/i }))
-    await user.click(await screen.findByRole('link', { name: 'Modifier' }))
-    expect(await screen.findByLabelText('Titre')).toHaveValue('Appartement lumineux')
+    await user.click(await screen.findByRole('link', { name: /Modifier l’annonce/i }))
+    expect(await screen.findByLabelText('Titre de l’annonce')).toHaveValue('Appartement lumineux')
     expect(screen.queryByLabelText('Statut')).not.toBeInTheDocument()
     expect(screen.getByText(/Statut : En attente d’abonnement ou de mandat/)).toBeInTheDocument()
     // L'annonce n'étant pas publique, sa lecture se fait avec la session du propriétaire.
     const lecture = api.mock.calls.find(([u, i]) => u === `/api/annonces/${a.id}` && (i?.method ?? 'GET') === 'GET')!
     expect(JSON.stringify(lecture[1]?.headers)).toContain('Bearer jeton-de-test')
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }))
-    await screen.findByRole('heading', { name: 'Mes annonces' })
+    await screen.findByRole('heading', { name: 'Gestion de mes annonces' })
     const put = api.mock.calls.find(([, i]) => i?.method === 'PUT')!
     expect(JSON.parse(String(put[1]!.body))).not.toHaveProperty('statut')
   })

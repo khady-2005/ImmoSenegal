@@ -5,6 +5,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { annonceTest, json, pageTest, reponseConnexion, simulerApi, utilisateurTest } from '../test/apiSimulee'
 
+vi.mock('../components/preparerPhoto', () => ({
+  preparerPhoto: async (f: File) => {
+    if (f.size > 5 * 1024 * 1024) throw new Error('plus de 5 Mo.')
+    return f
+  },
+}))
+
 const proprio = { ...utilisateurTest, role: 'PROPRIETAIRE' as const }
 const ID = 'a1111111-1111-1111-1111-111111111111'
 const P1 = 'b0000000-0000-0000-0000-000000000001'
@@ -27,7 +34,7 @@ async function pageModification(routes: Parameters<typeof simulerApi>[0], photos
   })
   const user = userEvent.setup()
   afficher(`/annonces/${ID}/modifier`)
-  await screen.findByLabelText('Ajouter des photos')
+  await screen.findByLabelText('Ajouter des photos à votre galerie')
   return { api, user }
 }
 
@@ -38,10 +45,11 @@ afterEach(() => vi.unstubAllGlobals())
 describe('Gestion des photos (propriétaire)', () => {
   it("envoie la photo en multipart (champ « fichier ») avec le jeton, puis l'affiche", async () => {
     const { api, user } = await pageModification({ [`POST /api/annonces/${ID}/photos`]: () => json(201, { id: P1 }) })
-    await user.upload(screen.getByLabelText('Ajouter des photos'), fichier('salon.jpg'))
+    await user.upload(screen.getByLabelText('Ajouter des photos à votre galerie'), fichier('salon.jpg'))
 
     expect(await screen.findByAltText('Photo 1')).toHaveAttribute('src', `/api/annonces/${ID}/photos/${P1}`)
-    expect(screen.getByRole('heading', { name: 'Photos (1/15)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Galerie photos' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Galerie photos' }).closest('section')!).toHaveTextContent('1/15')
 
     const [, init] = api.mock.calls.find(([u, i]) => u === `/api/annonces/${ID}/photos` && i?.method === 'POST')!
     expect(init!.body).toBeInstanceOf(FormData)
@@ -53,7 +61,7 @@ describe('Gestion des photos (propriétaire)', () => {
 
   it("refuse une photo de plus de 5 Mo sans l'envoyer", async () => {
     const { api, user } = await pageModification({})
-    await user.upload(screen.getByLabelText('Ajouter des photos'), fichier('enorme.jpg', 5 * 1024 * 1024 + 1))
+    await user.upload(screen.getByLabelText('Ajouter des photos à votre galerie'), fichier('enorme.jpg', 5 * 1024 * 1024 + 1))
     expect(await screen.findByRole('alert')).toHaveTextContent('« enorme.jpg » : plus de 5 Mo.')
     expect(api.mock.calls.some(([, i]) => i?.method === 'POST' && i.body instanceof FormData)).toBe(false)
   })
@@ -62,7 +70,7 @@ describe('Gestion des photos (propriétaire)', () => {
     const { user } = await pageModification({
       [`POST /api/annonces/${ID}/photos`]: () => json(400, { message: "Ce fichier n'est pas une image lisible." }),
     })
-    await user.upload(screen.getByLabelText('Ajouter des photos'), fichier('faux.jpg'))
+    await user.upload(screen.getByLabelText('Ajouter des photos à votre galerie'), fichier('faux.jpg'))
     expect(await screen.findByRole('alert')).toHaveTextContent("« faux.jpg » : Ce fichier n'est pas une image lisible.")
     expect(screen.queryByAltText('Photo 1')).not.toBeInTheDocument()
   })
@@ -85,8 +93,9 @@ describe('Gestion des photos (propriétaire)', () => {
       [`GET /api/annonces/${ID}`]: () => json(200, annonceTest({ photos: quinze })),
     })
     afficher(`/annonces/${ID}/modifier`)
-    expect(await screen.findByRole('heading', { name: 'Photos (15/15)' })).toBeInTheDocument()
-    expect(screen.queryByLabelText('Ajouter des photos')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Galerie photos' })).toBeInTheDocument()
+    expect(screen.getByText('15')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Ajouter des photos à votre galerie')).not.toBeInTheDocument()
   })
 })
 
@@ -99,7 +108,7 @@ describe('Affichage public des photos', () => {
     })
     afficher('/catalogue')
     const cartes = await screen.findAllByRole('article')
-    expect(within(cartes[0]).getByRole('img')).toHaveAttribute('src', `/api/annonces/${ID}/photos/${P1}`)
+    expect(within(cartes[0]).getByRole('img')).toHaveAttribute('src', expect.stringContaining(`/api/annonces/${ID}/photos/${P1}`))
     expect(within(cartes[1]).queryByRole('img')).not.toBeInTheDocument()
   })
 

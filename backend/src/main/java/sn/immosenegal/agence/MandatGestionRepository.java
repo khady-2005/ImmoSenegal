@@ -1,5 +1,6 @@
 package sn.immosenegal.agence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MandatGestionRepository extends JpaRepository<MandatGestion, UUID> {
     List<MandatGestion> findAllByAgenceIdOrderByCreeLeDesc(UUID agenceId);
     Optional<MandatGestion> findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(UUID annonceId, StatutMandatGestion statut);
+    List<MandatGestion> findAllByAnnonceIdInAndStatutOrderByDecideLeDesc(Collection<UUID> annonceIds, StatutMandatGestion statut);
     List<MandatGestion> findAllByAgenceIdAndStatutOrderByCreeLeDesc(UUID agenceId, StatutMandatGestion statut);
     List<MandatGestion> findAllByProprietaireIdOrderByCreeLeDesc(UUID proprietaireId);
     List<MandatGestion> findAllByAnnonceIdAndStatutOrderByCreeLeDesc(UUID annonceId, StatutMandatGestion statut);

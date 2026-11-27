@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import Champ from '../components/Champ'
@@ -25,9 +25,12 @@ export function peutPublier(role: string | undefined) {
 
 export default function FormulaireAnnonce() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const edition = Boolean(id)
   const { utilisateur, jeton, majUtilisateur } = useAuth()
   const [profilVerifie, setProfilVerifie] = useState(false)
+  const [agencesPublication, setAgencesPublication] = useState<Array<{ id: string; nom: string; fonction: string }>>([])
+  const [agenceId, setAgenceId] = useState(() => searchParams.get('agenceId') ?? '')
   const navigate = useNavigate()
   const [photos, setPhotos] = useState<string[]>([])
   const [annonceCreeeId, setAnnonceCreeeId] = useState<string | null>(null)
@@ -63,6 +66,13 @@ export default function FormulaireAnnonce() {
       .finally(() => {
         if (!annule) setProfilVerifie(true)
       })
+    appelApi<Array<{ id: string; nom: string; fonction: string }>>('/api/agence/mes-espaces', { token: jeton })
+      .then((espaces) => {
+        if (!annule) {
+          setAgencesPublication(espaces.filter((e) => ['RESPONSABLE', 'GESTIONNAIRE', 'AGENT'].includes(e.fonction)))
+        }
+      })
+      .catch(() => undefined)
     return () => { annule = true }
   }, [jeton, majUtilisateur])
 
@@ -100,7 +110,7 @@ export default function FormulaireAnnonce() {
   }, [id, jeton])
 
   if (!profilVerifie) return <p role="status" className="p-8 text-center text-slate-500">Vérification de votre compte…</p>
-  if (!peutPublier(utilisateur?.role)) {
+  if (!peutPublier(utilisateur?.role) && agencesPublication.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
         <h1 className="text-2xl font-bold">Publier une annonce</h1>
@@ -146,13 +156,16 @@ export default function FormulaireAnnonce() {
     setErreur(null)
     setChamps({})
     try {
-      if (!edition && utilisateur?.role === 'ADMIN' && !proprietaireId) {
-        setErreur('Choisissez le propriétaire de cette annonce.')
+      if (!edition && utilisateur?.role === 'ADMIN' && !proprietaireId && !agenceId) {
+        setErreur('Choisissez le propriétaire ou l’agence de cette annonce.')
         setEnvoi(false)
         return
       }
-      const url = edition ? `/api/annonces/${id}` :
-        utilisateur?.role === 'ADMIN' ? `/api/annonces?proprietaireId=${encodeURIComponent(proprietaireId)}` : '/api/annonces'
+      const params = new URLSearchParams()
+      if (!edition && proprietaireId) params.set('proprietaireId', proprietaireId)
+      if (!edition && agenceId) params.set('agenceId', agenceId)
+      const qs = params.toString()
+      const url = edition ? `/api/annonces/${id}` : (qs ? `/api/annonces?${qs}` : '/api/annonces')
       const reponse = await appelApi<Annonce>(url, {
         method: edition ? 'PUT' : 'POST',
         body: corps,
@@ -316,6 +329,17 @@ export default function FormulaireAnnonce() {
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
         {erreur && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+        {!edition && agencesPublication.length > 0 && (
+          <div>
+            <label htmlFor="agence-annonce" className="mb-1 block text-sm font-medium text-slate-700">Publier au nom d’une agence (facultatif)</label>
+            <select id="agence-annonce" value={agenceId} onChange={(e) => setAgenceId(e.target.value)} className={classeSelect}>
+              {peutPublier(utilisateur?.role) && <option value="">À titre personnel (propriétaire)</option>}
+              {!peutPublier(utilisateur?.role) && <option value="">Choisir une agence</option>}
+              {agencesPublication.map((ag) => <option key={ag.id} value={ag.id}>{ag.nom} ({ag.fonction})</option>)}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">L’agence sélectionnée apparaîtra comme diffuseur du bien dans le catalogue.</p>
+          </div>
+        )}
         {!edition && utilisateur?.role === 'ADMIN' && (
           <div>
             <label htmlFor="proprietaire-annonce" className="mb-1 block text-sm font-medium text-slate-700">Propriétaire de cette annonce</label>

@@ -20,27 +20,25 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Immo Sénégal' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Découvrir le catalogue' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Votre prochain chez-vous commence ici.')
+    expect(screen.getByRole('link', { name: 'Découvrir les annonces' })).toHaveAttribute('href', '/catalogue')
     const liensInscription = screen.getAllByRole('link', { name: 'Inscription' })
     expect(liensInscription.length).toBeGreaterThanOrEqual(1)
     liensInscription.forEach((l) => expect(l).toHaveAttribute('href', '/inscription'))
     expect(await screen.findByText(/la première annonce peut être la vôtre/i)).toBeInTheDocument()
   })
 
-  it('affiche le nombre réel de logements disponibles, et rien quand il n\'y en a aucun', async () => {
+  it('affiche les annonces publiées dans la section vedette et rien de fictif quand la base est vide', async () => {
     simulerApi({
-      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
+      'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa à Saly' })], { totalElements: 1 })),
     })
     const { unmount } = afficher()
-    expect(await screen.findByText('1 bien publié actuellement')).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Villa à Saly' })).toBeInTheDocument()
     unmount()
 
-    simulerApi({
-      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 12 })),
-    })
+    simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    expect(await screen.findByText('12 biens publiés actuellement')).toBeInTheDocument()
+    expect(await screen.findByText(/la première annonce peut être la vôtre/i)).toBeInTheDocument()
   })
 
   it('n\'affiche aucun compteur quand la base est vide', async () => {
@@ -56,7 +54,6 @@ describe("Page d'accueil", () => {
     const attendus: Record<string, string> = {
       Maisons: 'MAISON',
       Appartements: 'APPARTEMENT',
-      Studios: 'STUDIO',
       Villas: 'VILLA',
       Terrains: 'TERRAIN',
     }
@@ -70,7 +67,7 @@ describe("Page d'accueil", () => {
   it('propose un accès au catalogue depuis la page d’accueil', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    expect(screen.getByRole('link', { name: 'Rechercher un bien' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByRole('link', { name: 'Découvrir les annonces' })).toHaveAttribute('href', '/catalogue')
     expect(screen.queryByRole('tab', { name: 'En une phrase' })).not.toBeInTheDocument()
     await screen.findByText(/la première annonce peut être la vôtre/i)
   })
@@ -86,7 +83,7 @@ describe("Page d'accueil", () => {
   it('permet au visiteur d’ouvrir le catalogue depuis l’accueil', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
-    await userEvent.setup().click(screen.getByRole('link', { name: 'Découvrir le catalogue' }))
+    await userEvent.setup().click(screen.getByRole('link', { name: 'Découvrir les annonces' }))
     expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
   })
 
@@ -96,16 +93,14 @@ describe("Page d'accueil", () => {
     expect(await screen.findByRole('link', { name: 'Villa face au fleuve' })).toBeInTheDocument()
   })
 
-  it('le compteur ne compte que les vraies annonces : il demande exemple=false au serveur', async () => {
+  it('interroge le catalogue récent pour la section des biens vedettes', async () => {
     const api = simulerApi({
-      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()], { totalElements: 1 })),
+      'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])),
     })
     afficher()
-    await screen.findByText('1 bien publié actuellement')
+    await screen.findByRole('link', { name: 'Appartement lumineux' })
     const urls = api.mock.calls.map((c) => String(c[0]))
-    expect(urls.some((u) => u.includes('exemple=false'))).toBe(true)
-    // La grille, elle, montre aussi les exemples : elle ne filtre pas sur ce critère.
-    expect(urls.some((u) => u.includes('taille=6') && !u.includes('exemple='))).toBe(true)
+    expect(urls.some((u) => u.includes('taille=6') && u.includes('tri=recent'))).toBe(true)
   })
 
   it('retire le badge Exemple des annonces illustratives, conserve une note globale et ne les compte pas comme réelles', async () => {
@@ -174,7 +169,7 @@ describe("Page d'accueil", () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([])) })
     afficher()
     const types = within(screen.getByRole('list', { name: 'Types de bien' }))
-    for (const [nom, type] of Object.entries({ Maisons: 'MAISON', Appartements: 'APPARTEMENT', Villas: 'VILLA', Studios: 'STUDIO', Terrains: 'TERRAIN' })) {
+    for (const [nom, type] of Object.entries({ Maisons: 'MAISON', Appartements: 'APPARTEMENT', Villas: 'VILLA', Terrains: 'TERRAIN' })) {
       expect(types.getByRole('link', { name: nom })).toHaveAttribute('href', `/catalogue?type=${type}`)
     }
     await screen.findByText(/la première annonce peut être la vôtre/i)

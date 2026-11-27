@@ -19,9 +19,9 @@ describe('Accueil', () => {
   it("présente l'accueil et dirige vers le catalogue sans formulaire de recherche intégré", async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest({ titre: 'Villa des Pins' })])) })
     afficher()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('ImmoSénégal')
-    expect(screen.getByRole('link', { name: 'Rechercher un bien' })).toHaveAttribute('href', '/catalogue')
-    expect(screen.queryByRole('form', { name: /recherche/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Votre prochain chez-vous commence ici.')
+    expect(screen.getByRole('link', { name: 'Découvrir les annonces' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByRole('form', { name: /rechercher un bien immobilier/i })).toHaveAttribute('action', '/catalogue')
     expect(await screen.findByRole('link', { name: 'Villa des Pins' })).toHaveAttribute('href', '/annonces/a1111111-1111-1111-1111-111111111111')
   })
 
@@ -41,7 +41,7 @@ describe('Accueil', () => {
   it('permet à un visiteur de consulter le catalogue public', async () => {
     simulerApi({ 'GET /api/annonces?*': () => json(200, pageTest([annonceTest()])) })
     afficher()
-    await userEvent.setup().click(screen.getByRole('link', { name: 'Rechercher un bien' }))
+    await userEvent.setup().click(screen.getByRole('link', { name: 'Découvrir les annonces' }))
     expect(await screen.findByRole('heading', { name: 'Catalogue des annonces' })).toBeInTheDocument()
   })
 })

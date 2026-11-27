@@ -78,6 +78,7 @@ export default function AgenceTableauDeBord() {
   const [commissions, setCommissions] = useState<CommissionLocation[]>([])
   const [tauxCommission, setTauxCommission] = useState<Record<string, string>>({})
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
+  const [annoncesPropres, setAnnoncesPropres] = useState<Annonce[]>([])
   const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
   const [annonceChoisie, setAnnonceChoisie] = useState('')
   const [email, setEmail] = useState('')
@@ -105,13 +106,14 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe, demandes, catalogue, demandesEquipe, relevéCommissions] = await Promise.all([
+      const [espaces, equipe, demandes, catalogue, demandesEquipe, relevéCommissions, propres] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>('/api/annonces?taille=50', { token: jeton }),
         appelApi<Candidature[]>(`/api/agence/${agenceId}/candidatures`, { token: jeton }),
         appelApi<CommissionLocation[]>(`/api/locations/agence/${agenceId}/commissions`, { token: jeton }),
+        appelApi<PagePaginee<Annonce>>(`/api/annonces/agence/${agenceId}?taille=50`, { token: jeton }),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -128,6 +130,7 @@ export default function AgenceTableauDeBord() {
       setCommissions(relevéCommissions)
       setCandidatures(demandesEquipe)
       setAnnoncesDisponibles(catalogue.contenu)
+      setAnnoncesPropres(propres.contenu)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         navigate('/mes-agences', { replace: true })
@@ -448,6 +451,35 @@ export default function AgenceTableauDeBord() {
                     <button type="button" disabled={membreEnCours === mandat.id} onClick={() => void repondreMandat(mandat, false)} className="rounded-full border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">Refuser</button>
                   </div>
                 )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-nuit-900">Biens propres de l’agence</h2>
+            <p className="mt-1 text-sm text-slate-600">Les annonces publiées directement au nom de votre agence ({annoncesPropres.length}).</p>
+          </div>
+          <Link to={`/annonces/nouvelle?agenceId=${agenceId}`} className="rounded-xl bg-dore-500 px-4 py-2.5 text-sm font-bold text-nuit-950 hover:bg-dore-400">
+            Publier un bien de l’agence
+          </Link>
+        </div>
+        {annoncesPropres.length === 0 ? (
+          <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucun bien propre publié par l’agence pour le moment.</p>
+        ) : (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {annoncesPropres.map((a) => (
+              <article key={a.id} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4">
+                <div className="min-w-0">
+                  <Link to={`/annonces/${a.id}`} className="font-semibold text-nuit-900 hover:underline">{a.titre}</Link>
+                  <p className="text-xs text-slate-600">{a.quartier}, {a.ville} · {a.prix.toLocaleString('fr-FR')} FCFA</p>
+                </div>
+                <Link to={`/annonces/${a.id}/modifier`} className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  Modifier
+                </Link>
               </article>
             ))}
           </div>

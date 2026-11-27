@@ -22,6 +22,7 @@ import jakarta.persistence.Table;
 
 import org.hibernate.annotations.BatchSize;
 
+import sn.immosenegal.agence.Agence;
 import sn.immosenegal.user.User;
 
 @Entity
@@ -35,6 +36,11 @@ public class Annonce {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "proprietaire_id", nullable = false)
     private User proprietaire;
+
+    /** Agence diffuseuse de l'annonce (ImmoSénégal ou agence partenaire), si publiée par une agence. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agence_id")
+    private Agence agence;
 
     @Column(nullable = false, length = 150)
     private String titre;
@@ -122,6 +128,7 @@ public class Annonce {
 
     public UUID getId() { return id; }
     public User getProprietaire() { return proprietaire; }
+    public Agence getAgence() { return agence; }
     public String getTitre() { return titre; }
     public String getDescription() { return description; }
     public TypeBien getTypeBien() { return typeBien; }
@@ -146,6 +153,7 @@ public class Annonce {
     public Instant getModifieLe() { return modifieLe; }
 
     public void setProprietaire(User proprietaire) { this.proprietaire = proprietaire; }
+    public void setAgence(Agence agence) { this.agence = agence; }
     public void setPublieeParAgence(boolean publieeParAgence) { this.publieeParAgence = publieeParAgence; }
     public void setTitre(String titre) { this.titre = titre; }
     public void setDescription(String description) { this.description = description; }

@@ -32,6 +32,9 @@ export default function AnnuaireAgences() {
   const [tri, setTri] = useState<'NOM' | 'NOTE' | 'AVIS'>('NOM')
   const [fonctionChoisie, setFonctionChoisie] = useState<'AGENT' | 'GESTIONNAIRE' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF'>('AGENT')
   const [avisOuverts, setAvisOuverts] = useState<string[]>([])
+  const [formAgenceOuvert, setFormAgenceOuvert] = useState(false)
+  const [creationAgence, setCreationAgence] = useState(false)
+  const [nouvelleAgence, setNouvelleAgence] = useState({ nom: '', emailContact: '', telephoneContact: '', adresse: '', description: '' })
 
   const charger = useCallback(async () => {
     if (!jeton) return
@@ -92,6 +95,22 @@ export default function AnnuaireAgences() {
   }, [agences, recherche, tri])
 
   const toggleAvis = (id: string) => setAvisOuverts(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id])
+  const inscrireAgence = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCreationAgence(true)
+    setErreur(null)
+    setMessage(null)
+    try {
+      await appelApi('/api/agence/inscription', { method: 'POST', token: jeton, body: nouvelleAgence })
+      setMessage('Votre demande d’inscription d’agence partenaire a été envoyée. Un administrateur la validera prochainement.')
+      setNouvelleAgence({ nom: '', emailContact: '', telephoneContact: '', adresse: '', description: '' })
+      setFormAgenceOuvert(false)
+    } catch (err) {
+      setErreur(err instanceof ApiError ? err.message : 'Impossible d’inscrire votre agence.')
+    } finally {
+      setCreationAgence(false)
+    }
+  }
   const membres = mesEspaces.length
   const candidaturesEnAttente = candidatures.filter(c => c.statut === 'EN_ATTENTE').length
 
@@ -116,6 +135,42 @@ export default function AnnuaireAgences() {
 
       {erreur && <p role="alert" className="mt-5 rounded-xl border-2 border-red-300 bg-red-50 p-4 text-base font-semibold leading-7 text-red-950">{erreur}</p>}
       {message && <p role="status" className="mt-5 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 text-base font-semibold leading-7 text-emerald-950">{message}</p>}
+
+      <section className="mt-8 rounded-2xl border border-dore-300 bg-dore-50/70 p-5 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-extrabold text-nuit-950">Vous représentez une agence immobilière ?</h2>
+            <p className="mt-1 text-sm text-slate-700">Inscrivez votre agence partenaire pour gérer votre portefeuille, vos collaborateurs et vos mandats après validation.</p>
+          </div>
+          <button type="button" onClick={() => setFormAgenceOuvert(v => !v)} className="shrink-0 rounded-xl bg-nuit-900 px-5 py-3 text-sm font-bold text-white hover:bg-nuit-800">
+            {formAgenceOuvert ? 'Fermer le formulaire' : 'Inscrire une agence partenaire'}
+          </button>
+        </div>
+        {formAgenceOuvert && (
+          <form onSubmit={inscrireAgence} className="mt-5 grid gap-4 border-t border-dore-200 pt-5 sm:grid-cols-2">
+            <label className="text-sm font-bold text-slate-800">Nom de l’agence *
+              <input required minLength={2} maxLength={150} value={nouvelleAgence.nom} onChange={e => setNouvelleAgence(a => ({ ...a, nom: e.target.value }))} placeholder="Ex. Dakar Immo Services" className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal" />
+            </label>
+            <label className="text-sm font-bold text-slate-800">E-mail professionnel *
+              <input required type="email" maxLength={254} value={nouvelleAgence.emailContact} onChange={e => setNouvelleAgence(a => ({ ...a, emailContact: e.target.value }))} placeholder="contact@agence.sn" className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal" />
+            </label>
+            <label className="text-sm font-bold text-slate-800">Téléphone *
+              <input required maxLength={30} value={nouvelleAgence.telephoneContact} onChange={e => setNouvelleAgence(a => ({ ...a, telephoneContact: e.target.value }))} placeholder="+221 77 000 00 00" className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal" />
+            </label>
+            <label className="text-sm font-bold text-slate-800">Adresse *
+              <input required maxLength={255} value={nouvelleAgence.adresse} onChange={e => setNouvelleAgence(a => ({ ...a, adresse: e.target.value }))} placeholder="Quartier, ville" className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal" />
+            </label>
+            <label className="text-sm font-bold text-slate-800 sm:col-span-2">Présentation (facultatif)
+              <textarea rows={3} maxLength={2000} value={nouvelleAgence.description} onChange={e => setNouvelleAgence(a => ({ ...a, description: e.target.value }))} placeholder="Zones couvertes, spécialités (location, vente, gestion locative)…" className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal" />
+            </label>
+            <div className="sm:col-span-2">
+              <button type="submit" disabled={creationAgence} className="rounded-xl bg-dore-500 px-6 py-3 text-sm font-extrabold text-nuit-950 hover:bg-dore-400 disabled:opacity-60">
+                {creationAgence ? 'Envoi en cours…' : 'Soumettre la demande d’inscription'}
+              </button>
+            </div>
+          </form>
+        )}
+      </section>
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

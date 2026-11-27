@@ -144,13 +144,29 @@ export default function DetailAnnonce() {
                   {a.transaction === 'LOCATION' && <span className="font-sans text-base font-normal text-slate-500"> / mois</span>}
                 </p>
 
-                <div className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-6">
+                <div className="mt-6 flex items-start gap-3 border-t border-slate-100 pt-6">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-nuit-900 text-dore-500">
                     <UserRound aria-hidden className="h-6 w-6" />
                   </span>
-                  <dl>
-                    <dt className="text-sm text-slate-600">Publié par</dt>
-                    <dd className="font-semibold text-nuit-900">{a.proprietaire.nomComplet}</dd>
+                  <dl className="space-y-1.5 text-sm">
+                    <div>
+                      <dt className="text-slate-500">Propriétaire</dt>
+                      <dd className="font-semibold text-nuit-900">{a.proprietaire.nomComplet}</dd>
+                    </div>
+                    {a.diffuseur && (
+                      <div>
+                        <dt className="text-slate-500">Diffuseur</dt>
+                        <dd className="font-semibold text-nuit-900">
+                          {a.diffuseur.agenceNom} {a.diffuseur.type === 'INTERNE' ? '(Agence ImmoSénégal)' : '(Agence partenaire)'}
+                        </dd>
+                      </div>
+                    )}
+                    {a.gestionnaire && (
+                      <div>
+                        <dt className="text-slate-500">Gestionnaire</dt>
+                        <dd className="font-semibold text-nuit-900">{a.gestionnaire.agenceNom}</dd>
+                      </div>
+                    )}
                   </dl>
                 </div>
 

@@ -11,6 +11,8 @@ public interface AnnonceRepository extends JpaRepository<Annonce, UUID>, JpaSpec
 
     Page<Annonce> findByProprietaireId(UUID proprietaireId, Pageable pageable);
 
+    Page<Annonce> findByAgenceId(UUID agenceId, Pageable pageable);
+
     boolean existsByExempleTrue();
 
     java.util.List<Annonce> findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce statut, java.time.LocalDate date);

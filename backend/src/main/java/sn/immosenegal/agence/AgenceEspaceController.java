@@ -30,6 +30,16 @@ public class AgenceEspaceController {
         this.service = service;
     }
 
+    @PostMapping("/api/agence/inscription")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Inscrire une nouvelle agence partenaire (en attente de validation administrative)")
+    public AgenceEspaceService.AgenceAdminResume inscrireAgence(
+            @Valid @RequestBody InscriptionAgenceRequest requete,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.creerAgencePartenaire(requete.nom(), requete.description(),
+            requete.emailContact(), requete.telephoneContact(), requete.adresse(), acteur);
+    }
+
     @GetMapping("/api/agence/annuaire")
     @Operation(summary = "Lister les agences actives pouvant recevoir une demande de gestion")
     public List<AgenceEspaceService.AgencePubliqueResume> annuaire() {
@@ -129,6 +139,12 @@ public class AgenceEspaceController {
         return service.modifierStatutAgence(agenceId, requete.statut(), admin);
     }
 
+    public record InscriptionAgenceRequest(
+        @NotBlank @jakarta.validation.constraints.Size(min = 2, max = 150) String nom,
+        @jakarta.validation.constraints.Size(max = 2000) String description,
+        @NotBlank @Email @jakarta.validation.constraints.Size(max = 254) String emailContact,
+        @NotBlank @jakarta.validation.constraints.Size(max = 30) String telephoneContact,
+        @NotBlank @jakarta.validation.constraints.Size(max = 255) String adresse) {}
     public record InvitationRequest(@NotBlank @Email String email, @NotNull FonctionAgence fonction) {}
     public record FonctionRequest(@NotNull FonctionAgence fonction) {}
     public record StatutRequest(@NotNull StatutMembreAgence statut) {}

@@ -54,6 +54,14 @@ export default function AnnonceCard({ annonce }: { annonce: Annonce }) {
           <MapPin aria-hidden className="h-4 w-4 shrink-0 text-amber-600" />
           {annonce.quartier}, {annonce.ville}
         </p>
+        <p className="text-xs font-medium text-slate-600">
+          {annonce.diffuseur
+            ? `Diffusé par ${annonce.diffuseur.agenceNom}`
+            : `Publié par ${annonce.proprietaire.nomComplet}`}
+          {annonce.gestionnaire && (!annonce.diffuseur || annonce.gestionnaire.agenceId !== annonce.diffuseur.agenceId)
+            ? ` · Géré par ${annonce.gestionnaire.agenceNom}`
+            : ''}
+        </p>
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-3 text-sm text-slate-700">
           <p className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">

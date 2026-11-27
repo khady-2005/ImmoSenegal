@@ -30,6 +30,49 @@ public class AgenceEspaceService {
         this.notifications = notifications;
     }
 
+    public AgenceAdminResume creerAgencePartenaire(String nom, String description, String emailContact,
+                                                   String telephoneContact, String adresse,
+                                                   AuthenticatedUser acteur) {
+        User utilisateur = utilisateurs.findById(acteur.id())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
+        if (!utilisateur.isActif()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Votre compte est désactivé.");
+        }
+        String nomPropre = nom == null ? "" : nom.trim();
+        if (nomPropre.length() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le nom de l'agence doit contenir au moins 2 caractères.");
+        }
+        String slugBase = java.text.Normalizer.normalize(nomPropre, java.text.Normalizer.Form.NFD)
+            .replaceAll("\\p{M}", "")
+            .toLowerCase(java.util.Locale.ROOT)
+            .replaceAll("[^a-z0-9]+", "-")
+            .replaceAll("^-+|-+$", "");
+        if (slugBase.isEmpty()) {
+            slugBase = "agence";
+        }
+        String slug = slugBase;
+        int suffixe = 2;
+        while (agences.existsBySlug(slug)) {
+            slug = slugBase + "-" + suffixe++;
+        }
+
+        Agence agence = new Agence(nomPropre, slug, AgenceType.PARTENAIRE);
+        agence.setDescription(description == null || description.isBlank() ? null : description.trim());
+        agence.setEmailContact(emailContact == null ? null : emailContact.trim().toLowerCase());
+        agence.setTelephoneContact(telephoneContact == null ? null : telephoneContact.trim());
+        agence.setAdresse(adresse == null ? null : adresse.trim());
+        agence.setStatut(StatutAgence.EN_ATTENTE);
+        agences.save(agence);
+
+        MembreAgence responsable = new MembreAgence(agence, utilisateur, FonctionAgence.RESPONSABLE);
+        responsable.setStatut(StatutMembreAgence.ACTIF);
+        membres.save(responsable);
+
+        return new AgenceAdminResume(agence.getId(), agence.getNom(), agence.getSlug(),
+            agence.getType().name(), agence.getStatut().name(), agence.getAdresse(),
+            agence.getEmailContact(), agence.getTelephoneContact(), agence.getCreeLe(), 1L);
+    }
+
     @Transactional(readOnly = true)
     public List<AgencePubliqueResume> annuaire() {
         return agences.findAllByStatutOrderByNomAsc(StatutAgence.ACTIVE).stream()
@@ -41,7 +84,8 @@ public class AgenceEspaceService {
     @Transactional(readOnly = true)
     public List<AgenceResume> mesAgences(AuthenticatedUser acteur) {
         return membres.findAllByUtilisateurId(acteur.id()).stream()
-            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF
+                && m.getAgence().getStatut() == StatutAgence.ACTIVE)
             .map(m -> new AgenceResume(m.getAgence().getId(), m.getAgence().getNom(),
                 m.getAgence().getSlug(), m.getFonction().name()))
             .toList();
@@ -249,6 +293,15 @@ public class AgenceEspaceService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable."));
         agence.setStatut(statut);
         agence.setModifieLe(java.time.Instant.now());
+        if (statut == StatutAgence.ACTIVE) {
+            membres.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF).stream()
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .forEach(m -> {
+                    if (m.getUtilisateur().getRole() == sn.immosenegal.user.Role.CLIENT) {
+                        m.getUtilisateur().setRole(sn.immosenegal.user.Role.RESPONSABLE);
+                    }
+                });
+        }
         membres.findAllByAgenceId(agenceId).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .forEach(m -> notifications.creer(m.getUtilisateur(), "STATUT_AGENCE_MODIFIE",
