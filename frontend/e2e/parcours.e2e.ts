@@ -151,7 +151,7 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   // Une annonce réservée n'est plus présentée comme disponible : le serveur la retire du catalogue public.
   const apresReservation = await request.get('/api/annonces?taille=50')
   expect(JSON.stringify(await apresReservation.json())).not.toContain(TITRE)
-  await page.getByRole('listitem').filter({ hasText: TITRE }).getByRole('button', { name: 'Supprimer' }).click()
+  await page.getByRole('listitem').filter({ hasText: TITRE }).getByRole('button', { name: 'Supprimer', exact: true }).click()
   await page.getByRole('button', { name: /confirmer la suppression/i }).click()
   await expect(page.getByRole('link', { name: TITRE })).toHaveCount(0)
 })
