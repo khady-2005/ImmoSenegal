@@ -21,6 +21,10 @@ async function connecter(page: Page, email: string, motDePasse: string) {
 }
 
 async function deconnecter(page: Page) {
+  // Les pages /admin/* masquent l'en-tête principal : on revient au tableau de bord pour accéder au menu.
+  if (new URL(page.url()).pathname.startsWith('/admin/')) {
+    await page.goto('/tableau-de-bord')
+  }
   // Sur desktop, le bouton Déconnexion est dans le menu « Afficher les autres rubriques ».
   await page.getByRole('button', { name: 'Afficher les autres rubriques' }).click()
   // On attend la réponse du serveur : c'est elle qui efface le cookie de session.
