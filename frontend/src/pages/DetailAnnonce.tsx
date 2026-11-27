@@ -157,14 +157,21 @@ export default function DetailAnnonce() {
                       <div>
                         <dt className="text-slate-500">Diffuseur</dt>
                         <dd className="font-semibold text-nuit-900">
-                          {a.diffuseur.agenceNom} {a.diffuseur.type === 'INTERNE' ? '(Agence ImmoSénégal)' : '(Agence partenaire)'}
+                          <Link to={`/agences/${a.diffuseur.agenceSlug}`} className="hover:underline">
+                            {a.diffuseur.agenceNom}
+                          </Link>{' '}
+                          {a.diffuseur.type === 'INTERNE' ? '(Agence ImmoSénégal)' : '(Agence partenaire)'}
                         </dd>
                       </div>
                     )}
                     {a.gestionnaire && (
                       <div>
                         <dt className="text-slate-500">Gestionnaire</dt>
-                        <dd className="font-semibold text-nuit-900">{a.gestionnaire.agenceNom}</dd>
+                        <dd className="font-semibold text-nuit-900">
+                          <Link to={`/agences/${a.gestionnaire.agenceSlug}`} className="hover:underline">
+                            {a.gestionnaire.agenceNom}
+                          </Link>
+                        </dd>
                       </div>
                     )}
                   </dl>

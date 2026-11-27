@@ -74,6 +74,16 @@ public class AgenceEspaceService {
     }
 
     @Transactional(readOnly = true)
+    public AgenceProfilPublicInfo profilPublic(String slug) {
+        Agence agence = agences.findBySlug(slug == null ? "" : slug.trim().toLowerCase(java.util.Locale.ROOT))
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable."));
+        return new AgenceProfilPublicInfo(agence.getId(), agence.getNom(), agence.getSlug(),
+            agence.getType().name(), agence.getDescription(), agence.getEmailContact(),
+            agence.getTelephoneContact(), agence.getAdresse(), agence.getLogoUrl(), agence.getCreeLe());
+    }
+
+    @Transactional(readOnly = true)
     public List<AgencePubliqueResume> annuaire() {
         return agences.findAllByStatutOrderByNomAsc(StatutAgence.ACTIVE).stream()
             .map(a -> new AgencePubliqueResume(a.getId(), a.getNom(), a.getSlug(),
@@ -359,6 +369,8 @@ public class AgenceEspaceService {
     }
 
     public record AgencePubliqueResume(UUID id, String nom, String slug, String description, String adresse, String logoUrl) {}
+    public record AgenceProfilPublicInfo(UUID id, String nom, String slug, String type, String description,
+            String emailContact, String telephoneContact, String adresse, String logoUrl, java.time.Instant creeLe) {}
     public record AgenceAdminResume(UUID id, String nom, String slug, String type, String statut,
             String adresse, String emailContact, String telephoneContact, java.time.Instant creeLe,
             long membresActifs) {}

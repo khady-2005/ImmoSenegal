@@ -42,6 +42,7 @@ import AdminAgences from './pages/AdminAgences'
 import AdminAbonnements from './pages/AdminAbonnements'
 import MesAnnonces from './pages/MesAnnonces'
 import FormulaireAnnonce from './pages/FormulaireAnnonce'
+import ProfilAgence from './pages/ProfilAgence'
 import RequireAuth from './components/RequireAuth'
 import { AuthProvider, useAuth } from './auth'
 import type { Role } from './types'
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="annonces/nouvelle" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id/modifier" element={<RequireAuth><FormulaireAnnonce /></RequireAuth>} />
           <Route path="annonces/:id" element={<DetailAnnonce />} />
+          <Route path="agences/:slug" element={<ProfilAgence />} />
           <Route path="admin/demandes" element={<RequireRole roles={["ADMIN"]}><AdminDemandes /></RequireRole>} />
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
           <Route path="admin/photos" element={<RequireRole roles={["ADMIN"]}><AdminPhotos /></RequireRole>} />

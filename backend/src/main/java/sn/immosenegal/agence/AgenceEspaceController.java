@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import sn.immosenegal.annonce.AnnonceResponse;
+import sn.immosenegal.annonce.AnnonceService;
 import sn.immosenegal.config.OpenApiConfig;
 import sn.immosenegal.security.AuthenticatedUser;
 
@@ -25,9 +27,20 @@ import sn.immosenegal.security.AuthenticatedUser;
 public class AgenceEspaceController {
 
     private final AgenceEspaceService service;
+    private final AnnonceService annonces;
 
-    public AgenceEspaceController(AgenceEspaceService service) {
+    public AgenceEspaceController(AgenceEspaceService service, AnnonceService annonces) {
         this.service = service;
+        this.annonces = annonces;
+    }
+
+    @GetMapping("/api/agence/profil/{slug}")
+    @Operation(summary = "Consulter le profil public d'une agence active et ses annonces publiées")
+    public AgenceProfilPublicResponse profilPublic(@PathVariable String slug) {
+        AgenceEspaceService.AgenceProfilPublicInfo info = service.profilPublic(slug);
+        return new AgenceProfilPublicResponse(info.id(), info.nom(), info.slug(), info.type(),
+            info.description(), info.emailContact(), info.telephoneContact(), info.adresse(),
+            info.logoUrl(), info.creeLe(), annonces.annoncesPubliquesAgence(info.id()));
     }
 
     @PostMapping("/api/agence/inscription")
@@ -150,4 +163,7 @@ public class AgenceEspaceController {
     public record StatutRequest(@NotNull StatutMembreAgence statut) {}
     public record ResponsableRequest(@NotBlank @Email String email) {}
     public record StatutAgenceRequest(@NotNull StatutAgence statut) {}
+    public record AgenceProfilPublicResponse(UUID id, String nom, String slug, String type, String description,
+        String emailContact, String telephoneContact, String adresse, String logoUrl,
+        java.time.Instant creeLe, List<AnnonceResponse> annonces) {}
 }

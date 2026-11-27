@@ -261,6 +261,7 @@ export default function AssistantImmobilier() {
                 <option value="STUDIO">Studio</option>
                 <option value="VILLA">Villa</option>
                 <option value="TERRAIN">Terrain</option>
+                <option value="LOCAL_COMMERCIAL">Local commercial</option>
               </select>
             </div>
             <div>

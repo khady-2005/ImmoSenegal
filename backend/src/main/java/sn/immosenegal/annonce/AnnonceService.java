@@ -351,6 +351,27 @@ public class AnnonceService {
         return enPage(annonces.findByAgenceId(agenceId, pageable(page, taille, trier("recent"))), true);
     }
 
+    /** Annonces publiques d'une agence (biens propres publiés + biens confiés sous mandat accepté). */
+    @Transactional(readOnly = true)
+    public List<AnnonceResponse> annoncesPubliquesAgence(UUID agenceId) {
+        java.util.LinkedHashMap<UUID, Annonce> uniques = new java.util.LinkedHashMap<>();
+        annonces.findAllByAgenceIdAndStatutOrderByCreeLeDesc(agenceId, StatutAnnonce.PUBLIEE)
+            .forEach(a -> uniques.put(a.getId(), a));
+        if (mandats != null) {
+            mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(agenceId, StatutMandatGestion.ACCEPTE).stream()
+                .map(MandatGestion::getAnnonce)
+                .filter(a -> a.getStatut() == StatutAnnonce.PUBLIEE)
+                .forEach(a -> uniques.putIfAbsent(a.getId(), a));
+        }
+        List<Annonce> liste = List.copyOf(uniques.values());
+        List<UUID> ids = liste.stream().map(Annonce::getId).toList();
+        Map<UUID, List<UUID>> parAnnonce = photosDe(ids);
+        Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesParAnnonce = gestionnairesDe(ids);
+        return liste.stream()
+            .map(a -> AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId())))
+            .toList();
+    }
+
     // ---------- Modération (administrateurs) ----------
 
     /** File de modération : par défaut les annonces EN_ATTENTE, les plus anciennes d'abord. */

@@ -29,7 +29,7 @@ export const libelleRole: Record<Role, string> = {
 
 // ---------- Annonces ----------
 
-export type TypeBien = 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN'
+export type TypeBien = 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN' | 'LOCAL_COMMERCIAL'
 export type TypeTransaction = 'LOCATION' | 'VENTE'
 export type StatutAnnonce = 'EN_ATTENTE' | 'PUBLIEE' | 'A_CORRIGER' | 'REFUSEE' | 'SUSPENDUE' | 'RESERVE' | 'VENDU' | 'LOUE'
 
@@ -80,6 +80,7 @@ export const libelleTypeBien: Record<TypeBien, string> = {
   STUDIO: 'Studio',
   VILLA: 'Villa',
   TERRAIN: 'Terrain',
+  LOCAL_COMMERCIAL: 'Local commercial',
 }
 
 export const libelleStatut: Record<StatutAnnonce, string> = {
