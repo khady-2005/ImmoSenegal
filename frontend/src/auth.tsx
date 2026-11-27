@@ -7,6 +7,7 @@ interface DonneesInscription {
   email: string
   telephone: string
   password: string
+  estProprietaire?: boolean
 }
 
 interface ContexteAuth {

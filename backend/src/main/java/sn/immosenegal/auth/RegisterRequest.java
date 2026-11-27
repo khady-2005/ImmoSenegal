@@ -19,6 +19,11 @@ public record RegisterRequest(
     String nomComplet,
 
     @Pattern(regexp = "^\\+?[0-9 ]{8,15}$", message = "Numéro de téléphone invalide.")
-    String telephone
+    String telephone,
+
+    Boolean estProprietaire
 ) {
+    public RegisterRequest(String email, String password, String nomComplet, String telephone) {
+        this(email, password, nomComplet, telephone, null);
+    }
 }

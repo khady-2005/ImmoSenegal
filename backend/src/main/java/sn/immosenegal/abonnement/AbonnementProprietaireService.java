@@ -51,6 +51,21 @@ public class AbonnementProprietaireService {
         return resume(a);
     }
 
+    public Resume simuler(ForfaitAbonnement forfait, AuthenticatedUser acteur) {
+        exigerRole(acteur, Role.PROPRIETAIRE);
+        abonnements.findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(acteur.id(), StatutAbonnement.EN_ATTENTE)
+            .ifPresent(a -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Une demande d'abonnement est déjà en attente."); });
+        abonnements.findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(acteur.id(), StatutAbonnement.ACTIF)
+            .filter(a -> a.getDateFin() != null && !a.getDateFin().isBefore(LocalDate.now()))
+            .ifPresent(a -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Votre abonnement est déjà actif."); });
+
+        String ref = "SIM-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        var a = new AbonnementProprietaire(acteur.id(), forfait, tarif(forfait),
+            "SIMULATION", ref, "Paiement simulé (activation immédiate)");
+        a.activer(acteur.id(), LocalDate.now());
+        return resume(abonnements.save(a));
+    }
+
     @Transactional(readOnly = true)
     public List<Resume> historique(AuthenticatedUser acteur) {
         exigerRole(acteur, Role.PROPRIETAIRE);

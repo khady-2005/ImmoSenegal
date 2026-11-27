@@ -29,6 +29,11 @@ export default function Dashboard() {
   const [profil, setProfil] = useState<Utilisateur | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [accesAgence, setAccesAgence] = useState(false)
+  const [statsAdmin, setStatsAdmin] = useState<{
+    utilisateursTotal: number; clientsActifs: number; proprietairesActifs: number;
+    annoncesTotal: number; annoncesPubliees: number; agencesActives: number;
+    agencesEnAttente: number; abonnementsEnAttente: number; demandesRoleEnAttente: number;
+  } | null>(null)
 
   useEffect(() => {
     let annule = false
@@ -42,6 +47,11 @@ export default function Dashboard() {
         setProfil(p)
         setAccesAgence(p.role === 'ADMIN' || espaces.length > 0 || invitations.length > 0)
         if (p.role !== depuisConnexion?.role) majUtilisateur(p)
+        if (p.role === 'ADMIN') {
+          appelApi<NonNullable<typeof statsAdmin>>('/api/admin/statistiques', { token: jeton })
+            .then((s) => { if (!annule) setStatsAdmin(s) })
+            .catch(() => undefined)
+        }
       })
       .catch((e: unknown) => {
         if (annule) return
@@ -131,6 +141,17 @@ export default function Dashboard() {
 
       {affiche.role === 'ADMIN' ? (
         <>
+          {statsAdmin && (
+            <section className="mt-8" aria-label="Statistiques globales de la plateforme">
+              <h2 className="mb-4 text-xl font-bold text-nuit-900">Vue d’ensemble de la plateforme</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Utilisateurs</p><p className="mt-2 text-3xl font-bold text-nuit-900">{statsAdmin.utilisateursTotal}</p><p className="mt-1 text-xs text-slate-600">{statsAdmin.clientsActifs} clients · {statsAdmin.proprietairesActifs} propriétaires</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Annonces</p><p className="mt-2 text-3xl font-bold text-nuit-900">{statsAdmin.annoncesTotal}</p><p className="mt-1 text-xs text-slate-600">{statsAdmin.annoncesPubliees} publiée(s)</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Agences</p><p className="mt-2 text-3xl font-bold text-nuit-900">{statsAdmin.agencesActives}</p><p className="mt-1 text-xs text-amber-800">{statsAdmin.agencesEnAttente} en attente de validation</p></div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Validations en attente</p><p className="mt-2 text-3xl font-bold text-nuit-900">{statsAdmin.abonnementsEnAttente + statsAdmin.demandesRoleEnAttente}</p><p className="mt-1 text-xs text-slate-600">{statsAdmin.abonnementsEnAttente} abonnements · {statsAdmin.demandesRoleEnAttente} rôles</p></div>
+              </div>
+            </section>
+          )}
           <section className="mt-8">
             <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">1. Gestion de l’entreprise ImmoSénégal</h2><p className="mt-1 text-sm text-slate-600">Les activités et services qui concernent directement l’entreprise et son réseau professionnel.</p></div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesEntreprise.map(item => <CarteAcces key={item.lien} item={item} />)}</div>

@@ -30,6 +30,14 @@ public class AbonnementProprietaireController {
             q.referencePaiement(), q.note()), acteur);
     }
 
+    @PostMapping("/simuler")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AbonnementProprietaireService.Resume simuler(
+            @Valid @RequestBody SimulationRequest q,
+            @AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.simuler(q.forfait(), acteur);
+    }
+
     @GetMapping("/historique")
     public List<AbonnementProprietaireService.Resume> historique(
             @AuthenticationPrincipal AuthenticatedUser acteur) {
@@ -52,5 +60,6 @@ public class AbonnementProprietaireController {
     public record DemandeRequest(@NotNull ForfaitAbonnement forfait,
         @jakarta.validation.constraints.NotBlank @Size(max = 30) String modePaiement,
         @Size(max = 150) String referencePaiement, @Size(max = 1000) String note) {}
+    public record SimulationRequest(@NotNull ForfaitAbonnement forfait) {}
     public record DecisionRequest(boolean accepter, @Size(max = 1000) String motif) {}
 }

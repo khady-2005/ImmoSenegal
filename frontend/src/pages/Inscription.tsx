@@ -17,6 +17,7 @@ export default function Inscription() {
   const [telephone, setTelephone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
+  const [typeCompte, setTypeCompte] = useState<'CLIENT' | 'PROPRIETAIRE'>('CLIENT')
   const [erreurs, setErreurs] = useState<Erreurs>({})
   const [erreurGenerale, setErreurGenerale] = useState<string | null>(null)
   const [enCours, setEnCours] = useState(false)
@@ -43,7 +44,13 @@ export default function Inscription() {
 
     setEnCours(true)
     try {
-      await inscrire({ nomComplet: nomComplet.trim(), email: email.trim(), telephone, password })
+      await inscrire({
+        nomComplet: nomComplet.trim(),
+        email: email.trim(),
+        telephone,
+        password,
+        ...(typeCompte === 'PROPRIETAIRE' ? { estProprietaire: true } : {}),
+      })
       navigate('/tableau-de-bord', { replace: true })
     } catch (err) {
       if (err instanceof ApiError) {
@@ -85,6 +92,13 @@ export default function Inscription() {
         )}
         <Champ id="nomComplet" libelle="Nom complet" autoComplete="name" required value={nomComplet}
           onChange={(e) => setNomComplet(e.target.value)} erreur={erreurs.nomComplet} />
+        <div>
+          <label htmlFor="typeCompte" className="mb-1 block text-sm font-medium text-slate-700">Type de compte</label>
+          <select id="typeCompte" value={typeCompte} onChange={(e) => setTypeCompte(e.target.value as 'CLIENT' | 'PROPRIETAIRE')} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900">
+            <option value="CLIENT">Client / Locataire</option>
+            <option value="PROPRIETAIRE">Propriétaire (publier mes biens)</option>
+          </select>
+        </div>
         <Champ id="email" libelle="Adresse email" type="email" autoComplete="email" required value={email}
           onChange={(e) => setEmail(e.target.value)} erreur={erreurs.email} />
         <Champ id="telephone" libelle="Téléphone (facultatif)" type="tel" autoComplete="tel" value={telephone}

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sn.immosenegal.abonnement.AbonnementProprietaireRepository;
+import sn.immosenegal.abonnement.StatutAbonnement;
+import sn.immosenegal.agence.AgenceRepository;
+import sn.immosenegal.agence.StatutAgence;
+import sn.immosenegal.annonce.AnnonceRepository;
+import sn.immosenegal.annonce.StatutAnnonce;
 import sn.immosenegal.config.OpenApiConfig;
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.user.Role;
+import sn.immosenegal.user.UserRepository;
 
 /** Toutes les routes /api/admin/** exigent le rôle ADMIN (règle dans SecurityConfig). */
 @RestController
@@ -26,10 +35,48 @@ import sn.immosenegal.security.AuthenticatedUser;
 public class AdminController {
 
     private final DemandeRoleService service;
+    private final UserRepository users;
+    private final AnnonceRepository annonces;
+    private final AgenceRepository agences;
+    private final AbonnementProprietaireRepository abonnements;
+
+    @Autowired
+    public AdminController(DemandeRoleService service, UserRepository users,
+                           AnnonceRepository annonces, AgenceRepository agences,
+                           AbonnementProprietaireRepository abonnements) {
+        this.service = service;
+        this.users = users;
+        this.annonces = annonces;
+        this.agences = agences;
+        this.abonnements = abonnements;
+    }
 
     public AdminController(DemandeRoleService service) {
-        this.service = service;
+        this(service, null, null, null, null);
     }
+
+    @GetMapping("/statistiques")
+    @Operation(summary = "Statistiques globales de la plateforme (administrateur)")
+    public StatistiquesAdmin statistiques() {
+        long totalUsers = users == null ? 0 : users.count();
+        long clients = users == null ? 0 : users.countByRoleAndActifTrue(Role.CLIENT);
+        long proprietaires = users == null ? 0 : users.countByRoleAndActifTrue(Role.PROPRIETAIRE);
+        long totalAnnonces = annonces == null ? 0 : annonces.count();
+        long annoncesPubliees = annonces == null ? 0 : annonces.findAll().stream()
+            .filter(a -> a.getStatut() == StatutAnnonce.PUBLIEE).count();
+        long agencesActives = agences == null ? 0 : agences.findAllByStatutOrderByNomAsc(StatutAgence.ACTIVE).size();
+        long agencesEnAttente = agences == null ? 0 : agences.findAllByStatutOrderByNomAsc(StatutAgence.EN_ATTENTE).size();
+        long abonnementsEnAttente = abonnements == null ? 0 : abonnements.findAllByStatutOrderByCreeLeAsc(StatutAbonnement.EN_ATTENTE).size();
+        long demandesRoleEnAttente = service.lister(StatutDemande.EN_ATTENTE).size();
+        return new StatistiquesAdmin(totalUsers, clients, proprietaires, totalAnnonces, annoncesPubliees,
+            agencesActives, agencesEnAttente, abonnementsEnAttente, demandesRoleEnAttente);
+    }
+
+    public record StatistiquesAdmin(
+        long utilisateursTotal, long clientsActifs, long proprietairesActifs,
+        long annoncesTotal, long annoncesPubliees,
+        long agencesActives, long agencesEnAttente,
+        long abonnementsEnAttente, long demandesRoleEnAttente) {}
 
     @GetMapping("/role-requests")
     @Operation(summary = "Lister les demandes de rôle (filtre optionnel par statut)")
