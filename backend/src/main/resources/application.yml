@@ -84,3 +84,5 @@ app:
     token: ${PAYDUNYA_TOKEN:}
     mode: ${PAYDUNYA_MODE:test}
     callback-url: ${PAYDUNYA_CALLBACK_URL:}
+  paiement:
+    simulation-active: ${PAIEMENT_SIMULATION_ACTIVE:true}

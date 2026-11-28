@@ -143,6 +143,8 @@ export default function FormulaireAnnonce() {
       prix: nombre('prix'),
       superficie: nombre('superficie'),
       pieces: nombre('pieces'),
+      chambres: nombre('chambres'),
+      sallesDeBain: nombre('sallesDeBain'),
       quartier: texte('quartier'),
       ville: texte('ville'),
       adresse: texte('adresse') || null,
@@ -373,6 +375,8 @@ export default function FormulaireAnnonce() {
             <Champ id="prix" name="prix" type="number" min={1} libelle="Prix (FCFA)" required defaultValue={a?.prix} erreur={champs.prix} />
             <Champ id="superficie" name="superficie" type="number" min={1} step="any" libelle="Superficie (m²)" required defaultValue={a?.superficie} erreur={champs.superficie} />
             <Champ id="pieces" name="pieces" type="number" min={0} libelle="Nombre de pièces" defaultValue={a?.pieces ?? ''} erreur={champs.pieces} />
+            <Champ id="chambres" name="chambres" type="number" min={0} libelle="Chambres (facultatif)" defaultValue={a?.chambres ?? ''} erreur={champs.chambres} />
+            <Champ id="sallesDeBain" name="sallesDeBain" type="number" min={0} libelle="Salles de bain (facultatif)" defaultValue={a?.sallesDeBain ?? ''} erreur={champs.sallesDeBain} />
           </div>
           <div className="mt-4">
             <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">Description du bien</label>

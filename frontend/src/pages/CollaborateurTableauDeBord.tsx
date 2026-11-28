@@ -9,6 +9,7 @@ import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import CRMAgence from '../components/CRMAgence'
 import VentesAgence from '../components/VentesAgence'
 import CaisseAgence from '../components/CaisseAgence'
+import DossiersAgence from '../components/DossiersAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 
@@ -118,7 +119,7 @@ export default function CollaborateurTableauDeBord() {
       )}
       {agence.fonction === 'CAISSIER' && <CaisseAgence agenceId={agenceId} fonction="CAISSIER" />}
       {agence.fonction === 'ASSISTANT_ADMINISTRATIF' && (
-        <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6"><p className="text-xs font-bold uppercase tracking-wider text-blue-800">Espace administratif</p><h2 className="mt-1 text-xl font-bold text-nuit-900">Suivi des dossiers</h2><p className="mt-2 text-sm leading-relaxed text-slate-700">L’assistant prépare et organise les dossiers, suit les documents et aide l’équipe. Les fonctions de classement et d’archivage dédiées restent à connecter au backend.</p></section>
+        <DossiersAgence agenceId={agenceId} />
       )}
       {agence.fonction === 'GESTIONNAIRE' && (
         <section className="mt-8 rounded-2xl border border-blue-200 bg-blue-50/70 p-5 sm:p-6">

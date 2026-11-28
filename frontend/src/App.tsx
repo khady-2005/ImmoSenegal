@@ -19,6 +19,7 @@ import MesContratsLocation from './pages/MesContratsLocation'
 import IncidentsLocation from './pages/IncidentsLocation'
 import EtatsDesLieux from './pages/EtatsDesLieux'
 import DepotGarantie from './pages/DepotGarantie'
+import { VerifierRecu } from './pages/VerifierRecu'
 import EspaceLocataire from './pages/EspaceLocataire'
 import EspaceProprietaire from './pages/EspaceProprietaire'
 import AdminLitigesLocatifs from './pages/AdminLitigesLocatifs'
@@ -43,6 +44,9 @@ import AdminAbonnements from './pages/AdminAbonnements'
 import MesAnnonces from './pages/MesAnnonces'
 import FormulaireAnnonce from './pages/FormulaireAnnonce'
 import ProfilAgence from './pages/ProfilAgence'
+import MesSignalements from './pages/MesSignalements'
+import AdminSignalements from './pages/AdminSignalements'
+import AdminAudit from './pages/AdminAudit'
 import RequireAuth from './components/RequireAuth'
 import { AuthProvider, useAuth } from './auth'
 import type { Role } from './types'
@@ -82,6 +86,9 @@ export default function App() {
           <Route path="admin/reservations" element={<RequireRole roles={["ADMIN"]}><Reservations /></RequireRole>} />
           <Route path="admin/supervision-locative" element={<RequireRole roles={["ADMIN"]}><AdminSupervisionLocative /></RequireRole>} />
           <Route path="admin/litiges-locatifs" element={<RequireRole roles={["ADMIN"]}><AdminLitigesLocatifs /></RequireRole>} />
+          <Route path="admin/signalements" element={<RequireRole roles={["ADMIN"]}><AdminSignalements /></RequireRole>} />
+          <Route path="admin/audit" element={<RequireRole roles={["ADMIN"]}><AdminAudit /></RequireRole>} />
+          <Route path="mes-signalements" element={<RequireAuth><MesSignalements /></RequireAuth>} />
           <Route path="mes-annonces" element={<RequireAuth><MesAnnonces /></RequireAuth>} />
           <Route path="mes-visites" element={<RequireAuth><Visites /></RequireAuth>} />
           <Route path="mes-favoris" element={<RequireAuth><MesFavoris /></RequireAuth>} />
@@ -98,6 +105,8 @@ export default function App() {
           <Route path="espace-locataire" element={<RequireRole roles={["CLIENT", "ADMIN"]}><EspaceLocataire /></RequireRole>} />
           <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE", "ADMIN"]}><EspaceProprietaire /></RequireRole>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
+          <Route path="verifier-recu" element={<VerifierRecu />} />
+          <Route path="verifier-recu/:code" element={<VerifierRecu />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
           <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />

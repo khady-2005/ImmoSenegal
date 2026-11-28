@@ -1,5 +1,7 @@
 package sn.immosenegal.audit;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -27,4 +29,19 @@ public class AuditService {
         log.info("audit type={} user={} details={}", type, userId, texte);
         jdbc.update("INSERT INTO audit_events (type, user_id, details) VALUES (?, ?, ?)", type, userId, texte);
     }
+
+    public List<AuditEvenement> listerRecents(int limite) {
+        int max = Math.min(Math.max(limite, 1), 200);
+        return jdbc.query(
+            "SELECT id, type, user_id, details, cree_le FROM audit_events ORDER BY id DESC LIMIT ?",
+            (rs, rowNum) -> new AuditEvenement(
+                rs.getLong("id"),
+                rs.getString("type"),
+                rs.getObject("user_id", UUID.class),
+                rs.getString("details"),
+                rs.getTimestamp("cree_le").toInstant()),
+            max);
+    }
+
+    public record AuditEvenement(long id, String type, UUID userId, String details, Instant creeLe) {}
 }

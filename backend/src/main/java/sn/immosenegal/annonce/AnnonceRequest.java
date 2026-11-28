@@ -30,6 +30,15 @@ public record AnnonceRequest(
     @DecimalMin("-90") @DecimalMax("90") BigDecimal latitude,
     @DecimalMin("-180") @DecimalMax("180") BigDecimal longitude,
     @Size(max = 30) Set<@NotBlank @Size(max = 50) String> equipements,
-    StatutAnnonce statut
+    StatutAnnonce statut,
+    @Min(0) @Max(100) Integer chambres,
+    @Min(0) @Max(50) Integer sallesDeBain
 ) {
+    public AnnonceRequest(
+            String titre, String description, TypeBien typeBien, TypeTransaction transaction,
+            Long prix, BigDecimal superficie, Integer pieces, String quartier, String ville,
+            String adresse, BigDecimal latitude, BigDecimal longitude, Set<String> equipements, StatutAnnonce statut) {
+        this(titre, description, typeBien, transaction, prix, superficie, pieces, quartier, ville,
+            adresse, latitude, longitude, equipements, statut, null, null);
+    }
 }

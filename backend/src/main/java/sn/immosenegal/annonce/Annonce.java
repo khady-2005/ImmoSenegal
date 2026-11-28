@@ -64,6 +64,14 @@ public class Annonce {
 
     private Integer pieces;
 
+    private Integer chambres;
+
+    @Column(name = "salles_de_bain")
+    private Integer sallesDeBain;
+
+    @Column(nullable = false)
+    private long vues;
+
     @Column(nullable = false, length = 100)
     private String quartier;
 
@@ -136,6 +144,10 @@ public class Annonce {
     public long getPrix() { return prix; }
     public BigDecimal getSuperficie() { return superficie; }
     public Integer getPieces() { return pieces; }
+    public Integer getChambres() { return chambres; }
+    public Integer getSallesDeBain() { return sallesDeBain; }
+    public long getVues() { return vues; }
+    public void incrementerVues() { this.vues++; }
     public String getQuartier() { return quartier; }
     public String getVille() { return ville; }
     public String getAdresse() { return adresse; }
@@ -162,6 +174,8 @@ public class Annonce {
     public void setPrix(long prix) { this.prix = prix; }
     public void setSuperficie(BigDecimal superficie) { this.superficie = superficie; }
     public void setPieces(Integer pieces) { this.pieces = pieces; }
+    public void setChambres(Integer chambres) { this.chambres = chambres; }
+    public void setSallesDeBain(Integer sallesDeBain) { this.sallesDeBain = sallesDeBain; }
     public void setQuartier(String quartier) { this.quartier = quartier; }
     public void setVille(String ville) { this.ville = ville; }
     public void setAdresse(String adresse) { this.adresse = adresse; }

@@ -1,9 +1,23 @@
 package sn.immosenegal.reservation;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Instant;
 import java.util.*;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.lowagie.text.Document;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +37,9 @@ import sn.immosenegal.user.Role;
 
 @Service @Transactional
 public class ContratLocationService {
+ private static final SecureRandom ALEA = new SecureRandom();
+ @Value("${app.paiement.simulation-active:true}")
+ private boolean simulationActive = true;
  private final ReservationRepository reservations; private final ContratLocationRepository contrats; private final PaiementLoyerRepository paiements; private final UserRepository users; private final NotificationService notifications; private final MandatGestionRepository mandats; private final MembreAgenceRepository membres; private final CommissionLocationAgenceRepository commissions;
  public ContratLocationService(ReservationRepository r,ContratLocationRepository c,PaiementLoyerRepository p,UserRepository u,NotificationService n,MandatGestionRepository g,MembreAgenceRepository m,CommissionLocationAgenceRepository commissions){reservations=r;contrats=c;paiements=p;users=u;notifications=n;mandats=g;membres=m;this.commissions=commissions;}
  public ContratResume creer(UUID reservationId,CreationContrat q,AuthenticatedUser a){
@@ -73,6 +90,84 @@ public class ContratLocationService {
     .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE).findFirst()
     .ifPresent(m->notifications.creer(m.getUtilisateur(),"PAIEMENT_LOYER_A_CONFIRMER","Paiement à confirmer","Un locataire a déclaré un paiement de "+q.montant()+" FCFA pour "+c.getAnnonce().getTitre()+". Confirmez sa réception.","/mes-contrats-location"));
   return versPaiementResume(p);
+ }
+ public PaiementResume simulerPaiementLoyer(UUID id, LocalDate periode, String modePaiement, AuthenticatedUser a){
+  if(!simulationActive) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Le paiement simulé est désactivé par configuration.");
+  finaliserResiliationsEchues();
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  if(!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le locataire de ce contrat peut effectuer ce paiement.");
+  if(c.getEtat()!=EtatContratLocation.ACTIF && c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE) throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce contrat n'est plus actif.");
+  String mode=modePaiement==null?"":modePaiement.trim().toUpperCase();
+  if(!mode.equals("WAVE_SIMULATION")&&!mode.equals("ORANGE_MONEY_SIMULATION")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Mode de paiement simulé invalide (WAVE_SIMULATION ou ORANGE_MONEY_SIMULATION).");
+  if(periode==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La période est obligatoire.");
+  LocalDate mois=periode.withDayOfMonth(1);
+  boolean dejaPaye=paiements.findAllByContratIdOrderByPeriodeDesc(id).stream()
+   .filter(p->!"REFUSE".equals(p.getStatutConfirmation()))
+   .anyMatch(p->p.getPeriode().getYear()==mois.getYear()&&p.getPeriode().getMonth()==mois.getMonth());
+  if(dejaPaye) throw new ResponseStatusException(HttpStatus.CONFLICT,"Un paiement a déjà été enregistré pour ce mois.");
+  User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
+  BigDecimal montantServeur=c.getLoyerMensuel();
+  var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
+  String type="PROPRIETAIRE"; UUID beneficiaireId=c.getProprietaire().getId(); String beneficiaireNom=c.getProprietaire().getNomComplet();
+  if(mandat.isPresent()){type="AGENCE";beneficiaireId=mandat.get().getAgence().getId();beneficiaireNom=mandat.get().getAgence().getNom();}
+  byte[] octets=new byte[24]; ALEA.nextBytes(octets);
+  String code="SIM-"+Base64.getUrlEncoder().withoutPadding().encodeToString(octets);
+  PaiementLoyer p=new PaiementLoyer(c,u,montantServeur,mois,LocalDate.now(),"SIMULATION "+mode,type,beneficiaireId,beneficiaireNom);
+  p.setSimulationInfo(mode,code);
+  p.confirmer(true);
+  p=paiements.save(p);
+  final PaiementLoyer pSauve=p;
+  mandat.filter(m->m.getTauxCommissionMensuel()!=null).ifPresent(m->{
+   BigDecimal commission=montantServeur.multiply(m.getTauxCommissionMensuel()).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+   commissions.save(new CommissionLocationAgence(m.getAgence(),m,c,pSauve,m.getTauxCommissionMensuel(),montantServeur,commission));
+  });
+  return versPaiementResume(p);
+ }
+ @Transactional(readOnly=true)
+ public RecuVerification verifierRecu(String code){
+  PaiementLoyer p=paiements.findByCodeVerification(code).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Reçu introuvable."));
+  return new RecuVerification(true,p.getCodeVerification(),p.getModePaiement(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),true);
+ }
+ @Transactional(readOnly=true)
+ public byte[] genererRecuPdf(UUID contratId, UUID paiementId, AuthenticatedUser a){
+  ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  boolean participant=c.getProprietaire().getId().equals(a.id())||c.getLocataire().getId().equals(a.id());
+  boolean agentMandate=a.role()==Role.AGENT&&membres.findAllByUtilisateurId(a.id()).stream()
+   .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
+   .anyMatch(m->mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE));
+  if(!participant&&!agentMandate&&a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");
+  PaiementLoyer p=paiements.findById(paiementId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable."));
+  if(!p.getContrat().getId().equals(contratId)) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable pour ce contrat.");
+  try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+   Document doc = new Document(PageSize.A4, 48, 48, 48, 48);
+   PdfWriter.getInstance(doc, out);
+   doc.open();
+   Font titre = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+   Font bandeau = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+   Font normal = FontFactory.getFont(FontFactory.HELVETICA, 11);
+   doc.add(new Paragraph("IMMOSENEGAL — RECU DE LOYER (SIMULATION)", titre));
+   doc.add(new Paragraph("MENTION : SIMULATION — Aucune transaction financiere reelle effectuee.", bandeau));
+   doc.add(new Paragraph(" "));
+   doc.add(new Paragraph("Code de verification : " + (p.getCodeVerification() != null ? p.getCodeVerification() : p.getId()), normal));
+   doc.add(new Paragraph("Bien : " + c.getAnnonce().getTitre(), normal));
+   doc.add(new Paragraph("Periode : " + String.format("%02d/%04d", p.getPeriode().getMonthValue(), p.getPeriode().getYear()), normal));
+   doc.add(new Paragraph("Montant : " + p.getMontant() + " FCFA", normal));
+   doc.add(new Paragraph("Mode : " + (p.getModePaiement() != null ? p.getModePaiement() : "DECLARATION"), normal));
+   doc.add(new Paragraph("Date : " + p.getDatePaiement(), normal));
+   doc.add(new Paragraph("Statut : " + p.getStatutConfirmation() + " (SIMULATION)", normal));
+   doc.add(new Paragraph(" "));
+   if (p.getCodeVerification() != null) {
+    BitMatrix matrix = new QRCodeWriter().encode("/verifier-recu/" + p.getCodeVerification(), BarcodeFormat.QR_CODE, 140, 140);
+    ByteArrayOutputStream qrOut = new ByteArrayOutputStream();
+    MatrixToImageWriter.writeToStream(matrix, "PNG", qrOut);
+    Image qrImg = Image.getInstance(qrOut.toByteArray());
+    doc.add(qrImg);
+   }
+   doc.close();
+   return out.toByteArray();
+  } catch (Exception e) {
+   throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Impossible de générer le reçu PDF.");
+  }
  }
  public PaiementResume confirmerPaiement(UUID contratId,UUID paiementId,boolean accepte,AuthenticatedUser a){
   ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
@@ -178,7 +273,7 @@ public class ContratLocationService {
    p.getReference(),p.getEnregistrePar().getNomComplet(),
    commission==null?null:commission.getTauxApplique(),
    commission==null?null:commission.getMontantCommission(),p.getBeneficiaireType(),p.getBeneficiaireId(),
-   p.getBeneficiaireNom(),p.getStatutConfirmation(),p.getConfirmeLe());
+   p.getBeneficiaireNom(),p.getStatutConfirmation(),p.getConfirmeLe(),p.getModePaiement(),p.getCodeVerification());
  }
  public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
@@ -209,7 +304,8 @@ public class ContratLocationService {
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe,String proprietaireSignature,String locataireSignature,Instant proprietaireSigneLe,Instant locataireSigneLe){}
- public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe){}
+ public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe,String modePaiement,String codeVerification){}
+ public record RecuVerification(boolean valide,String codeVerification,String modePaiement,BigDecimal montant,LocalDate periode,LocalDate datePaiement,boolean simulation){}
  public record CommissionLocationResume(UUID id,UUID agenceId,String agenceNom,UUID contratId,String annonceTitre,LocalDate periode,BigDecimal tauxApplique,BigDecimal baseCalcul,BigDecimal montantCommission,Instant creeLe){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements,String gestionType,String agenceNom){}
 }

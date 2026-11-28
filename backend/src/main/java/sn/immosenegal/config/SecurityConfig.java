@@ -55,9 +55,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/annonces").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/annonces/*/avis").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/agence/profil/*", "/api/agence/*/evaluations").permitAll()
-                // Les fiches publiques ne révèlent que les annonces publiées ; les autres statuts restent protégés dans le service.
+                .requestMatchers(HttpMethod.GET, "/api/locations/recus/verifier/*").permitAll()
+                // Les fiches publiques ne révèlent que les annonces publiées (sans adresse exacte pour les visiteurs).
                 .requestMatchers(HttpMethod.GET, "/api/annonces/*/photos/*", "/api/annonces/*/video", "/api/annonces/*/video/info").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/annonces/*").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/annonces/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/annonces").authenticated()
                 // Zone réservée aux administrateurs : le rôle vient de la base, jamais du client.
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
