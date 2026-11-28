@@ -9,10 +9,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -193,6 +197,8 @@ class CloudinaryEtDemandeProprietaireTest extends AbstractApiTest {
 
         byte[] webpOctets = new byte[] { 'R', 'I', 'F', 'F', 0x24, 0, 0, 0, 'W', 'E', 'B', 'P', 'V', 'P', '8', ' ' };
         MockMultipartFile webp = new MockMultipartFile("fichier", "salon.webp", "image/webp", webpOctets);
+        MockMultipartFile jpg = new MockMultipartFile("fichier", "chambre.jpg", "image/jpeg", imageOctets("jpg"));
+        MockMultipartFile png = new MockMultipartFile("fichier", "cuisine.png", "image/png", imageOctets("png"));
 
         // Agent interne (non responsable, non propriétaire) -> 403
         mvc.perform(multipart("/api/annonces/" + annonceId + "/photos")
@@ -213,11 +219,23 @@ class CloudinaryEtDemandeProprietaireTest extends AbstractApiTest {
             .andExpect(status().isCreated()).andReturn();
         UUID photo2 = UUID.fromString(JsonPath.read(p2.getResponse().getContentAsString(), "$.id"));
 
+        MvcResult pJpg = mvc.perform(multipart("/api/annonces/" + annonceId + "/photos")
+                .file(jpg).param("piece", "CHAMBRE")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isCreated()).andReturn();
+        UUID photoJpg = UUID.fromString(JsonPath.read(pJpg.getResponse().getContentAsString(), "$.id"));
+
+        MvcResult pPng = mvc.perform(multipart("/api/annonces/" + annonceId + "/photos")
+                .file(png).param("piece", "CUISINE")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isCreated()).andReturn();
+        UUID photoPng = UUID.fromString(JsonPath.read(pPng.getResponse().getContentAsString(), "$.id"));
+
         // Définir photo2 comme principale
         mvc.perform(put("/api/annonces/" + annonceId + "/photos/ordre")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(List.of(photo2, photo1))))
+                .content(corps(List.of(photo2, photo1, photoJpg, photoPng))))
             .andExpect(status().isNoContent());
 
         // Suppression interdite à l'agent (403), autorisée au responsable (204)
@@ -241,5 +259,12 @@ class CloudinaryEtDemandeProprietaireTest extends AbstractApiTest {
         assertThat(photoMigree.getContenu()).isNull();
         Annonce a = annonces.findById(annonceId).orElseThrow();
         assertThat(a.getId()).isEqualTo(annonceId);
+    }
+
+    private static byte[] imageOctets(String format) throws Exception {
+        BufferedImage img = new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(img, format, out);
+        return out.toByteArray();
     }
 }
