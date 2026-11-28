@@ -128,7 +128,23 @@ class DroitsImmoSenegalEtCandidaturesTest extends AbstractApiTest {
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenPart)))
             .andExpect(status().isOk());
 
-        // 4. Réservations : RESPONSABLE autorisé à consulter et décider, ADMIN aussi, CLIENT interdit
+        // 4. Visites et réservations : RESPONSABLE autorisé à consulter et décider sur bien propre ImmoSénégal
+        MvcResult vRes = mvc.perform(post("/api/visites/annonces/" + annonceId)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of(
+                    "dateVisite", java.time.Instant.now().plus(2, java.time.temporal.ChronoUnit.DAYS).toString(),
+                    "message", "Visite SVP"))))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String visiteId = JsonPath.read(vRes.getResponse().getContentAsString(), "$.id");
+
+        mvc.perform(post("/api/visites/" + visiteId + "/decision")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("action", "ACCEPTEE", "reponse", "Bienvenue"))))
+            .andExpect(status().isOk());
+
         mvc.perform(post("/api/reservations/annonces/" + annonceId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
                 .contentType(MediaType.APPLICATION_JSON)
