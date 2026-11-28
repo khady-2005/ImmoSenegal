@@ -69,7 +69,11 @@ export default function FormulaireAnnonce() {
     appelApi<Array<{ id: string; nom: string; fonction: string }>>('/api/agence/mes-espaces', { token: jeton })
       .then((espaces) => {
         if (!annule) {
-          setAgencesPublication(espaces.filter((e) => ['RESPONSABLE', 'GESTIONNAIRE', 'AGENT'].includes(e.fonction)))
+          const valides = espaces.filter((e) => ['RESPONSABLE', 'GESTIONNAIRE', 'AGENT'].includes(e.fonction))
+          setAgencesPublication(valides)
+          if (valides.length === 1 && !peutPublier(utilisateur?.role)) {
+            setAgenceId((prev) => prev || valides[0].id)
+          }
         }
       })
       .catch(() => undefined)
@@ -149,7 +153,12 @@ export default function FormulaireAnnonce() {
     e.preventDefault()
     const f = new FormData(e.currentTarget)
     const texte = (k: string) => String(f.get(k) ?? '').trim()
-    const nombre = (k: string) => (texte(k) === '' ? null : Number(texte(k)))
+    const nombre = (k: string) => {
+      const brut = texte(k).replace(/\s+/g, '').replace(',', '.')
+      if (brut === '') return null
+      const val = Number(brut)
+      return Number.isFinite(val) ? val : null
+    }
     const corps = {
       titre: texte('titre'),
       description: texte('description') || null,
@@ -203,6 +212,7 @@ export default function FormulaireAnnonce() {
         setChamps(err.details)
       } else setErreur('Une erreur inattendue est survenue.')
       setEnvoi(false)
+      window.scrollTo?.({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -345,7 +355,18 @@ export default function FormulaireAnnonce() {
         </p>
       )}
       <form onSubmit={soumettre} noValidate aria-label="Formulaire d'annonce" className="mt-6 space-y-4 rounded-2xl bg-white p-5 shadow">
-        {erreur && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
+        {erreur && (
+          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <p className="font-semibold">{erreur}</p>
+            {Object.keys(champs).length > 0 && (
+              <ul className="mt-1.5 list-disc pl-5 text-xs">
+                {Object.entries(champs).map(([champ, msg]) => (
+                  <li key={champ}><strong>{champ}</strong> : {msg}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         {!edition && agencesPublication.length > 0 && (
           <div>
             <label htmlFor="agence-annonce" className="mb-1 block text-sm font-medium text-slate-700">Publier au nom d’une agence (facultatif)</label>
