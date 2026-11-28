@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { appelApi, ApiError } from '../api'
 import AbonnementProprietaire from '../components/AbonnementProprietaire'
 import EvaluationAgenceMandat from '../components/EvaluationAgenceMandat'
+import ProfilCompte from '../components/ProfilCompte'
 import { useAuth } from '../auth'
 
 type Mandat = {
@@ -220,5 +221,6 @@ export default function EspaceProprietaire() {
           <Link to="/mes-contrats-location" className="mt-4 inline-flex text-sm font-semibold text-amber-800 underline">Consulter le contrat et répondre</Link>
         </article>)}</div>}
     </section>
+    {utilisateur && <ProfilCompte profil={utilisateur} />}
   </main>
 }

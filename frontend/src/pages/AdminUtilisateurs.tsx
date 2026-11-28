@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 import { libelleRole, type Role } from '../types'
@@ -23,6 +25,8 @@ export default function AdminUtilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState<UtilisateurAdmin[] | null>(null)
   const [erreur, setErreur] = useState<string | null>(null)
   const [enCours, setEnCours] = useState<string | null>(null)
+  const [recherche, setRecherche] = useState('')
+  const [filtreRole, setFiltreRole] = useState('TOUS')
 
   const charger = useCallback(async () => {
     try {
@@ -58,23 +62,52 @@ export default function AdminUtilisateurs() {
     return <div className="mx-auto max-w-2xl px-4 py-12"><p role="alert" className="rounded-lg bg-amber-50 p-4 text-sm">Cette page est réservée aux administrateurs.</p></div>
   }
 
+  const filtres = (utilisateurs ?? []).filter((u) => {
+    const q = recherche.trim().toLocaleLowerCase('fr')
+    const okTexte = !q || [u.nomComplet, u.email, u.telephone ?? ''].some((v) => v.toLocaleLowerCase('fr').includes(q))
+    const okRole = filtreRole === 'TOUS' || u.role === filtreRole
+    return okTexte && okRole
+  })
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 text-slate-950">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <Link to="/tableau-de-bord" className="inline-flex items-center gap-2 text-sm font-bold text-nuit-950 hover:underline">
+        <ArrowLeft className="h-4 w-4" /> Retour au tableau de bord
+      </Link>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="inline-flex rounded-lg bg-amber-100 px-4 py-2 text-lg font-extrabold uppercase tracking-wide text-slate-950">Administration</p>
           <h1 className="mt-2 text-3xl sm:text-4xl font-bold text-nuit-950">Gestion des utilisateurs</h1>
           <p className="mt-3 max-w-3xl rounded-xl border-2 border-blue-200 bg-blue-50 px-5 py-4 text-lg font-semibold leading-8 text-slate-950 shadow-sm">Tous les comptes créés sont affichés, même si leur propriétaire ne s'est jamais reconnecté.</p>
         </div>
-        <span className="rounded-full border-2 border-slate-300 bg-slate-100 px-4 py-2 text-base font-extrabold text-slate-950">{utilisateurs?.length ?? '…'} compte(s)</span>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => void charger()} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-nuit-950 hover:bg-slate-50">
+            <RefreshCw className="h-4 w-4" /> Actualiser
+          </button>
+          <span className="rounded-full border-2 border-slate-300 bg-slate-100 px-4 py-2 text-base font-extrabold text-slate-950">{filtres.length} / {utilisateurs?.length ?? '…'} compte(s)</span>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_240px]">
+        <input
+          type="search"
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          placeholder="Rechercher par nom, e-mail ou téléphone…"
+          className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-950"
+        />
+        <select value={filtreRole} onChange={(e) => setFiltreRole(e.target.value)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950">
+          <option value="TOUS">Tous les rôles</option>
+          {ROLES_MODIFIABLES.map((r) => <option key={r} value={r}>{libelleRole[r]}</option>)}
+        </select>
       </div>
 
       {erreur && <p role="alert" className="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
       {!utilisateurs && !erreur && <p role="status" className="mt-6 text-slate-500">Chargement des comptes…</p>}
-      {utilisateurs?.length === 0 && <p className="mt-6 text-slate-600">Aucun compte enregistré.</p>}
+      {utilisateurs && filtres.length === 0 && <p className="mt-6 text-slate-600">Aucun compte correspondant.</p>}
 
       <ul className="mt-6 space-y-3">
-        {utilisateurs?.map((u) => (
+        {filtres.map((u) => (
           <li key={u.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">

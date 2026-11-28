@@ -24,6 +24,7 @@ import EspaceLocataire from './pages/EspaceLocataire'
 import EspaceProprietaire from './pages/EspaceProprietaire'
 import AdminLitigesLocatifs from './pages/AdminLitigesLocatifs'
 import AdminSupervisionLocative from './pages/AdminSupervisionLocative'
+import AdminMediasAnnonce from './pages/AdminMediasAnnonce'
 import MesFavoris from './pages/MesFavoris'
 import { FavorisProvider } from './favoris'
 import Connexion from './pages/Connexion'
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="agences/:slug" element={<ProfilAgence />} />
           <Route path="admin/demandes" element={<RequireRole roles={["ADMIN"]}><AdminDemandes /></RequireRole>} />
           <Route path="admin/annonces" element={<RequireRole roles={["ADMIN"]}><AdminModeration /></RequireRole>} />
+          <Route path="admin/annonces/:id/medias" element={<RequireRole roles={["ADMIN"]}><AdminMediasAnnonce /></RequireRole>} />
           <Route path="admin/photos" element={<RequireRole roles={["ADMIN"]}><AdminPhotos /></RequireRole>} />
           <Route path="admin/utilisateurs" element={<RequireRole roles={["ADMIN"]}><AdminUtilisateurs /></RequireRole>} />
           <Route path="admin/agences" element={<RequireRole roles={["ADMIN"]}><AdminAgences /></RequireRole>} />

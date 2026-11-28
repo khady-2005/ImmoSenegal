@@ -50,7 +50,7 @@ public class CloudinaryService {
     }
 
     CloudinaryService(String cloudName, String apiKey, String apiSecret, ObjectMapper mapper, String baseUrl) {
-        this.cloudName = nettoyerVariable(cloudName);
+        this.cloudName = nettoyerVariable(cloudName).toLowerCase(java.util.Locale.ROOT);
         this.apiKey = nettoyerVariable(apiKey);
         this.apiSecret = nettoyerVariable(apiSecret);
         this.baseUrl = (baseUrl == null || baseUrl.isBlank()) ? DEFAULT_BASE_URL : baseUrl.strip().replaceAll("/+$", "");
@@ -136,9 +136,10 @@ public class CloudinaryService {
         try {
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
-                log.warn("Échec upload Cloudinary ({}) : code={}, message={}",
-                    resourceType, resp.statusCode(), extraireMessageErreur(resp.body(), signature));
-                throw new ApiException(HttpStatus.BAD_GATEWAY, "Échec de l'envoi vers Cloudinary.");
+                String msg = extraireMessageErreur(resp.body(), signature);
+                log.warn("Échec upload Cloudinary ({}) : code={}, message={}", resourceType, resp.statusCode(), msg);
+                throw new ApiException(HttpStatus.BAD_GATEWAY,
+                    "Échec de l'envoi vers Cloudinary (" + resp.statusCode() + " : " + msg + ").");
             }
             JsonNode root = mapper.readTree(resp.body());
             String secureUrl = root.path("secure_url").asText("");
