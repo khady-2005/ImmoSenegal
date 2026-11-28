@@ -269,11 +269,26 @@ class CouvertureSecondaireTest extends AbstractApiTest {
             .andReturn();
         String vaId = JsonPath.read(vaRes.getResponse().getContentAsString(), "$.id");
 
+        // Vente sans mandat -> 403 ; vente avec mandat accepté -> 201
         mvc.perform(post("/api/agence/" + agenceId + "/ventes")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of(
                     "annonceId", vaId,
+                    "agentMembreId", mAgent.getId().toString(),
+                    "acheteurNom", "Ibrahima Fall",
+                    "acheteurTelephone", "771112233",
+                    "prixVente", 50000000,
+                    "tauxCommission", 5.0,
+                    "partAgent", 40.0,
+                    "dateVente", LocalDate.now().toString()))))
+            .andExpect(status().isForbidden());
+
+        mvc.perform(post("/api/agence/" + agenceId + "/ventes")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of(
+                    "annonceId", annonceId.toString(),
                     "agentMembreId", mAgent.getId().toString(),
                     "acheteurNom", "Ibrahima Fall",
                     "acheteurTelephone", "771112233",
