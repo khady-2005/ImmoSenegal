@@ -99,6 +99,10 @@ export default function Catalogue() {
                 <option value="VILLA">Villa</option>
                 <option value="TERRAIN">Terrain</option>
                 <option value="LOCAL_COMMERCIAL">Local commercial</option>
+                <option value="CHAMBRE">Chambre</option>
+                <option value="IMMEUBLE">Immeuble</option>
+                <option value="BUREAU">Bureau</option>
+                <option value="AUTRE">Autre</option>
               </select>
             </div>
             <div>

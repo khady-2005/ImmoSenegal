@@ -22,8 +22,11 @@ import sn.immosenegal.agence.AgenceRepository;
 import sn.immosenegal.agence.StatutAgence;
 import sn.immosenegal.annonce.AnnonceRepository;
 import sn.immosenegal.annonce.StatutAnnonce;
+import sn.immosenegal.audit.AuditService;
 import sn.immosenegal.config.OpenApiConfig;
 import sn.immosenegal.security.AuthenticatedUser;
+import sn.immosenegal.signalement.Signalement;
+import sn.immosenegal.signalement.SignalementRepository;
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.UserRepository;
 
@@ -39,20 +42,31 @@ public class AdminController {
     private final AnnonceRepository annonces;
     private final AgenceRepository agences;
     private final AbonnementProprietaireRepository abonnements;
+    private final SignalementRepository signalements;
+    private final AuditService audit;
 
     @Autowired
     public AdminController(DemandeRoleService service, UserRepository users,
                            AnnonceRepository annonces, AgenceRepository agences,
-                           AbonnementProprietaireRepository abonnements) {
+                           AbonnementProprietaireRepository abonnements,
+                           SignalementRepository signalements, AuditService audit) {
         this.service = service;
         this.users = users;
         this.annonces = annonces;
         this.agences = agences;
         this.abonnements = abonnements;
+        this.signalements = signalements;
+        this.audit = audit;
     }
 
     public AdminController(DemandeRoleService service) {
-        this(service, null, null, null, null);
+        this(service, null, null, null, null, null, null);
+    }
+
+    @GetMapping("/audit")
+    @Operation(summary = "Journal des activités importantes (administrateur)")
+    public List<AuditService.AuditEvenement> auditRecents(@RequestParam(defaultValue = "100") int limite) {
+        return audit == null ? List.of() : audit.listerRecents(limite);
     }
 
     @GetMapping("/statistiques")
@@ -68,15 +82,17 @@ public class AdminController {
         long agencesEnAttente = agences == null ? 0 : agences.findAllByStatutOrderByNomAsc(StatutAgence.EN_ATTENTE).size();
         long abonnementsEnAttente = abonnements == null ? 0 : abonnements.findAllByStatutOrderByCreeLeAsc(StatutAbonnement.EN_ATTENTE).size();
         long demandesRoleEnAttente = service.lister(StatutDemande.EN_ATTENTE).size();
+        long signalementsOuverts = signalements == null ? 0 : signalements.findAll().stream()
+            .filter(s -> s.getStatut() == Signalement.StatutSignalement.OUVERT || s.getStatut() == Signalement.StatutSignalement.EN_COURS).count();
         return new StatistiquesAdmin(totalUsers, clients, proprietaires, totalAnnonces, annoncesPubliees,
-            agencesActives, agencesEnAttente, abonnementsEnAttente, demandesRoleEnAttente);
+            agencesActives, agencesEnAttente, abonnementsEnAttente, demandesRoleEnAttente, signalementsOuverts);
     }
 
     public record StatistiquesAdmin(
         long utilisateursTotal, long clientsActifs, long proprietairesActifs,
         long annoncesTotal, long annoncesPubliees,
         long agencesActives, long agencesEnAttente,
-        long abonnementsEnAttente, long demandesRoleEnAttente) {}
+        long abonnementsEnAttente, long demandesRoleEnAttente, long signalementsOuverts) {}
 
     @GetMapping("/role-requests")
     @Operation(summary = "Lister les demandes de rôle (filtre optionnel par statut)")

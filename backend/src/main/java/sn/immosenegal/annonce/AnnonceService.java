@@ -146,9 +146,20 @@ public class AnnonceService {
         Agence agence = agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
-        if (auteur.role() != Role.ADMIN && !estMembrePublicationAgence(agenceId, auteur.id())) {
+        if (auteur.role() == Role.ADMIN) {
             throw new ApiException(HttpStatus.FORBIDDEN,
-                "Seul un collaborateur actif (responsable, gestionnaire ou agent) de cette agence peut publier un bien en son nom.");
+                "L'administrateur supervise la plateforme et ne publie pas les biens de l'agence.");
+        }
+        boolean autorise = agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE
+            ? membresAgence.findByAgenceIdAndUtilisateurId(agenceId, auteur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .isPresent()
+            : estMembrePublicationAgence(agenceId, auteur.id());
+        if (!autorise) {
+            throw new ApiException(HttpStatus.FORBIDDEN, agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE
+                ? "Seul le responsable d'agence peut publier les biens d'ImmoSénégal."
+                : "Seul un collaborateur actif de cette agence peut publier un bien en son nom.");
         }
         User proprietaire;
         if (proprietaireId != null) {
@@ -303,7 +314,7 @@ public class AnnonceService {
      * Détail d'une annonce. Une annonce qui n'est pas PUBLIEE n'existe pas pour le public (404) :
      * seuls son propriétaire et les administrateurs peuvent la lire.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public AnnonceResponse obtenir(UUID id, AuthenticatedUser lecteur) {
         Annonce annonce = trouver(id);
         boolean gestionnaire = lecteur != null
@@ -313,10 +324,16 @@ public class AnnonceService {
         if (annonce.getStatut() != StatutAnnonce.PUBLIEE && !gestionnaire) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable.");
         }
+        if (annonce.getStatut() == StatutAnnonce.PUBLIEE && !gestionnaire) {
+            annonce.incrementerVues();
+        }
         List<UUID> photosAnnonce = photosDe(List.of(id)).getOrDefault(id, List.of());
         AnnonceResponse.GestionnaireInfo gestionnaireInfo = gestionnairesDe(List.of(id)).get(id);
-        return gestionnaire
-            ? AnnonceResponse.pourGestion(annonce, photosAnnonce, gestionnaireInfo)
+        if (gestionnaire) {
+            return AnnonceResponse.pourGestion(annonce, photosAnnonce, gestionnaireInfo);
+        }
+        return lecteur == null
+            ? AnnonceResponse.pourVisiteur(annonce, photosAnnonce, gestionnaireInfo)
             : AnnonceResponse.de(annonce, photosAnnonce, gestionnaireInfo);
     }
 
@@ -593,6 +610,8 @@ public class AnnonceService {
         annonce.setSuperficie(r.superficie());
         // Un terrain n'a pas de pièces.
         annonce.setPieces(r.typeBien() == TypeBien.TERRAIN ? null : r.pieces());
+        annonce.setChambres(r.typeBien() == TypeBien.TERRAIN ? null : r.chambres());
+        annonce.setSallesDeBain(r.typeBien() == TypeBien.TERRAIN ? null : r.sallesDeBain());
         annonce.setQuartier(r.quartier().trim());
         annonce.setVille(r.ville().trim());
         annonce.setAdresse(r.adresse() == null || r.adresse().isBlank() ? null : r.adresse().trim());

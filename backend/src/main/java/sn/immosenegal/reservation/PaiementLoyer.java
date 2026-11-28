@@ -21,6 +21,8 @@ public class PaiementLoyer {
  @Column(name="beneficiaire_nom",nullable=false,length=160) private String beneficiaireNom;
  @Column(name="statut_confirmation",nullable=false,length=20) private String statutConfirmation="EN_ATTENTE";
  @Column(name="confirme_le") private Instant confirmeLe;
+ @Column(name="code_verification",length=64,unique=true) private String codeVerification;
+ @Column(name="mode_paiement",length=30) private String modePaiement;
  @Column(name="cree_le",nullable=false,updatable=false) private Instant creeLe=Instant.now();
  protected PaiementLoyer(){}
  public PaiementLoyer(ContratLocation c,User u,BigDecimal m,LocalDate p,LocalDate d,String r,String type,UUID id,String nom){
@@ -32,4 +34,6 @@ public class PaiementLoyer {
  public void confirmer(boolean accepte){statutConfirmation=accepte?"CONFIRME":"REFUSE";confirmeLe=Instant.now();}
  public UUID getId(){return id;} public ContratLocation getContrat(){return contrat;} public BigDecimal getMontant(){return montant;} public LocalDate getPeriode(){return periode;} public LocalDate getDatePaiement(){return datePaiement;} public String getReference(){return reference;} public Instant getCreeLe(){return creeLe;} public User getEnregistrePar(){return enregistrePar;}
  public String getBeneficiaireType(){return beneficiaireType;} public UUID getBeneficiaireId(){return beneficiaireId;} public String getBeneficiaireNom(){return beneficiaireNom;} public String getStatutConfirmation(){return statutConfirmation;} public Instant getConfirmeLe(){return confirmeLe;}
+ public String getCodeVerification(){return codeVerification;} public String getModePaiement(){return modePaiement;}
+ public void setSimulationInfo(String mode,String code){this.modePaiement=mode;this.codeVerification=code;}
 }

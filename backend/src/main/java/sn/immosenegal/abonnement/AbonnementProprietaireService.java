@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,21 @@ public class AbonnementProprietaireService {
     private final AbonnementProprietaireRepository abonnements;
     private final UserRepository utilisateurs;
     private final NotificationService notifications;
+    private final boolean simulationActive;
 
+    @Autowired
     public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements, UserRepository utilisateurs,
-            NotificationService notifications) {
+            NotificationService notifications,
+            @Value("${app.paiement.simulation-active:true}") boolean simulationActive) {
         this.abonnements = abonnements;
         this.utilisateurs = utilisateurs;
         this.notifications = notifications;
+        this.simulationActive = simulationActive;
+    }
+
+    public AbonnementProprietaireService(AbonnementProprietaireRepository abonnements, UserRepository utilisateurs,
+            NotificationService notifications) {
+        this(abonnements, utilisateurs, notifications, true);
     }
 
     public Resume demander(Demande q, AuthenticatedUser acteur) {
@@ -52,6 +63,9 @@ public class AbonnementProprietaireService {
     }
 
     public Resume simuler(ForfaitAbonnement forfait, AuthenticatedUser acteur) {
+        if (!simulationActive) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Le paiement simulé est désactivé par configuration.");
+        }
         exigerRole(acteur, Role.PROPRIETAIRE);
         abonnements.findFirstByProprietaireIdAndStatutOrderByCreeLeDesc(acteur.id(), StatutAbonnement.EN_ATTENTE)
             .ifPresent(a -> { throw new ResponseStatusException(HttpStatus.CONFLICT, "Une demande d'abonnement est déjà en attente."); });

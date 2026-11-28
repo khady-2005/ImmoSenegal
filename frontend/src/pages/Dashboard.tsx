@@ -95,6 +95,8 @@ export default function Dashboard() {
 
   const accesAdministration: Acces[] = [
     { titre: 'Demandes de rôle', description: 'Examinez les demandes de changement de rôle des utilisateurs.', lien: '/admin/demandes', icone: ShieldCheck, action: 'Voir les demandes' },
+    { titre: 'Signalements et réclamations', description: 'Traitez les signalements d’annonces et les réclamations des utilisateurs.', lien: '/admin/signalements', icone: ShieldCheck, action: 'Traiter les signalements' },
+    { titre: 'Journal d’audit et paramètres', description: 'Consultez les activités importantes du système et les paramètres actifs.', lien: '/admin/audit', icone: ClipboardList, action: 'Consulter le journal' },
     { titre: 'Messagerie', description: 'Consultez les échanges lorsque votre intervention administrative est nécessaire.', lien: '/messagerie', icone: ClipboardList, action: 'Ouvrir la messagerie' },
   ]
 
@@ -119,7 +121,11 @@ export default function Dashboard() {
             { titre: 'Assistant immobilier', description: 'Aidez-vous de l’assistant pour orienter une recherche de logement.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
           ]
 
-  const accesAvecAgences: Acces[] = accesAgence ? [...acces, { titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }] : acces
+  const accesAvecAgences: Acces[] = [
+    ...acces,
+    ...(affiche.role !== 'ADMIN' ? [{ titre: 'Signalements et réclamations', description: 'Signalez un problème ou suivez l’état de vos réclamations.', lien: '/mes-signalements', icone: ShieldCheck, action: 'Mes signalements' }] : []),
+    ...(accesAgence ? [{ titre: 'Mes agences', description: 'Retrouvez vos espaces professionnels et répondez aux invitations des agences.', lien: '/mes-agences', icone: Building2, action: 'Ouvrir mes agences' }] : []),
+  ]
 
   const introduction = affiche.role === 'CLIENT'
     ? 'Retrouvez vos demandes et poursuivez votre recherche de logement.'

@@ -1,9 +1,11 @@
 package sn.immosenegal.reservation;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.Instant;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +25,9 @@ import sn.immosenegal.user.Role;
 
 @Service @Transactional
 public class ContratLocationService {
+ private static final SecureRandom ALEA = new SecureRandom();
+ @Value("${app.paiement.simulation-active:true}")
+ private boolean simulationActive = true;
  private final ReservationRepository reservations; private final ContratLocationRepository contrats; private final PaiementLoyerRepository paiements; private final UserRepository users; private final NotificationService notifications; private final MandatGestionRepository mandats; private final MembreAgenceRepository membres; private final CommissionLocationAgenceRepository commissions;
  public ContratLocationService(ReservationRepository r,ContratLocationRepository c,PaiementLoyerRepository p,UserRepository u,NotificationService n,MandatGestionRepository g,MembreAgenceRepository m,CommissionLocationAgenceRepository commissions){reservations=r;contrats=c;paiements=p;users=u;notifications=n;mandats=g;membres=m;this.commissions=commissions;}
  public ContratResume creer(UUID reservationId,CreationContrat q,AuthenticatedUser a){
@@ -73,6 +78,44 @@ public class ContratLocationService {
     .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE).findFirst()
     .ifPresent(m->notifications.creer(m.getUtilisateur(),"PAIEMENT_LOYER_A_CONFIRMER","Paiement à confirmer","Un locataire a déclaré un paiement de "+q.montant()+" FCFA pour "+c.getAnnonce().getTitre()+". Confirmez sa réception.","/mes-contrats-location"));
   return versPaiementResume(p);
+ }
+ public PaiementResume simulerPaiementLoyer(UUID id, LocalDate periode, String modePaiement, AuthenticatedUser a){
+  if(!simulationActive) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Le paiement simulé est désactivé par configuration.");
+  finaliserResiliationsEchues();
+  ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
+  if(!c.getLocataire().getId().equals(a.id())) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le locataire de ce contrat peut effectuer ce paiement.");
+  if(c.getEtat()!=EtatContratLocation.ACTIF && c.getEtat()!=EtatContratLocation.RESILIATION_PLANIFIEE) throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce contrat n'est plus actif.");
+  String mode=modePaiement==null?"":modePaiement.trim().toUpperCase();
+  if(!mode.equals("WAVE_SIMULATION")&&!mode.equals("ORANGE_MONEY_SIMULATION")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Mode de paiement simulé invalide (WAVE_SIMULATION ou ORANGE_MONEY_SIMULATION).");
+  if(periode==null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La période est obligatoire.");
+  LocalDate mois=periode.withDayOfMonth(1);
+  boolean dejaPaye=paiements.findAllByContratIdOrderByPeriodeDesc(id).stream()
+   .filter(p->!"REFUSE".equals(p.getStatutConfirmation()))
+   .anyMatch(p->p.getPeriode().getYear()==mois.getYear()&&p.getPeriode().getMonth()==mois.getMonth());
+  if(dejaPaye) throw new ResponseStatusException(HttpStatus.CONFLICT,"Un paiement a déjà été enregistré pour ce mois.");
+  User u=users.findById(a.id()).orElseThrow(()->new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Session invalide."));
+  BigDecimal montantServeur=c.getLoyerMensuel();
+  var mandat=mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE);
+  String type="PROPRIETAIRE"; UUID beneficiaireId=c.getProprietaire().getId(); String beneficiaireNom=c.getProprietaire().getNomComplet();
+  if(mandat.isPresent()){type="AGENCE";beneficiaireId=mandat.get().getAgence().getId();beneficiaireNom=mandat.get().getAgence().getNom();}
+  byte[] octets=new byte[24]; ALEA.nextBytes(octets);
+  String code="SIM-"+Base64.getUrlEncoder().withoutPadding().encodeToString(octets);
+  PaiementLoyer p=new PaiementLoyer(c,u,montantServeur,mois,LocalDate.now(),"SIMULATION "+mode,type,beneficiaireId,beneficiaireNom);
+  p.setSimulationInfo(mode,code);
+  p.confirmer(true);
+  p=paiements.save(p);
+  final PaiementLoyer pSauve=p;
+  mandat.filter(m->m.getTauxCommissionMensuel()!=null).ifPresent(m->{
+   BigDecimal commission=montantServeur.multiply(m.getTauxCommissionMensuel()).divide(new BigDecimal("100"),2,RoundingMode.HALF_UP);
+   commissions.save(new CommissionLocationAgence(m.getAgence(),m,c,pSauve,m.getTauxCommissionMensuel(),montantServeur,commission));
+  });
+  return versPaiementResume(p);
+ }
+ @Transactional(readOnly=true)
+ public RecuVerification verifierRecu(String code){
+  PaiementLoyer p=paiements.findByCodeVerification(code).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Reçu introuvable."));
+  return new RecuVerification(true,p.getCodeVerification(),p.getModePaiement(),p.getContrat().getAnnonce().getTitre(),
+   p.getContrat().getLocataire().getNomComplet(),p.getBeneficiaireNom(),p.getMontant(),p.getPeriode(),p.getDatePaiement(),true);
  }
  public PaiementResume confirmerPaiement(UUID contratId,UUID paiementId,boolean accepte,AuthenticatedUser a){
   ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
@@ -178,7 +221,7 @@ public class ContratLocationService {
    p.getReference(),p.getEnregistrePar().getNomComplet(),
    commission==null?null:commission.getTauxApplique(),
    commission==null?null:commission.getMontantCommission(),p.getBeneficiaireType(),p.getBeneficiaireId(),
-   p.getBeneficiaireNom(),p.getStatutConfirmation(),p.getConfirmeLe());
+   p.getBeneficiaireNom(),p.getStatutConfirmation(),p.getConfirmeLe(),p.getModePaiement(),p.getCodeVerification());
  }
  public List<SupervisionContratResume> supervisionAdmin(AuthenticatedUser a){
   if(a==null||a.role()!=Role.ADMIN) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé à l'administrateur.");
@@ -209,7 +252,8 @@ public class ContratLocationService {
  public record CreationContrat(BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin){}
  public record CreationPaiement(BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference){}
  public record ContratResume(UUID id,UUID annonceId,String annonceTitre,String proprietaireNom,String locataireNom,BigDecimal loyerMensuel,BigDecimal depotGarantie,LocalDate dateDebut,LocalDate dateFin,String etat,UUID resiliationDemandeeParId,String resiliationDemandeeParNom,java.time.Instant resiliationDemandeeLe,String resiliationMotif,LocalDate dateFinSouhaitee,Instant proprietaireConfirmeLe,Instant locataireConfirmeLe,String proprietaireSignature,String locataireSignature,Instant proprietaireSigneLe,Instant locataireSigneLe){}
- public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe){}
+ public record PaiementResume(UUID id,BigDecimal montant,LocalDate periode,LocalDate datePaiement,String reference,String enregistrePar,BigDecimal tauxCommissionAgence,BigDecimal commissionAgence,String beneficiaireType,UUID beneficiaireId,String beneficiaireNom,String statutConfirmation,Instant confirmeLe,String modePaiement,String codeVerification){}
+ public record RecuVerification(boolean valide,String codeVerification,String modePaiement,String annonceTitre,String locataireNom,String beneficiaireNom,BigDecimal montant,LocalDate periode,LocalDate datePaiement,boolean simulation){}
  public record CommissionLocationResume(UUID id,UUID agenceId,String agenceNom,UUID contratId,String annonceTitre,LocalDate periode,BigDecimal tauxApplique,BigDecimal baseCalcul,BigDecimal montantCommission,Instant creeLe){}
  public record SupervisionContratResume(ContratResume contrat,List<PaiementResume> paiements,String gestionType,String agenceNom){}
 }
