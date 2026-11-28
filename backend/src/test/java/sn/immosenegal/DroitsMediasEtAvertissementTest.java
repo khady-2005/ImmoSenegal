@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -346,5 +347,50 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
                 .header(HttpHeaders.AUTHORIZATION, jwtResp))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.statut").value("ACCEPTEE"));
+    }
+
+    @Test
+    void missionsTousCollaborateurs_etSuspensionCompteAdmin() throws Exception {
+        User admin = creerUtilisateur(Role.ADMIN, "Admin Suspend");
+        User resp = creerUtilisateur(Role.RESPONSABLE, "Resp Missions");
+        User caissier = creerUtilisateur(Role.CAISSIER, "Caissier Test");
+        User assistant = creerUtilisateur(Role.ASSISTANT_ADMINISTRATIF, "Assistant Test");
+        Agence interne = creerAgence("ImmoSénégal", "immosenegal-missions-test", AgenceType.INTERNE, resp);
+
+        MembreAgence mCaissier = new MembreAgence(interne, caissier, FonctionAgence.CAISSIER);
+        mCaissier.setStatut(StatutMembreAgence.ACTIF);
+        membres.save(mCaissier);
+
+        MembreAgence mAssistant = new MembreAgence(interne, assistant, FonctionAgence.ASSISTANT_ADMINISTRATIF);
+        mAssistant.setStatut(StatutMembreAgence.ACTIF);
+        membres.save(mAssistant);
+
+        String jwtResp = bearer(connecter(resp.getEmail()));
+        String jwtAdmin = bearer(connecter(admin.getEmail()));
+
+        // Responsable attribue une mission au Caissier et à l'Assistant
+        mvc.perform(post("/api/agence/" + interne.getId() + "/missions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"membreId\":\"" + mCaissier.getId() + "\",\"titre\":\"Clôturer la caisse du jour\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtResp))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.fonction").value("CAISSIER"));
+
+        mvc.perform(post("/api/agence/" + interne.getId() + "/missions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"membreId\":\"" + mAssistant.getId() + "\",\"titre\":\"Classer le dossier location\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtResp))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.fonction").value("ASSISTANT_ADMINISTRATIF"));
+
+        // Admin suspend le compte du caissier et la suspension persiste en base
+        mvc.perform(patch("/api/admin/users/" + caissier.getId() + "/status")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"actif\":false}")
+                .header(HttpHeaders.AUTHORIZATION, jwtAdmin))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.actif").value(false));
+
+        assertThat(users.findById(caissier.getId()).orElseThrow().isActif()).isFalse();
     }
 }

@@ -118,7 +118,7 @@ export default function AdminUtilisateurs() {
                 </p>
               </div>
               <span className={`rounded-full px-3 py-1 text-xs font-semibold ${u.actif ? 'bg-dore-100 text-nuit-900' : 'bg-red-50 text-red-800'}`}>
-                {u.actif ? 'Compte actif' : 'Compte désactivé'}
+                {u.actif ? 'Compte actif' : 'Compte suspendu'}
               </span>
             </div>
 
@@ -140,9 +140,9 @@ export default function AdminUtilisateurs() {
                 disabled={enCours === u.id || u.id === utilisateur.id || (u.role === 'ADMIN' && u.actif)}
                 onClick={() => void modifier(u.id, 'status', !u.actif)}
                 className={`rounded-lg px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${u.actif ? 'border border-red-200 text-red-700 hover:bg-red-50' : 'bg-emeraude-600 text-white hover:bg-emeraude-700'}`}
-                title={u.id === utilisateur.id ? 'Vous ne pouvez pas désactiver votre propre compte' : undefined}
+                title={u.id === utilisateur.id ? 'Vous ne pouvez pas suspendre votre propre compte' : undefined}
               >
-                {enCours === u.id ? 'Enregistrement…' : u.actif ? 'Désactiver le compte' : 'Réactiver le compte'}
+                {enCours === u.id ? 'Enregistrement…' : u.actif ? 'Suspendre le compte' : 'Réactiver le compte'}
               </button>
             </div>
           </li>

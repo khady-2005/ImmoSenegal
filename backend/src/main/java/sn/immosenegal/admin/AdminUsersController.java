@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,24 +49,27 @@ public class AdminUsersController {
     }
 
     @PatchMapping("/{id}/status")
-    @Operation(summary = "Activer ou désactiver un compte")
+    @Transactional
+    @Operation(summary = "Activer ou suspendre un compte")
     public UtilisateurAdmin changerStatut(@PathVariable UUID id, @Valid @RequestBody ChangementStatut requete,
                                            @AuthenticationPrincipal AuthenticatedUser admin) {
         User cible = trouver(id);
         if (cible.getId().equals(admin.id())) {
-            throw new ApiException(HttpStatus.CONFLICT, "Vous ne pouvez pas désactiver votre propre compte.");
+            throw new ApiException(HttpStatus.CONFLICT, "Vous ne pouvez pas suspendre votre propre compte.");
         }
         if (!requete.actif() && cible.getRole() == Role.ADMIN
                 && users.countByRoleAndActifTrue(Role.ADMIN) <= 1) {
-            throw new ApiException(HttpStatus.CONFLICT, "Le dernier administrateur actif ne peut pas être désactivé.");
+            throw new ApiException(HttpStatus.CONFLICT, "Le dernier administrateur actif ne peut pas être suspendu.");
         }
         cible.setActif(requete.actif());
+        users.save(cible);
         audit.enregistrer("STATUT_COMPTE", admin.id(),
-            "Compte " + cible.getId() + " : " + (requete.actif() ? "activé" : "désactivé"));
+            "Compte " + cible.getId() + " : " + (requete.actif() ? "activé" : "suspendu"));
         return UtilisateurAdmin.de(cible);
     }
 
     @PatchMapping("/{id}/role")
+    @Transactional
     @Operation(summary = "Modifier le rôle d'un compte sans créer un nouvel administrateur")
     public UtilisateurAdmin changerRole(@PathVariable UUID id, @Valid @RequestBody ChangementRole requete,
                                          @AuthenticationPrincipal AuthenticatedUser admin) {
@@ -75,6 +79,7 @@ public class AdminUsersController {
                 "La gestion du rôle ADMIN doit être faite directement en base par un responsable technique.");
         }
         cible.setRole(requete.role());
+        users.save(cible);
         audit.enregistrer("ROLE_COMPTE", admin.id(), "Compte " + cible.getId() + " : rôle " + requete.role());
         return UtilisateurAdmin.de(cible);
     }

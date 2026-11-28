@@ -47,9 +47,12 @@ public class MissionAgenceService {
         MembreAgence assigne = membres.findById(requete.membreId())
             .filter(m -> m.getAgence().getId().equals(agenceId))
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .filter(m -> m.getFonction() == FonctionAgence.AGENT || m.getFonction() == FonctionAgence.GESTIONNAIRE)
+            .filter(m -> m.getFonction() == FonctionAgence.AGENT
+                || m.getFonction() == FonctionAgence.GESTIONNAIRE
+                || m.getFonction() == FonctionAgence.CAISSIER
+                || m.getFonction() == FonctionAgence.ASSISTANT_ADMINISTRATIF)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Le destinataire doit être un agent ou un gestionnaire actif de cette agence."));
+                "Le destinataire doit être un collaborateur actif (agent, gestionnaire, caissier ou assistant) de cette agence."));
         String titre = requete.titre() == null ? "" : requete.titre().trim();
         if (titre.isBlank() || titre.length() > 160) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le titre est obligatoire (160 caractères maximum). ");
