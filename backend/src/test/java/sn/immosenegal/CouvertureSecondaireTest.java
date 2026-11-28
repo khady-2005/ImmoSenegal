@@ -119,6 +119,20 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("role", "PROPRIETAIRE"))))
             .andExpect(status().isOk());
+
+        // Abonnement manuel + décision admin
+        MvcResult aboDemRes = mvc.perform(post("/api/abonnements/demande")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("forfait", "TRIMESTRIEL", "modePaiement", "WAVE", "referencePaiement", "WAV-99"))))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String aboId = JsonPath.read(aboDemRes.getResponse().getContentAsString(), "$.id");
+        mvc.perform(post("/api/abonnements/admin/" + aboId + "/decision")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("accepter", true, "motif", "Paiement vérifié"))))
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -322,6 +336,16 @@ class CouvertureSecondaireTest extends AbstractApiTest {
             .andExpect(status().isOk());
         mvc.perform(get("/api/agence/" + agenceId + "/ventes/" + venteId + "/paiements-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
+        mvc.perform(post("/api/agence/" + agenceId + "/ventes/" + venteId + "/paiements-commissions")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of(
+                    "beneficiaire", "AGENCE",
+                    "montant", 500000,
+                    "datePaiement", LocalDate.now().toString(),
+                    "modePaiement", "VIREMENT",
+                    "reference", "COM-2026"))))
+            .andExpect(status().isCreated());
         mvc.perform(get("/api/agence/" + agenceId + "/evaluations")).andExpect(status().isOk());
         mvc.perform(get("/api/agence/" + agenceId + "/visites").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
