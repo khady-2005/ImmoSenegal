@@ -166,6 +166,7 @@ public class AdminController {
         java.time.LocalDate dateDebut, java.time.LocalDate dateFin, java.time.Instant creeLe) {}
 
     @GetMapping("/abonnements")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     @Operation(summary = "Lister tous les abonnements (administrateur)")
     public List<AbonnementAdminResume> listerAbonnements(@RequestParam(required = false) StatutAbonnement statut) {
         if (abonnements == null) return List.of();
@@ -190,6 +191,7 @@ public class AdminController {
         String statutConfirmation, String codeVerification) {}
 
     @GetMapping("/paiements")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     @Operation(summary = "Superviser tous les paiements de loyers (administrateur)")
     public List<PaiementAdminResume> listerPaiements() {
         if (paiements == null) return List.of();
