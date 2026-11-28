@@ -57,6 +57,7 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
     @Autowired private MandatGestionRepository mandats;
     @Autowired private NotificationRepository notifications;
     @Autowired private ReservationRepository reservations;
+    @Autowired private sn.immosenegal.agence.DossierAgenceRepository dossiersAgence;
 
     private static byte[] pngValide() throws Exception {
         BufferedImage img = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
@@ -392,5 +393,78 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
             .andExpect(jsonPath("$.actif").value(false));
 
         assertThat(users.findById(caissier.getId()).orElseThrow().isActif()).isFalse();
+    }
+
+    @Test
+    void bienAttribueAGestionnaire_recoitVisiteReservationContratEtCreeDossier() throws Exception {
+        User admin = creerUtilisateur(Role.ADMIN, "Admin Flux");
+        User resp = creerUtilisateur(Role.RESPONSABLE, "Resp Flux");
+        User gest = creerUtilisateur(Role.GESTIONNAIRE, "Gest Flux");
+        User client = creerUtilisateur(Role.CLIENT, "Client Flux");
+        Agence interne = creerAgence("ImmoSénégal", "immosenegal-flux-test", AgenceType.INTERNE, resp);
+
+        MembreAgence mGest = new MembreAgence(interne, gest, FonctionAgence.GESTIONNAIRE);
+        mGest.setStatut(StatutMembreAgence.ACTIF);
+        membres.save(mGest);
+
+        Annonce bien = new Annonce(admin);
+        bien.setTitre("Appartement Attribué Flux");
+        bien.setTypeBien(TypeBien.APPARTEMENT);
+        bien.setTypeTransaction(TypeTransaction.LOCATION);
+        bien.setPrix(200_000L);
+        bien.setSuperficie(new BigDecimal("85"));
+        bien.setQuartier("Fann");
+        bien.setVille("Dakar");
+        bien.setAgence(interne);
+        bien.setPublieeParAgence(true);
+        bien.setStatut(StatutAnnonce.PUBLIEE);
+        bien.setAgentMembreId(mGest.getId());
+        annonces.save(bien);
+
+        String jwtClient = bearer(connecter(client.getEmail()));
+        String jwtGest = bearer(connecter(gest.getEmail()));
+
+        // Client demande une visite -> Gestionnaire reçoit notif + accepte
+        String dateFuture = java.time.LocalDateTime.now().plusDays(2).withNano(0).toString();
+        MvcResult vRes = mvc.perform(post("/api/visites/annonces/" + bien.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dateVisite\":\"" + dateFuture + "\",\"message\":\"Visite\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtClient))
+            .andExpect(status().isCreated()).andReturn();
+        String visiteId = JsonPath.read(vRes.getResponse().getContentAsString(), "$.id");
+        assertThat(notifications.findTop30ByDestinataireIdOrderByCreeLeDesc(gest.getId())).isNotEmpty();
+
+        mvc.perform(post("/api/visites/" + visiteId + "/decision")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"action\":\"ACCEPTEE\",\"reponse\":\"OK\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtGest))
+            .andExpect(status().isOk());
+
+        // Client réserve -> Gestionnaire reçoit notif + accepte + crée contrat -> DossierAgence CONTRAT créé
+        MvcResult rRes = mvc.perform(post("/api/reservations/annonces/" + bien.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"message\":\"Réservation TEST\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtClient))
+            .andExpect(status().isCreated()).andReturn();
+        String resId = JsonPath.read(rRes.getResponse().getContentAsString(), "$.id");
+
+        mvc.perform(get("/api/reservations/recues").header(HttpHeaders.AUTHORIZATION, jwtGest))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[?(@.id == '" + resId + "')]").isNotEmpty());
+
+        mvc.perform(post("/api/reservations/" + resId + "/decision")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"action\":\"ACCEPTEE\",\"reponse\":\"Bienvenue\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtGest))
+            .andExpect(status().isOk());
+
+        mvc.perform(post("/api/locations/reservations/" + resId + "/contrat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"loyerMensuel\":200000,\"depotGarantie\":200000,\"dateDebut\":\"2026-12-01\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtGest))
+            .andExpect(status().isOk());
+
+        var dossiers = dossiersAgence.findAllByAgenceIdOrderByCreeLeDesc(interne.getId());
+        assertThat(dossiers).anyMatch(d -> d.getCategorie() == sn.immosenegal.agence.DossierAgence.CategorieDossier.CONTRAT);
     }
 }

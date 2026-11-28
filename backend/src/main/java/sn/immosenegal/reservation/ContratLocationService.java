@@ -41,6 +41,7 @@ public class ContratLocationService {
  @Value("${app.paiement.simulation-active:true}")
  private boolean simulationActive = true;
  private final ReservationRepository reservations; private final ContratLocationRepository contrats; private final PaiementLoyerRepository paiements; private final UserRepository users; private final NotificationService notifications; private final MandatGestionRepository mandats; private final MembreAgenceRepository membres; private final CommissionLocationAgenceRepository commissions;
+ @org.springframework.beans.factory.annotation.Autowired(required=false) private sn.immosenegal.agence.DossierAgenceRepository dossiersAgence;
  public ContratLocationService(ReservationRepository r,ContratLocationRepository c,PaiementLoyerRepository p,UserRepository u,NotificationService n,MandatGestionRepository g,MembreAgenceRepository m,CommissionLocationAgenceRepository commissions){reservations=r;contrats=c;paiements=p;users=u;notifications=n;mandats=g;membres=m;this.commissions=commissions;}
  public ContratResume creer(UUID reservationId,CreationContrat q,AuthenticatedUser a){
   Reservation r=reservations.findById(reservationId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Réservation introuvable."));
@@ -51,8 +52,14 @@ public class ContratLocationService {
   if(q.loyerMensuel()==null||q.loyerMensuel().signum()<=0||q.depotGarantie()==null||q.depotGarantie().signum()<0||q.dateDebut()==null||(q.dateFin()!=null&&q.dateFin().isBefore(q.dateDebut()))) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Vérifiez le loyer, le dépôt et les dates.");
   User owner=r.getAnnonce().getProprietaire();
   ContratLocation c=contrats.save(new ContratLocation(r.getAnnonce(),owner,r.getClient(),r,q.loyerMensuel(),q.depotGarantie(),q.dateDebut(),q.dateFin()));
-  notifications.creer(r.getClient(),"CONTRAT_LOCATION_CREE","Contrat de location préparé","Un contrat de location a été préparé pour "+r.getAnnonce().getTitre()+". Consultez les conditions avec le propriétaire et l’agence gestionnaire si nécessaire.","/mes-reservations");
-  if(!owner.getId().equals(a.id())) notifications.creer(owner,"CONTRAT_LOCATION_PREPARE","Contrat préparé par l’agence","Un agent mandaté a préparé le contrat pour "+r.getAnnonce().getTitre()+". Consultez-le avec le locataire.","/mes-contrats-location");
+  if(dossiersAgence!=null){
+   UUID agenceDossierId=r.getAnnonce().getAgence()!=null?r.getAnnonce().getAgence().getId():mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(r.getAnnonce().getId(),StatutMandatGestion.ACCEPTE).map(m->m.getAgence().getId()).orElse(null);
+   if(agenceDossierId!=null){
+    dossiersAgence.save(new sn.immosenegal.agence.DossierAgence(agenceDossierId,a.id(),"Contrat — "+r.getAnnonce().getTitre(),sn.immosenegal.agence.DossierAgence.CategorieDossier.CONTRAT,r.getClient().getNomComplet(),"Loyer : "+q.loyerMensuel()+" FCFA · Dépôt : "+q.depotGarantie()+" FCFA · Début : "+q.dateDebut()));
+   }
+  }
+  notifications.creer(r.getClient(),"CONTRAT_LOCATION_CREE","Contrat de location préparé","Un contrat de location a été préparé pour "+r.getAnnonce().getTitre()+". Consultez les conditions et signez-le directement en ligne.","/mes-contrats-location");
+  if(!owner.getId().equals(a.id())) notifications.creer(owner,"CONTRAT_LOCATION_PREPARE","Contrat préparé par l’agence","Un collaborateur a préparé le contrat pour "+r.getAnnonce().getTitre()+". Consultez-le avec le locataire.","/mes-contrats-location");
   return resume(c);
  }
  public List<ContratResume> mesContrats(AuthenticatedUser a){
@@ -62,7 +69,7 @@ public class ContratLocationService {
   List<ContratLocation> l=new ArrayList<>();
   l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));
   l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));
-  if(a.role()==Role.AGENT||a.role()==Role.RESPONSABLE||a.role()==Role.PROPRIETAIRE){
+  if(a.role()==Role.AGENT||a.role()==Role.GESTIONNAIRE||a.role()==Role.CAISSIER||a.role()==Role.ASSISTANT_ADMINISTRATIF||a.role()==Role.RESPONSABLE||a.role()==Role.PROPRIETAIRE){
    java.util.Set<UUID> annoncesSet=new java.util.LinkedHashSet<>();
    membres.findAllByUtilisateurId(a.id()).stream()
     .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
@@ -310,10 +317,11 @@ public class ContratLocationService {
    .filter(m->m.getAgence().getType()==AgenceType.INTERNE).isPresent();
  }
  private boolean estMembreAgenceAnnonce(sn.immosenegal.annonce.Annonce annonce,AuthenticatedUser a){
-  if(a==null||(a.role()!=Role.AGENT&&a.role()!=Role.RESPONSABLE&&a.role()!=Role.PROPRIETAIRE))return false;
+  if(a==null||(a.role()!=Role.AGENT&&a.role()!=Role.GESTIONNAIRE&&a.role()!=Role.CAISSIER&&a.role()!=Role.ASSISTANT_ADMINISTRATIF&&a.role()!=Role.RESPONSABLE&&a.role()!=Role.PROPRIETAIRE))return false;
   return membres.findAllByUtilisateurId(a.id()).stream()
    .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
-   .anyMatch(m->(annonce.getAgence()!=null&&annonce.getAgence().getId().equals(m.getAgence().getId()))
+   .anyMatch(m->(annonce.getAgentMembreId()!=null&&annonce.getAgentMembreId().equals(m.getId()))
+    ||(annonce.getAgence()!=null&&annonce.getAgence().getId().equals(m.getAgence().getId()))
     ||mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),annonce.getId(),StatutMandatGestion.ACCEPTE));
  }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}

@@ -218,8 +218,17 @@ public class DemandeVisiteService {
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
         java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
             annonce.getId(), StatutMandatGestion.ACCEPTE);
-        // Le propriétaire et les membres actifs de l'agence (propre ou mandatée) reçoivent la notification.
+        // Le collaborateur attribué, le propriétaire et les membres actifs de l'agence reçoivent la notification.
         java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
+        if (annonce.getAgentMembreId() != null) {
+            membres.findById(annonce.getAgentMembreId())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .ifPresent(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId())) {
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/visites-recues");
+                    }
+                });
+        }
         User proprietaire = annonce.getProprietaire();
         if (proprietaire != null && dejaNotifies.add(proprietaire.getId())) {
             notifications.creer(proprietaire, type, titre, message, "/visites-recues");

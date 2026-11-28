@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BookmarkCheck, Check, X } from 'lucide-react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
@@ -33,6 +34,7 @@ const libelles: Record<StatutReservation, string> = {
 
 export default function Reservations() {
   const { utilisateur, jeton } = useAuth()
+  const navigate = useNavigate()
   const role = utilisateur?.role as Role | undefined
   const admin = role === 'ADMIN'
   const client = role === 'CLIENT'
@@ -87,6 +89,7 @@ export default function Reservations() {
       })
       setContratOuvert(null); setLoyer(''); setDepot('0'); setFin(''); setDuree('INDETERMINEE')
       await charger()
+      navigate('/mes-contrats-location')
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de créer le contrat. Vérifiez que l’annonce concerne une location.')
     } finally { setEnCours(null) }
@@ -103,7 +106,7 @@ export default function Reservations() {
     } finally { setEnCours(null) }
   }
 
-  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT' && role !== 'RESPONSABLE' && role !== 'ADMIN') {
+  if (!['CLIENT', 'PROPRIETAIRE', 'AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE', 'ADMIN'].includes(role ?? '')) {
     return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agences et administrateurs.</p></div>
   }
 

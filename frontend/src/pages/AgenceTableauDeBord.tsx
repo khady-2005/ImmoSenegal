@@ -545,7 +545,7 @@ export default function AgenceTableauDeBord() {
           if (filtres.length === 0) {
             return <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucun bien ne correspond aux critères.</p>
           }
-          const agentsActifs = membres.filter((m) => m.statut === 'ACTIF' && (m.fonction === 'AGENT' || m.fonction === 'GESTIONNAIRE'))
+          const agentsActifs = membres.filter((m) => m.statut === 'ACTIF' && ['AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF'].includes(m.fonction))
           return (
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               {filtres.map((b) => (

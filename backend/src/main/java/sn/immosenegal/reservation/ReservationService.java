@@ -87,7 +87,7 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<ReservationResponse> demandesRecues(AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.RESPONSABLE, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.GESTIONNAIRE, Role.CAISSIER, Role.ASSISTANT_ADMINISTRATIF, Role.RESPONSABLE, Role.ADMIN);
         if (acteur.role() == Role.ADMIN) return toutes(acteur);
         java.util.Set<UUID> annoncesGerees = new java.util.LinkedHashSet<>();
         if (acteur.role() == Role.PROPRIETAIRE) {
@@ -125,7 +125,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse decider(UUID id, DecisionReservation requete, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.RESPONSABLE, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.GESTIONNAIRE, Role.CAISSIER, Role.ASSISTANT_ADMINISTRATIF, Role.RESPONSABLE, Role.ADMIN);
         Reservation reservation = trouver(id);
         if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(reservation.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette réservation ne concerne pas vos annonces.");
@@ -167,10 +167,10 @@ public class ReservationService {
 
     private boolean estInterlocuteurAutorise(Annonce annonce, AuthenticatedUser acteur) {
         if (annonce.getProprietaire().getId().equals(acteur.id())) return true;
-        if (acteur.role() != Role.AGENT && acteur.role() != Role.RESPONSABLE) return false;
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .anyMatch(m -> (annonce.getAgence() != null && annonce.getAgence().getId().equals(m.getAgence().getId()))
+            .anyMatch(m -> (annonce.getAgentMembreId() != null && annonce.getAgentMembreId().equals(m.getId()))
+                || (annonce.getAgence() != null && annonce.getAgence().getId().equals(m.getAgence().getId()))
                 || mandats.existsByAgenceIdAndAnnonceIdAndStatut(
                     m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
     }
@@ -178,11 +178,26 @@ public class ReservationService {
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
         java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
             annonce.getId(), StatutMandatGestion.ACCEPTE);
-        // Le propriétaire conserve toujours une visibilité sur les demandes, même lorsqu'il délègue la gestion.
         java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
+        if (annonce.getAgentMembreId() != null) {
+            membres.findById(annonce.getAgentMembreId())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .ifPresent(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId())) {
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/reservations-recues");
+                    }
+                });
+        }
         User proprietaire = annonce.getProprietaire();
         if (proprietaire != null && dejaNotifies.add(proprietaire.getId())) {
             notifications.creer(proprietaire, type, titre, message, "/reservations-recues");
+        }
+        if (annonce.getAgence() != null) {
+            membres.findAllByAgenceIdAndStatut(annonce.getAgence().getId(), StatutMembreAgence.ACTIF)
+                .forEach(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId()))
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/reservations-recues");
+                });
         }
         for (MandatGestion mandat : actifs) {
             membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)

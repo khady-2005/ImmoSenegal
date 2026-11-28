@@ -647,8 +647,12 @@ public class AnnonceService {
             collaborateur = membresAgence.findById(membreId)
                 .filter(m -> m.getAgence().getId().equals(agenceId))
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-                .filter(m -> m.getFonction() == FonctionAgence.AGENT || m.getFonction() == FonctionAgence.GESTIONNAIRE)
-                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Choisissez un agent ou gestionnaire actif de cette agence."));
+                .filter(m -> m.getFonction() == FonctionAgence.AGENT
+                    || m.getFonction() == FonctionAgence.GESTIONNAIRE
+                    || m.getFonction() == FonctionAgence.CAISSIER
+                    || m.getFonction() == FonctionAgence.ASSISTANT_ADMINISTRATIF)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST,
+                    "Choisissez un collaborateur actif (agent, gestionnaire, caissier ou assistant) de cette agence."));
         }
         annonce.setAgentMembreId(collaborateur == null ? null : collaborateur.getId());
         if (collaborateur != null && notifications != null) {

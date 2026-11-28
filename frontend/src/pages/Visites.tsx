@@ -138,7 +138,7 @@ export default function Visites({ modeAdmin = false }: { modeAdmin?: boolean }) 
   const aConfirmer = demandes.filter(d => d.statut === 'PROPOSEE').length
 
   const titre = admin ? 'Toutes les demandes de visite' : client ? 'Mes demandes de visite' : 'Demandes de visite reçues'
-  if (!admin && role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT') {
+  if (!admin && !['CLIENT', 'PROPRIETAIRE', 'AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE'].includes(role ?? '')) {
     return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agents mandatés et administrateurs.</p></div>
   }
 
