@@ -290,7 +290,7 @@ class FinalisationSecurityAndFeaturesTest extends AbstractApiTest {
         mvc.perform(patch("/api/admin/signalements/" + sigId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("statut", "RESOLU", "reponseAdmin", "Tentative illégale"))))
+                .content(corps(Map.of("statut", "TRAITE", "reponseAdmin", "Tentative illégale"))))
             .andExpect(status().isForbidden());
 
         // Traitement par l'administrateur
@@ -301,9 +301,9 @@ class FinalisationSecurityAndFeaturesTest extends AbstractApiTest {
         mvc.perform(patch("/api/admin/signalements/" + sigId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("statut", "RESOLU", "reponseAdmin", "Dossier pris en charge."))))
+                .content(corps(Map.of("statut", "TRAITE", "reponseAdmin", "Dossier pris en charge."))))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.statut").value("RESOLU"))
+            .andExpect(jsonPath("$.statut").value("TRAITE"))
             .andExpect(jsonPath("$.reponseAdmin").value("Dossier pris en charge."));
     }
 
@@ -338,7 +338,7 @@ class FinalisationSecurityAndFeaturesTest extends AbstractApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("titre", "Dossier Bail 2026", "categorie", "CONTRAT", "referenceClient", "REF-01"))))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.statut").value("OUVERT"))
+            .andExpect(jsonPath("$.statut").value("A_COMPLETER"))
             .andReturn();
         String dossierId = JsonPath.read(created.getResponse().getContentAsString(), "$.id");
 
