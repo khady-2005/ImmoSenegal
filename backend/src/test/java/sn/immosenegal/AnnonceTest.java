@@ -152,17 +152,21 @@ class AnnonceTest extends AbstractApiTest {
         publier(jeton, terrain).andExpect(status().isCreated()).andExpect(jsonPath("$.pieces").doesNotExist());
     }
 
-    // ---------- Lecture : le catalogue est public, la fiche exige un compte ----------
+    // ---------- Lecture : catalogue et fiche publics, adresse réservée aux comptes ----------
 
     @Test
-    void lAFicheExigeUneSession_etNExposeNiLEmailNiLeTelephoneDuProprietaire() throws Exception {
+    void lAFicheMasqueLAdresseAuVisiteur_etNExposeNiLEmailNiLeTelephoneDuProprietaire() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
         String id = publierEtValider(jeton, utilisateurConnecte(Role.ADMIN), annonce("Visible", quartierUnique()));
 
-        lire(id, null).andExpect(status().isUnauthorized());
+        lire(id, null)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.titre").value("Visible"))
+            .andExpect(jsonPath("$.adresse").doesNotExist());
         lire(id, utilisateurConnecte(Role.CLIENT))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.titre").value("Visible"))
+            .andExpect(jsonPath("$.adresse").exists())
             .andExpect(jsonPath("$.proprietaire.nomComplet").exists())
             .andExpect(content().string(not(containsString("@example.test"))))
             .andExpect(content().string(not(containsString("telephone"))));

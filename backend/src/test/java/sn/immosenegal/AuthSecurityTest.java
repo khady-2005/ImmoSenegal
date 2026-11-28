@@ -102,7 +102,7 @@ class AuthSecurityTest extends AbstractApiTest {
         assertThat(m1).isEqualTo(m2);
     }
 
-    // ---------- Catalogue public, fiche détaillée protégée ----------
+    // ---------- Catalogue et fiche publics (adresse masquée), actions protégées ----------
 
     @Test
     void catalogueResteAccessibleSansConnexion() throws Exception {
@@ -111,8 +111,10 @@ class AuthSecurityTest extends AbstractApiTest {
     }
 
     @Test
-    void ficheAnnonceExigeUneConnexion() throws Exception {
+    void ficheAnnonceAccessibleSansConnexion_maisVisiteExigeUneConnexion() throws Exception {
         mvc.perform(get("/api/annonces/11111111-1111-1111-1111-111111111111"))
+            .andExpect(status().isNotFound());
+        mvc.perform(post("/api/annonces/11111111-1111-1111-1111-111111111111/visites"))
             .andExpect(status().isUnauthorized());
     }
 
