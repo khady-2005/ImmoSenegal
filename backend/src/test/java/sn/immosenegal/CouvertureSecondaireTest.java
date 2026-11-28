@@ -95,11 +95,11 @@ class CouvertureSecondaireTest extends AbstractApiTest {
             .andExpect(status().is2xxSuccessful());
 
         // Offres (listes)
-        mvc.perform(get("/api/offres-achat/envoyees").header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
+        mvc.perform(get("/api/offres/envoyees").header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
             .andExpect(status().isOk());
-        mvc.perform(get("/api/offres-achat/recues").header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio)))
+        mvc.perform(get("/api/offres/recues").header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio)))
             .andExpect(status().isOk());
-        mvc.perform(get("/api/offres-achat/toutes").header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
+        mvc.perform(get("/api/offres/toutes").header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
             .andExpect(status().isOk());
         mvc.perform(get("/api/offres-location/envoyees").header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
             .andExpect(status().isOk());
