@@ -301,7 +301,7 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                 .content(corps(Map.of("accepter", true))))
             .andExpect(status().isOk());
 
-        mvc.perform(post("/api/agence/" + agenceId + "/ventes")
+        MvcResult venteRes = mvc.perform(post("/api/agence/" + agenceId + "/ventes")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of(
@@ -313,12 +313,14 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                     "tauxCommission", 5.0,
                     "partAgent", 40.0,
                     "dateVente", LocalDate.now().toString()))))
-            .andExpect(status().isCreated());
+            .andExpect(status().isCreated())
+            .andReturn();
+        String venteId = JsonPath.read(venteRes.getResponse().getContentAsString(), "$.id");
         mvc.perform(get("/api/agence/" + agenceId + "/ventes").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
-        mvc.perform(get("/api/agence/" + agenceId + "/solde-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+        mvc.perform(get("/api/agence/" + agenceId + "/ventes/" + venteId + "/solde-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
-        mvc.perform(get("/api/agence/" + agenceId + "/paiements-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+        mvc.perform(get("/api/agence/" + agenceId + "/ventes/" + venteId + "/paiements-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
         mvc.perform(get("/api/agence/" + agenceId + "/evaluations")).andExpect(status().isOk());
         mvc.perform(get("/api/agence/" + agenceId + "/visites").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
