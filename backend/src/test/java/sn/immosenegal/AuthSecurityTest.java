@@ -220,9 +220,15 @@ class AuthSecurityTest extends AbstractApiTest {
         String jetonClient = nouveauClientConnecte(email);
         String jetonAdmin = nouvelAdminConnecte();
 
-        MvcResult demande = mvc.perform(post("/api/auth/role-requests")
-                .header(HttpHeaders.AUTHORIZATION, bearer(jetonClient))
-                .contentType(MediaType.APPLICATION_JSON).content(corps(Map.of("role", "PROPRIETAIRE"))))
+        org.springframework.mock.web.MockMultipartFile justificatif =
+            new org.springframework.mock.web.MockMultipartFile(
+                "justificatif", "titre.pdf", "application/pdf", "%PDF-1.4\n%test".getBytes());
+
+        MvcResult demande = mvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart("/api/auth/role-requests")
+                    .file(justificatif)
+                    .param("role", "PROPRIETAIRE")
+                    .header(HttpHeaders.AUTHORIZATION, bearer(jetonClient)))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.statut").value("EN_ATTENTE"))
             .andReturn();

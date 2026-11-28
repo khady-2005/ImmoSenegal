@@ -85,6 +85,12 @@ public class PhotoController {
     @Operation(summary = "Afficher une photo (public)")
     public ResponseEntity<byte[]> lire(@PathVariable UUID annonceId, @PathVariable UUID photoId) {
         PhotoAnnonce photo = service.lire(annonceId, photoId);
+        if (photo.getUrlExterne() != null && !photo.getUrlExterne().isBlank()) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .location(java.net.URI.create(photo.getUrlExterne()))
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic())
+                .build();
+        }
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(photo.getTypeMime()))
             // Cache court : évite de retransférer la même photo à chaque affichage.

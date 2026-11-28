@@ -54,8 +54,8 @@ public class AuthService {
             throw new ApiException(HttpStatus.CONFLICT, "Un compte existe déjà avec cet email.");
         }
         String telephone = requete.telephone() == null || requete.telephone().isBlank() ? null : requete.telephone().trim();
-        // Une inscription publique crée un CLIENT ou un PROPRIETAIRE (jamais ADMIN ni rôle d'agence).
-        Role role = Boolean.TRUE.equals(requete.estProprietaire()) ? Role.PROPRIETAIRE : Role.CLIENT;
+        // Toute inscription publique crée exclusivement un compte CLIENT (jamais PROPRIETAIRE, ADMIN ni collaborateur).
+        Role role = Role.CLIENT;
         User utilisateur = new User(email, encoder.encode(requete.password()), requete.nomComplet().trim(), telephone, role);
         users.save(utilisateur);
         audit.enregistrer("INSCRIPTION", utilisateur.getId(), "Nouveau compte " + role.name());

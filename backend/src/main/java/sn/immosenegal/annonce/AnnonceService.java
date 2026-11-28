@@ -228,6 +228,26 @@ public class AnnonceService {
         }
     }
 
+    /** Seul le propriétaire du bien, le responsable autorisé de l'agence diffuseuse ou un ADMIN (sur bien d'agence) peut modifier les photos. */
+    void verifierModificationPhoto(UUID annonceId, AuthenticatedUser utilisateur) {
+        Annonce annonce = trouver(annonceId);
+        if (utilisateur == null) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Connexion requise.");
+        }
+        if (utilisateur.role() == Role.ADMIN || annonce.getProprietaire().getId().equals(utilisateur.id())) {
+            return;
+        }
+        boolean responsableAgence = annonce.getAgence() != null && membresAgence != null
+            && membresAgence.findByAgenceIdAndUtilisateurId(annonce.getAgence().getId(), utilisateur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .isPresent();
+        if (!responsableAgence) {
+            throw new ApiException(HttpStatus.FORBIDDEN,
+                "Seul le propriétaire du bien ou le responsable autorisé peut modifier les photos.");
+        }
+    }
+
     @Transactional
     public AnnonceResponse modifier(UUID id, AuthenticatedUser auteur, AnnonceRequest requete) {
         Annonce annonce = trouver(id);

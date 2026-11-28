@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ApiError, appelApi } from '../api'
+import { ApiError, appelApi, urlApi } from '../api'
 import { useAuth } from '../auth'
 import { libelleRole, type Role } from '../types'
 
@@ -10,6 +10,10 @@ interface Demande {
   roleDemande: Role
   statut: 'EN_ATTENTE' | 'APPROUVEE' | 'REFUSEE'
   creeLe: string
+  decideLe?: string | null
+  decideParNom?: string | null
+  aJustificatif?: boolean
+  justificatifNom?: string | null
 }
 
 export default function AdminDemandes() {
@@ -39,6 +43,20 @@ export default function AdminDemandes() {
     }
   }
 
+  async function voirJustificatif(id: string) {
+    try {
+      const res = await fetch(urlApi(`/api/auth/role-requests/${id}/justificatif`), {
+        headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Justificatif inaccessible.')
+      const blob = await res.blob()
+      window.open(URL.createObjectURL(blob), '_blank', 'noopener,noreferrer')
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : 'Impossible d’ouvrir le justificatif.')
+    }
+  }
+
   if (utilisateur?.role !== 'ADMIN') {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12">
@@ -59,6 +77,11 @@ export default function AdminDemandes() {
             <p className="break-words font-semibold">{d.nomComplet}</p>
             <p className="break-all text-sm text-slate-600">{d.email}</p>
             <p className="mt-1 text-sm">Rôle demandé : <strong>{libelleRole[d.roleDemande]}</strong></p>
+            {d.aJustificatif && (
+              <button type="button" onClick={() => void voirJustificatif(d.id)} className="mt-2 text-xs font-bold text-nuit-900 underline">
+                Voir le justificatif privé ({d.justificatifNom ?? 'document'})
+              </button>
+            )}
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={() => decider(d.id, 'approve')} className="rounded-lg bg-emeraude-600 px-3 py-1.5 text-sm font-semibold text-white">
                 Approuver

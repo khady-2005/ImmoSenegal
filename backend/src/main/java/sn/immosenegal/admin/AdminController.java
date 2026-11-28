@@ -103,12 +103,12 @@ public class AdminController {
     @PostMapping("/role-requests/{id}/approve")
     @Operation(summary = "Approuver une demande : l'utilisateur obtient le rôle demandé")
     public DemandeRoleResponse approuver(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser admin) {
-        return service.approuver(id, admin.id());
+        return service.approuver(id, admin, null);
     }
 
     @PostMapping("/role-requests/{id}/reject")
     @Operation(summary = "Refuser une demande")
     public DemandeRoleResponse refuser(@PathVariable UUID id, @AuthenticationPrincipal AuthenticatedUser admin) {
-        return service.refuser(id, admin.id());
+        return service.refuser(id, admin, null);
     }
 }
