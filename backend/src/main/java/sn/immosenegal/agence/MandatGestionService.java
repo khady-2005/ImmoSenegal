@@ -118,7 +118,7 @@ public class MandatGestionService {
         return biens.stream().map(this::versResume).toList();
     }
 
-    /** Le responsable attribue un mandat accepté à un gestionnaire actif de son agence. */
+    /** Le responsable (ou l'admin sur ImmoSénégal) attribue un mandat accepté à un gestionnaire ou agent actif de son agence. */
     public MandatResume affecterGestionnaire(UUID mandatId, UUID membreId, AuthenticatedUser acteur) {
         MandatGestion mandat = mandats.findById(mandatId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
@@ -127,14 +127,15 @@ public class MandatGestionService {
         if (mandat.getStatut() != StatutMandatGestion.ACCEPTE) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Seul un mandat accepté peut être attribué.");
         }
-        MembreAgence gestionnaire = membres.findById(membreId)
+        MembreAgence collaborateur = membres.findById(membreId)
             .filter(m -> m.getAgence().getId().equals(agenceId))
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .filter(m -> m.getFonction() == FonctionAgence.GESTIONNAIRE)
+            .filter(m -> m.getFonction() == FonctionAgence.GESTIONNAIRE || m.getFonction() == FonctionAgence.AGENT)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Choisissez un gestionnaire actif de cette agence."));
-        mandat.affecterGestionnaire(gestionnaire);
-        notifications.creer(gestionnaire.getUtilisateur(), "BIEN_ATTRIBUE_GESTION",
+                "Choisissez un gestionnaire ou un agent actif de cette agence."));
+        mandat.affecterGestionnaire(collaborateur);
+        mandat.getAnnonce().setAgentMembreId(collaborateur.getId());
+        notifications.creer(collaborateur.getUtilisateur(), "BIEN_ATTRIBUE_GESTION",
             "Nouveau bien dans votre portefeuille",
             "Le bien « " + mandat.getAnnonce().getTitre() + " » vous a été attribué.",
             "/mes-agences/" + agenceId + "/espace");
@@ -222,10 +223,12 @@ public class MandatGestionService {
         MandatGestion mandat = mandats.findById(mandatId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mandat introuvable."));
         boolean proprietaire = mandat.getProprietaire().getId().equals(acteur.id());
+        boolean adminInterne = acteur.role().name().equals("ADMIN")
+            && mandat.getAgence().getType() == AgenceType.INTERNE;
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
-        if (!proprietaire && !responsable) {
+        if (!proprietaire && !responsable && !adminInterne) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul le propriétaire ou le responsable de l'agence peut demander la résiliation.");
         }
         User demandeur = utilisateurActeur(acteur);
@@ -256,10 +259,12 @@ public class MandatGestionService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seule l'autre partie peut répondre à cette demande.");
         }
         boolean proprietaire = mandat.getProprietaire().getId().equals(acteur.id());
+        boolean adminInterne = acteur.role().name().equals("ADMIN")
+            && mandat.getAgence().getType() == AgenceType.INTERNE;
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(mandat.getAgence().getId(), acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();
-        if (!proprietaire && !responsable) {
+        if (!proprietaire && !responsable && !adminInterne) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé à répondre.");
         }
         User demandeur = mandat.getResiliationDemandeePar();
@@ -334,7 +339,10 @@ public class MandatGestionService {
     }
 
     private void verifierResponsable(UUID agenceId, AuthenticatedUser acteur) {
-        boolean autorise = acteur.role().name().equals("ADMIN") ||
+        Agence agence = agences.findById(agenceId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable."));
+        boolean adminInterne = acteur.role().name().equals("ADMIN") && agence.getType() == AgenceType.INTERNE;
+        boolean autorise = adminInterne ||
             membres.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
                 .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE).isPresent();

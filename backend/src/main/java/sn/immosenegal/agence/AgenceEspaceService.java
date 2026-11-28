@@ -328,15 +328,15 @@ public class AgenceEspaceService {
     }
 
     private void verifierAccesGestion(UUID agenceId, AuthenticatedUser acteur) {
-        trouverAgenceActive(agenceId);
-        if (acteur.role().name().equals("ADMIN")) return;
+        Agence agence = trouverAgenceActive(agenceId);
+        if (acteur.role().name().equals("ADMIN") && agence.getType() == AgenceType.INTERNE) return;
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
             .isPresent();
         if (!responsable) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "Seul le responsable de cette agence ou un administrateur peut gérer ses membres.");
+                "Seul le responsable de cette agence ou un administrateur (sur ImmoSénégal) peut gérer ses membres.");
         }
     }
 

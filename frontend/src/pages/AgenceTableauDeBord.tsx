@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, MailPlus, RefreshCw, ShieldCheck, Users } from 'lucide-react'
-import { appelApi, ApiError } from '../api'
+import { appelApi, ApiError, urlApi } from '../api'
 import { useAuth } from '../auth'
 import type { Annonce, PagePaginee } from '../types'
 import MissionsAgence from '../components/MissionsAgence'
@@ -9,6 +9,7 @@ import CaisseAgence from '../components/CaisseAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import AffectationBiensAgence from '../components/AffectationBiensAgence'
 import DemandesProprietaireAgence from '../components/DemandesProprietaireAgence'
+import VisitesAgence from '../components/VisitesAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -48,6 +49,27 @@ type Candidature = {
   email: string
   fonction: string
   statut: string
+  telephone?: string | null
+  zone?: string | null
+  motivation?: string | null
+  cvNom?: string | null
+  aCv?: boolean
+  creeLe: string
+}
+type AnnonceTableau = {
+  id: string
+  titre: string
+  typeBien: string
+  transaction: string
+  prix: number
+  ville: string
+  quartier: string
+  statut: string
+  confie: boolean
+  proprietaireNom: string
+  photoPrincipaleId: string | null
+  agentMembreId: string | null
+  agentNom: string | null
   creeLe: string
 }
 
@@ -80,6 +102,10 @@ export default function AgenceTableauDeBord() {
   const [tauxCommission, setTauxCommission] = useState<Record<string, string>>({})
   const [candidatures, setCandidatures] = useState<Candidature[]>([])
   const [annoncesPropres, setAnnoncesPropres] = useState<Annonce[]>([])
+  const [annoncesTableau, setAnnoncesTableau] = useState<AnnonceTableau[]>([])
+  const [rechercheBien, setRechercheBien] = useState('')
+  const [filtreStatutBien, setFiltreStatutBien] = useState('TOUS')
+  const [filtreOrigineBien, setFiltreOrigineBien] = useState('TOUTES')
   const [annoncesDisponibles, setAnnoncesDisponibles] = useState<Annonce[]>([])
   const [annonceChoisie, setAnnonceChoisie] = useState('')
   const [email, setEmail] = useState('')
@@ -107,7 +133,7 @@ export default function AgenceTableauDeBord() {
     setChargement(true)
     setErreur(null)
     try {
-      const [espaces, equipe, demandes, catalogue, demandesEquipe, relevéCommissions, propres] = await Promise.all([
+      const [espaces, equipe, demandes, catalogue, demandesEquipe, relevéCommissions, propres, tableau] = await Promise.all([
         appelApi<Agence[]>('/api/agence/mes-espaces', { token: jeton }),
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
         appelApi<Mandat[]>(`/api/agence/${agenceId}/mandats`, { token: jeton }),
@@ -115,6 +141,7 @@ export default function AgenceTableauDeBord() {
         appelApi<Candidature[]>(`/api/agence/${agenceId}/candidatures`, { token: jeton }),
         appelApi<CommissionLocation[]>(`/api/locations/agence/${agenceId}/commissions`, { token: jeton }),
         appelApi<PagePaginee<Annonce>>(`/api/annonces/agence/${agenceId}?taille=50`, { token: jeton }),
+        appelApi<AnnonceTableau[]>(`/api/annonces/agence/${agenceId}/tableau`, { token: jeton }).catch(() => []),
       ])
       const espace = espaces.find((item) => item.id === agenceId)
       if (utilisateur?.role !== 'ADMIN' && espace?.fonction !== 'RESPONSABLE') {
@@ -132,6 +159,7 @@ export default function AgenceTableauDeBord() {
       setCandidatures(demandesEquipe)
       setAnnoncesDisponibles(catalogue.contenu)
       setAnnoncesPropres(propres.contenu)
+      setAnnoncesTableau(tableau)
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) {
         navigate('/mes-agences', { replace: true })
@@ -461,37 +489,138 @@ export default function AgenceTableauDeBord() {
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-nuit-900">Biens propres de l’agence</h2>
-            <p className="mt-1 text-sm text-slate-600">Les annonces publiées directement au nom de votre agence ({annoncesPropres.length}).</p>
+            <h2 className="text-xl font-bold text-nuit-900">Biens de l’agence (propres et confiés)</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Consultez, filtrez, modifiez, retirez ou attribuez vos biens ({annoncesTableau.length || annoncesPropres.length}).
+            </p>
           </div>
-          <Link to={`/annonces/nouvelle?agenceId=${agenceId}`} className="rounded-xl bg-dore-500 px-4 py-2.5 text-sm font-bold text-nuit-950 hover:bg-dore-400">
-            Publier un bien de l’agence
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/reservations-recues" className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-nuit-950 hover:bg-slate-50">
+              Réservations
+            </Link>
+            <Link to="/mes-contrats-location" className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-nuit-950 hover:bg-slate-50">
+              Contrats & loyers
+            </Link>
+            <Link to={`/annonces/nouvelle?agenceId=${agenceId}`} className="rounded-xl bg-dore-500 px-4 py-2 text-sm font-bold text-nuit-950 hover:bg-dore-400">
+              Publier un bien de l’agence
+            </Link>
+          </div>
         </div>
-        {annoncesPropres.length === 0 ? (
-          <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucun bien propre publié par l’agence pour le moment.</p>
-        ) : (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {annoncesPropres.map((a) => (
-              <article key={a.id} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4">
-                <div className="min-w-0">
-                  <Link to={`/annonces/${a.id}`} className="font-semibold text-nuit-900 hover:underline">{a.titre}</Link>
-                  <p className="text-xs text-slate-600">{a.quartier}, {a.ville} · {a.prix.toLocaleString('fr-FR')} FCFA</p>
-                </div>
-                <Link to={`/annonces/${a.id}/modifier`} className="shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                  Modifier
-                </Link>
-              </article>
-            ))}
-          </div>
-        )}
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <input
+            type="search"
+            value={rechercheBien}
+            onChange={(e) => setRechercheBien(e.target.value)}
+            placeholder="Rechercher un bien (titre, quartier, ville)…"
+            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900"
+          />
+          <select value={filtreStatutBien} onChange={(e) => setFiltreStatutBien(e.target.value)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900">
+            <option value="TOUS">Tous les statuts</option>
+            <option value="PUBLIEE">Publiée</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="LOUE">Louée</option>
+            <option value="VENDU">Vendue</option>
+            <option value="RETIRE">Retirée</option>
+          </select>
+          <select value={filtreOrigineBien} onChange={(e) => setFiltreOrigineBien(e.target.value)} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900">
+            <option value="TOUTES">Propres + confiés</option>
+            <option value="PROPRE">Biens propres</option>
+            <option value="CONFIE">Biens confiés (mandat)</option>
+          </select>
+        </div>
+        {(() => {
+          const listeSource: AnnonceTableau[] = annoncesTableau.length > 0
+            ? annoncesTableau
+            : annoncesPropres.map((a) => ({
+                id: a.id, titre: a.titre, typeBien: a.typeBien, transaction: a.transaction, prix: a.prix,
+                ville: a.ville, quartier: a.quartier, statut: a.statut, confie: false,
+                proprietaireNom: a.proprietaire?.nomComplet ?? 'Agence', photoPrincipaleId: a.photos?.[0] ?? null,
+                agentMembreId: null, agentNom: null, creeLe: a.creeLe,
+              }))
+          const q = rechercheBien.trim().toLocaleLowerCase('fr')
+          const filtres = listeSource.filter((b) =>
+            (!q || [b.titre, b.ville, b.quartier].some((v) => v.toLocaleLowerCase('fr').includes(q)))
+            && (filtreStatutBien === 'TOUS' || b.statut === filtreStatutBien)
+            && (filtreOrigineBien === 'TOUTES' || (filtreOrigineBien === 'CONFIE' ? b.confie : !b.confie)))
+          if (filtres.length === 0) {
+            return <p className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">Aucun bien ne correspond aux critères.</p>
+          }
+          const agentsActifs = membres.filter((m) => m.statut === 'ACTIF' && (m.fonction === 'AGENT' || m.fonction === 'GESTIONNAIRE'))
+          return (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              {filtres.map((b) => (
+                <article key={b.id} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    {b.photoPrincipaleId ? (
+                      <img src={urlApi(`/api/annonces/${b.id}/photos/${b.photoPrincipaleId}`)} alt={b.titre} className="h-20 w-24 shrink-0 rounded-xl border border-slate-200 object-cover" />
+                    ) : (
+                      <div className="flex h-20 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xs font-semibold text-slate-500">Sans photo</div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${b.confie ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-nuit-900'}`}>
+                          {b.confie ? 'Confié' : 'Propre'}
+                        </span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-800">{b.statut}</span>
+                      </div>
+                      <Link to={`/annonces/${b.id}`} className="mt-1 block truncate font-bold text-nuit-950 hover:underline">{b.titre}</Link>
+                      <p className="text-xs text-slate-600">{b.quartier}, {b.ville} · {b.prix.toLocaleString('fr-FR')} FCFA</p>
+                      <p className="mt-0.5 text-xs text-slate-500">Propriétaire : {b.proprietaireNom}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      aria-label={`Agent attribué à ${b.titre}`}
+                      value={b.agentMembreId ?? ''}
+                      onChange={async (e) => {
+                        const membreId = e.target.value || null
+                        try {
+                          const maj = await appelApi<AnnonceTableau>(`/api/annonces/agence/${agenceId}/${b.id}/agent`, {
+                            method: 'PATCH', token: jeton, body: { membreId },
+                          })
+                          setAnnoncesTableau((prev) => prev.map((x) => (x.id === b.id ? maj : x)))
+                          setMessage('Attribution mise à jour.')
+                        } catch (err) {
+                          setErreur(err instanceof ApiError ? err.message : 'Attribution impossible.')
+                        }
+                      }}
+                      className="min-h-10 flex-1 rounded-xl border border-slate-300 bg-white px-2.5 text-xs font-semibold text-slate-900"
+                    >
+                      <option value="">Non attribué à un agent</option>
+                      {agentsActifs.map((m) => (
+                        <option key={m.id} value={m.id}>{m.nom} ({fonctions[m.fonction] ?? m.fonction})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Link to={`/annonces/${b.id}`} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-nuit-950 hover:bg-slate-50">Voir</Link>
+                    <Link to={`/annonces/${b.id}/modifier`} className="rounded-lg bg-nuit-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-nuit-800">Modifier / Photos</Link>
+                    {!b.confie && (
+                      <button type="button" onClick={async () => {
+                        if (typeof window !== 'undefined' && !window.confirm(`Retirer l’annonce « ${b.titre} » ?`)) return
+                        try {
+                          await appelApi(`/api/annonces/${b.id}`, { method: 'DELETE', token: jeton })
+                          setAnnoncesTableau((prev) => prev.filter((x) => x.id !== b.id))
+                          setAnnoncesPropres((prev) => prev.filter((x) => x.id !== b.id))
+                          setMessage('Annonce retirée.')
+                        } catch (err) {
+                          setErreur(err instanceof ApiError ? err.message : 'Suppression impossible.')
+                        }
+                      }} className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-900 hover:bg-rose-100">Retirer</button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )
+        })()}
       </section>
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold text-nuit-900">Candidatures reçues</h2>
-            <p className="mt-1 text-sm text-slate-600">Les agents et gestionnaires qui souhaitent rejoindre votre agence.</p>
+            <p className="mt-1 text-sm text-slate-600">Les candidats qui souhaitent rejoindre votre agence.</p>
           </div>
           <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">{candidatures.length} en attente</span>
         </div>
@@ -500,14 +629,38 @@ export default function AgenceTableauDeBord() {
         ) : (
           <div className="mt-4 divide-y divide-slate-100">
             {candidatures.map((candidature) => (
-              <article key={candidature.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
+              <article key={candidature.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-nuit-900">{candidature.nom}</p>
-                  <p className="text-sm text-slate-600">{candidature.email}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Fonction souhaitée : {fonctions[candidature.fonction] ?? candidature.fonction}
+                  <p className="text-sm text-slate-600">{candidature.email}{candidature.telephone ? ` · ${candidature.telephone}` : ''}</p>
+                  <p className="mt-1 text-xs text-slate-600">
+                    Fonction souhaitée : <strong>{fonctions[candidature.fonction] ?? candidature.fonction}</strong>
+                    {candidature.zone ? ` · Zone : ${candidature.zone}` : ''}
                     {' · '}Reçue le {new Date(candidature.creeLe).toLocaleDateString('fr-FR')}
                   </p>
+                  {candidature.motivation && <p className="mt-2 rounded-lg bg-slate-50 p-2.5 text-sm text-slate-700">{candidature.motivation}</p>}
+                  {candidature.aCv && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const resp = await fetch(urlApi(`/api/agence/${agenceId}/candidatures/${candidature.id}/cv`), {
+                            headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
+                            credentials: 'include',
+                          })
+                          if (!resp.ok) throw new Error('Téléchargement impossible')
+                          const blob = await resp.blob()
+                          const blobUrl = URL.createObjectURL(blob)
+                          window.open(blobUrl, '_blank', 'noopener,noreferrer')
+                        } catch {
+                          setErreur('Impossible d’ouvrir le CV.')
+                        }
+                      }}
+                      className="mt-2 inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-nuit-950 hover:bg-slate-50"
+                    >
+                      Voir le CV ({candidature.cvNom || 'document'})
+                    </button>
+                  )}
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button type="button" disabled={membreEnCours === candidature.id}
@@ -621,6 +774,7 @@ export default function AgenceTableauDeBord() {
           </form>
         </section>
       </div>
+      <VisitesAgence agenceId={agenceId} />
       <DemandesProprietaireAgence />
     </main>
   )

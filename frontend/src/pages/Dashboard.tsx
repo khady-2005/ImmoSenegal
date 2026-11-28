@@ -47,6 +47,11 @@ export default function Dashboard() {
         setProfil(p)
         setAccesAgence(p.role === 'ADMIN' || espaces.length > 0 || invitations.length > 0)
         if (p.role !== depuisConnexion?.role) majUtilisateur(p)
+        if (p.role === 'RESPONSABLE') {
+          const premiere = (espaces as Array<{ id: string }>)[0]
+          navigate(premiere ? `/mes-agences/${premiere.id}` : '/mes-agences', { replace: true })
+          return
+        }
         if (p.role === 'ADMIN') {
           appelApi<NonNullable<typeof statsAdmin>>('/api/admin/statistiques', { token: jeton })
             .then((s) => { if (!annule) setStatsAdmin(s) })
@@ -87,6 +92,7 @@ export default function Dashboard() {
   const accesProprietaires: Acces[] = [
     { titre: 'Propriétaires et comptes', description: 'Consultez les comptes des propriétaires et retrouvez les informations de leurs activités sur la plateforme.', lien: '/admin/utilisateurs', icone: Users, action: 'Consulter les comptes' },
     { titre: 'Annonces des propriétaires', description: 'Consultez les biens publiés et intervenez uniquement dans le cadre de la modération.', lien: '/admin/annonces', icone: Building2, action: 'Suivre les annonces' },
+    { titre: 'Photos et vidéos', description: 'Ajoutez, remplacez ou supprimez les médias des annonces du catalogue.', lien: '/admin/photos', icone: Building2, action: 'Gérer les médias' },
     { titre: 'Visites et réservations', description: 'Suivez les demandes liées aux biens et vérifiez leur bonne prise en charge par les propriétaires.', lien: '/admin/visites', icone: CalendarDays, action: 'Suivre les visites' },
     { titre: 'Réservations', description: 'Consultez les demandes de réservation concernant les annonces de la plateforme.', lien: '/admin/reservations', icone: BookmarkCheck, action: 'Suivre les réservations' },
     { titre: 'Contrats et locations', description: 'Consultez les contrats de location et les paiements déclarés sur la plateforme.', lien: '/admin/supervision-locative', icone: FileCheck2, action: 'Superviser les locations' },

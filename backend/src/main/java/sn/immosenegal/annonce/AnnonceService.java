@@ -26,6 +26,7 @@ import sn.immosenegal.agence.AgenceRepository;
 import sn.immosenegal.agence.FonctionAgence;
 import sn.immosenegal.agence.MandatGestion;
 import sn.immosenegal.agence.MandatGestionRepository;
+import sn.immosenegal.agence.MembreAgence;
 import sn.immosenegal.agence.MembreAgenceRepository;
 import sn.immosenegal.agence.StatutAgence;
 import sn.immosenegal.agence.StatutMandatGestion;
@@ -108,7 +109,15 @@ public class AnnonceService {
         User proprietaire;
         if (auteur.role() == Role.ADMIN) {
             if (proprietaireId == null) {
-                throw new ApiException(HttpStatus.BAD_REQUEST, "Choisissez le propriétaire auquel rattacher cette annonce.");
+                if (agences != null) {
+                    var interne = agences.findFirstByTypeAndStatutOrderByCreeLeAsc(
+                        sn.immosenegal.agence.AgenceType.INTERNE, StatutAgence.ACTIVE);
+                    if (interne.isPresent()) {
+                        return creerPourAgence(auteur, requete, null, interne.get().getId());
+                    }
+                }
+                throw new ApiException(HttpStatus.BAD_REQUEST,
+                    "Choisissez un propriétaire ou activez l'agence ImmoSénégal pour publier en son nom.");
             }
             proprietaire = users.findById(proprietaireId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Compte propriétaire introuvable."));
@@ -146,19 +155,21 @@ public class AnnonceService {
         Agence agence = agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
-        if (auteur.role() == Role.ADMIN) {
+        boolean adminInterne = auteur.role() == Role.ADMIN
+            && agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE;
+        if (auteur.role() == Role.ADMIN && agence.getType() != sn.immosenegal.agence.AgenceType.INTERNE) {
             throw new ApiException(HttpStatus.FORBIDDEN,
-                "L'administrateur supervise la plateforme et ne publie pas les biens de l'agence.");
+                "Les agences partenaires gèrent leurs propres biens de manière autonome.");
         }
-        boolean autorise = agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE
+        boolean autorise = adminInterne || (agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE
             ? membresAgence.findByAgenceIdAndUtilisateurId(agenceId, auteur.id())
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
                 .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
                 .isPresent()
-            : estMembrePublicationAgence(agenceId, auteur.id());
+            : estMembrePublicationAgence(agenceId, auteur.id()));
         if (!autorise) {
             throw new ApiException(HttpStatus.FORBIDDEN, agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE
-                ? "Seul le responsable d'agence peut publier les biens d'ImmoSénégal."
+                ? "Seul le responsable d'agence ou l'administrateur peut publier les biens d'ImmoSénégal."
                 : "Seul un collaborateur actif de cette agence peut publier un bien en son nom.");
         }
         User proprietaire;
@@ -179,6 +190,12 @@ public class AnnonceService {
         annonce.setStatut(StatutAnnonce.PUBLIEE);
         annonce.setDateFinPublication(null);
         annonces.save(annonce);
+        if (proprietaireId != null && !proprietaire.getId().equals(auteur.id()) && notifications != null) {
+            notifications.creer(proprietaire, "ANNONCE_AGENCE_CREEE",
+                "Annonce enregistrée pour votre bien",
+                "L'agence " + agence.getNom() + " a enregistré l'annonce « " + annonce.getTitre() + " ».",
+                "/mes-annonces");
+        }
         audit.enregistrer("ANNONCE_AGENCE_CREEE", auteur.id(),
             "Annonce " + annonce.getId() + " publiée par l'agence " + agence.getNom());
         return AnnonceResponse.pourGestion(annonce, List.of(), null);
@@ -217,18 +234,18 @@ public class AnnonceService {
         trouver(id).setModifieLe(Instant.now());
     }
 
-    /** Les opérations photo directes de l'administrateur sont réservées aux annonces de l'agence. */
+    /** Les opérations photo directes de l'administrateur sont autorisées sur les biens d'ImmoSénégal (propres ou confiés). */
     void verifierGestionPhotoAdmin(UUID annonceId, AuthenticatedUser utilisateur) {
         if (utilisateur != null && utilisateur.role() == Role.ADMIN) {
             Annonce annonce = trouver(annonceId);
-            if (!annonce.isPublieeParAgence()) {
+            if (!annonce.isPublieeParAgence() && !aMandatInterneAccepte(annonceId)) {
                 throw new ApiException(HttpStatus.CONFLICT,
                     "Cette annonce appartient à un propriétaire. Un avertissement doit être envoyé avant toute suppression ou modification de photo.");
             }
         }
     }
 
-    /** Seul le propriétaire du bien, le responsable autorisé de l'agence diffuseuse ou un ADMIN (sur bien d'agence) peut modifier les photos. */
+    /** Seul le propriétaire du bien, le responsable autorisé (propre ou confié) ou un ADMIN (sur ImmoSénégal) peut modifier les photos. */
     void verifierModificationPhoto(UUID annonceId, AuthenticatedUser utilisateur) {
         Annonce annonce = trouver(annonceId);
         if (utilisateur == null) {
@@ -237,15 +254,28 @@ public class AnnonceService {
         if (utilisateur.role() == Role.ADMIN || annonce.getProprietaire().getId().equals(utilisateur.id())) {
             return;
         }
-        boolean responsableAgence = annonce.getAgence() != null && membresAgence != null
+        boolean responsablePropre = annonce.getAgence() != null && membresAgence != null
             && membresAgence.findByAgenceIdAndUtilisateurId(annonce.getAgence().getId(), utilisateur.id())
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
                 .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
                 .isPresent();
-        if (!responsableAgence) {
+        boolean responsableMandate = mandats != null && membresAgence != null
+            && mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(annonceId, StatutMandatGestion.ACCEPTE)
+                .flatMap(m -> membresAgence.findByAgenceIdAndUtilisateurId(m.getAgence().getId(), utilisateur.id()))
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .isPresent();
+        if (!responsablePropre && !responsableMandate) {
             throw new ApiException(HttpStatus.FORBIDDEN,
                 "Seul le propriétaire du bien ou le responsable autorisé peut modifier les photos.");
         }
+    }
+
+    private boolean aMandatInterneAccepte(UUID annonceId) {
+        return mandats != null
+            && mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(annonceId, StatutMandatGestion.ACCEPTE)
+                .filter(m -> m.getAgence().getType() == sn.immosenegal.agence.AgenceType.INTERNE)
+                .isPresent();
     }
 
     @Transactional
@@ -382,10 +412,12 @@ public class AnnonceService {
         if (agences == null || membresAgence == null) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Service agence indisponible.");
         }
-        agences.findById(agenceId)
+        Agence agence = agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
-        if (utilisateur.role() != Role.ADMIN) {
+        boolean adminInterne = utilisateur.role() == Role.ADMIN
+            && agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE;
+        if (!adminInterne) {
             boolean membreActif = membresAgence.findByAgenceIdAndUtilisateurId(agenceId, utilisateur.id())
                 .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
                 .isPresent();
@@ -394,6 +426,125 @@ public class AnnonceService {
             }
         }
         return enPage(annonces.findByAgenceId(agenceId, pageable(page, taille, trier("recent"))), true);
+    }
+
+    public record AnnonceAgenceResume(
+        UUID id, String titre, TypeBien typeBien, TypeTransaction transaction, long prix,
+        String ville, String quartier, StatutAnnonce statut, boolean confie,
+        String proprietaireNom, UUID photoPrincipaleId, UUID agentMembreId, String agentNom, Instant creeLe) {}
+
+    /** Liste complète des biens d'une agence (propres + confiés sous mandat accepté) avec recherche et filtres. */
+    @Transactional(readOnly = true)
+    public List<AnnonceAgenceResume> annoncesCompletesAgence(
+            UUID agenceId, AuthenticatedUser utilisateur, String q, String statut, String origine) {
+        if (agences == null || membresAgence == null) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Service agence indisponible.");
+        }
+        Agence agence = agences.findById(agenceId)
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
+        boolean adminInterne = utilisateur.role() == Role.ADMIN
+            && agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE;
+        if (!adminInterne) {
+            boolean membreActif = membresAgence.findByAgenceIdAndUtilisateurId(agenceId, utilisateur.id())
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .isPresent();
+            if (!membreActif) {
+                throw new ApiException(HttpStatus.FORBIDDEN, "Accès réservé aux membres actifs de cette agence.");
+            }
+        }
+        java.util.LinkedHashMap<UUID, Annonce> uniques = new java.util.LinkedHashMap<>();
+        java.util.Set<UUID> confiesIds = new java.util.HashSet<>();
+        annonces.findAllByAgenceIdOrderByCreeLeDesc(agenceId).forEach(a -> uniques.put(a.getId(), a));
+        if (mandats != null) {
+            mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(agenceId, StatutMandatGestion.ACCEPTE)
+                .forEach(m -> {
+                    uniques.putIfAbsent(m.getAnnonce().getId(), m.getAnnonce());
+                    confiesIds.add(m.getAnnonce().getId());
+                });
+        }
+        List<UUID> ids = List.copyOf(uniques.keySet());
+        Map<UUID, List<UUID>> parAnnonce = photosDe(ids);
+        Map<UUID, String> nomsMembres = membresAgence.findAllByAgenceIdAndStatut(agenceId, StatutMembreAgence.ACTIF)
+            .stream().collect(Collectors.toMap(MembreAgence::getId, m -> m.getUtilisateur().getNomComplet(), (a, b) -> a));
+
+        String recherche = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
+        String filtreStatut = statut == null ? "" : statut.trim().toUpperCase(Locale.ROOT);
+        String filtreOrigine = origine == null ? "" : origine.trim().toUpperCase(Locale.ROOT);
+
+        return uniques.values().stream()
+            .filter(a -> recherche.isEmpty()
+                || a.getTitre().toLowerCase(Locale.ROOT).contains(recherche)
+                || a.getQuartier().toLowerCase(Locale.ROOT).contains(recherche)
+                || a.getVille().toLowerCase(Locale.ROOT).contains(recherche))
+            .filter(a -> filtreStatut.isEmpty() || "TOUS".equals(filtreStatut) || a.getStatut().name().equals(filtreStatut))
+            .filter(a -> {
+                boolean estConfie = confiesIds.contains(a.getId());
+                if ("PROPRE".equals(filtreOrigine)) return !estConfie;
+                if ("CONFIE".equals(filtreOrigine)) return estConfie;
+                return true;
+            })
+            .map(a -> {
+                List<UUID> ph = parAnnonce.getOrDefault(a.getId(), List.of());
+                UUID photoPrincipale = ph.isEmpty() ? null : ph.get(0);
+                UUID agentId = a.getAgentMembreId();
+                return new AnnonceAgenceResume(
+                    a.getId(), a.getTitre(), a.getTypeBien(), a.getTypeTransaction(), a.getPrix(),
+                    a.getVille(), a.getQuartier(), a.getStatut(), confiesIds.contains(a.getId()),
+                    a.getProprietaire().getNomComplet(), photoPrincipale,
+                    agentId, agentId == null ? null : nomsMembres.get(agentId), a.getCreeLe());
+            })
+            .toList();
+    }
+
+    /** Attribue un bien de l'agence (propre ou confié) à un agent ou gestionnaire actif. */
+    @Transactional
+    public AnnonceAgenceResume attribuerAgentAnnonce(UUID agenceId, UUID annonceId, UUID membreId, AuthenticatedUser acteur) {
+        if (agences == null || membresAgence == null) {
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Service agence indisponible.");
+        }
+        Agence agence = agences.findById(agenceId)
+            .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
+        boolean adminInterne = acteur.role() == Role.ADMIN
+            && agence.getType() == sn.immosenegal.agence.AgenceType.INTERNE;
+        boolean responsable = membresAgence.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+            .isPresent();
+        if (!adminInterne && !responsable) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Seul le responsable de l'agence peut attribuer un bien.");
+        }
+        Annonce annonce = trouver(annonceId);
+        boolean appartientAgence = (annonce.getAgence() != null && annonce.getAgence().getId().equals(agenceId))
+            || (mandats != null && mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId, annonceId, StatutMandatGestion.ACCEPTE));
+        if (!appartientAgence) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "Ce bien n'appartient pas au portefeuille de cette agence.");
+        }
+        MembreAgence collaborateur = null;
+        if (membreId != null) {
+            collaborateur = membresAgence.findById(membreId)
+                .filter(m -> m.getAgence().getId().equals(agenceId))
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.AGENT || m.getFonction() == FonctionAgence.GESTIONNAIRE)
+                .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "Choisissez un agent ou gestionnaire actif de cette agence."));
+        }
+        annonce.setAgentMembreId(collaborateur == null ? null : collaborateur.getId());
+        if (collaborateur != null && notifications != null) {
+            notifications.creer(collaborateur.getUtilisateur(), "BIEN_ATTRIBUE_AGENCE",
+                "Nouveau bien attribué",
+                "Le bien « " + annonce.getTitre() + " » vous a été attribué.",
+                "/mes-agences/" + agenceId + "/espace");
+        }
+        List<UUID> ph = photosDe(List.of(annonceId)).getOrDefault(annonceId, List.of());
+        boolean confie = mandats != null && mandats.existsByAgenceIdAndAnnonceIdAndStatut(agenceId, annonceId, StatutMandatGestion.ACCEPTE);
+        return new AnnonceAgenceResume(
+            annonce.getId(), annonce.getTitre(), annonce.getTypeBien(), annonce.getTypeTransaction(), annonce.getPrix(),
+            annonce.getVille(), annonce.getQuartier(), annonce.getStatut(), confie,
+            annonce.getProprietaire().getNomComplet(), ph.isEmpty() ? null : ph.get(0),
+            collaborateur == null ? null : collaborateur.getId(),
+            collaborateur == null ? null : collaborateur.getUtilisateur().getNomComplet(),
+            annonce.getCreeLe());
     }
 
     /** Annonces publiques d'une agence (biens propres publiés + biens confiés sous mandat accepté). */
@@ -587,12 +738,23 @@ public class AnnonceService {
         return annonces.findById(id).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
     }
 
-    /** Seul le propriétaire de l'annonce, un collaborateur actif de son agence diffuseuse, ou un ADMIN peut la modifier ou la supprimer. */
+    /** Seul le propriétaire de l'annonce, un collaborateur actif de son agence diffuseuse, le responsable mandaté ou un ADMIN peut la modifier. */
     private void verifierDroits(Annonce annonce, AuthenticatedUser utilisateur) {
         boolean proprietaire = annonce.getProprietaire().getId().equals(utilisateur.id());
-        if (!proprietaire && utilisateur.role() != Role.ADMIN && !estMembrePublicationAnnonce(annonce, utilisateur.id())) {
+        if (!proprietaire && utilisateur.role() != Role.ADMIN
+                && !estMembrePublicationAnnonce(annonce, utilisateur.id())
+                && !estResponsableMandate(annonce.getId(), utilisateur.id())) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette annonce ne vous appartient pas.");
         }
+    }
+
+    private boolean estResponsableMandate(UUID annonceId, UUID utilisateurId) {
+        return mandats != null && membresAgence != null
+            && mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(annonceId, StatutMandatGestion.ACCEPTE)
+                .flatMap(m -> membresAgence.findByAgenceIdAndUtilisateurId(m.getAgence().getId(), utilisateurId))
+                .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+                .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
+                .isPresent();
     }
 
     private boolean estMembrePublicationAnnonce(Annonce annonce, UUID utilisateurId) {

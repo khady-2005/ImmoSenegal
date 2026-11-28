@@ -23,7 +23,7 @@ const boutonPublier =
 
 export default function Layout() {
   const { utilisateur, deconnecter } = useAuth()
-  const peutPublier = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN'
+  const peutPublier = utilisateur?.role === 'PROPRIETAIRE' || utilisateur?.role === 'ADMIN' || utilisateur?.role === 'RESPONSABLE'
   const [menuOuvert, setMenuOuvert] = useState(false)
   const [menuPlusOuvert, setMenuPlusOuvert] = useState(false)
   const [defile, setDefile] = useState(false)

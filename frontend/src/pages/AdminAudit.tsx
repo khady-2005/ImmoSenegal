@@ -5,21 +5,52 @@ import { appelApi, ApiError } from '../api'
 import { useAuth } from '../auth'
 
 type AuditItem = { id: number; type: string; userId: string | null; details: string | null; creeLe: string }
+type Parametre = { cle: string; valeur: string; libelle: string; modifieLe: string }
 
 export default function AdminAudit() {
   const { jeton } = useAuth()
   const [evenements, setEvenements] = useState<AuditItem[]>([])
+  const [parametres, setParametres] = useState<Parametre[]>([])
+  const [valeurs, setValeurs] = useState<Record<string, string>>({})
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [enCours, setEnCours] = useState<string | null>(null)
 
   useEffect(() => {
     if (!jeton) return
     setChargement(true)
-    appelApi<AuditItem[]>('/api/admin/audit?limite=100', { token: jeton })
-      .then(setEvenements)
+    Promise.all([
+      appelApi<AuditItem[]>('/api/admin/audit?limite=100', { token: jeton }),
+      appelApi<Parametre[]>('/api/admin/parametres', { token: jeton }),
+    ])
+      .then(([evs, params]) => {
+        setEvenements(evs)
+        setParametres(params)
+        setValeurs(Object.fromEntries(params.map((p) => [p.cle, p.valeur])))
+      })
       .catch((e) => setErreur(e instanceof ApiError ? e.message : 'Chargement impossible.'))
       .finally(() => setChargement(false))
   }, [jeton])
+
+  async function enregistrerParametre(cle: string) {
+    setEnCours(cle)
+    setErreur(null)
+    setMessage(null)
+    try {
+      const maj = await appelApi<Parametre>(`/api/admin/parametres/${cle}`, {
+        method: 'PUT',
+        body: { valeur: valeurs[cle] ?? '' },
+        token: jeton,
+      })
+      setParametres((prev) => prev.map((p) => (p.cle === cle ? maj : p)))
+      setMessage(`Paramètre « ${maj.libelle} » mis à jour.`)
+    } catch (e) {
+      setErreur(e instanceof ApiError ? e.message : 'Enregistrement impossible.')
+    } finally {
+      setEnCours(null)
+    }
+  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:py-12">
@@ -32,10 +63,30 @@ export default function AdminAudit() {
 
       <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <h2 className="text-lg font-bold text-nuit-900">Paramètres actifs de la plateforme</h2>
-        <div className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
-          <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Période d’essai propriétaire</p><p className="mt-1 font-bold text-nuit-900">15 jours gratuits</p></div>
-          <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Tarifs abonnements</p><p className="mt-1 font-bold text-nuit-900">5 000 / 13 500 / 50 000 FCFA</p></div>
-          <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Photos / Vidéo</p><p className="mt-1 font-bold text-nuit-900">Max 15 photos (5 Mo) · 1 vidéo</p></div>
+        {message && <p role="status" className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">{message}</p>}
+        <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          {parametres.map((p) => (
+            <div key={p.cle} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <label htmlFor={`param-${p.cle}`} className="block text-xs font-semibold text-slate-600">{p.libelle}</label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id={`param-${p.cle}`}
+                  type="text"
+                  value={valeurs[p.cle] ?? ''}
+                  onChange={(e) => setValeurs((prev) => ({ ...prev, [p.cle]: e.target.value }))}
+                  className="min-h-10 w-full rounded-lg border border-slate-300 bg-white px-2.5 text-sm font-bold text-nuit-950"
+                />
+                <button
+                  type="button"
+                  disabled={enCours === p.cle}
+                  onClick={() => void enregistrerParametre(p.cle)}
+                  className="rounded-lg bg-nuit-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-nuit-800 disabled:opacity-50"
+                >
+                  {enCours === p.cle ? '…' : 'Enregistrer'}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

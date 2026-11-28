@@ -13,7 +13,10 @@ interface UtilisateurAdmin {
   creeLe: string
 }
 
-const ROLES_MODIFIABLES: Role[] = ['CLIENT', 'PROPRIETAIRE', 'AGENT']
+const ROLES_MODIFIABLES: Role[] = [
+  'CLIENT', 'PROPRIETAIRE', 'AGENT', 'GESTIONNAIRE',
+  'CAISSIER', 'ASSISTANT_ADMINISTRATIF', 'RESPONSABLE', 'ADMIN',
+]
 
 export default function AdminUtilisateurs() {
   const { utilisateur, jeton } = useAuth()

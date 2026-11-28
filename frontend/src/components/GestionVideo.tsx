@@ -47,6 +47,7 @@ export default function GestionVideo({ annonceId }: Props) {
   }
 
   async function supprimer() {
+    if (typeof window !== 'undefined' && !window.confirm('Voulez-vous vraiment supprimer cette vidéo ?')) return
     setErreur('')
     setEnCours(true)
     try {
@@ -60,7 +61,7 @@ export default function GestionVideo({ annonceId }: Props) {
   return (
     <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow" aria-labelledby="titre-video-annonce">
       <h2 id="titre-video-annonce" className="text-lg font-semibold text-nuit-950">Vidéo de présentation (facultative)</h2>
-      <p className="mt-1 text-sm text-slate-700">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 11150 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
+      <p className="mt-1 text-sm text-slate-700">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 150 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
       {disponible && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
           <span>Une vidéo est enregistrée pour cette annonce.</span>

@@ -42,6 +42,10 @@ public class Annonce {
     @JoinColumn(name = "agence_id")
     private Agence agence;
 
+    /** Collaborateur actif de l'agence (agent ou gestionnaire) attribué à cette annonce. */
+    @Column(name = "agent_membre_id")
+    private UUID agentMembreId;
+
     @Column(nullable = false, length = 150)
     private String titre;
 
@@ -160,6 +164,7 @@ public class Annonce {
     public Set<String> getEquipements() { return equipements; }
     public boolean isExemple() { return exemple; }
     public boolean isPublieeParAgence() { return publieeParAgence; }
+    public UUID getAgentMembreId() { return agentMembreId; }
     public java.time.LocalDate getDateFinPublication() { return dateFinPublication; }
     public Instant getCreeLe() { return creeLe; }
     public Instant getModifieLe() { return modifieLe; }
@@ -167,6 +172,7 @@ public class Annonce {
     public void setProprietaire(User proprietaire) { this.proprietaire = proprietaire; }
     public void setAgence(Agence agence) { this.agence = agence; }
     public void setPublieeParAgence(boolean publieeParAgence) { this.publieeParAgence = publieeParAgence; }
+    public void setAgentMembreId(UUID agentMembreId) { this.agentMembreId = agentMembreId; }
     public void setTitre(String titre) { this.titre = titre; }
     public void setDescription(String description) { this.description = description; }
     public void setTypeBien(TypeBien typeBien) { this.typeBien = typeBien; }

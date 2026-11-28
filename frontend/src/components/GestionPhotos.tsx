@@ -121,7 +121,27 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     }
   }
 
+  async function remplacer(photo: string, fichier: File | undefined) {
+    if (!fichier || enCours) return
+    setErreurs([])
+    setEnCours(true)
+    try {
+      const photoPreparee = await preparerPhoto(fichier)
+      const donnees = new FormData()
+      donnees.append('fichier', photoPreparee)
+      await appelApi<void>(`/api/annonces/${annonceId}/photos/${photo}`, {
+        method: 'PUT', body: donnees, token: jeton,
+      })
+      onChange([...photos])
+    } catch (e) {
+      setErreurs([e instanceof ApiError ? e.message : e instanceof Error ? e.message : 'Remplacement impossible.'])
+    } finally {
+      setEnCours(false)
+    }
+  }
+
   async function supprimer(photo: string) {
+    if (typeof window !== 'undefined' && !window.confirm('Voulez-vous vraiment supprimer cette photo ?')) return
     setErreurs([])
     try {
       await appelApi<void>(`/api/annonces/${annonceId}/photos/${photo}`, { method: 'DELETE', token: jeton })
@@ -182,6 +202,13 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                     aria-label={`Déplacer la photo ${i + 1} vers la fin`}
                     className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↓</button>
                 </div>
+                <label className="flex min-h-10 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-nuit-950 transition hover:border-nuit-800 hover:bg-slate-100">
+                  Remplacer
+                  <input type="file" accept="image/jpeg,image/png,image/webp" disabled={enCours}
+                    aria-label={`Remplacer la photo ${i + 1}`}
+                    onChange={(e) => { void remplacer(photo, e.target.files?.[0]); e.target.value = '' }}
+                    className="sr-only" />
+                </label>
                 <button
                   type="button"
                   disabled={enCours}

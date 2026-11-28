@@ -86,6 +86,21 @@ export default function FormulaireAnnonce() {
       .catch((e: unknown) => {
         if (!annule) setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les propriétaires.')
       })
+    appelApi<Array<{ id: string; nom: string; type: string; statut: string }>>('/api/admin/agences', { token: jeton })
+      .then((liste) => {
+        if (annule) return
+        const internes = liste
+          .filter((a) => a.type === 'INTERNE' && a.statut === 'ACTIVE')
+          .map((a) => ({ id: a.id, nom: a.nom, fonction: 'ADMIN' }))
+        if (internes.length > 0) {
+          setAgencesPublication((prev) => {
+            const ids = new Set(prev.map((x) => x.id))
+            return [...internes.filter((x) => !ids.has(x.id)), ...prev]
+          })
+          setAgenceId((prev) => prev || internes[0].id)
+        }
+      })
+      .catch(() => undefined)
     return () => { annule = true }
   }, [utilisateur?.role, edition, jeton])
 
@@ -344,13 +359,15 @@ export default function FormulaireAnnonce() {
         )}
         {!edition && utilisateur?.role === 'ADMIN' && (
           <div>
-            <label htmlFor="proprietaire-annonce" className="mb-1 block text-sm font-medium text-slate-700">Propriétaire de cette annonce</label>
-            <select id="proprietaire-annonce" value={proprietaireId} onChange={(e) => setProprietaireId(e.target.value)} required className={classeSelect}>
-              <option value="">Choisir un propriétaire</option>
+            <label htmlFor="proprietaire-annonce" className="mb-1 block text-sm font-medium text-slate-700">
+              Propriétaire externe {agenceId ? '(facultatif pour un bien de l’agence)' : ''}
+            </label>
+            <select id="proprietaire-annonce" value={proprietaireId} onChange={(e) => setProprietaireId(e.target.value)} required={!agenceId} className={classeSelect}>
+              <option value="">{agenceId ? 'Aucun — Bien propre de l’agence ImmoSénégal' : 'Choisir un propriétaire'}</option>
               {proprietaires.map((p) => <option key={p.id} value={p.id}>{p.nomComplet} — {p.email}</option>)}
             </select>
-            {proprietaires.length === 0 && <p className="mt-1 text-sm text-amber-800">Aucun compte propriétaire actif. Il faut d'abord qu'un compte soit inscrit puis validé avec le rôle Propriétaire.</p>}
-            <p className="mt-1 text-xs text-slate-500">Les demandes de visite pour cette annonce seront envoyées à ce propriétaire. L'administration conservera l'accès de suivi.</p>
+            {proprietaires.length === 0 && !agenceId && <p className="mt-1 text-sm text-amber-800">Aucun compte propriétaire actif. Choisissez l’agence ImmoSénégal ci-dessus ou validez d’abord un compte propriétaire.</p>}
+            <p className="mt-1 text-xs text-slate-600">Laissez vide pour publier directement comme bien propre d’ImmoSénégal.</p>
           </div>
         )}
         <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5" aria-labelledby="titre-infos-annonce">
