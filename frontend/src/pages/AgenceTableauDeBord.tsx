@@ -8,6 +8,7 @@ import MissionsAgence from '../components/MissionsAgence'
 import CaisseAgence from '../components/CaisseAgence'
 import PortefeuilleAgence from '../components/PortefeuilleAgence'
 import AffectationBiensAgence from '../components/AffectationBiensAgence'
+import DemandesProprietaireAgence from '../components/DemandesProprietaireAgence'
 
 type Agence = { id: string; nom: string; slug: string; fonction: string }
 type Mandat = {
@@ -620,6 +621,7 @@ export default function AgenceTableauDeBord() {
           </form>
         </section>
       </div>
+      <DemandesProprietaireAgence />
     </main>
   )
 }

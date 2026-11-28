@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import sn.immosenegal.user.Role;
 import sn.immosenegal.user.User;
@@ -47,6 +48,24 @@ public class DemandeRole {
     @Column(name = "decide_par")
     private UUID decidePar;
 
+    @Column(name = "decide_par_nom", length = 120)
+    private String decideParNom;
+
+    @Column(name = "motif_decision", length = 500)
+    private String motifDecision;
+
+    @Column(name = "justificatif_nom", length = 255)
+    private String justificatifNom;
+
+    @Column(name = "justificatif_type_mime", length = 80)
+    private String justificatifTypeMime;
+
+    @Column(name = "justificatif_contenu")
+    private byte[] justificatifContenu;
+
+    @Version
+    private Long version = 0L;
+
     protected DemandeRole() {
         // requis par JPA
     }
@@ -63,10 +82,27 @@ public class DemandeRole {
     public Instant getCreeLe() { return creeLe; }
     public Instant getDecideLe() { return decideLe; }
     public UUID getDecidePar() { return decidePar; }
+    public String getDecideParNom() { return decideParNom; }
+    public String getMotifDecision() { return motifDecision; }
+    public String getJustificatifNom() { return justificatifNom; }
+    public String getJustificatifTypeMime() { return justificatifTypeMime; }
+    public byte[] getJustificatifContenu() { return justificatifContenu; }
 
-    public void decider(StatutDemande nouveauStatut, UUID administrateur) {
+    public void definirJustificatif(String nom, String typeMime, byte[] contenu) {
+        this.justificatifNom = nom;
+        this.justificatifTypeMime = typeMime;
+        this.justificatifContenu = contenu;
+    }
+
+    public void decider(StatutDemande nouveauStatut, UUID decideurId, String decideurNom, String motif) {
         this.statut = nouveauStatut;
         this.decideLe = Instant.now();
-        this.decidePar = administrateur;
+        this.decidePar = decideurId;
+        this.decideParNom = decideurNom;
+        this.motifDecision = motif;
+    }
+
+    public void decider(StatutDemande nouveauStatut, UUID administrateur) {
+        decider(nouveauStatut, administrateur, null, null);
     }
 }

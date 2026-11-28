@@ -86,3 +86,9 @@ app:
     callback-url: ${PAYDUNYA_CALLBACK_URL:}
   paiement:
     simulation-active: ${PAIEMENT_SIMULATION_ACTIVE:true}
+
+  cloudinary:
+    # Identifiants conservés uniquement côté serveur (Render). Aucun secret dans Git.
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}

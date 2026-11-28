@@ -16,6 +16,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   const champ = useRef<HTMLInputElement>(null)
   const [erreurs, setErreurs] = useState<string[]>([])
   const [enCours, setEnCours] = useState(false)
+  const [apercusEnCours, setApercusEnCours] = useState<string[]>([])
   const [piece, setPiece] = useState('AUTRE')
   const [categories, setCategories] = useState<Record<string, string>>({})
   useEffect(() => {
@@ -31,36 +32,65 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
 
   async function ajouter(fichiers: FileList | null) {
     if (!fichiers || fichiers.length === 0) return
+    const urlsApercu = typeof URL.createObjectURL === 'function'
+      ? Array.from(fichiers).map((f) => URL.createObjectURL(f))
+      : []
+    setApercusEnCours(urlsApercu)
     setEnCours(true)
     const problemes: string[] = []
     let courantes = photos
-    for (const fichier of Array.from(fichiers)) {
-      if (courantes.length >= PHOTOS_MAX) {
-        problemes.push(`« ${fichier.name} » : maximum ${PHOTOS_MAX} photos par annonce.`)
-        continue
+    try {
+      for (const fichier of Array.from(fichiers)) {
+        if (courantes.length >= PHOTOS_MAX) {
+          problemes.push(`« ${fichier.name} » : maximum ${PHOTOS_MAX} photos par annonce.`)
+          continue
+        }
+        let photoPreparee: File
+        try {
+          photoPreparee = await preparerPhoto(fichier)
+        } catch (e) {
+          problemes.push(`« ${fichier.name} » : ${e instanceof Error ? e.message : 'compression impossible.'}`)
+          continue
+        }
+        const donnees = new FormData()
+        donnees.append('fichier', photoPreparee)
+        donnees.append('piece', piece)
+        try {
+          const r = await appelApi<{ id: string }>(`/api/annonces/${annonceId}/photos`, { method: 'POST', body: donnees, token: jeton })
+          courantes = [...courantes, r.id]
+          setCategories((actuelles) => ({ ...actuelles, [r.id]: piece }))
+          onChange(courantes)
+        } catch (e) {
+          problemes.push(`« ${fichier.name} » : ${e instanceof ApiError ? e.message : 'envoi impossible.'}`)
+        }
       }
-      let photoPreparee: File
-      try {
-        photoPreparee = await preparerPhoto(fichier)
-      } catch (e) {
-        problemes.push(`« ${fichier.name} » : ${e instanceof Error ? e.message : 'compression impossible.'}`)
-        continue
+      setErreurs(problemes)
+    } finally {
+      if (typeof URL.revokeObjectURL === 'function') {
+        urlsApercu.forEach((u) => URL.revokeObjectURL(u))
       }
-      const donnees = new FormData()
-      donnees.append('fichier', photoPreparee)
-      donnees.append('piece', piece)
-      try {
-        const r = await appelApi<{ id: string }>(`/api/annonces/${annonceId}/photos`, { method: 'POST', body: donnees, token: jeton })
-        courantes = [...courantes, r.id]
-        setCategories((actuelles) => ({ ...actuelles, [r.id]: piece }))
-        onChange(courantes)
-      } catch (e) {
-        problemes.push(`« ${fichier.name} » : ${e instanceof ApiError ? e.message : 'envoi impossible.'}`)
-      }
+      setApercusEnCours([])
+      setEnCours(false)
+      if (champ.current) champ.current.value = ''
     }
-    setErreurs(problemes)
-    setEnCours(false)
-    if (champ.current) champ.current.value = ''
+  }
+
+  async function definirPrincipale(index: number) {
+    if (index <= 0 || index >= photos.length || enCours) return
+    const cible = photos[index]
+    const nouvelOrdre = [cible, ...photos.filter((_, idx) => idx !== index)]
+    setErreurs([])
+    setEnCours(true)
+    try {
+      await appelApi<void>(`/api/annonces/${annonceId}/photos/ordre`, {
+        method: 'PUT', body: nouvelOrdre, token: jeton,
+      })
+      onChange(nouvelOrdre)
+    } catch (e) {
+      setErreurs([e instanceof ApiError ? e.message : 'Modification impossible.'])
+    } finally {
+      setEnCours(false)
+    }
   }
 
   async function deplacer(index: number, direction: -1 | 1) {
@@ -160,6 +190,12 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                 Supprimer
               </button>
               </div>
+              {i > 0 && (
+                <button type="button" disabled={enCours} onClick={() => void definirPrincipale(i)}
+                  className="mt-1.5 w-full rounded-xl border border-[#d6b65e] bg-[#fbf7eb] px-2 py-1.5 text-xs font-bold text-[#18243a] hover:bg-[#f2e5bd] disabled:opacity-50">
+                  Définir comme photo principale
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -173,12 +209,19 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
             ref={champ}
             id="ajout-photos"
             type="file"
-            accept="image/jpeg,image/png"
+            accept="image/jpeg,image/png,image/webp"
             multiple
             disabled={enCours}
             onChange={(e) => void ajouter(e.target.files)}
             className="block w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-2 text-base text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-[#172b4d] file:px-4 file:py-2 file:text-base file:font-bold file:text-white hover:file:bg-[#243b60]"
           />
+          {apercusEnCours.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {apercusEnCours.map((url, idx) => (
+                <img key={url} src={url} alt={`Aperçu ${idx + 1}`} className="h-16 w-20 rounded-lg border border-slate-300 object-cover opacity-80" />
+              ))}
+            </div>
+          )}
           {enCours && <p role="status" className="mt-2 text-base text-slate-500">Envoi en cours…</p>}
         </div>
       )}

@@ -25,18 +25,24 @@ afterEach(() => vi.unstubAllGlobals())
 
 describe('Demande de rôle', () => {
   it('un Client envoie sa demande et voit qu\'elle est en attente de validation', async () => {
-    const { api, user } = await connecter('CLIENT', { 'POST /api/auth/role-requests': () => json(201, { id: 'd1' }) })
+    const { api, user } = await connecter('CLIENT', {
+      'POST /api/auth/role-requests': () => json(201, {
+        id: 'd1', roleDemande: 'AGENT', statut: 'EN_ATTENTE', creeLe: '2026-11-28T10:00:00Z', aJustificatif: false,
+      }),
+    })
     await user.selectOptions(screen.getByLabelText('Rôle souhaité'), 'AGENT')
     await user.click(screen.getByRole('button', { name: /envoyer la demande/i }))
-    expect(await screen.findByRole('status')).toHaveTextContent(/en attente de validation/)
+    expect(await screen.findByRole('status')).toHaveTextContent(/en attente de validation/i)
     const appel = api.mock.calls.find(([u]) => u === '/api/auth/role-requests')!
-    expect(JSON.parse(String(appel[1]!.body))).toEqual({ role: 'AGENT' })
+    expect(appel[1]!.body).toBeInstanceOf(FormData)
+    expect((appel[1]!.body as FormData).get('role')).toBe('AGENT')
   })
 
   it('affiche le refus du serveur si une demande est déjà en attente', async () => {
     const { user } = await connecter('CLIENT', {
       'POST /api/auth/role-requests': () => json(409, { message: 'Une demande est déjà en attente de validation.' }),
     })
+    await user.selectOptions(screen.getByLabelText('Rôle souhaité'), 'AGENT')
     await user.click(screen.getByRole('button', { name: /envoyer la demande/i }))
     expect(await screen.findByText('Une demande est déjà en attente de validation.')).toHaveAttribute('role', 'alert')
   })

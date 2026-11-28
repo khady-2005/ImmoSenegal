@@ -27,6 +27,8 @@ public interface PhotoRepository extends JpaRepository<PhotoAnnonce, UUID> {
 
     Optional<PhotoAnnonce> findByIdAndAnnonceId(UUID id, UUID annonceId);
 
+    List<PhotoAnnonce> findAllByUrlExterneIsNullAndContenuIsNotNull();
+
     @Query("select coalesce(max(p.ordre), 0) from PhotoAnnonce p where p.annonceId = :annonceId")
     int ordreMax(@Param("annonceId") UUID annonceId);
 }
