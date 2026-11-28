@@ -197,12 +197,16 @@ export default function AdminPhotos() {
         </div>
         <nav className="relative z-10 flex-1 space-y-2 overflow-y-auto px-3 py-6 text-sm font-semibold">
           <Link to="/tableau-de-bord" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><HomeIcon className="h-5 w-5" />Tableau de bord</Link>
-          <Link to="/admin/photos" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#ffd45c] to-[#f3b92e] px-4 py-3 font-extrabold text-[#08284d] shadow-lg"><LayoutGrid className="h-5 w-5" />Gestion du catalogue</Link>
-          <Link to="/admin/demandes" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Demandes</Link>
-          <Link to="/mes-reservations" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><CalendarDays className="h-5 w-5" />Réservations</Link>
+          <Link to="/admin/photos" className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#ffd45c] to-[#f3b92e] px-4 py-3 font-extrabold text-[#08284d] shadow-lg"><LayoutGrid className="h-5 w-5" />Photos et vidéos</Link>
+          <Link to="/admin/annonces" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><LayoutGrid className="h-5 w-5" />Modération annonces</Link>
+          <Link to="/admin/agences" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Users className="h-5 w-5" />Agences et responsables</Link>
+          <Link to="/admin/demandes" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Demandes de rôle</Link>
+          <Link to="/admin/reservations" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><CalendarDays className="h-5 w-5" />Réservations</Link>
           <Link to="/messagerie" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Mail className="h-5 w-5" />Messages</Link>
           <Link to="/admin/utilisateurs" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Users className="h-5 w-5" />Utilisateurs</Link>
-          <Link to="/admin/abonnements" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Settings className="h-5 w-5" />Paramètres</Link>
+          <Link to="/admin/abonnements" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Abonnements et paiements</Link>
+          <Link to="/admin/signalements" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><ClipboardList className="h-5 w-5" />Signalements</Link>
+          <Link to="/admin/audit" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><Settings className="h-5 w-5" />Journal et paramètres</Link>
         </nav>
         <div className="relative z-10 border-t border-white/10 p-3">
           <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-white/90 transition hover:bg-white/10"><LogOut className="h-5 w-5" />Quitter l'administration</Link>

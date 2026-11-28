@@ -13,6 +13,8 @@ public interface AnnonceRepository extends JpaRepository<Annonce, UUID>, JpaSpec
 
     Page<Annonce> findByAgenceId(UUID agenceId, Pageable pageable);
 
+    java.util.List<Annonce> findAllByAgenceIdOrderByCreeLeDesc(UUID agenceId);
+
     java.util.List<Annonce> findAllByAgenceIdAndStatutOrderByCreeLeDesc(UUID agenceId, StatutAnnonce statut);
 
     boolean existsByExempleTrue();

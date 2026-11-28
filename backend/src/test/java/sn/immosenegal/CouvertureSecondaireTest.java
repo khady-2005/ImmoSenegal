@@ -2,6 +2,7 @@ package sn.immosenegal;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -246,10 +247,15 @@ class CouvertureSecondaireTest extends AbstractApiTest {
             .andExpect(status().isOk());
 
         // Candidature
-        MvcResult candRes = mvc.perform(post("/api/agence/" + agenceId + "/candidatures")
-                .header(HttpHeaders.AUTHORIZATION, bearer(tokenCandidat))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("fonction", "AGENT"))))
+        org.springframework.mock.web.MockMultipartFile cvPdf = new org.springframework.mock.web.MockMultipartFile(
+            "cv", "cv.pdf", "application/pdf", "%PDF-1.4\n".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        MvcResult candRes = mvc.perform(multipart("/api/agence/" + agenceId + "/candidatures")
+                .file(cvPdf)
+                .param("fonction", "AGENT")
+                .param("telephone", "770001122")
+                .param("zone", "Dakar Plateau")
+                .param("motivation", "Expérience terrain 3 ans")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenCandidat)))
             .andExpect(status().isCreated())
             .andReturn();
         String candId = JsonPath.read(candRes.getResponse().getContentAsString(), "$.id");

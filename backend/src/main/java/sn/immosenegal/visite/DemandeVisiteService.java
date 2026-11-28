@@ -78,13 +78,18 @@ public class DemandeVisiteService {
         if (acteur.role() == Role.ADMIN) return toutes(acteur);
         if (acteur.role() == Role.PROPRIETAIRE)
             return demandes.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(DemandeVisiteResponse::de).toList();
-        java.util.List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
+        java.util.Set<UUID> annoncesGerees = new java.util.LinkedHashSet<>();
+        membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .flatMap(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
-                m.getAgence().getId(), StatutMandatGestion.ACCEPTE).stream())
-            .map(g -> g.getAnnonce().getId()).distinct().toList();
+            .forEach(m -> {
+                mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+                        m.getAgence().getId(), StatutMandatGestion.ACCEPTE)
+                    .forEach(g -> annoncesGerees.add(g.getAnnonce().getId()));
+                annonces.findAllByAgenceIdOrderByCreeLeDesc(m.getAgence().getId())
+                    .forEach(a -> annoncesGerees.add(a.getId()));
+            });
         if (annoncesGerees.isEmpty()) return List.of();
-        return demandes.findAllByAnnonceIdInOrderByCreeLeDesc(annoncesGerees)
+        return demandes.findAllByAnnonceIdInOrderByCreeLeDesc(List.copyOf(annoncesGerees))
             .stream().map(DemandeVisiteResponse::de).toList();
     }
 
@@ -193,8 +198,9 @@ public class DemandeVisiteService {
         if (annonce.getProprietaire() != null && annonce.getProprietaire().getId().equals(acteur.id())) return true;
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .anyMatch(m -> mandats.existsByAgenceIdAndAnnonceIdAndStatut(
-                m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
+            .anyMatch(m -> (annonce.getAgence() != null && annonce.getAgence().getId().equals(m.getAgence().getId()))
+                || mandats.existsByAgenceIdAndAnnonceIdAndStatut(
+                    m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
     }
 
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {

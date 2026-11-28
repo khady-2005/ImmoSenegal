@@ -99,6 +99,22 @@ public class CloudinaryService {
     }
 
     public UploadResult televerser(byte[] octets, String typeMime, String nomFichier, String dossier) {
+        return envoyerUpload("image", octets, typeMime, nomFichier, dossier);
+    }
+
+    public UploadResult televerserVideo(byte[] octets, String typeMime, String nomFichier, String dossier) {
+        return envoyerUpload("video", octets, typeMime, nomFichier, dossier);
+    }
+
+    public void supprimer(String publicId) {
+        envoyerDestroy("image", publicId);
+    }
+
+    public void supprimerVideo(String publicId) {
+        envoyerDestroy("video", publicId);
+    }
+
+    private UploadResult envoyerUpload(String resourceType, byte[] octets, String typeMime, String nomFichier, String dossier) {
         if (!estConfigure()) {
             throw new IllegalStateException("Cloudinary n'est pas configuré.");
         }
@@ -112,36 +128,36 @@ public class CloudinaryService {
 
         byte[] corps = construireMultipart(boundary, dossierPropre, timestamp, signature, octets, typeMime, nomFichier);
         HttpRequest req = HttpRequest.newBuilder()
-            .uri(URI.create(baseUrl + "/" + cloudName + "/image/upload"))
-            .timeout(Duration.ofSeconds(30))
+            .uri(URI.create(baseUrl + "/" + cloudName + "/" + resourceType + "/upload"))
+            .timeout(Duration.ofSeconds("video".equals(resourceType) ? 120 : 30))
             .header("Content-Type", "multipart/form-data; boundary=" + boundary)
             .POST(HttpRequest.BodyPublishers.ofByteArray(corps))
             .build();
         try {
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
-                String msg = extraireMessageErreur(resp.body(), signature);
-                log.warn("Échec upload Cloudinary : code={}, message={}", resp.statusCode(), msg);
-                throw new ApiException(HttpStatus.BAD_GATEWAY, "Échec de l'envoi de la photo vers Cloudinary.");
+                log.warn("Échec upload Cloudinary ({}) : code={}, message={}",
+                    resourceType, resp.statusCode(), extraireMessageErreur(resp.body(), signature));
+                throw new ApiException(HttpStatus.BAD_GATEWAY, "Échec de l'envoi vers Cloudinary.");
             }
             JsonNode root = mapper.readTree(resp.body());
             String secureUrl = root.path("secure_url").asText("");
             String publicId = root.path("public_id").asText("");
             if (secureUrl.isBlank() || publicId.isBlank()) {
-                log.warn("Réponse Cloudinary incomplète : code={}, champs secure_url/public_id absents", resp.statusCode());
-                throw new ApiException(HttpStatus.BAD_GATEWAY, "Échec de l'envoi de la photo vers Cloudinary.");
+                log.warn("Réponse Cloudinary incomplète ({}) : code={}", resourceType, resp.statusCode());
+                throw new ApiException(HttpStatus.BAD_GATEWAY, "Échec de l'envoi vers Cloudinary.");
             }
             return new UploadResult(secureUrl, publicId);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Impossible de joindre Cloudinary : type={}, detail={}",
-                e.getClass().getSimpleName(), assainirMessage(e.getMessage(), signature));
-            throw new ApiException(HttpStatus.BAD_GATEWAY, "Impossible de joindre le service de stockage photo.");
+            log.warn("Impossible de joindre Cloudinary ({}) : type={}, detail={}",
+                resourceType, e.getClass().getSimpleName(), assainirMessage(e.getMessage(), signature));
+            throw new ApiException(HttpStatus.BAD_GATEWAY, "Impossible de joindre le service de stockage.");
         }
     }
 
-    public void supprimer(String publicId) {
+    private void envoyerDestroy(String resourceType, String publicId) {
         if (!estConfigure() || publicId == null || publicId.isBlank()) {
             return;
         }
@@ -153,7 +169,7 @@ public class CloudinaryService {
             + "&api_key=" + urlEncode(apiKey)
             + "&signature=" + signature;
         HttpRequest req = HttpRequest.newBuilder()
-            .uri(URI.create(baseUrl + "/" + cloudName + "/image/destroy"))
+            .uri(URI.create(baseUrl + "/" + cloudName + "/" + resourceType + "/destroy"))
             .timeout(Duration.ofSeconds(15))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
@@ -161,12 +177,11 @@ public class CloudinaryService {
         try {
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
-                log.warn("Échec suppression Cloudinary : code={}, message={}",
-                    resp.statusCode(), extraireMessageErreur(resp.body(), signature));
+                log.warn("Échec suppression Cloudinary ({}) : code={}, message={}",
+                    resourceType, resp.statusCode(), extraireMessageErreur(resp.body(), signature));
             }
         } catch (Exception e) {
-            // La suppression distante ne doit pas bloquer la suppression en base.
-            log.warn("Erreur réseau suppression Cloudinary : {}", e.getClass().getSimpleName());
+            log.warn("Erreur réseau suppression Cloudinary ({}) : {}", resourceType, e.getClass().getSimpleName());
         }
     }
 

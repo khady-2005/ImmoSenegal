@@ -31,6 +31,10 @@ export default function AnnuaireAgences() {
   const [recherche, setRecherche] = useState('')
   const [tri, setTri] = useState<'NOM' | 'NOTE' | 'AVIS'>('NOM')
   const [fonctionChoisie, setFonctionChoisie] = useState<'AGENT' | 'GESTIONNAIRE' | 'CAISSIER' | 'ASSISTANT_ADMINISTRATIF'>('AGENT')
+  const [telephone, setTelephone] = useState('')
+  const [zone, setZone] = useState('')
+  const [motivation, setMotivation] = useState('')
+  const [cvFichier, setCvFichier] = useState<File | null>(null)
   const [avisOuverts, setAvisOuverts] = useState<string[]>([])
   const [formAgenceOuvert, setFormAgenceOuvert] = useState(false)
   const [creationAgence, setCreationAgence] = useState(false)
@@ -65,16 +69,31 @@ export default function AnnuaireAgences() {
   useEffect(() => { void charger() }, [charger])
 
   const postuler = async (agence: Agence) => {
-    setEnvoi(agence.id)
     setErreur(null)
     setMessage(null)
+    if (!telephone.trim() || !zone.trim() || !motivation.trim()) {
+      setErreur('Renseignez votre téléphone, votre zone d’intervention et votre motivation.')
+      return
+    }
+    if (!cvFichier) {
+      setErreur('Joignez votre CV (PDF, JPG, PNG ou WebP).')
+      return
+    }
+    setEnvoi(agence.id)
     try {
+      const donnees = new FormData()
+      donnees.append('fonction', fonctionChoisie)
+      donnees.append('telephone', telephone.trim())
+      donnees.append('zone', zone.trim())
+      donnees.append('motivation', motivation.trim())
+      donnees.append('cv', cvFichier)
       await appelApi('/api/agence/' + agence.id + '/candidatures', {
         method: 'POST',
         token: jeton,
-        body: { fonction: fonctionChoisie },
+        body: donnees,
       })
       setMessage('Votre candidature a été envoyée à ' + agence.nom + '. Vous pourrez suivre sa réponse dans « Mes candidatures ».')
+      setCvFichier(null)
       await charger()
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible d’envoyer votre candidature.')
@@ -190,15 +209,30 @@ export default function AnnuaireAgences() {
       </section>
 
       <section className="mt-7 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <label className="block text-base font-extrabold text-nuit-950">Fonction souhaitée dans l’agence
-          <select value={fonctionChoisie} onChange={e => setFonctionChoisie(e.target.value as typeof fonctionChoisie)} className="mt-2 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-semibold text-slate-950 sm:max-w-xl">
-            <option value="AGENT">Agent immobilier</option>
-            <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
-            <option value="CAISSIER">Caissier</option>
-            <option value="ASSISTANT_ADMINISTRATIF">Assistant administratif</option>
-          </select>
-        </label>
-        <p className="mt-2 text-sm leading-6 text-slate-600">Choisissez le poste correspondant à vos compétences. Le responsable de l’agence étudiera votre candidature et décidera de l’accepter ou de la refuser.</p>
+        <h2 className="text-lg font-extrabold text-nuit-950">Votre dossier de candidature</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="block text-sm font-bold text-nuit-950">Fonction souhaitée dans l’agence
+            <select value={fonctionChoisie} onChange={e => setFonctionChoisie(e.target.value as typeof fonctionChoisie)} className="mt-1.5 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base font-semibold text-slate-950">
+              <option value="AGENT">Agent immobilier</option>
+              <option value="GESTIONNAIRE">Gestionnaire immobilier</option>
+              <option value="CAISSIER">Caissier</option>
+              <option value="ASSISTANT_ADMINISTRATIF">Assistant administratif</option>
+            </select>
+          </label>
+          <label className="block text-sm font-bold text-nuit-950">Téléphone
+            <input type="tel" value={telephone} onChange={e => setTelephone(e.target.value)} placeholder="Ex. : 77 123 45 67" className="mt-1.5 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950" />
+          </label>
+          <label className="block text-sm font-bold text-nuit-950">Zone d’intervention
+            <input type="text" value={zone} onChange={e => setZone(e.target.value)} placeholder="Ex. : Dakar, Almadies, Ziguinchor…" className="mt-1.5 min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950" />
+          </label>
+          <label className="block text-sm font-bold text-nuit-950">CV privé (PDF, JPG, PNG ou WebP)
+            <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" onChange={e => setCvFichier(e.target.files?.[0] ?? null)} className="mt-1.5 block w-full rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-nuit-900 file:px-3 file:py-1.5 file:font-bold file:text-white" />
+          </label>
+          <label className="block text-sm font-bold text-nuit-950 sm:col-span-2">Motivation
+            <textarea rows={3} value={motivation} onChange={e => setMotivation(e.target.value)} placeholder="Présentez votre expérience et vos motivations…" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white p-3 text-base text-slate-950" />
+          </label>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-slate-700">Une seule candidature peut être en attente à la fois. Votre CV reste privé et n’est visible que par vous et le responsable de l’agence visée. Aucun accès collaborateur n’est accordé avant son acceptation.</p>
       </section>
 
       <section className="mt-7">

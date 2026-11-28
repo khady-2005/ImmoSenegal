@@ -299,7 +299,8 @@ class CouvertureModulesTest extends AbstractApiTest {
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(annonceBody)))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.publieeParAgence").value(true));
 
         mvc.perform(post("/api/annonces?agenceId=" + interne.getId())
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAgent))

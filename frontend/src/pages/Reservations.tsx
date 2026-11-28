@@ -103,8 +103,8 @@ export default function Reservations() {
     } finally { setEnCours(null) }
   }
 
-  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT' && role !== 'ADMIN') {
-    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agents mandatés et administrateurs.</p></div>
+  if (role !== 'CLIENT' && role !== 'PROPRIETAIRE' && role !== 'AGENT' && role !== 'RESPONSABLE' && role !== 'ADMIN') {
+    return <div className="mx-auto max-w-3xl px-4 py-12"><p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Cet espace est réservé aux clients, propriétaires, agences et administrateurs.</p></div>
   }
 
   const demandesFiltrees = useMemo(() => demandes.filter(d => {

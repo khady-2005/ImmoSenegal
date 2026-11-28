@@ -87,17 +87,25 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public List<ReservationResponse> demandesRecues(AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.RESPONSABLE, Role.ADMIN);
         if (acteur.role() == Role.ADMIN) return toutes(acteur);
-        if (acteur.role() == Role.PROPRIETAIRE)
-            return reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id()).stream().map(ReservationResponse::de).toList();
-        java.util.List<UUID> annoncesGerees = membres.findAllByUtilisateurId(acteur.id()).stream()
+        java.util.Set<UUID> annoncesGerees = new java.util.LinkedHashSet<>();
+        if (acteur.role() == Role.PROPRIETAIRE) {
+            reservations.findByAnnonceProprietaireIdOrderByCreeLeDesc(acteur.id())
+                .forEach(r -> annoncesGerees.add(r.getAnnonce().getId()));
+        }
+        membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .flatMap(m -> mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
-                m.getAgence().getId(), StatutMandatGestion.ACCEPTE).stream())
-            .map(g -> g.getAnnonce().getId()).distinct().toList();
+            .forEach(m -> {
+                mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(
+                        m.getAgence().getId(), StatutMandatGestion.ACCEPTE)
+                    .forEach(g -> annoncesGerees.add(g.getAnnonce().getId()));
+                annonces.findAllByAgenceIdOrderByCreeLeDesc(m.getAgence().getId())
+                    .forEach(a -> annoncesGerees.add(a.getId()));
+            });
         return annoncesGerees.isEmpty() ? java.util.List.of()
-            : reservations.findAllByAnnonceIdInOrderByCreeLeDesc(annoncesGerees).stream().map(ReservationResponse::de).toList();
+            : reservations.findAllByAnnonceIdInOrderByCreeLeDesc(java.util.List.copyOf(annoncesGerees))
+                .stream().map(ReservationResponse::de).toList();
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +125,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponse decider(UUID id, DecisionReservation requete, AuthenticatedUser acteur) {
-        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.ADMIN);
+        exigerRole(acteur, Role.PROPRIETAIRE, Role.AGENT, Role.RESPONSABLE, Role.ADMIN);
         Reservation reservation = trouver(id);
         if (acteur.role() != Role.ADMIN && !estInterlocuteurAutorise(reservation.getAnnonce(), acteur)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Cette réservation ne concerne pas vos annonces.");
@@ -159,11 +167,12 @@ public class ReservationService {
 
     private boolean estInterlocuteurAutorise(Annonce annonce, AuthenticatedUser acteur) {
         if (annonce.getProprietaire().getId().equals(acteur.id())) return true;
-        if (acteur.role() != Role.AGENT) return false;
+        if (acteur.role() != Role.AGENT && acteur.role() != Role.RESPONSABLE) return false;
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
-            .anyMatch(m -> mandats.existsByAgenceIdAndAnnonceIdAndStatut(
-                m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
+            .anyMatch(m -> (annonce.getAgence() != null && annonce.getAgence().getId().equals(m.getAgence().getId()))
+                || mandats.existsByAgenceIdAndAnnonceIdAndStatut(
+                    m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
     }
 
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {

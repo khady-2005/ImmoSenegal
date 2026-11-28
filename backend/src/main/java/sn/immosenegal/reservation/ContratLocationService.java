@@ -62,12 +62,19 @@ public class ContratLocationService {
   List<ContratLocation> l=new ArrayList<>();
   l.addAll(contrats.findAllByProprietaireIdOrderByCreeLeDesc(a.id()));
   l.addAll(contrats.findAllByLocataireIdOrderByCreeLeDesc(a.id()));
-  if(a.role()==Role.AGENT||a.role()==Role.ADMIN){
-   List<UUID> annonces=membres.findAllByUtilisateurId(a.id()).stream()
+  if(a.role()==Role.AGENT||a.role()==Role.RESPONSABLE||a.role()==Role.PROPRIETAIRE){
+   java.util.Set<UUID> annoncesSet=new java.util.LinkedHashSet<>();
+   membres.findAllByUtilisateurId(a.id()).stream()
     .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
-    .flatMap(m->mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(m.getAgence().getId(),StatutMandatGestion.ACCEPTE).stream())
-    .map(m->m.getAnnonce().getId()).distinct().toList();
-   if(!annonces.isEmpty()) l.addAll(contrats.findAllByAnnonceIdInOrderByCreeLeDesc(annonces));
+    .forEach(m->{
+     mandats.findAllByAgenceIdAndStatutOrderByCreeLeDesc(m.getAgence().getId(),StatutMandatGestion.ACCEPTE)
+      .forEach(g->annoncesSet.add(g.getAnnonce().getId()));
+    });
+   if(!annoncesSet.isEmpty()) l.addAll(contrats.findAllByAnnonceIdInOrderByCreeLeDesc(List.copyOf(annoncesSet)));
+   contrats.findAllByOrderByCreeLeDesc().stream()
+    .filter(c->c.getAnnonce().getAgence()!=null&&membres.findByAgenceIdAndUtilisateurId(c.getAnnonce().getAgence().getId(),a.id())
+     .filter(m->m.getStatut()==StatutMembreAgence.ACTIF).isPresent())
+    .forEach(l::add);
   }
   return l.stream().distinct().map(this::resume).toList();
  }
@@ -173,11 +180,12 @@ public class ContratLocationService {
   ContratLocation c=contrats.findById(contratId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   PaiementLoyer p=paiements.findById(paiementId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable."));
   if(!p.getBeneficiaireId().equals(a.id())){
+   boolean adminInterne=a.role()==Role.ADMIN&&estSurAgenceInterne(c.getAnnonce());
    boolean membreAutorise=p.getBeneficiaireType().equals("AGENCE")&&membres.findByAgenceIdAndUtilisateurId(p.getBeneficiaireId(),a.id())
     .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
     .filter(m->m.getFonction()==sn.immosenegal.agence.FonctionAgence.RESPONSABLE)
     .isPresent();
-   if(!membreAutorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le bénéficiaire du paiement ou un membre actif de son agence peut confirmer sa réception.");
+   if(!adminInterne&&!membreAutorise) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Seul le bénéficiaire du paiement ou un membre actif de son agence peut confirmer sa réception.");
   }
   if(!p.getStatutConfirmation().equals("EN_ATTENTE")) throw new ResponseStatusException(HttpStatus.CONFLICT,"Ce paiement a déjà été traité.");
   if(!p.getId().equals(paiementId)||!c.getId().equals(p.getContrat().getId())) throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Paiement introuvable pour ce contrat.");
@@ -188,10 +196,9 @@ public class ContratLocationService {
  @Transactional(readOnly=true) public List<PaiementResume> paiements(UUID id,AuthenticatedUser a){
   ContratLocation c=contrats.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Contrat introuvable."));
   boolean participant=c.getProprietaire().getId().equals(a.id())||c.getLocataire().getId().equals(a.id());
-  boolean agentMandate=a.role()==Role.AGENT&&membres.findAllByUtilisateurId(a.id()).stream()
-   .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
-   .anyMatch(m->mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),c.getAnnonce().getId(),StatutMandatGestion.ACCEPTE));
-  if(!participant&&!agentMandate) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat ou à l'agence mandatée.");
+  boolean adminInterne=a.role()==Role.ADMIN&&estSurAgenceInterne(c.getAnnonce());
+  boolean membreMandate=estMembreAgenceAnnonce(c.getAnnonce(),a);
+  if(!participant&&!adminInterne&&!membreMandate) throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat ou à l'agence mandatée.");
   return paiements.findAllByContratIdOrderByPeriodeDesc(id).stream().map(this::versPaiementResume).toList();
  }
  public ContratResume signer(UUID id,String signature,AuthenticatedUser a) {
@@ -294,10 +301,20 @@ public class ContratLocationService {
  private boolean autoriseCreationContrat(Reservation r,AuthenticatedUser a){
   if(a==null)return false;
   if(r.getAnnonce().getProprietaire().getId().equals(a.id()))return true;
-  if(a.role()!=Role.AGENT)return false;
+  if(a.role()==Role.ADMIN)return estSurAgenceInterne(r.getAnnonce());
+  return estMembreAgenceAnnonce(r.getAnnonce(),a);
+ }
+ private boolean estSurAgenceInterne(sn.immosenegal.annonce.Annonce annonce){
+  if(annonce.getAgence()!=null&&annonce.getAgence().getType()==AgenceType.INTERNE)return true;
+  return mandats.findFirstByAnnonceIdAndStatutOrderByDecideLeDesc(annonce.getId(),StatutMandatGestion.ACCEPTE)
+   .filter(m->m.getAgence().getType()==AgenceType.INTERNE).isPresent();
+ }
+ private boolean estMembreAgenceAnnonce(sn.immosenegal.annonce.Annonce annonce,AuthenticatedUser a){
+  if(a==null||(a.role()!=Role.AGENT&&a.role()!=Role.RESPONSABLE&&a.role()!=Role.PROPRIETAIRE))return false;
   return membres.findAllByUtilisateurId(a.id()).stream()
    .filter(m->m.getStatut()==StatutMembreAgence.ACTIF)
-   .anyMatch(m->mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),r.getAnnonce().getId(),StatutMandatGestion.ACCEPTE));
+   .anyMatch(m->(annonce.getAgence()!=null&&annonce.getAgence().getId().equals(m.getAgence().getId()))
+    ||mandats.existsByAgenceIdAndAnnonceIdAndStatut(m.getAgence().getId(),annonce.getId(),StatutMandatGestion.ACCEPTE));
  }
  private void verifierParticipant(ContratLocation c,AuthenticatedUser a){if(!c.getProprietaire().getId().equals(a.id())&&!c.getLocataire().getId().equals(a.id()))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Accès réservé aux parties du contrat.");}
  private ContratResume resume(ContratLocation c){return new ContratResume(c.getId(),c.getAnnonce().getId(),c.getAnnonce().getTitre(),c.getProprietaire().getNomComplet(),c.getLocataire().getNomComplet(),c.getLoyerMensuel(),c.getDepotGarantie(),c.getDateDebut(),c.getDateFin(),c.getEtat().name(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getId(),c.getResiliationDemandeePar()==null?null:c.getResiliationDemandeePar().getNomComplet(),c.getResiliationDemandeeLe(),c.getResiliationMotif(),c.getDateFinSouhaitee(),c.getProprietaireConfirmeLe(),c.getLocataireConfirmeLe(),c.getProprietaireSignature(),c.getLocataireSignature(),c.getProprietaireSigneLe(),c.getLocataireSigneLe());}

@@ -85,6 +85,31 @@ public class AnnonceController {
         return service.annoncesAgence(agenceId, utilisateur, page, taille);
     }
 
+    @GetMapping("/agence/{agenceId}/tableau")
+    @Operation(summary = "Biens propres et confiés de l'agence avec photo principale, statut et filtres",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public List<AnnonceService.AnnonceAgenceResume> annoncesTableauAgence(
+            @PathVariable UUID agenceId,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String origine,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        return service.annoncesCompletesAgence(agenceId, utilisateur, q, statut, origine);
+    }
+
+    @org.springframework.web.bind.annotation.PatchMapping("/agence/{agenceId}/{annonceId}/agent")
+    @Operation(summary = "Attribuer un bien de l'agence à un agent ou gestionnaire actif",
+        security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))
+    public AnnonceService.AnnonceAgenceResume attribuerAgent(
+            @PathVariable UUID agenceId,
+            @PathVariable UUID annonceId,
+            @RequestBody AttributionAgent requete,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
+        return service.attribuerAgentAnnonce(agenceId, annonceId, requete.membreId(), utilisateur);
+    }
+
+    public record AttributionAgent(UUID membreId) {}
+
     @PostMapping
     @Operation(summary = "Créer une annonce (PROPRIETAIRE, membre actif d'agence ou ADMIN)",
         security = @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER))

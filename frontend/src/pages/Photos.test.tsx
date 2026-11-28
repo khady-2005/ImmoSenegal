@@ -76,6 +76,7 @@ describe('Gestion des photos (propriétaire)', () => {
   })
 
   it('supprime une photo après appel au serveur', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
     const { api, user } = await pageModification(
       { [`DELETE /api/annonces/${ID}/photos/${P1}`]: () => new Response(null, { status: 204 }) },
       [P1, P2],

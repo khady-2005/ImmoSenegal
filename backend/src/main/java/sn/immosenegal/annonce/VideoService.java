@@ -3,6 +3,7 @@ package sn.immosenegal.annonce;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,11 +20,18 @@ public class VideoService {
     private final VideoRepository videos;
     private final AnnonceService annonces;
     private final AuditService audit;
+    private final CloudinaryService cloudinary;
 
-    public VideoService(VideoRepository videos, AnnonceService annonces, AuditService audit) {
+    @Autowired
+    public VideoService(VideoRepository videos, AnnonceService annonces, AuditService audit, CloudinaryService cloudinary) {
         this.videos = videos;
         this.annonces = annonces;
         this.audit = audit;
+        this.cloudinary = cloudinary;
+    }
+
+    public VideoService(VideoRepository videos, AnnonceService annonces, AuditService audit) {
+        this(videos, annonces, audit, null);
     }
 
     @Transactional
@@ -45,8 +53,36 @@ public class VideoService {
         if (type == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Format refusé : utilisez une vidéo MP4 ou WebM.");
         }
-        videos.deleteByAnnonceId(annonceId);
-        VideoAnnonce video = videos.save(new VideoAnnonce(annonceId, contenu, type));
+        VideoAnnonce existante = videos.findByAnnonceId(annonceId).orElse(null);
+        String ancienPublicId = existante == null ? null : existante.getCloudinaryPublicId();
+        VideoAnnonce video;
+        if (cloudinary != null && cloudinary.estConfigure()) {
+            String nomFichier = "video/webm".equals(type) ? "video.webm" : "video.mp4";
+            CloudinaryService.UploadResult upload = cloudinary.televerserVideo(
+                contenu, type, nomFichier, "immosenegal/videos/" + annonceId);
+            if (existante != null) {
+                existante.setUrlExterne(upload.secureUrl());
+                existante.setCloudinaryPublicId(upload.publicId());
+                existante.setContenu(null);
+                existante.setTypeMime(type);
+                video = videos.save(existante);
+            } else {
+                video = videos.save(new VideoAnnonce(annonceId, upload.secureUrl(), upload.publicId(), type));
+            }
+            if (ancienPublicId != null && !ancienPublicId.equals(upload.publicId())) {
+                cloudinary.supprimerVideo(ancienPublicId);
+            }
+        } else {
+            if (existante != null) {
+                existante.setContenu(contenu);
+                existante.setUrlExterne(null);
+                existante.setCloudinaryPublicId(null);
+                existante.setTypeMime(type);
+                video = videos.save(existante);
+            } else {
+                video = videos.save(new VideoAnnonce(annonceId, contenu, type));
+            }
+        }
         audit.enregistrer("VIDEO_ANNONCE_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return video.getId();
     }
@@ -65,10 +101,13 @@ public class VideoService {
     @Transactional
     public void supprimer(UUID annonceId, AuthenticatedUser auteur) {
         annonces.annonceModifiable(annonceId, auteur);
-        if (!videos.existsByAnnonceId(annonceId)) {
-            throw new ApiException(HttpStatus.NOT_FOUND, "Aucune vidéo pour cette annonce.");
+        VideoAnnonce video = videos.findByAnnonceId(annonceId)
+            .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Aucune vidéo pour cette annonce."));
+        String publicId = video.getCloudinaryPublicId();
+        videos.delete(video);
+        if (cloudinary != null && publicId != null) {
+            cloudinary.supprimerVideo(publicId);
         }
-        videos.deleteByAnnonceId(annonceId);
         audit.enregistrer("VIDEO_ANNONCE_SUPPRIMEE", auteur.id(), "Annonce " + annonceId);
     }
 

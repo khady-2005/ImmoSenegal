@@ -52,6 +52,12 @@ public class VideoController {
     @Operation(summary = "Lire la vidéo d'une annonce")
     public ResponseEntity<byte[]> lire(@PathVariable UUID annonceId) {
         VideoAnnonce video = service.lire(annonceId);
+        if (video.getUrlExterne() != null && !video.getUrlExterne().isBlank()) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                .location(java.net.URI.create(video.getUrlExterne()))
+                .cacheControl(CacheControl.maxAge(Duration.ofMinutes(10)).cachePublic())
+                .build();
+        }
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(video.getTypeMime()))
             .cacheControl(CacheControl.maxAge(Duration.ofMinutes(10)).cachePublic())
             .header("X-Content-Type-Options", "nosniff")

@@ -25,7 +25,7 @@ export default function AffectationBiensAgence({ agenceId }: { agenceId: string 
         appelApi<Membre[]>(`/api/agence/${agenceId}/membres`, { token: jeton }),
       ])
       setBiens(portefeuille)
-      setGestionnaires(membres.filter(m => m.fonction === 'GESTIONNAIRE' && m.statut === 'ACTIF'))
+      setGestionnaires(membres.filter(m => (m.fonction === 'GESTIONNAIRE' || m.fonction === 'AGENT') && m.statut === 'ACTIF'))
     } catch (e) {
       setErreur(e instanceof ApiError ? e.message : 'Impossible de charger les affectations.')
     } finally { setChargement(false) }

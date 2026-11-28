@@ -1,11 +1,13 @@
 package sn.immosenegal.agence;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import sn.immosenegal.security.AuthenticatedUser;
@@ -15,6 +17,8 @@ import sn.immosenegal.user.UserRepository;
 @Service
 @Transactional
 public class CandidatureAgenceService {
+    private static final int CV_MAX_OCTETS = 5 * 1024 * 1024;
+
     private final AgenceRepository agences;
     private final MembreAgenceRepository membres;
     private final CandidatureAgenceRepository candidatures;
@@ -28,13 +32,35 @@ public class CandidatureAgenceService {
         this.utilisateurs = utilisateurs;
     }
 
-    public CandidatureResume postuler(UUID agenceId, FonctionAgence fonction, AuthenticatedUser acteur) {
-        // Les candidats peuvent demander l'une des fonctions opérationnelles.
-        // Seul le rôle RESPONSABLE est attribué directement par la direction de l'agence.
+    public CandidatureResume postuler(UUID agenceId, FonctionAgence fonction, String telephone, String zone,
+            String motivation, MultipartFile cv, AuthenticatedUser acteur) {
         if (fonction == null || fonction == FonctionAgence.RESPONSABLE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Choisissez Agent, Gestionnaire, Caissier ou Assistant administratif.");
         }
+        String telPropre = nettoyerChamp(telephone, "Le téléphone est obligatoire.", 30);
+        String zonePropre = nettoyerChamp(zone, "La zone d'intervention est obligatoire.", 120);
+        String motivationPropre = nettoyerChamp(motivation, "La motivation est obligatoire.", 2000);
+        if (cv == null || cv.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le CV est obligatoire (PDF, JPG, PNG ou WebP).");
+        }
+        if (cv.getSize() > CV_MAX_OCTETS) {
+            throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Le CV dépasse 5 Mo.");
+        }
+        byte[] cvContenu;
+        try {
+            cvContenu = cv.getBytes();
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CV illisible.");
+        }
+        String cvMime = reconnaitreTypeCv(cvContenu);
+        if (cvMime == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Format de CV refusé (PDF, JPG, PNG ou WebP uniquement).");
+        }
+        String cvNom = cv.getOriginalFilename() == null || cv.getOriginalFilename().isBlank()
+            ? "cv" : cv.getOriginalFilename().trim();
+        if (cvNom.length() > 250) cvNom = cvNom.substring(0, 250);
+
         Agence agence = agenceActive(agenceId);
         User utilisateur = utilisateurs.findById(acteur.id())
             .filter(User::isActif)
@@ -43,12 +69,27 @@ public class CandidatureAgenceService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "Vous êtes déjà membre de cette agence ou une invitation est déjà en attente.");
         }
-        if (candidatures.existsByAgenceIdAndUtilisateurIdAndStatut(
-                agenceId, acteur.id(), StatutCandidatureAgence.EN_ATTENTE)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une candidature est déjà en attente.");
+        if (candidatures.existsByUtilisateurIdAndStatut(acteur.id(), StatutCandidatureAgence.EN_ATTENTE)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une candidature est déjà en attente de décision.");
         }
-        CandidatureAgence candidature = candidatures.save(new CandidatureAgence(agence, utilisateur, fonction));
+        CandidatureAgence candidature = candidatures.save(new CandidatureAgence(
+            agence, utilisateur, fonction, telPropre, zonePropre, motivationPropre, cvNom, cvMime, cvContenu));
         return resume(candidature);
+    }
+
+    @Transactional(readOnly = true)
+    public CandidatureAgence telechargerCv(UUID agenceId, UUID candidatureId, AuthenticatedUser acteur) {
+        CandidatureAgence candidature = candidatures.findById(candidatureId)
+            .filter(c -> c.getAgence().getId().equals(agenceId))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidature introuvable."));
+        boolean demandeur = candidature.getUtilisateur().getId().equals(acteur.id());
+        if (!demandeur) {
+            verifierResponsable(agenceId, acteur);
+        }
+        if (candidature.getCvContenu() == null || candidature.getCvContenu().length == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun CV joint à cette candidature.");
+        }
+        return candidature;
     }
 
     @Transactional(readOnly = true)
@@ -97,15 +138,15 @@ public class CandidatureAgenceService {
     }
 
     private void verifierResponsable(UUID agenceId, AuthenticatedUser acteur) {
-        agenceActive(agenceId);
-        if ("ADMIN".equals(acteur.role().name())) return;
+        Agence agence = agenceActive(agenceId);
+        if ("ADMIN".equals(acteur.role().name()) && agence.getType() == AgenceType.INTERNE) return;
         boolean responsable = membres.findByAgenceIdAndUtilisateurId(agenceId, acteur.id())
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .filter(m -> m.getFonction() == FonctionAgence.RESPONSABLE)
             .isPresent();
         if (!responsable) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                "Seul le responsable de cette agence ou un administrateur peut traiter les candidatures.");
+                "Seul le responsable de cette agence peut consulter ou traiter les candidatures.");
         }
     }
 
@@ -115,12 +156,32 @@ public class CandidatureAgenceService {
     }
 
     private CandidatureResume resume(CandidatureAgence c) {
+        boolean aCv = c.getCvContenu() != null && c.getCvContenu().length > 0;
         return new CandidatureResume(c.getId(), c.getAgence().getId(), c.getAgence().getNom(),
             c.getUtilisateur().getId(), c.getUtilisateur().getNomComplet(), c.getUtilisateur().getEmail(),
-            c.getFonction().name(), c.getStatut().name(), c.getCreeLe(), c.getTraiteeLe());
+            c.getFonction().name(), c.getStatut().name(), c.getTelephone(), c.getZone(), c.getMotivation(),
+            c.getCvNom(), aCv, c.getCreeLe(), c.getTraiteeLe());
+    }
+
+    private static String nettoyerChamp(String valeur, String erreur, int max) {
+        if (valeur == null || valeur.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, erreur);
+        }
+        String propre = valeur.trim();
+        return propre.length() > max ? propre.substring(0, max) : propre;
+    }
+
+    private static String reconnaitreTypeCv(byte[] c) {
+        if (c.length >= 4 && c[0] == '%' && c[1] == 'P' && c[2] == 'D' && c[3] == 'F') return "application/pdf";
+        if (c.length >= 3 && (c[0] & 0xFF) == 0xFF && (c[1] & 0xFF) == 0xD8 && (c[2] & 0xFF) == 0xFF) return "image/jpeg";
+        if (c.length >= 8 && (c[0] & 0xFF) == 0x89 && c[1] == 'P' && c[2] == 'N' && c[3] == 'G') return "image/png";
+        if (c.length >= 12 && c[0] == 'R' && c[1] == 'I' && c[2] == 'F' && c[3] == 'F'
+            && c[8] == 'W' && c[9] == 'E' && c[10] == 'B' && c[11] == 'P') return "image/webp";
+        return null;
     }
 
     public record CandidatureResume(UUID id, UUID agenceId, String agenceNom, UUID utilisateurId,
             String nom, String email, String fonction, String statut,
+            String telephone, String zone, String motivation, String cvNom, boolean aCv,
             java.time.Instant creeLe, java.time.Instant traiteeLe) {}
 }
