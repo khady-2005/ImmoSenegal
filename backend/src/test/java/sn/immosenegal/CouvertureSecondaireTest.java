@@ -250,9 +250,9 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                 .content(corps(Map.of("accepter", true))))
             .andExpect(status().isOk());
 
-        // Vente agence & commissions & évaluations
+        // Vente sans mandat -> 403 ; vente avec mandat accepté sur un bien VENTE -> 201
         Map<String, Object> venteAnnonce = new LinkedHashMap<>();
-        venteAnnonce.put("titre", "Villa Vente Agence");
+        venteAnnonce.put("titre", "Villa Vente Mandat");
         venteAnnonce.put("description", "Belle villa à vendre");
         venteAnnonce.put("typeBien", "VILLA");
         venteAnnonce.put("transaction", "VENTE");
@@ -261,15 +261,14 @@ class CouvertureSecondaireTest extends AbstractApiTest {
         venteAnnonce.put("pieces", 6);
         venteAnnonce.put("quartier", "V-" + UUID.randomUUID().toString().substring(0, 8));
         venteAnnonce.put("ville", "Dakar");
-        MvcResult vaRes = mvc.perform(post("/api/annonces?agenceId=" + agenceId)
-                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+        MvcResult vaRes = mvc.perform(post("/api/annonces")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(venteAnnonce)))
             .andExpect(status().isCreated())
             .andReturn();
         String vaId = JsonPath.read(vaRes.getResponse().getContentAsString(), "$.id");
 
-        // Vente sans mandat -> 403 ; vente avec mandat accepté -> 201
         mvc.perform(post("/api/agence/" + agenceId + "/ventes")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -284,11 +283,29 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                     "dateVente", LocalDate.now().toString()))))
             .andExpect(status().isForbidden());
 
+        MvcResult manVenteRes = mvc.perform(post("/api/agence/" + agenceId + "/mandats/demandes")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("annonceId", vaId))))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String mandatVenteId = JsonPath.read(manVenteRes.getResponse().getContentAsString(), "$.id");
+        mvc.perform(patch("/api/mandats/" + mandatVenteId + "/commission")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("tauxCommissionMensuel", 5.0))))
+            .andExpect(status().isOk());
+        mvc.perform(post("/api/mandats/" + mandatVenteId + "/reponse")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of("accepter", true))))
+            .andExpect(status().isOk());
+
         mvc.perform(post("/api/agence/" + agenceId + "/ventes")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of(
-                    "annonceId", annonceId.toString(),
+                    "annonceId", vaId,
                     "agentMembreId", mAgent.getId().toString(),
                     "acheteurNom", "Ibrahima Fall",
                     "acheteurTelephone", "771112233",
