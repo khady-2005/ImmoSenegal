@@ -21,7 +21,9 @@ type AnnoncePhoto = {
   ville: string
   quartier: string
   statut: string
-  typeBien: 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN'
+  typeBien: 'MAISON' | 'APPARTEMENT' | 'STUDIO' | 'VILLA' | 'TERRAIN' | 'LOCAL_COMMERCIAL'
+  chambres?: number | null
+  sallesDeBain?: number | null
   publieeParAgence: boolean
   proprietaire: { id: string; nomComplet: string }
   photos: string[]
@@ -112,7 +114,9 @@ export default function AdminPhotos() {
           ville: edition.ville.trim(), adresse: edition.adresse.trim() || null,
           equipements: edition.equipements.split(',').map((x) => x.trim()).filter(Boolean),
           latitude: annonceEnEdition.latitude, longitude: annonceEnEdition.longitude,
-          statut: annonceEnEdition.statut
+          statut: annonceEnEdition.statut,
+          chambres: annonceEnEdition.chambres ?? null,
+          sallesDeBain: annonceEnEdition.sallesDeBain ?? null
         } }
       })
       setInfo('Annonce modifiée. Le propriétaire a été informé.')
@@ -422,6 +426,7 @@ export default function AdminPhotos() {
                 <div><p className="text-xs font-black uppercase tracking-widest text-blue-800">Administration · Intervention justifiée</p><h2 className="mt-1 text-2xl font-black text-slate-950">Modifier l’annonce</h2><p className="mt-1 text-sm text-slate-800">Le propriétaire sera automatiquement informé de cette modification.</p></div>
                 <button type="button" onClick={() => setAnnonceEnEdition(null)} className="rounded-full border-2 border-slate-300 bg-slate-100 px-4 py-2 text-sm font-bold text-slate-800 hover:bg-slate-200">Fermer</button>
               </div>
+              {erreur && <p role="alert" className="rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-sm font-bold text-rose-900">{erreur}</p>}
               <div className="grid gap-2 sm:grid-cols-2">
                 <label className="space-y-1 text-sm font-bold text-slate-800 sm:col-span-2">Titre<input required maxLength={150} value={edition.titre} onChange={e=>setEdition(v=>({...v,titre:e.target.value}))} className="w-full rounded-lg border-2 border-slate-300 bg-white p-2 text-sm font-medium text-slate-950 focus:border-blue-700 focus:outline-none"/></label>
                 <label className="space-y-1 text-sm font-bold text-slate-800">Type de bien<select value={edition.typeBien} onChange={e=>setEdition(v=>({...v,typeBien:e.target.value as AnnoncePhoto['typeBien']}))} className="w-full rounded-lg border-2 border-slate-300 bg-white p-2 text-sm text-slate-950"><option value="MAISON">Maison</option><option value="APPARTEMENT">Appartement</option><option value="STUDIO">Studio</option><option value="VILLA">Villa</option><option value="TERRAIN">Terrain</option><option value="LOCAL_COMMERCIAL">Local commercial</option></select></label>

@@ -15,6 +15,8 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   const { jeton } = useAuth()
   const champ = useRef<HTMLInputElement>(null)
   const [erreurs, setErreurs] = useState<string[]>([])
+  const [succes, setSucces] = useState<string | null>(null)
+  const [versions, setVersions] = useState<Record<string, number>>({})
   const [enCours, setEnCours] = useState(false)
   const [apercusEnCours, setApercusEnCours] = useState<string[]>([])
   const [piece, setPiece] = useState('AUTRE')
@@ -32,6 +34,8 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
 
   async function ajouter(fichiers: FileList | null) {
     if (!fichiers || fichiers.length === 0) return
+    setSucces(null)
+    setErreurs([])
     const urlsApercu = typeof URL.createObjectURL === 'function'
       ? Array.from(fichiers).map((f) => URL.createObjectURL(f))
       : []
@@ -65,6 +69,9 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
         }
       }
       setErreurs(problemes)
+      if (courantes.length > photos.length) {
+        setSucces(`${courantes.length - photos.length} photo(s) ajoutée(s).`)
+      }
     } finally {
       if (typeof URL.revokeObjectURL === 'function') {
         urlsApercu.forEach((u) => URL.revokeObjectURL(u))
@@ -124,6 +131,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   async function remplacer(photo: string, fichier: File | undefined) {
     if (!fichier || enCours) return
     setErreurs([])
+    setSucces(null)
     setEnCours(true)
     try {
       const photoPreparee = await preparerPhoto(fichier)
@@ -132,6 +140,8 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
       await appelApi<void>(`/api/annonces/${annonceId}/photos/${photo}`, {
         method: 'PUT', body: donnees, token: jeton,
       })
+      setVersions((v) => ({ ...v, [photo]: Date.now() }))
+      setSucces('Photo remplacée.')
       onChange([...photos])
     } catch (e) {
       setErreurs([e instanceof ApiError ? e.message : e instanceof Error ? e.message : 'Remplacement impossible.'])
@@ -143,8 +153,10 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   async function supprimer(photo: string) {
     if (typeof window !== 'undefined' && !window.confirm('Voulez-vous vraiment supprimer cette photo ?')) return
     setErreurs([])
+    setSucces(null)
     try {
       await appelApi<void>(`/api/annonces/${annonceId}/photos/${photo}`, { method: 'DELETE', token: jeton })
+      setSucces('Photo supprimée.')
       onChange(photos.filter((p) => p !== photo))
     } catch (e) {
       setErreurs([e instanceof ApiError ? e.message : 'Suppression impossible.'])
@@ -179,12 +191,25 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
         </select>
       </div>
 
+      {succes && (
+        <p role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">
+          {succes}
+        </p>
+      )}
+      {erreurs.length > 0 && (
+        <ul role="alert" className="mt-4 space-y-1 rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm font-semibold text-rose-900">
+          {erreurs.map((e) => (
+            <li key={e}>{e}</li>
+          ))}
+        </ul>
+      )}
+
       {photos.length > 0 && (
         <ul className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {photos.map((photo, i) => (
             <li key={photo} className="group min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-900 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg">
               <div className="relative overflow-hidden rounded-xl bg-slate-100">
-                <img src={urlPhoto(annonceId, photo)} alt={`Photo ${i + 1}`} className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
+                <img src={`${urlPhoto(annonceId, photo)}${versions[photo] ? `?v=${versions[photo]}` : ''}`} alt={`Photo ${i + 1}`} className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
                 <span className="absolute left-2 top-2 rounded-full border border-white/30 bg-nuit-950 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-dore-300">Photo {i + 1}</span>
                 {i === 0 && <span className="absolute bottom-2 left-2 rounded-full bg-dore-300 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-nuit-950">Couverture</span>}
               </div>
@@ -253,14 +278,6 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
           )}
           {enCours && <p role="status" className="mt-2 text-sm font-semibold text-nuit-900 sm:text-base">Envoi en cours…</p>}
         </div>
-      )}
-
-      {erreurs.length > 0 && (
-        <ul role="alert" className="mt-3 space-y-1 rounded-lg bg-red-50 p-3 text-base text-red-800">
-          {erreurs.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
       )}
       </div>
     </section>
