@@ -101,12 +101,9 @@ class CouvertureModulesTest extends AbstractApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("action", "ACCEPTEE", "reponse", "D'accord"))))
             .andExpect(status().isOk());
-        mvc.perform(post("/api/visites/" + visiteId + "/confirmer")
-                .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
-            .andExpect(status().isOk());
         mvc.perform(post("/api/visites/" + visiteId + "/effectuee")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenProprio)))
-            .andExpect(status().isOk());
+            .andExpect(status().isConflict());
 
         // 2. Réservation : création -> listes -> décision -> admin
         MvcResult resRes = mvc.perform(post("/api/reservations/annonces/" + annonceId)
@@ -295,7 +292,7 @@ class CouvertureModulesTest extends AbstractApiTest {
         annonceBody.put("prix", 45000000);
         annonceBody.put("superficie", 250);
         annonceBody.put("pieces", 6);
-        annonceBody.put("quartier", "Almadies");
+        annonceBody.put("quartier", "Mermoz-" + UUID.randomUUID().toString().substring(0, 6));
         annonceBody.put("ville", "Dakar");
 
         mvc.perform(post("/api/annonces?agenceId=" + interne.getId())
@@ -318,7 +315,8 @@ class CouvertureModulesTest extends AbstractApiTest {
             .andExpect(jsonPath("$.publieeParAgence").value(true));
 
         // Profil public, annuaire, espaces, membres
-        mvc.perform(get("/api/agence/annuaire")).andExpect(status().isOk());
+        mvc.perform(get("/api/agence/annuaire").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isOk());
         mvc.perform(get("/api/agence/profil/" + interne.getSlug())).andExpect(status().isOk());
         mvc.perform(get("/api/agence/mes-espaces").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
             .andExpect(status().isOk());
