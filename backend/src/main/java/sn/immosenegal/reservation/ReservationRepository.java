@@ -1,5 +1,6 @@
 package sn.immosenegal.reservation;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
         """)
     List<Reservation> findAllByAgenceMandatAccepte(@Param("agenceId") UUID agenceId);
     boolean existsByAnnonceIdAndClientIdAndStatut(UUID annonceId, UUID clientId, StatutReservation statut);
+    boolean existsByAnnonceIdAndStatutIn(UUID annonceId, Collection<StatutReservation> statuts);
 }

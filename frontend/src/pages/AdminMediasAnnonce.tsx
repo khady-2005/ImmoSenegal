@@ -9,7 +9,7 @@ import type { Annonce } from '../types'
 
 export default function AdminMediasAnnonce() {
   const { id = '' } = useParams()
-  const { jeton } = useAuth()
+  const { jeton, utilisateur } = useAuth()
   const [annonce, setAnnonce] = useState<Annonce | null>(null)
   const [photos, setPhotos] = useState<string[]>([])
   const [erreur, setErreur] = useState<string | null>(null)
@@ -42,16 +42,27 @@ export default function AdminMediasAnnonce() {
       {chargement && <p role="status" className="mt-6 text-sm text-slate-600">Chargement de l’annonce…</p>}
       {erreur && <p role="alert" className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-800">{erreur}</p>}
 
-      {annonce && (
+      {annonce && (() => {
+        const estBienImmoSenegal = Boolean(annonce.diffuseur?.type === 'INTERNE' || (annonce.publieeParAgence && !annonce.diffuseur))
+        const aMandatActif = Boolean(annonce.gestionnaire)
+        const estProprietaire = utilisateur?.id === annonce.proprietaire.id
+        const peutAvertir = utilisateur?.role === 'ADMIN' && !estBienImmoSenegal && !aMandatActif && !estProprietaire
+        return (
         <>
           <header className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-wider text-amber-800">
-                  {annonce.publieeParAgence ? 'Bien de l’agence ImmoSénégal' : 'Bien propriétaire'}
+                  {estBienImmoSenegal
+                    ? 'Bien de l’agence ImmoSénégal · Gestion directe sans avertissement'
+                    : aMandatActif
+                      ? `Bien confié (${annonce.gestionnaire?.agenceNom}) · Propriétaire notifié des modifications`
+                      : 'Bien propriétaire (sans mandat actif) · Avertissement requis'}
                 </p>
                 <h1 className="mt-1 font-titre text-2xl font-bold text-nuit-950 sm:text-3xl">{annonce.titre}</h1>
-                <p className="mt-1 text-sm text-slate-600">{annonce.quartier}, {annonce.ville} · Propriétaire : {annonce.proprietaire.nomComplet}</p>
+                <p className="mt-1 text-sm text-slate-600">
+                  {annonce.quartier}, {annonce.ville} · {estBienImmoSenegal ? 'Agence ImmoSénégal' : `Propriétaire : ${annonce.proprietaire.nomComplet}`}
+                </p>
               </div>
               <Link to={`/annonces/${annonce.id}`} className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-nuit-950 hover:bg-slate-50">
                 Voir la fiche
@@ -59,10 +70,11 @@ export default function AdminMediasAnnonce() {
             </div>
           </header>
 
-          <GestionPhotos annonceId={annonce.id} photos={photos} onChange={setPhotos} />
-          <GestionVideo annonceId={annonce.id} />
+          <GestionPhotos annonceId={annonce.id} photos={photos} onChange={setPhotos} peutAvertir={peutAvertir} lectureSeule={peutAvertir} />
+          <GestionVideo annonceId={annonce.id} lectureSeule={peutAvertir} />
         </>
-      )}
+        )
+      })()}
     </main>
   )
 }

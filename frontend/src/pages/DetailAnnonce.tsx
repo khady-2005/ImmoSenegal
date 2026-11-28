@@ -201,8 +201,10 @@ export default function DetailAnnonce() {
                   </span>
                   <dl className="space-y-1.5 text-sm">
                     <div>
-                      <dt className="text-slate-500">Propriétaire</dt>
-                      <dd className="font-semibold text-nuit-900">{a.proprietaire.nomComplet}</dd>
+                      <dt className="text-slate-500">{(a.diffuseur?.type === 'INTERNE' || (a.publieeParAgence && !a.diffuseur)) ? 'Agence' : 'Propriétaire'}</dt>
+                      <dd className="font-semibold text-nuit-900">
+                        {(a.diffuseur?.type === 'INTERNE' || (a.publieeParAgence && !a.diffuseur)) ? 'Agence ImmoSénégal' : a.proprietaire.nomComplet}
+                      </dd>
                     </div>
                     {a.diffuseur && (
                       <div>

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { ApiError, appelApi } from '../api'
 import { useAuth } from '../auth'
 
-interface Props { annonceId: string }
+interface Props { annonceId: string; lectureSeule?: boolean }
 
-export default function GestionVideo({ annonceId }: Props) {
+export default function GestionVideo({ annonceId, lectureSeule = false }: Props) {
   const { jeton } = useAuth()
   const champ = useRef<HTMLInputElement>(null)
   const [disponible, setDisponible] = useState(false)
@@ -65,14 +65,22 @@ export default function GestionVideo({ annonceId }: Props) {
       {disponible && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
           <span>Une vidéo est enregistrée pour cette annonce.</span>
-          <button type="button" onClick={() => void supprimer()} disabled={enCours} className="font-semibold underline disabled:opacity-50">Supprimer</button>
+          {!lectureSeule && (
+            <button type="button" onClick={() => void supprimer()} disabled={enCours} className="font-semibold underline disabled:opacity-50">Supprimer</button>
+          )}
         </div>
       )}
-      <label htmlFor={`video-annonce-${annonceId}`} className="mt-4 mb-1 block text-sm font-semibold text-nuit-950">
-        {disponible ? 'Remplacer la vidéo' : 'Choisir une vidéo'}
-      </label>
-      <input ref={champ} id={`video-annonce-${annonceId}`} type="file" accept="video/mp4,video/webm,.mp4,.webm"
-        disabled={enCours} onChange={e => void envoyer(e.target.files?.[0])} className="block w-full cursor-pointer rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-nuit-900 file:px-4 file:py-2 file:font-bold file:text-white hover:file:bg-nuit-800" />
+      {lectureSeule ? (
+        <p className="mt-3 text-sm text-slate-600">La vidéo de ce bien appartient à son propriétaire.</p>
+      ) : (
+        <>
+          <label htmlFor={`video-annonce-${annonceId}`} className="mt-4 mb-1 block text-sm font-semibold text-nuit-950">
+            {disponible ? 'Remplacer la vidéo' : 'Choisir une vidéo'}
+          </label>
+          <input ref={champ} id={`video-annonce-${annonceId}`} type="file" accept="video/mp4,video/webm,.mp4,.webm"
+            disabled={enCours} onChange={e => void envoyer(e.target.files?.[0])} className="block w-full cursor-pointer rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-nuit-900 file:px-4 file:py-2 file:font-bold file:text-white hover:file:bg-nuit-800" />
+        </>
+      )}
       {enCours && <p role="status" className="mt-2 text-sm font-medium text-nuit-900">Envoi en cours…</p>}
       {erreur && <p role="alert" className="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
     </section>

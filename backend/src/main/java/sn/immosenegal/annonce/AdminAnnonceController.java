@@ -46,6 +46,12 @@ public class AdminAnnonceController {
         return service.listerPourModeration(admin, statut, page, taille);
     }
 
+    @GetMapping("/a-rattacher-agence")
+    @Operation(summary = "Lister en lecture seule les annonces existantes susceptibles d'être rattachées à l'agence ImmoSénégal")
+    public java.util.List<AnnonceService.AnnonceARattacher> listerARattacher(@AuthenticationPrincipal AuthenticatedUser admin) {
+        return service.listerAnnoncesARattacherAgence(admin);
+    }
+
 
     @PatchMapping("/{id}/publication-agence")
     @Operation(summary = "Marquer une annonce comme publiée par ImmoSénégal ou par un propriétaire (ADMIN uniquement)")

@@ -88,6 +88,7 @@ public class PhotoService {
         photo.setPiece(normaliserPiece(piece));
         photo = photos.save(photo);
         annonces.marquerPhotosModifiees(annonceId);
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "Une photo a été ajoutée à votre bien confié");
         audit.enregistrer("PHOTO_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return photo.getId();
     }
@@ -107,6 +108,7 @@ public class PhotoService {
         annonces.annonceModifiable(annonceId, auteur);
         PhotoAnnonce photo = lire(annonceId, photoId);
         photo.setPiece(normaliserPiece(piece));
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "La catégorie d'une photo de votre bien confié a été mise à jour");
         audit.enregistrer("PHOTO_CLASSEE", auteur.id(), "Photo " + photoId + " classée dans " + photo.getPiece());
     }
 
@@ -137,6 +139,7 @@ public class PhotoService {
             parId.get(ordre.get(i)).setOrdre(i + 1);
         }
         photos.saveAll(existantes);
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "L'ordre des photos de votre bien confié a été modifié");
         audit.enregistrer("PHOTOS_REORDONNEES", auteur.id(), "Ordre des photos modifié pour l’annonce " + annonceId);
     }
 
@@ -184,6 +187,7 @@ public class PhotoService {
         }
         photo.setTypeMime(propre.typeMime());
         annonces.marquerPhotosModifiees(annonceId);
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "Une photo de votre bien confié a été remplacée");
         audit.enregistrer("PHOTO_REMPLACEE", auteur.id(), "Photo " + photoId + " de l'annonce " + annonceId);
     }
 
@@ -198,6 +202,7 @@ public class PhotoService {
         if (cloudinary != null && publicId != null) {
             cloudinary.supprimer(publicId);
         }
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "Une photo de votre bien confié a été supprimée");
         audit.enregistrer("PHOTO_SUPPRIMEE", auteur.id(), "Annonce " + annonceId);
     }
 

@@ -57,13 +57,16 @@ public record AnnonceResponse(
                                               GestionnaireInfo gestionnaire, boolean masquerLocalisation) {
         DiffuseurInfo diffuseur = a.getAgence() == null ? null : new DiffuseurInfo(
             a.getAgence().getId(), a.getAgence().getNom(), a.getAgence().getSlug(), a.getAgence().getType().name());
+        boolean bienImmoSenegal = (a.getAgence() != null && a.getAgence().getType() == sn.immosenegal.agence.AgenceType.INTERNE)
+            || (a.isPublieeParAgence() && a.getAgence() == null);
+        String nomProprietaireAffiche = bienImmoSenegal ? "Agence ImmoSénégal" : a.getProprietaire().getNomComplet();
         return new AnnonceResponse(a.getId(), a.getTitre(), a.getDescription(), a.getTypeBien(), a.getTypeTransaction(),
             a.getPrix(), a.getSuperficie(), a.getPieces(), a.getQuartier(), a.getVille(),
             masquerLocalisation ? null : a.getAdresse(),
             masquerLocalisation ? null : a.getLatitude(),
             masquerLocalisation ? null : a.getLongitude(),
             a.getEquipements().stream().sorted().toList(), a.getStatut(),
-            new Proprietaire(a.getProprietaire().getId(), a.getProprietaire().getNomComplet()),
+            new Proprietaire(a.getProprietaire().getId(), nomProprietaireAffiche),
             a.getCreeLe(), a.getModifieLe(), a.getDateFinPublication(), photos, a.isExemple(), motif, a.isPublieeParAgence(),
             diffuseur, gestionnaire, a.getChambres(), a.getSallesDeBain(), a.getVues());
     }

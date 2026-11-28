@@ -25,6 +25,8 @@ type AnnoncePhoto = {
   chambres?: number | null
   sallesDeBain?: number | null
   publieeParAgence: boolean
+  diffuseur?: { agenceId: string; agenceNom: string; agenceSlug: string; type: string } | null
+  gestionnaire?: { agenceId: string; agenceNom: string; agenceSlug: string } | null
   proprietaire: { id: string; nomComplet: string }
   photos: string[]
 }
@@ -135,6 +137,17 @@ export default function AdminPhotos() {
       setInfo('Annonce retirée du catalogue. Le propriétaire a été notifié. Le retrait est réversible depuis la modération.')
       await charger()
     } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Retrait impossible.') }
+    finally { setEnvoi(null) }
+  }
+
+  async function supprimerAnnonce(a: AnnoncePhoto) {
+    if (!window.confirm(`Voulez-vous vraiment supprimer définitivement « ${a.titre} » ?`)) return
+    setEnvoi(a.id); setErreur(null); setInfo(null)
+    try {
+      await appelApi('/api/annonces/' + a.id, { method: 'DELETE', token: jeton })
+      setInfo('Annonce supprimée définitivement.')
+      await charger()
+    } catch (e) { setErreur(e instanceof ApiError ? e.message : 'Suppression impossible.') }
     finally { setEnvoi(null) }
   }
 
@@ -299,11 +312,18 @@ export default function AdminPhotos() {
                       <span className="flex items-center gap-1.5"><Ruler className="h-4 w-4 text-amber-500" />{a.superficie} m²</span>
                       {a.pieces !== null && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4 text-slate-800" />{a.pieces} pièces</span>}
                     </div>
-                    <p className="text-xs text-slate-800">Propriétaire : {a.proprietaire.nomComplet}</p>
+                    <p className="text-xs text-slate-800">
+                      {(a.diffuseur?.type === 'INTERNE' || (a.publieeParAgence && !a.diffuseur))
+                        ? 'Agence ImmoSénégal'
+                        : `Propriétaire : ${a.proprietaire.nomComplet}`}
+                    </p>
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
                       <button type="button" onClick={() => ouvrirEdition(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#08284d] bg-gradient-to-r from-[#08284d] to-[#174b83] px-3 py-2 text-sm font-bold text-white shadow-md transition hover:brightness-110"><Pencil className="h-4 w-4" />Modifier</button>
                       <Link to={`/admin/annonces/${a.id}/medias`} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#eab72f] bg-gradient-to-r from-[#ffe18a] to-[#f4c044] px-3 py-2 text-sm font-bold text-[#08284d] shadow-sm transition hover:brightness-105"><ImageIcon className="h-4 w-4" />Photos & vidéo</Link>
                       <button type="button" disabled={envoi === a.id} onClick={() => void retirerAnnonce(a)} style={{ color: '#881337', backgroundColor: '#fff1f2', borderColor: '#f43f5e' }} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border-2 px-3 py-2 text-sm font-bold shadow-sm transition hover:brightness-95 disabled:opacity-50"><Trash2 className="h-4 w-4" />Retirer</button>
+                      {(a.diffuseur?.type === 'INTERNE' || (a.publieeParAgence && !a.diffuseur)) && (
+                        <button type="button" disabled={envoi === a.id} onClick={() => void supprimerAnnonce(a)} className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full border-2 border-red-600 bg-red-600 px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-50"><Trash2 className="h-4 w-4" />Supprimer</button>
+                      )}
                     </div>
                   </div>
 

@@ -36,6 +36,7 @@ public class VideoService {
 
     @Transactional
     public UUID ajouter(UUID annonceId, AuthenticatedUser auteur, MultipartFile fichier) {
+        annonces.verifierGestionMedia(annonceId, auteur);
         annonces.annonceAvecAjoutDeContenu(annonceId, auteur);
         if (fichier == null || fichier.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Aucune vidéo reçue.");
@@ -83,6 +84,8 @@ public class VideoService {
                 video = videos.save(new VideoAnnonce(annonceId, contenu, type));
             }
         }
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur,
+            existante != null ? "La vidéo de votre bien confié a été remplacée" : "Une vidéo a été ajoutée à votre bien confié");
         audit.enregistrer("VIDEO_ANNONCE_AJOUTEE", auteur.id(), "Annonce " + annonceId);
         return video.getId();
     }
@@ -100,6 +103,7 @@ public class VideoService {
 
     @Transactional
     public void supprimer(UUID annonceId, AuthenticatedUser auteur) {
+        annonces.verifierGestionMedia(annonceId, auteur);
         annonces.annonceModifiable(annonceId, auteur);
         VideoAnnonce video = videos.findByAnnonceId(annonceId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Aucune vidéo pour cette annonce."));
@@ -108,6 +112,7 @@ public class VideoService {
         if (cloudinary != null && publicId != null) {
             cloudinary.supprimerVideo(publicId);
         }
+        annonces.notifierProprietaireSiBienConfie(annonceId, auteur, "La vidéo de votre bien confié a été supprimée");
         audit.enregistrer("VIDEO_ANNONCE_SUPPRIMEE", auteur.id(), "Annonce " + annonceId);
     }
 
