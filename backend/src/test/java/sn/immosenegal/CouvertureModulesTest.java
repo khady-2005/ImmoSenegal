@@ -197,7 +197,7 @@ class CouvertureModulesTest extends AbstractApiTest {
         mvc.perform(get("/api/locations/" + contratId + "/incidents").header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
             .andExpect(status().isOk());
         mvc.perform(get("/api/locations/" + contratId + "/depot-garantie").header(HttpHeaders.AUTHORIZATION, bearer(tokenClient)))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
         mvc.perform(get("/api/locations/admin/supervision").header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
             .andExpect(status().isOk());
         mvc.perform(get("/api/admin/locations/litiges").header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
@@ -331,7 +331,7 @@ class CouvertureModulesTest extends AbstractApiTest {
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenCaissier))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of(
-                    "type", "ENCAISSEMENT",
+                    "type", "RECETTE",
                     "libelle", "Frais de dossier",
                     "montant", new BigDecimal("25000"),
                     "dateMouvement", LocalDate.now().toString()))))
