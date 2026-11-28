@@ -129,10 +129,10 @@ class DroitsImmoSenegalEtCandidaturesTest extends AbstractApiTest {
             .andExpect(status().isOk());
 
         // 4. Réservations : RESPONSABLE autorisé à consulter et décider, ADMIN aussi, CLIENT interdit
-        mvc.perform(post("/api/reservations")
+        mvc.perform(post("/api/reservations/annonces/" + annonceId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("annonceId", annonceId, "message", "Je souhaite louer"))))
+                .content(corps(Map.of("message", "Je souhaite louer"))))
             .andExpect(status().isCreated());
 
         mvc.perform(get("/api/reservations/recues")
@@ -229,7 +229,7 @@ class DroitsImmoSenegalEtCandidaturesTest extends AbstractApiTest {
             .andExpect(status().isConflict());
 
         // 3. Aucun accès collaborateur avant acceptation -> 403
-        mvc.perform(get("/api/agence/" + partenaire.getId() + "/membres")
+        mvc.perform(get("/api/agence/" + partenaire.getId() + "/missions")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenCand)))
             .andExpect(status().isForbidden());
 
@@ -247,7 +247,7 @@ class DroitsImmoSenegalEtCandidaturesTest extends AbstractApiTest {
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
             .andExpect(status().isForbidden());
 
-        // 5. Responsable partenaire accepte -> le candidat devient membre actif
+        // 5. Responsable partenaire accepte -> le candidat devient membre actif et accède aux missions
         mvc.perform(post("/api/agence/" + partenaire.getId() + "/candidatures/" + candId + "/decision")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -255,7 +255,7 @@ class DroitsImmoSenegalEtCandidaturesTest extends AbstractApiTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.statut").value("ACCEPTEE"));
 
-        mvc.perform(get("/api/agence/" + partenaire.getId() + "/membres")
+        mvc.perform(get("/api/agence/" + partenaire.getId() + "/missions")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenCand)))
             .andExpect(status().isOk());
     }
