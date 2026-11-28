@@ -28,7 +28,7 @@ public class AgenceVisitesService {
     }
 
     public List<DemandeVisiteResponse> lister(UUID agenceId, AuthenticatedUser acteur) {
-        agences.findById(agenceId)
+        Agence agence = agences.findById(agenceId)
             .filter(a -> a.getStatut() == StatutAgence.ACTIVE)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Agence introuvable ou inactive."));
 
@@ -41,7 +41,7 @@ public class AgenceVisitesService {
                 "Vous devez être membre actif de cette agence pour consulter ses visites.");
         }
 
-        return visites.findAllByAgenceMandatAccepte(agenceId).stream()
+        return visites.findAllPourAgence(agenceId, agence.getType() == AgenceType.INTERNE).stream()
             .map(DemandeVisiteResponse::de)
             .toList();
     }

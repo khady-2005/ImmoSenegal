@@ -17,6 +17,8 @@ public interface AnnonceRepository extends JpaRepository<Annonce, UUID>, JpaSpec
 
     java.util.List<Annonce> findAllByAgenceIdAndStatutOrderByCreeLeDesc(UUID agenceId, StatutAnnonce statut);
 
+    java.util.List<Annonce> findAllByPublieeParAgenceTrueAndAgenceIsNull();
+
     boolean existsByExempleTrue();
 
     java.util.List<Annonce> findAllByStatutAndDateFinPublicationLessThanEqual(StatutAnnonce statut, java.time.LocalDate date);

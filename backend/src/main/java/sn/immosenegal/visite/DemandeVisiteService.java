@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import sn.immosenegal.annonce.Annonce;
 import sn.immosenegal.annonce.AnnonceRepository;
 import sn.immosenegal.annonce.StatutAnnonce;
+import sn.immosenegal.agence.AgenceRepository;
+import sn.immosenegal.agence.AgenceType;
 import sn.immosenegal.agence.MandatGestion;
 import sn.immosenegal.agence.MandatGestionRepository;
 import sn.immosenegal.agence.MembreAgenceRepository;
+import sn.immosenegal.agence.StatutAgence;
 import sn.immosenegal.agence.StatutMandatGestion;
 import sn.immosenegal.agence.StatutMembreAgence;
 import sn.immosenegal.audit.AuditService;
@@ -33,6 +37,9 @@ public class DemandeVisiteService {
     private final NotificationService notifications;
     private final MandatGestionRepository mandats;
     private final MembreAgenceRepository membres;
+
+    @Autowired(required = false)
+    private AgenceRepository agences;
 
     public DemandeVisiteService(DemandeVisiteRepository demandes, AnnonceRepository annonces,
                                 UserRepository users, AuditService audit, NotificationService notifications,
@@ -87,6 +94,10 @@ public class DemandeVisiteService {
                     .forEach(g -> annoncesGerees.add(g.getAnnonce().getId()));
                 annonces.findAllByAgenceIdOrderByCreeLeDesc(m.getAgence().getId())
                     .forEach(a -> annoncesGerees.add(a.getId()));
+                if (m.getAgence().getType() == AgenceType.INTERNE) {
+                    annonces.findAllByPublieeParAgenceTrueAndAgenceIsNull()
+                        .forEach(a -> annoncesGerees.add(a.getId()));
+                }
             });
         if (annoncesGerees.isEmpty()) return List.of();
         return demandes.findAllByAnnonceIdInOrderByCreeLeDesc(List.copyOf(annoncesGerees))
@@ -199,6 +210,7 @@ public class DemandeVisiteService {
         return membres.findAllByUtilisateurId(acteur.id()).stream()
             .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
             .anyMatch(m -> (annonce.getAgence() != null && annonce.getAgence().getId().equals(m.getAgence().getId()))
+                || (annonce.getAgence() == null && annonce.isPublieeParAgence() && m.getAgence().getType() == AgenceType.INTERNE)
                 || mandats.existsByAgenceIdAndAnnonceIdAndStatut(
                     m.getAgence().getId(), annonce.getId(), StatutMandatGestion.ACCEPTE));
     }
@@ -206,11 +218,25 @@ public class DemandeVisiteService {
     private void notifierInterlocuteurs(Annonce annonce, String type, String titre, String message) {
         java.util.List<MandatGestion> actifs = mandats.findAllByAnnonceIdAndStatutOrderByCreeLeDesc(
             annonce.getId(), StatutMandatGestion.ACCEPTE);
-        // Le propriétaire conserve toujours une visibilité sur les demandes, même lorsqu'il délègue la gestion.
+        // Le propriétaire et les membres actifs de l'agence (propre ou mandatée) reçoivent la notification.
         java.util.Set<UUID> dejaNotifies = new java.util.HashSet<>();
         User proprietaire = annonce.getProprietaire();
         if (proprietaire != null && dejaNotifies.add(proprietaire.getId())) {
             notifications.creer(proprietaire, type, titre, message, "/visites-recues");
+        }
+        if (annonce.getAgence() != null) {
+            membres.findAllByAgenceIdAndStatut(annonce.getAgence().getId(), StatutMembreAgence.ACTIF)
+                .forEach(m -> {
+                    if (dejaNotifies.add(m.getUtilisateur().getId()))
+                        notifications.creer(m.getUtilisateur(), type, titre, message, "/visites-recues");
+                });
+        } else if (annonce.isPublieeParAgence() && agences != null) {
+            agences.findFirstByTypeAndStatutOrderByCreeLeAsc(AgenceType.INTERNE, StatutAgence.ACTIVE)
+                .ifPresent(interne -> membres.findAllByAgenceIdAndStatut(interne.getId(), StatutMembreAgence.ACTIF)
+                    .forEach(m -> {
+                        if (dejaNotifies.add(m.getUtilisateur().getId()))
+                            notifications.creer(m.getUtilisateur(), type, titre, message, "/visites-recues");
+                    }));
         }
         for (MandatGestion mandat : actifs) {
             membres.findAllByAgenceIdAndStatut(mandat.getAgence().getId(), StatutMembreAgence.ACTIF)

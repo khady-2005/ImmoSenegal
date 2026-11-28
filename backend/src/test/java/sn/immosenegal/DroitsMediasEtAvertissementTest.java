@@ -284,4 +284,67 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.statut").value("EN_ATTENTE"));
     }
+
+    @Test
+    void visiteAgence_responsableRecoitNotifEtPeutAccepterOuRefuser() throws Exception {
+        User admin = creerUtilisateur(Role.ADMIN, "Admin Visite");
+        User resp = creerUtilisateur(Role.RESPONSABLE, "Resp Visite");
+        User client = creerUtilisateur(Role.CLIENT, "Client Visite");
+        User respPartenaire = creerUtilisateur(Role.RESPONSABLE, "Resp Partenaire");
+        Agence interne = creerAgence("ImmoSénégal", "immosenegal-visite-test", AgenceType.INTERNE, resp);
+        creerAgence("Partenaire", "partenaire-visite-test", AgenceType.PARTENAIRE, respPartenaire);
+
+        Annonce bienAgence = new Annonce(admin);
+        bienAgence.setTitre("Appartement Agence Visite");
+        bienAgence.setTypeBien(TypeBien.APPARTEMENT);
+        bienAgence.setTypeTransaction(TypeTransaction.LOCATION);
+        bienAgence.setPrix(250_000L);
+        bienAgence.setSuperficie(new BigDecimal("95"));
+        bienAgence.setQuartier("Point E");
+        bienAgence.setVille("Dakar");
+        bienAgence.setAgence(interne);
+        bienAgence.setPublieeParAgence(true);
+        bienAgence.setStatut(StatutAnnonce.PUBLIEE);
+        annonces.save(bienAgence);
+
+        String jwtClient = bearer(connecter(client.getEmail()));
+        String jwtResp = bearer(connecter(resp.getEmail()));
+        String jwtPartenaire = bearer(connecter(respPartenaire.getEmail()));
+
+        String dateFuture = java.time.LocalDateTime.now().plusDays(3).withNano(0).toString();
+        MvcResult visiteRes = mvc.perform(post("/api/visites/annonces/" + bienAgence.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"dateVisite\":\"" + dateFuture + "\",\"message\":\"Visite TEST\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtClient))
+            .andExpect(status().isCreated()).andReturn();
+        String visiteId = JsonPath.read(visiteRes.getResponse().getContentAsString(), "$.id");
+
+        // Le responsable d'ImmoSénégal reçoit la notification et voit la visite dans /recues et /agence/{id}/visites
+        assertThat(notifications.findTop30ByDestinataireIdOrderByCreeLeDesc(resp.getId())).isNotEmpty();
+
+        mvc.perform(get("/api/visites/recues").header(HttpHeaders.AUTHORIZATION, jwtResp))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[?(@.id == '" + visiteId + "')]").isNotEmpty());
+
+        mvc.perform(get("/api/agence/" + interne.getId() + "/visites").header(HttpHeaders.AUTHORIZATION, jwtResp))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[?(@.id == '" + visiteId + "')]").isNotEmpty());
+
+        // Un responsable d'une agence partenaire est interdit (isolation)
+        mvc.perform(get("/api/agence/" + interne.getId() + "/visites").header(HttpHeaders.AUTHORIZATION, jwtPartenaire))
+            .andExpect(status().isForbidden());
+        mvc.perform(post("/api/visites/" + visiteId + "/decision")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"action\":\"ACCEPTEE\",\"reponse\":\"OK\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtPartenaire))
+            .andExpect(status().isForbidden());
+
+        // Le responsable d'ImmoSénégal accepte la visite
+        mvc.perform(post("/api/visites/" + visiteId + "/decision")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"action\":\"ACCEPTEE\",\"reponse\":\"Rendez-vous confirmé\"}")
+                .header(HttpHeaders.AUTHORIZATION, jwtResp))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.statut").value("ACCEPTEE"));
+    }
 }

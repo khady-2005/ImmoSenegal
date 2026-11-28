@@ -24,6 +24,21 @@ public interface DemandeVisiteRepository extends JpaRepository<DemandeVisite, UU
         """)
     List<DemandeVisite> findAllByAgenceMandatAccepte(@Param("agenceId") UUID agenceId);
 
+    @Query("""
+        select d from DemandeVisite d
+        where d.annonce.agence.id = :agenceId
+           or (:inclurePublieeSansAgence = true and d.annonce.publieeParAgence = true and d.annonce.agence is null)
+           or exists (
+            select m.id from MandatGestion m
+            where m.annonce = d.annonce
+              and m.agence.id = :agenceId
+              and m.statut = sn.immosenegal.agence.StatutMandatGestion.ACCEPTE
+        )
+        order by d.creeLe desc
+        """)
+    List<DemandeVisite> findAllPourAgence(@Param("agenceId") UUID agenceId,
+                                          @Param("inclurePublieeSansAgence") boolean inclurePublieeSansAgence);
+
     boolean existsByAnnonceIdAndClientIdAndStatut(UUID annonceId, UUID clientId, StatutVisite statut);
 
     boolean existsByAnnonceIdAndClientIdAndStatutAndDateVisiteBefore(UUID annonceId, UUID clientId, StatutVisite statut, java.time.LocalDateTime dateVisite);
