@@ -249,5 +249,51 @@ class CouvertureSecondaireTest extends AbstractApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("accepter", true))))
             .andExpect(status().isOk());
+
+        // Vente agence & commissions & évaluations
+        Map<String, Object> venteAnnonce = new LinkedHashMap<>();
+        venteAnnonce.put("titre", "Villa Vente Agence");
+        venteAnnonce.put("description", "Belle villa à vendre");
+        venteAnnonce.put("typeBien", "VILLA");
+        venteAnnonce.put("transaction", "VENTE");
+        venteAnnonce.put("prix", 50000000);
+        venteAnnonce.put("superficie", 300);
+        venteAnnonce.put("pieces", 6);
+        venteAnnonce.put("quartier", "V-" + UUID.randomUUID().toString().substring(0, 8));
+        venteAnnonce.put("ville", "Dakar");
+        MvcResult vaRes = mvc.perform(post("/api/annonces?agenceId=" + agenceId)
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(venteAnnonce)))
+            .andExpect(status().isCreated())
+            .andReturn();
+        String vaId = JsonPath.read(vaRes.getResponse().getContentAsString(), "$.id");
+
+        mvc.perform(post("/api/agence/" + agenceId + "/ventes")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenResp))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(corps(Map.of(
+                    "annonceId", vaId,
+                    "agentMembreId", mAgent.getId().toString(),
+                    "acheteurNom", "Ibrahima Fall",
+                    "acheteurTelephone", "771112233",
+                    "prixVente", 50000000,
+                    "tauxCommission", 5.0,
+                    "partAgent", 40.0,
+                    "dateVente", LocalDate.now().toString()))))
+            .andExpect(status().isCreated());
+        mvc.perform(get("/api/agence/" + agenceId + "/ventes").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/agence/" + agenceId + "/solde-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/agence/" + agenceId + "/paiements-commissions").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/agence/" + agenceId + "/evaluations")).andExpect(status().isOk());
+        mvc.perform(get("/api/agence/" + agenceId + "/visites").header(HttpHeaders.AUTHORIZATION, bearer(tokenResp)))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/locations/evaluations/mon-resume").header(HttpHeaders.AUTHORIZATION, bearer(tokenCandidat)))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/admin/role-requests").header(HttpHeaders.AUTHORIZATION, bearer(tokenAdmin)))
+            .andExpect(status().isOk());
     }
 }
