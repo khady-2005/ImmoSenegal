@@ -42,6 +42,20 @@ public class MissionAgenceService {
         return liste.stream().map(this::resume).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<MissionResume> listerMesMissions(AuthenticatedUser acteur) {
+        if (acteur == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Connexion requise.");
+        }
+        return membres.findAllByUtilisateurId(acteur.id()).stream()
+            .filter(m -> m.getStatut() == StatutMembreAgence.ACTIF)
+            .flatMap(m -> missions.findAllByAgenceIdAndMembreIdOrderByCreeLeDesc(
+                m.getAgence().getId(), m.getId()).stream())
+            .sorted(java.util.Comparator.comparing(MissionAgence::getCreeLe).reversed())
+            .map(this::resume)
+            .toList();
+    }
+
     public MissionResume creer(UUID agenceId, CreationMission requete, AuthenticatedUser acteur) {
         MembreAgence responsable = verifierResponsable(agenceId, acteur);
         MembreAgence assigne = membres.findById(requete.membreId())

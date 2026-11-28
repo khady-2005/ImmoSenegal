@@ -384,6 +384,16 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.fonction").value("ASSISTANT_ADMINISTRATIF"));
 
+        // Chaque collaborateur retrouve ses missions directement sur son compte (/api/agence/mes-missions)
+        String jwtCaissier = bearer(connecter(caissier.getEmail()));
+        String jwtAssistant = bearer(connecter(assistant.getEmail()));
+        mvc.perform(get("/api/agence/mes-missions").header(HttpHeaders.AUTHORIZATION, jwtCaissier))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].titre").value("Clôturer la caisse du jour"));
+        mvc.perform(get("/api/agence/mes-missions").header(HttpHeaders.AUTHORIZATION, jwtAssistant))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].titre").value("Classer le dossier location"));
+
         // Admin suspend le compte du caissier et la suspension persiste en base
         mvc.perform(patch("/api/admin/users/" + caissier.getId() + "/status")
                 .contentType(MediaType.APPLICATION_JSON)

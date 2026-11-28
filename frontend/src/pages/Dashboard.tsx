@@ -34,6 +34,12 @@ export default function Dashboard() {
     annoncesTotal: number; annoncesPubliees: number; agencesActives: number;
     agencesEnAttente: number; abonnementsEnAttente: number; demandesRoleEnAttente: number;
   } | null>(null)
+  const [mesMissions, setMesMissions] = useState<Array<{
+    id: string; agenceId: string; titre: string; description: string | null;
+    dateEcheance: string | null; statut: 'A_FAIRE' | 'EN_COURS' | 'TERMINEE';
+    createurNom: string; rapport: string | null;
+  }>>([])
+  const [missionAction, setMissionAction] = useState<string | null>(null)
 
   useEffect(() => {
     let annule = false
@@ -55,6 +61,11 @@ export default function Dashboard() {
         if (p.role === 'ADMIN') {
           appelApi<NonNullable<typeof statsAdmin>>('/api/admin/statistiques', { token: jeton })
             .then((s) => { if (!annule) setStatsAdmin(s) })
+            .catch(() => undefined)
+        }
+        if (['AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF'].includes(p.role)) {
+          appelApi<typeof mesMissions>('/api/agence/mes-missions', { token: jeton })
+            .then((m) => { if (!annule) setMesMissions(m) })
             .catch(() => undefined)
         }
       })
@@ -107,15 +118,18 @@ export default function Dashboard() {
   ]
 
   const accesAgent: Acces[] = [
-    { titre: 'Rejoindre une agence', description: 'Après validation de votre statut Agent, découvrez les agences et envoyez votre candidature. Un gestionnaire rejoint une agence sur invitation de son responsable.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
-    { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences qui vous ont invité et les espaces auxquels vous appartenez.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
-    { titre: 'Mes visites', description: 'Consultez les demandes de visite associées à votre compte.', lien: '/mes-visites', icone: CalendarDays, action: 'Suivre les visites' },
+    { titre: 'Rejoindre une agence', description: 'Après validation de votre statut Agent, découvrez les agences et envoyez votre candidature.', lien: '/rejoindre-agence', icone: Building2, action: 'Trouver une agence' },
+    { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences qui vous ont invité et vos missions détaillées.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
+    { titre: 'Visites reçues', description: 'Consultez et traitez les demandes de visite sur les biens qui vous sont attribués.', lien: '/visites-recues', icone: CalendarDays, action: 'Suivre les visites' },
+    { titre: 'Réservations et contrats', description: 'Traitez les réservations reçues et préparez les contrats de location.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Gérer les réservations' },
     { titre: 'Catalogue des biens', description: 'Explorez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
-    { titre: 'Assistant immobilier', description: 'Utilisez l’assistant pour orienter une recherche immobilière.', lien: '/assistant', icone: ClipboardList, action: 'Utiliser l’assistant' },
   ]
 
   const accesEquipeAgence: Acces[] = [
     { titre: 'Mes espaces professionnels', description: 'Retrouvez les agences auxquelles vous appartenez et vos outils de travail.', lien: '/mes-agences', icone: Users, action: 'Ouvrir mes agences' },
+    { titre: 'Visites reçues', description: 'Consultez et traitez les demandes de visite sur vos biens attribués.', lien: '/visites-recues', icone: CalendarDays, action: 'Suivre les visites' },
+    { titre: 'Réservations et contrats', description: 'Traitez les réservations et générez les contrats de location.', lien: '/reservations-recues', icone: BookmarkCheck, action: 'Gérer les réservations' },
+    { titre: 'Contrats de location', description: 'Consultez, signez et imprimez les contrats en cours.', lien: '/mes-contrats-location', icone: FileCheck2, action: 'Voir les contrats' },
     { titre: 'Catalogue des biens', description: 'Consultez les annonces disponibles sur la plateforme.', lien: '/catalogue', icone: Compass, action: 'Explorer les biens' },
   ]
   const acces = affiche.role === 'CLIENT' ? accesClient
@@ -178,10 +192,57 @@ export default function Dashboard() {
           </section>
         </>
       ) : (
-        <section className="mt-8">
-          <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesAvecAgences.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
-        </section>
+        <>
+          {['AGENT', 'GESTIONNAIRE', 'CAISSIER', 'ASSISTANT_ADMINISTRATIF'].includes(affiche.role) && (
+            <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-label="Mes missions attribuées">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-lg font-bold text-nuit-900">Mes missions attribuées ({mesMissions.length})</h2>
+                <Link to="/mes-agences" className="text-sm font-semibold text-amber-800 hover:underline">Ouvrir mon espace agence</Link>
+              </div>
+              {mesMissions.length === 0 ? (
+                <p className="mt-3 text-sm text-slate-600">Aucune mission attribuée pour le moment.</p>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {mesMissions.map((m) => (
+                    <li key={m.id} className="rounded-xl border border-slate-200 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="font-semibold text-nuit-950">{m.titre}</p>
+                          {m.description && <p className="mt-1 text-sm text-slate-600">{m.description}</p>}
+                          <p className="mt-1 text-xs text-slate-500">
+                            Attribuée par {m.createurNom}{m.dateEcheance ? ` · Échéance : ${new Date(m.dateEcheance + 'T00:00:00').toLocaleDateString('fr-FR')}` : ''}
+                          </p>
+                        </div>
+                        <select
+                          aria-label={`Statut de ${m.titre}`}
+                          value={m.statut}
+                          disabled={missionAction === m.id}
+                          onChange={async (e) => {
+                            const statut = e.target.value as 'A_FAIRE' | 'EN_COURS' | 'TERMINEE'
+                            setMissionAction(m.id)
+                            try {
+                              await appelApi(`/api/agence/${m.agenceId}/missions/${m.id}/statut`, { method: 'PATCH', token: jeton, body: { statut } })
+                              setMesMissions((prev) => prev.map((x) => x.id === m.id ? { ...x, statut } : x))
+                            } finally { setMissionAction(null) }
+                          }}
+                          className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-nuit-950"
+                        >
+                          <option value="A_FAIRE">À faire</option>
+                          <option value="EN_COURS">En cours</option>
+                          <option value="TERMINEE">Terminée</option>
+                        </select>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+          <section className="mt-8">
+            <div className="mb-4"><h2 className="text-xl font-bold text-nuit-900">Mes services</h2><p className="mt-1 text-sm text-slate-600">Choisissez une rubrique pour continuer.</p></div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{accesAvecAgences.map(item => <CarteAcces key={item.lien} item={item} />)}</div>
+          </section>
+        </>
       )}
 
       <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

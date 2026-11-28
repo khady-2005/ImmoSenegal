@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/agence/{agenceId}/missions")
+@RequestMapping("/api/agence")
 @Tag(name = "Missions des agences")
 @SecurityRequirement(name = OpenApiConfig.SCHEMA_BEARER)
 public class MissionAgenceController {
@@ -27,13 +27,18 @@ public class MissionAgenceController {
 
     public MissionAgenceController(MissionAgenceService service) { this.service = service; }
 
-    @GetMapping
+    @GetMapping("/mes-missions")
+    public List<MissionAgenceService.MissionResume> mesMissions(@AuthenticationPrincipal AuthenticatedUser acteur) {
+        return service.listerMesMissions(acteur);
+    }
+
+    @GetMapping("/{agenceId}/missions")
     public List<MissionAgenceService.MissionResume> lister(@PathVariable UUID agenceId,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
         return service.lister(agenceId, acteur);
     }
 
-    @PostMapping
+    @PostMapping("/{agenceId}/missions")
     @ResponseStatus(HttpStatus.CREATED)
     public MissionAgenceService.MissionResume creer(@PathVariable UUID agenceId,
             @Valid @RequestBody CreationMissionRequest requete,
@@ -42,7 +47,7 @@ public class MissionAgenceController {
             requete.membreId(), requete.titre(), requete.description(), requete.dateEcheance()), acteur);
     }
 
-    @PatchMapping("/{missionId}/statut")
+    @PatchMapping("/{agenceId}/missions/{missionId}/statut")
     public MissionAgenceService.MissionResume changerStatut(@PathVariable UUID agenceId,
             @PathVariable UUID missionId, @Valid @RequestBody StatutMissionRequest requete,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
@@ -50,7 +55,7 @@ public class MissionAgenceController {
             new MissionAgenceService.ChangementStatut(requete.statut()), acteur);
     }
 
-    @PatchMapping("/{missionId}/rapport")
+    @PatchMapping("/{agenceId}/missions/{missionId}/rapport")
     public MissionAgenceService.MissionResume soumettreRapport(@PathVariable UUID agenceId,
             @PathVariable UUID missionId, @Valid @RequestBody RapportMissionRequest requete,
             @AuthenticationPrincipal AuthenticatedUser acteur) {
