@@ -73,12 +73,14 @@ class CouvertureSecondaireTest extends AbstractApiTest {
 
         // Assistant IA
         mvc.perform(post("/api/assistant/conversation")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("message", "Comment louer un appartement à Dakar ?"))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.reponse").exists());
 
         mvc.perform(post("/api/assistant/conversation")
+                .header(HttpHeaders.AUTHORIZATION, bearer(tokenClient))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(corps(Map.of("message", "Quel est le prix des abonnements propriétaire ?"))))
             .andExpect(status().isOk());
@@ -193,7 +195,7 @@ class CouvertureSecondaireTest extends AbstractApiTest {
         MvcResult crmRes = mvc.perform(post("/api/agence/" + agenceId + "/crm/contacts")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAgent))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("nom", "Mamadou Diallo", "telephone", "771234567", "besoin", "Villa 4 pièces"))))
+                .content(corps(Map.of("nom", "Mamadou Diallo", "telephone", "771234567", "typeBesoin", "LOCATION", "recherche", "Villa 4 pièces"))))
             .andExpect(status().isCreated())
             .andReturn();
         String contactId = JsonPath.read(crmRes.getResponse().getContentAsString(), "$.id");
@@ -203,7 +205,7 @@ class CouvertureSecondaireTest extends AbstractApiTest {
         mvc.perform(post("/api/agence/" + agenceId + "/crm/contacts/" + contactId + "/activites")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAgent))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(corps(Map.of("type", "APPEL", "notes", "Premier appel"))))
+                .content(corps(Map.of("type", "APPEL", "contenu", "Premier appel"))))
             .andExpect(status().isCreated());
         mvc.perform(get("/api/agence/" + agenceId + "/crm/contacts/" + contactId + "/activites")
                 .header(HttpHeaders.AUTHORIZATION, bearer(tokenAgent)))
