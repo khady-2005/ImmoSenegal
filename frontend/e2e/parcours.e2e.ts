@@ -73,8 +73,9 @@ test('parcours complet : inscription, demande de rôle, validation admin, public
   await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Mon espace' }).click()
   await expect(page.getByRole('heading', { name: /Bonjour/ })).toBeVisible()
 
-  // 3. Demande du rôle Propriétaire.
+  // 3. Demande du rôle Propriétaire (avec justificatif obligatoire).
   await page.getByLabel('Rôle souhaité').selectOption('PROPRIETAIRE')
+  await page.getByLabel(/justificatif/i).setInputFiles({ name: 'titre-propriete.png', mimeType: 'image/png', buffer: PNG_1PX })
   await page.getByRole('button', { name: /envoyer la demande/i }).click()
   await expect(page.getByRole('status')).toContainText('en attente de validation')
   await deconnecter(page)
