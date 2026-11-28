@@ -1,6 +1,6 @@
 # Scénario de démonstration — ImmoSénégal
 
-## Comptes créés sur la base Neon (mot de passe : `ImmoTest2026!`)
+## Comptes créés sur la base Neon (mots de passe gérés hors dépôt)
 | Rôle | E-mail | Espace & usages |
 |---|---|---|
 | **Administrateur** | *(compte admin existant en base)* | `/tableau-de-bord` (statistiques globales), `/admin/utilisateurs`, `/admin/agences`, `/admin/annonces`, `/admin/signalements`, `/admin/audit` |

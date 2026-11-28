@@ -14,6 +14,7 @@ public class PaiementLoyer {
  @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="enregistre_par",nullable=false) private User enregistrePar;
  @Column(nullable=false,precision=14,scale=2) private BigDecimal montant;
  @Column(name="periode",nullable=false) private LocalDate periode;
+ @Column(name="periode_mois",nullable=false,length=7) private String periodeMois;
  @Column(name="date_paiement",nullable=false) private LocalDate datePaiement;
  @Column(length=500) private String reference;
  @Column(name="beneficiaire_type",nullable=false,length=20) private String beneficiaireType;
@@ -26,7 +27,7 @@ public class PaiementLoyer {
  @Column(name="cree_le",nullable=false,updatable=false) private Instant creeLe=Instant.now();
  protected PaiementLoyer(){}
  public PaiementLoyer(ContratLocation c,User u,BigDecimal m,LocalDate p,LocalDate d,String r,String type,UUID id,String nom){
-  contrat=c;enregistrePar=u;montant=m;periode=p;datePaiement=d;reference=r;beneficiaireType=type;beneficiaireId=id;beneficiaireNom=nom;
+  contrat=c;enregistrePar=u;montant=m;periode=p;periodeMois=String.format("%04d-%02d",p.getYear(),p.getMonthValue());datePaiement=d;reference=r;beneficiaireType=type;beneficiaireId=id;beneficiaireNom=nom;
  }
  public PaiementLoyer(ContratLocation c,User u,BigDecimal m,LocalDate p,LocalDate d,String r){
   this(c,u,m,p,d,r,"PROPRIETAIRE",c.getProprietaire().getId(),c.getProprietaire().getNomComplet());

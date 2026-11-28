@@ -38,7 +38,7 @@ public record AnnonceResponse(
         return construire(a, photos, null, gestionnaire, false);
     }
 
-    /** Vue visiteur non connecté : masque l'adresse exacte. */
+    /** Vue visiteur non connecté : masque l'adresse exacte et les coordonnées GPS. */
     public static AnnonceResponse pourVisiteur(Annonce a, List<UUID> photos, GestionnaireInfo gestionnaire) {
         return construire(a, photos, null, gestionnaire, true);
     }
@@ -54,13 +54,15 @@ public record AnnonceResponse(
     }
 
     private static AnnonceResponse construire(Annonce a, List<UUID> photos, String motif,
-                                              GestionnaireInfo gestionnaire, boolean masquerAdresse) {
+                                              GestionnaireInfo gestionnaire, boolean masquerLocalisation) {
         DiffuseurInfo diffuseur = a.getAgence() == null ? null : new DiffuseurInfo(
             a.getAgence().getId(), a.getAgence().getNom(), a.getAgence().getSlug(), a.getAgence().getType().name());
         return new AnnonceResponse(a.getId(), a.getTitre(), a.getDescription(), a.getTypeBien(), a.getTypeTransaction(),
             a.getPrix(), a.getSuperficie(), a.getPieces(), a.getQuartier(), a.getVille(),
-            masquerAdresse ? null : a.getAdresse(),
-            a.getLatitude(), a.getLongitude(), a.getEquipements().stream().sorted().toList(), a.getStatut(),
+            masquerLocalisation ? null : a.getAdresse(),
+            masquerLocalisation ? null : a.getLatitude(),
+            masquerLocalisation ? null : a.getLongitude(),
+            a.getEquipements().stream().sorted().toList(), a.getStatut(),
             new Proprietaire(a.getProprietaire().getId(), a.getProprietaire().getNomComplet()),
             a.getCreeLe(), a.getModifieLe(), a.getDateFinPublication(), photos, a.isExemple(), motif, a.isPublieeParAgence(),
             diffuseur, gestionnaire, a.getChambres(), a.getSallesDeBain(), a.getVues());

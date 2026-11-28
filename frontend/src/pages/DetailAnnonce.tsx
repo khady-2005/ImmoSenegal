@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, BedDouble, Check, Flag, Home, MapPin, MessageSquare, Navigation, Ruler, UserRound, Tag } from 'lucide-react'
 import { appelApi, ApiError } from '../api'
@@ -63,17 +63,36 @@ export default function DetailAnnonce() {
   const { data: a, erreur, chargement } = useApi<Annonce>(`/api/annonces/${encodeURIComponent(id)}`, jeton)
   const [msgContenu, setMsgContenu] = useState('')
   const [msgStatut, setMsgStatut] = useState<string | null>(null)
+  const [filMessages, setFilMessages] = useState<Array<{ id: string; expediteurId: string; expediteurNom: string; interlocuteurId: string; interlocuteurNom: string; contenu: string; creeLe: string }>>([])
+  const [interlocuteurCible, setInterlocuteurCible] = useState<string>('')
   const [sigMotif, setSigMotif] = useState('')
   const [sigStatut, setSigStatut] = useState<string | null>(null)
+
+  const estGestionnaireAnnonce = Boolean(utilisateur && a && (utilisateur.role === 'ADMIN' || utilisateur.id === a.proprietaire.id))
+
+  useEffect(() => {
+    if (!jeton || !id) { setFilMessages([]); return }
+    appelApi<typeof filMessages>(`/api/messagerie/annonce/${encodeURIComponent(id)}`, { token: jeton })
+      .then((liste) => {
+        setFilMessages(liste)
+        if (liste.length > 0 && !interlocuteurCible) {
+          setInterlocuteurCible(liste[0].interlocuteurId)
+        }
+      })
+      .catch(() => {})
+  }, [jeton, id])
 
   async function envoyerMessageDirect(e: FormEvent) {
     e.preventDefault()
     if (!jeton || !msgContenu.trim()) return
     setMsgStatut(null)
     try {
-      await appelApi(`/api/messagerie/annonce/${encodeURIComponent(id)}`, { method: 'POST', token: jeton, body: { contenu: msgContenu.trim() } })
+      const body: { contenu: string; interlocuteurId?: string } = { contenu: msgContenu.trim() }
+      if (estGestionnaireAnnonce && interlocuteurCible) body.interlocuteurId = interlocuteurCible
+      const cree = await appelApi<(typeof filMessages)[number]>(`/api/messagerie/annonce/${encodeURIComponent(id)}`, { method: 'POST', token: jeton, body })
+      setFilMessages((prev) => [...prev, cree])
       setMsgContenu('')
-      setMsgStatut('Votre message a été envoyé au propriétaire / diffuseur.')
+      setMsgStatut('Message envoyé.')
     } catch (err) {
       setMsgStatut(err instanceof ApiError ? err.message : 'Envoi impossible.')
     }
@@ -219,7 +238,23 @@ export default function DetailAnnonce() {
                   <div className="mt-6 space-y-4 border-t border-slate-100 pt-5">
                     <form onSubmit={envoyerMessageDirect} className="space-y-2">
                       <label htmlFor="msg-direct" className="flex items-center gap-1.5 text-sm font-semibold text-nuit-900"><MessageSquare className="h-4 w-4 text-amber-700" /> Contacter le propriétaire / l’agence</label>
-                      <textarea id="msg-direct" rows={2} maxLength={2000} value={msgContenu} onChange={(e) => setMsgContenu(e.target.value)} placeholder="Posez une question sur ce bien…" className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+                      {estGestionnaireAnnonce && filMessages.length > 0 && (
+                        <select aria-label="Interlocuteur" value={interlocuteurCible} onChange={(e) => setInterlocuteurCible(e.target.value)} className="w-full rounded-xl border border-slate-300 px-3 py-1.5 text-xs">
+                          {Array.from(new Map(filMessages.map((m) => [m.interlocuteurId, m.interlocuteurNom])).entries()).map(([uid, nom]) => (
+                            <option key={uid} value={uid}>Répondre à {nom}</option>
+                          ))}
+                        </select>
+                      )}
+                      {filMessages.filter((m) => !estGestionnaireAnnonce || !interlocuteurCible || m.interlocuteurId === interlocuteurCible).length > 0 && (
+                        <ul className="max-h-40 space-y-1.5 overflow-y-auto rounded-xl bg-slate-50 p-2.5 text-xs">
+                          {filMessages.filter((m) => !estGestionnaireAnnonce || !interlocuteurCible || m.interlocuteurId === interlocuteurCible).map((m) => (
+                            <li key={m.id} className="rounded-lg bg-white p-2 shadow-xs">
+                              <span className="font-semibold text-nuit-900">{m.expediteurNom} :</span> {m.contenu}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <textarea id="msg-direct" rows={2} maxLength={2000} value={msgContenu} onChange={(e) => setMsgContenu(e.target.value)} placeholder="Posez une question ou répondez…" className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm" />
                       <button type="submit" className="rounded-xl bg-nuit-900 px-4 py-2 text-xs font-bold text-white hover:bg-nuit-800">Envoyer le message</button>
                       {msgStatut && <p role="status" className="text-xs font-medium text-emerald-800">{msgStatut}</p>}
                     </form>

@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import sn.immosenegal.security.AuthenticatedUser;
@@ -23,6 +26,13 @@ public class ContratLocationController{
  public ContratLocationService.PaiementResume simulerPaiement(@PathVariable UUID contratId,@Valid @RequestBody SimulationPaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.simulerPaiementLoyer(contratId,q.periode(),q.modePaiement(),a);}
  @GetMapping("/recus/verifier/{code}")
  public ContratLocationService.RecuVerification verifierRecu(@PathVariable String code){return service.verifierRecu(code);}
+ @GetMapping("/{contratId}/paiements/{paiementId}/recu.pdf")
+ public ResponseEntity<byte[]> recuPdf(@PathVariable UUID contratId,@PathVariable UUID paiementId,@AuthenticationPrincipal AuthenticatedUser a){
+  return ResponseEntity.ok()
+   .contentType(MediaType.APPLICATION_PDF)
+   .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"recu-loyer-simulation.pdf\"")
+   .body(service.genererRecuPdf(contratId,paiementId,a));
+ }
  @GetMapping("/{contratId}/paiements") public List<ContratLocationService.PaiementResume> paiements(@PathVariable UUID contratId,@AuthenticationPrincipal AuthenticatedUser a){return service.paiements(contratId,a);}
  @PatchMapping("/{contratId}/paiements/{paiementId}/confirmation")
  public ContratLocationService.PaiementResume confirmerPaiement(@PathVariable UUID contratId,@PathVariable UUID paiementId,@Valid @RequestBody ConfirmationPaiementRequest q,@AuthenticationPrincipal AuthenticatedUser a){return service.confirmerPaiement(contratId,paiementId,q.accepte(),a);}

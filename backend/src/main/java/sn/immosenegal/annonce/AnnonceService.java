@@ -340,8 +340,16 @@ public class AnnonceService {
     /** Catalogue : uniquement les annonces PUBLIEE, quels que soient les critères reçus. */
     @Transactional(readOnly = true)
     public PageResponse<AnnonceResponse> rechercher(CriteresRecherche criteres, Integer page, Integer taille, String tri) {
+        return rechercher(criteres, page, taille, tri, null);
+    }
+
+    /** Catalogue : masque adresse et GPS aux visiteurs non connectés. */
+    @Transactional(readOnly = true)
+    public PageResponse<AnnonceResponse> rechercher(CriteresRecherche criteres, Integer page, Integer taille, String tri,
+                                                    AuthenticatedUser lecteur) {
         CriteresRecherche publics = criteres.avecStatut(StatutAnnonce.PUBLIEE);
-        return enPage(annonces.findAll(AnnonceSpecifications.depuis(publics), pageable(page, taille, trier(tri))), false);
+        return enPage(annonces.findAll(AnnonceSpecifications.depuis(publics), pageable(page, taille, trier(tri))),
+            false, lecteur == null);
     }
 
     @Transactional(readOnly = true)
@@ -385,7 +393,7 @@ public class AnnonceService {
         Map<UUID, List<UUID>> parAnnonce = photosDe(ids);
         Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesParAnnonce = gestionnairesDe(ids);
         return liste.stream()
-            .map(a -> AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId())))
+            .map(a -> AnnonceResponse.pourVisiteur(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId())))
             .toList();
     }
 
@@ -518,12 +526,19 @@ public class AnnonceService {
     }
 
     private PageResponse<AnnonceResponse> enPage(Page<Annonce> page, boolean vueGestion) {
+        return enPage(page, vueGestion, false);
+    }
+
+    private PageResponse<AnnonceResponse> enPage(Page<Annonce> page, boolean vueGestion, boolean visiteur) {
         List<UUID> ids = page.getContent().stream().map(Annonce::getId).toList();
         Map<UUID, List<UUID>> parAnnonce = photosDe(ids);
         Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesParAnnonce = gestionnairesDe(ids);
-        return PageResponse.de(page.map(a -> vueGestion
-            ? AnnonceResponse.pourGestion(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId()))
-            : AnnonceResponse.de(a, parAnnonce.getOrDefault(a.getId(), List.of()), gestionnairesParAnnonce.get(a.getId()))));
+        return PageResponse.de(page.map(a -> {
+            List<UUID> ph = parAnnonce.getOrDefault(a.getId(), List.of());
+            AnnonceResponse.GestionnaireInfo gi = gestionnairesParAnnonce.get(a.getId());
+            if (vueGestion) return AnnonceResponse.pourGestion(a, ph, gi);
+            return visiteur ? AnnonceResponse.pourVisiteur(a, ph, gi) : AnnonceResponse.de(a, ph, gi);
+        }));
     }
 
     private Map<UUID, AnnonceResponse.GestionnaireInfo> gestionnairesDe(Collection<UUID> ids) {

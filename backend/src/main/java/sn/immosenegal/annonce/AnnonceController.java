@@ -54,10 +54,11 @@ public class AnnonceController {
             @RequestParam(required = false) Boolean exemple,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer taille,
-            @RequestParam(required = false) String tri) {
+            @RequestParam(required = false) String tri,
+            @AuthenticationPrincipal AuthenticatedUser utilisateur) {
         CriteresRecherche criteres = new CriteresRecherche(transaction, type, prixMin, prixMax, superficieMin,
             superficieMax, quartier, ville, piecesMin, equipements, null, exemple);
-        return service.rechercher(criteres, page, taille, tri);
+        return service.rechercher(criteres, page, taille, tri, utilisateur);
     }
 
     @GetMapping("/{id}")

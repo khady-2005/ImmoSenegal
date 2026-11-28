@@ -19,6 +19,7 @@ import MesContratsLocation from './pages/MesContratsLocation'
 import IncidentsLocation from './pages/IncidentsLocation'
 import EtatsDesLieux from './pages/EtatsDesLieux'
 import DepotGarantie from './pages/DepotGarantie'
+import { VerifierRecu } from './pages/VerifierRecu'
 import EspaceLocataire from './pages/EspaceLocataire'
 import EspaceProprietaire from './pages/EspaceProprietaire'
 import AdminLitigesLocatifs from './pages/AdminLitigesLocatifs'
@@ -104,6 +105,8 @@ export default function App() {
           <Route path="espace-locataire" element={<RequireRole roles={["CLIENT", "ADMIN"]}><EspaceLocataire /></RequireRole>} />
           <Route path="espace-proprietaire" element={<RequireRole roles={["PROPRIETAIRE", "ADMIN"]}><EspaceProprietaire /></RequireRole>} />
           <Route path="mentions-legales" element={<MentionsLegales />} />
+          <Route path="verifier-recu" element={<VerifierRecu />} />
+          <Route path="verifier-recu/:code" element={<VerifierRecu />} />
           <Route path="connexion" element={<Connexion />} />
           <Route path="mot-de-passe-oublie" element={<MotDePasseOublie />} />
           <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />

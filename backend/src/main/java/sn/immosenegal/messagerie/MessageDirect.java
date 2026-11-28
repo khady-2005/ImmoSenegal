@@ -32,6 +32,10 @@ public class MessageDirect {
     @JoinColumn(name = "expediteur_id", nullable = false)
     private User expediteur;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "interlocuteur_id", nullable = false)
+    private User interlocuteur;
+
     @Column(nullable = false, length = 2000)
     private String contenu;
 
@@ -40,15 +44,17 @@ public class MessageDirect {
 
     protected MessageDirect() {}
 
-    public MessageDirect(Annonce annonce, User expediteur, String contenu) {
+    public MessageDirect(Annonce annonce, User expediteur, User interlocuteur, String contenu) {
         this.annonce = annonce;
         this.expediteur = expediteur;
+        this.interlocuteur = interlocuteur;
         this.contenu = contenu;
     }
 
     public UUID getId() { return id; }
     public Annonce getAnnonce() { return annonce; }
     public User getExpediteur() { return expediteur; }
+    public User getInterlocuteur() { return interlocuteur; }
     public String getContenu() { return contenu; }
     public Instant getCreeLe() { return creeLe; }
 }

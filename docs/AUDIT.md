@@ -1,14 +1,31 @@
-# Audit de conformité — ImmoSénégal (mis à jour sur `finalisation`)
+# Audit de conformité — ImmoSénégal (branche `finalisation`)
 
-Légende : **Fait** · **Partiel** · **Pas fait**
+Légende :
+- **Fait** : implémentation vérifiée **et** couverte par au moins un test automatisé cité.
+- **Partiel** : implémenté côté code mais sans test automatisé dédié pour cette exigence précise, ou couverture incomplète.
+- **Pas fait** : absent du code.
 
-- **Partie 0 (Existant & CI)** : **Fait** (`mvn test-compile`, `npm run build`, `npm test` 89/89, CI `e483d32` verte).
-- **Partie 1 (Administrateur)** : **Fait** (`Dashboard.tsx` stats globales `GET /api/admin/statistiques`, `AdminUtilisateurs.tsx`, `AdminAgences.tsx`, `AdminModeration.tsx`, `AdminSignalements.tsx`, `AdminAudit.tsx`, `AdminAbonnements.tsx`).
-- **Partie 2 (Client / Locataire)** : **Fait** (visiteur voit catalogue + fiche sans adresse exacte ; connecté voit adresse, contact direct `/api/messagerie/annonce/{id}`, visites, réservations, contrats, loyer simulé + reçu QR, avis, réclamations `/mes-signalements`).
-- **Partie 3 (Propriétaire)** : **Fait** (inscription libre via `estProprietaire` dans `Inscription.tsx` + `AuthService`, publication sans validation admin, photos/vidéo, visites/réservations, abonnement + paiement simulé `/api/abonnements/simuler`, compteur `vues` sur `Annonce`, mandats).
-- **Partie 4 (Agence & Collaborateurs)** : **Fait** (seul le `RESPONSABLE` publie pour `ImmoSénégal` ; `ADMIN` bloqué sur `creerPourAgence` ; `AGENT`, `GESTIONNAIRE`, `CAISSIER`, `ASSISTANT_ADMINISTRATIF` avec `DossiersAgence` / `V71` ; `PARTENAIRE` isolé).
-- **Partie 5 (Annonces)** : **Fait** (10 catégories `MAISON`, `APPARTEMENT`, `STUDIO`, `VILLA`, `TERRAIN`, `LOCAL_COMMERCIAL`, `CHAMBRE`, `IMMEUBLE`, `BUREAU`, `AUTRE` + `chambres` & `sallesDeBain` via `V69`).
-- **Partie 6 (Abonnements)** : **Fait** (essai 15 jours, notifications, historique, simulation configurable via `app.paiement.simulation-active`).
-- **Parties 7, 8, 9 (Mandats, Visites, Réservations, Contrats)** : **Fait** (`MandatGestionController`, `DemandeVisiteController`, `ReservationController`, `ContratLocationController`, `SignaturePad`, impression A4).
-- **Partie 10 (Paiements & Commissions)** : **Fait** (`ContratLocationService.simulerPaiementLoyer`, montant fixé par le serveur, 1 paiement/mois, `WAVE_SIMULATION` / `ORANGE_MONEY_SIMULATION`, reçu `SIMULATION` avec QR + endpoint `/api/locations/recus/verifier/{code}`).
-- **Parties 11, 12, 13, 14 (Messagerie, Notifications, Catalogue, Avis, Réclamations, IA, Technique)** : **Fait** (`MessageDirectController`, `NotificationService`, `SignalementController`, `AssistantIAController`, sécurité Spring/JWT/Flyway).
+| Partie / Cahier | Exigence | Statut | Preuve (fichier + test) |
+|---|---|---|---|
+| **Partie 0** | Compilation & tests backend/frontend, sécurité de base (`register` bloqué pour `ADMIN`/collaborateurs) | **Fait** | `AuthController.java`, `SecurityConfig.java` ; `AuthSecurityTest.java`, `AdminBootstrapTest.java` |
+| **3.1 Admin** | Tableau de bord, vue globale, statistiques | **Partiel** | `AdminController.java` (`/api/admin/statistiques`), `Dashboard.tsx` ; pas de test MockMvc dédié sur `/api/admin/statistiques` |
+| **3.1 Admin** | Gérer les comptes, attribuer les rôles, suspendre, valider responsables d'agence | **Fait** | `AdminController.java`, `AdminUtilisateurs.tsx`, `AdminAgences.tsx` ; `AuthSecurityTest.java` (contrôle d'accès `/api/admin/**`) |
+| **3.1 Admin** | Superviser les annonces (sans publier les biens d'agence) | **Fait** | `AnnonceService.java` (`creerPourAgence` bloque `ADMIN`), `AdminModeration.tsx` ; `ModerationTest.java` |
+| **3.1 Admin** | Traiter signalements et réclamations | **Fait** | `SignalementController.java`, `V70__signalements_reclamations.sql`, `AdminSignalements.tsx` ; `FinalisationSecurityAndFeaturesTest.signalements_creationSuiviEtAccesInterditAdmin` |
+| **3.1 Admin** | Journal d'audit des activités importantes | **Fait** | `AuditService.java`, `AdminController.java` (`/api/admin/audit`), `AdminAudit.tsx` ; `AnnonceTest.java` / `AuthSecurityTest.java` (journalisation) |
+| **3.1 Admin** | Suivre abonnements et opérations financières | **Partiel** | `AbonnementController.java`, `AdminAbonnements.tsx`, `ContratLocationController.java` (`/api/locations/admin/supervision`) ; pas de test d'intégration dédié sur `/api/admin/abonnements` |
+| **3.2 Client / Visiteur** | Catalogue, recherche, filtres, détails (adresse et GPS masqués aux visiteurs) | **Fait** | `AnnonceController.java`, `AnnonceService.java`, `AnnonceResponse.java` (`pourVisiteur`), `Catalogue.tsx`, `DetailAnnonce.tsx` ; `FinalisationSecurityAndFeaturesTest.visiteurNeVoitNiAdresseNiGps_dansLaListeEtDansLaFiche`, `Catalogue.test.tsx`, `AnnonceTest.java` |
+| **3.2 Client** | Favoris | **Partiel** | `FavorisController.java`, `MesFavoris.tsx`, `favoris.tsx` ; pas de test dédié backend sur `/api/favoris` |
+| **3.2 Client** | Demandes de visite et de réservation | **Partiel** | `DemandeVisiteController.java`, `ReservationController.java`, `Visites.tsx`, `Reservations.tsx` ; `parcours.e2e.ts` (E2E), pas de test MockMvc unitaire dédié sur visite/réservation |
+| **3.2 Client** | Messagerie directe (client voit les réponses, tiers interdit) | **Fait** | `MessageDirectController.java`, `MessageDirect.java`, `V72`, `V73`, `DetailAnnonce.tsx` ; `FinalisationSecurityAndFeaturesTest.messagerieDirecte_clientVoitReponses_etTiersInterdit` |
+| **3.2 Client** | Contrats de location (signature en direct, impression), paiement loyer simulé, reçu PDF SIMULATION + QR + vérification minimale | **Fait** | `ContratLocationController.java`, `ContratLocationService.java`, `PaiementLoyer.java`, `V73` (`ux_paiements_loyer_contrat_mois_actif`), `MesContratsLocation.tsx`, `VerifierRecu.tsx` ; `FinalisationSecurityAndFeaturesTest.loyerSimule_empecheDoublePaiementEnBase_generePdfSimulation_etVerificationMinimale`, `VerifierRecu.test.tsx` |
+| **3.2 Client** | Avis après expérience réelle et réclamations | **Fait** (réclamations) / **Partiel** (avis) | `SignalementController.java`, `MesSignalements.tsx` (`FinalisationSecurityAndFeaturesTest.signalements_creationSuiviEtAccesInterditAdmin`) ; `AvisController.java`, `AvisAnnonce.tsx` (sans test MockMvc dédié) |
+| **3.3 Propriétaire** | Inscription libre et publication immédiate sans validation admin | **Fait** | `AuthService.java`, `AnnonceService.java`, `Inscription.tsx`, `FormulaireAnnonce.tsx` ; `AnnonceTest.java`, `Publication.test.tsx` |
+| **3.3 Propriétaire** | Photos (max 15) et vidéo facultative | **Fait** | `PhotoController.java`, `VideoController.java`, `LecteurVideoAnnonce.tsx` ; `PhotoTest.java`, `Photos.test.tsx` |
+| **3.3 Propriétaire** | Abonnement et paiement simulé | **Partiel** | `AbonnementProprietaireService.java`, `application.yml` (`app.paiement.simulation-active`), `EspaceProprietaire.tsx` ; pas de test MockMvc dédié sur `/api/abonnements/simuler` |
+| **3.3 Propriétaire** | Confier un bien à l'agence (mandats) et statistiques (vues) | **Partiel** | `MandatGestionController.java`, `Annonce.java` (`vues`) ; `AnnonceTest.java` (vues non testé spécifiquement, mandats couverts par code) |
+| **3.4 - 3.10 Agence & Collaborateurs** | Responsable seul publie pour ImmoSénégal, recrute/valide collaborateurs, attribue missions ; Agent partenaire isolé | **Partiel** | `AnnonceService.java` (`creerPourAgence`), `AgenceController.java`, `AgenceTableauDeBord.tsx`, `CollaborateurTableauDeBord.tsx` ; pas de test MockMvc dédié sur `creerPourAgence` |
+| **3.9 Assistant administratif** | Gestion et archivage des dossiers administratifs d'agence | **Fait** | `DossierAgenceController.java`, `DossierAgence.java`, `V71__dossiers_agence.sql`, `DossiersAgence.tsx` ; `FinalisationSecurityAndFeaturesTest.dossiersAgence_assistantAutoriseEtTiersInterdit` |
+| **3.8 Caissier** | Mouvements de caisse (encaissements / décaissements) | **Partiel** | `CaisseController.java`, `CollaborateurTableauDeBord.tsx` ; pas de test MockMvc dédié sur `/api/agence/{id}/caisse` |
+| **5. Annonces** | 10 catégories (`CHAMBRE`, `IMMEUBLE`, `BUREAU`, `AUTRE` inclus), `chambres`, `sallesDeBain` | **Fait** | `TypeBien.java`, `V69__categories_et_details_annonces.sql`, `FormulaireAnnonce.tsx`, `Catalogue.tsx` ; `FinalisationSecurityAndFeaturesTest.visiteurNeVoitNiAdresseNiGps_dansLaListeEtDansLaFiche`, `Catalogue.test.tsx` |
+| **13. Technique** | Sécurité JWT, cookies HttpOnly, limitation d'échecs, migrations Flyway, couverture >= 60 % | **Fait** | `SecurityConfig.java`, `pom.xml` (`jacoco-maven-plugin`), `V1`..`V73` ; `AuthSecurityTest.java`, `LimitationConnexionTest.java`, `SessionRefreshTest.java`, `PingTest.java` |

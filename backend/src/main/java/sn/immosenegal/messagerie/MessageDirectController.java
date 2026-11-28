@@ -49,15 +49,23 @@ public class MessageDirectController {
     @GetMapping
     @Transactional(readOnly = true)
     public List<MessageResume> lister(@PathVariable UUID annonceId,
+                                      @RequestParam(required = false) UUID interlocuteurId,
                                       @AuthenticationPrincipal AuthenticatedUser acteur) {
         Annonce annonce = annonces.findById(annonceId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
         boolean gestionnaire = estGestionnaire(annonce, acteur);
-        return repo.findAllByAnnonceIdOrderByCreeLeAsc(annonceId).stream()
-            .filter(m -> gestionnaire || m.getExpediteur().getId().equals(acteur.id()))
-            .map(m -> new MessageResume(m.getId(), m.getExpediteur().getId(),
-                m.getExpediteur().getNomComplet(), m.getContenu(), m.getCreeLe()))
-            .toList();
+        if (!gestionnaire) {
+            if (interlocuteurId != null && !interlocuteurId.equals(acteur.id())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit aux échanges d'un autre utilisateur.");
+            }
+            return repo.findAllByAnnonceIdAndInterlocuteurIdOrderByCreeLeAsc(annonceId, acteur.id()).stream()
+                .map(this::versResume)
+                .toList();
+        }
+        List<MessageDirect> liste = interlocuteurId != null
+            ? repo.findAllByAnnonceIdAndInterlocuteurIdOrderByCreeLeAsc(annonceId, interlocuteurId)
+            : repo.findAllByAnnonceIdOrderByCreeLeAsc(annonceId);
+        return liste.stream().map(this::versResume).toList();
     }
 
     @PostMapping
@@ -67,19 +75,58 @@ public class MessageDirectController {
                                  @AuthenticationPrincipal AuthenticatedUser acteur) {
         Annonce annonce = annonces.findById(annonceId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
-        if (annonce.getStatut() != StatutAnnonce.PUBLIEE && !estGestionnaire(annonce, acteur)) {
+        boolean gestionnaire = estGestionnaire(annonce, acteur);
+        if (annonce.getStatut() != StatutAnnonce.PUBLIEE && !gestionnaire) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce introuvable.");
         }
         User expediteur = users.findById(acteur.id())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session invalide."));
-        MessageDirect m = repo.save(new MessageDirect(annonce, expediteur, req.contenu().trim()));
-        if (!annonce.getProprietaire().getId().equals(acteur.id())) {
+
+        User interlocuteur;
+        if (gestionnaire) {
+            if (req.interlocuteurId() != null) {
+                interlocuteur = users.findById(req.interlocuteurId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interlocuteur introuvable."));
+            } else {
+                List<User> clients = repo.findAllByAnnonceIdOrderByCreeLeAsc(annonceId).stream()
+                    .map(MessageDirect::getInterlocuteur)
+                    .distinct()
+                    .toList();
+                if (clients.size() == 1) {
+                    interlocuteur = clients.get(0);
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Précisez l'interlocuteur auquel vous souhaitez répondre.");
+                }
+            }
+        } else {
+            if (req.interlocuteurId() != null && !req.interlocuteurId().equals(acteur.id())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Vous ne pouvez pas écrire dans la conversation d'un autre utilisateur.");
+            }
+            interlocuteur = expediteur;
+        }
+
+        MessageDirect m = repo.save(new MessageDirect(annonce, expediteur, interlocuteur, req.contenu().trim()));
+        if (gestionnaire) {
+            if (!interlocuteur.getId().equals(acteur.id())) {
+                notifications.creer(interlocuteur, "NOUVEAU_MESSAGE_DIRECT",
+                    "Réponse à votre message",
+                    expediteur.getNomComplet() + " vous a répondu concernant « " + annonce.getTitre() + " ».",
+                    "/annonces/" + annonceId);
+            }
+        } else if (!annonce.getProprietaire().getId().equals(acteur.id())) {
             notifications.creer(annonce.getProprietaire(), "NOUVEAU_MESSAGE_DIRECT",
                 "Nouveau message sur votre annonce",
                 expediteur.getNomComplet() + " vous a écrit concernant « " + annonce.getTitre() + " ».",
                 "/annonces/" + annonceId);
         }
-        return new MessageResume(m.getId(), expediteur.getId(), expediteur.getNomComplet(), m.getContenu(), m.getCreeLe());
+        return versResume(m);
+    }
+
+    private MessageResume versResume(MessageDirect m) {
+        return new MessageResume(m.getId(), m.getExpediteur().getId(), m.getExpediteur().getNomComplet(),
+            m.getInterlocuteur().getId(), m.getInterlocuteur().getNomComplet(), m.getContenu(), m.getCreeLe());
     }
 
     private boolean estGestionnaire(Annonce annonce, AuthenticatedUser acteur) {
@@ -91,6 +138,8 @@ public class MessageDirectController {
             .isPresent();
     }
 
-    public record EnvoiRequest(@NotBlank @Size(max = 2000) String contenu) {}
-    public record MessageResume(UUID id, UUID expediteurId, String expediteurNom, String contenu, Instant creeLe) {}
+    public record EnvoiRequest(@NotBlank @Size(max = 2000) String contenu, UUID interlocuteurId) {}
+    public record MessageResume(UUID id, UUID expediteurId, String expediteurNom,
+                                UUID interlocuteurId, String interlocuteurNom,
+                                String contenu, Instant creeLe) {}
 }
