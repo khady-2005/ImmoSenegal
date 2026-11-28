@@ -61,4 +61,31 @@ describe('Candidature agence avec CV privé et gestion photos', () => {
     expect(confirmSpy).toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalledWith(expect.stringContaining('/photos/p1'), expect.objectContaining({ method: 'DELETE' }))
   })
+
+  it("propose le bouton Envoyer un avertissement sur un bien propriétaire et envoie l'avertissement", async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
+      if (url.endsWith('/avertir')) {
+        return new Response(JSON.stringify({ id: 'av1' }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+      }
+      return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } })
+    })
+
+    render(
+      <MemoryRouter>
+        <GestionPhotos annonceId="a1" photos={['p1']} onChange={vi.fn()} peutAvertir lectureSeule />
+      </MemoryRouter>,
+    )
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Envoyer un avertissement' }))
+    await user.type(screen.getByLabelText(/Motif de l’avertissement/i), 'Photo floue')
+    await user.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+    expect(await screen.findByText(/Avertissement envoyé au propriétaire/i)).toBeInTheDocument()
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining('/api/admin/photos/a1/p1/avertir'),
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
 })

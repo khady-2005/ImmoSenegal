@@ -39,7 +39,8 @@ public class ModerationPhotoService {
         exigerAdmin(admin);
         Annonce annonce = annonces.findById(annonceId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Annonce introuvable."));
-        if (annonce.isPublieeParAgence()) {
+        if ((annonce.getAgence() != null && annonce.getAgence().getType() == sn.immosenegal.agence.AgenceType.INTERNE)
+                || (annonce.isPublieeParAgence() && annonce.getAgence() == null)) {
             throw new ApiException(HttpStatus.CONFLICT, "Les photos d'une annonce ImmoSénégal se gèrent directement, sans avertissement.");
         }
         if (motif == null || motif.isBlank() || motif.trim().length() > 500) {

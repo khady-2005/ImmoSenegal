@@ -8,16 +8,21 @@ interface Props {
   annonceId: string
   photos: string[]
   onChange: (photos: string[]) => void
+  peutAvertir?: boolean
+  lectureSeule?: boolean
 }
 
 /** Ajout et suppression des photos d'une annonce. Le serveur revérifie tout (droits, format réel, taille, nombre). */
-export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
+export default function GestionPhotos({ annonceId, photos, onChange, peutAvertir = false, lectureSeule = false }: Props) {
   const { jeton } = useAuth()
   const champ = useRef<HTMLInputElement>(null)
   const [erreurs, setErreurs] = useState<string[]>([])
   const [succes, setSucces] = useState<string | null>(null)
   const [versions, setVersions] = useState<Record<string, number>>({})
   const [enCours, setEnCours] = useState(false)
+  const [avertissementPhotoId, setAvertissementPhotoId] = useState<string | null>(null)
+  const [motifAvertissement, setMotifAvertissement] = useState('')
+  const [envoiAvertissement, setEnvoiAvertissement] = useState(false)
   const [apercusEnCours, setApercusEnCours] = useState<string[]>([])
   const [piece, setPiece] = useState('AUTRE')
   const [categories, setCategories] = useState<Record<string, string>>({})
@@ -163,6 +168,31 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
     }
   }
 
+  async function envoyerAvertissement(photo: string) {
+    const motif = motifAvertissement.trim()
+    if (!motif) {
+      setErreurs(["Indiquez le motif de l'avertissement."])
+      return
+    }
+    setErreurs([])
+    setSucces(null)
+    setEnvoiAvertissement(true)
+    try {
+      await appelApi(`/api/admin/photos/${annonceId}/${photo}/avertir`, {
+        method: 'POST',
+        body: { motif },
+        token: jeton,
+      })
+      setSucces('Avertissement envoyé au propriétaire (délai 48 h).')
+      setAvertissementPhotoId(null)
+      setMotifAvertissement('')
+    } catch (e) {
+      setErreurs([e instanceof ApiError ? e.message : "Envoi de l'avertissement impossible."])
+    } finally {
+      setEnvoiAvertissement(false)
+    }
+  }
+
   return (
     <section aria-labelledby="titre-photos" className="mt-7 overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
       <div className="bg-nuit-950 bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 px-4 py-5 text-white sm:px-7 sm:py-6">
@@ -182,6 +212,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
         </div>
       </div>
       <div className="p-4 sm:p-7">
+      {!lectureSeule && (
       <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-nuit-950 sm:text-base">
         <p className="font-semibold text-nuit-950">Classez les photos par pièce du logement (15 maximum).</p>
         <p className="mt-1 text-slate-800">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi. Jusqu’à 15 photos peuvent être ajoutées pour une annonce.</p>
@@ -190,6 +221,12 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
           <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
         </select>
       </div>
+      )}
+      {peutAvertir && (
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+          Cette annonce appartient à un propriétaire sans mandat actif. Vous pouvez envoyer un avertissement sur une photo non conforme (le propriétaire dispose de 48 heures pour répondre ou la corriger).
+        </div>
+      )}
 
       {succes && (
         <p role="status" className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">
@@ -213,49 +250,96 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
                 <span className="absolute left-2 top-2 rounded-full border border-white/30 bg-nuit-950 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-dore-300">Photo {i + 1}</span>
                 {i === 0 && <span className="absolute bottom-2 left-2 rounded-full bg-dore-300 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-nuit-950">Couverture</span>}
               </div>
-              <label className="mt-3 block text-sm font-semibold leading-5 text-nuit-950 sm:text-base">Pièce associée
-                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-600 focus:bg-white focus:ring-2 focus:ring-amber-300/40 sm:text-base">
-                  <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
-                </select>
-              </label>
-              <div className="mt-2 space-y-1.5">
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
-                    aria-label={`Déplacer la photo ${i + 1} vers le début`}
-                    className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↑</button>
-                  <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
-                    aria-label={`Déplacer la photo ${i + 1} vers la fin`}
-                    className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↓</button>
+              {!lectureSeule && (
+                <>
+                  <label className="mt-3 block text-sm font-semibold leading-5 text-nuit-950 sm:text-base">Pièce associée
+                    <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-600 focus:bg-white focus:ring-2 focus:ring-amber-300/40 sm:text-base">
+                      <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
+                    </select>
+                  </label>
+                  <div className="mt-2 space-y-1.5">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
+                        aria-label={`Déplacer la photo ${i + 1} vers le début`}
+                        className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↑</button>
+                      <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
+                        aria-label={`Déplacer la photo ${i + 1} vers la fin`}
+                        className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↓</button>
+                    </div>
+                    <label className="flex min-h-10 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-nuit-950 transition hover:border-nuit-800 hover:bg-slate-100">
+                      Remplacer
+                      <input type="file" accept="image/jpeg,image/png,image/webp" disabled={enCours}
+                        aria-label={`Remplacer la photo ${i + 1}`}
+                        onChange={(e) => { void remplacer(photo, e.target.files?.[0]); e.target.value = '' }}
+                        className="sr-only" />
+                    </label>
+                    <button
+                      type="button"
+                      disabled={enCours}
+                      onClick={() => supprimer(photo)}
+                      aria-label={`Supprimer la photo ${i + 1}`}
+                      className="min-h-11 w-full rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-900 transition hover:border-rose-400 hover:bg-rose-100 disabled:opacity-50"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                  {i > 0 && (
+                    <button type="button" disabled={enCours} onClick={() => void definirPrincipale(i)}
+                      className="mt-1.5 min-h-10 w-full rounded-xl border border-amber-400 bg-amber-50 px-2 py-1.5 text-xs font-bold text-nuit-950 hover:bg-amber-100 disabled:opacity-50">
+                      Définir comme photo principale
+                    </button>
+                  )}
+                </>
+              )}
+              {peutAvertir && (
+                <div className="mt-3 space-y-2">
+                  {avertissementPhotoId === photo ? (
+                    <div className="space-y-2 rounded-xl border border-amber-300 bg-amber-50 p-2.5">
+                      <label className="block text-xs font-bold text-nuit-950">
+                        Motif de l’avertissement
+                        <input
+                          type="text"
+                          value={motifAvertissement}
+                          onChange={(e) => setMotifAvertissement(e.target.value)}
+                          placeholder="Ex. : photo floue ou filigrane"
+                          className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900"
+                        />
+                      </label>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          disabled={envoiAvertissement}
+                          onClick={() => void envoyerAvertissement(photo)}
+                          className="flex-1 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-bold text-nuit-950 hover:bg-amber-400 disabled:opacity-50"
+                        >
+                          {envoiAvertissement ? 'Envoi…' : 'Confirmer'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setAvertissementPhotoId(null); setMotifAvertissement('') }}
+                          className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-800"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setAvertissementPhotoId(photo); setMotifAvertissement('') }}
+                      className="min-h-10 w-full rounded-xl border border-amber-500 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-950 transition hover:bg-amber-100"
+                    >
+                      Envoyer un avertissement
+                    </button>
+                  )}
                 </div>
-                <label className="flex min-h-10 w-full cursor-pointer items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-nuit-950 transition hover:border-nuit-800 hover:bg-slate-100">
-                  Remplacer
-                  <input type="file" accept="image/jpeg,image/png,image/webp" disabled={enCours}
-                    aria-label={`Remplacer la photo ${i + 1}`}
-                    onChange={(e) => { void remplacer(photo, e.target.files?.[0]); e.target.value = '' }}
-                    className="sr-only" />
-                </label>
-                <button
-                  type="button"
-                  disabled={enCours}
-                  onClick={() => supprimer(photo)}
-                  aria-label={`Supprimer la photo ${i + 1}`}
-                  className="min-h-11 w-full rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-900 transition hover:border-rose-400 hover:bg-rose-100 disabled:opacity-50"
-                >
-                  Supprimer
-                </button>
-              </div>
-              {i > 0 && (
-                <button type="button" disabled={enCours} onClick={() => void definirPrincipale(i)}
-                  className="mt-1.5 min-h-10 w-full rounded-xl border border-amber-400 bg-amber-50 px-2 py-1.5 text-xs font-bold text-nuit-950 hover:bg-amber-100 disabled:opacity-50">
-                  Définir comme photo principale
-                </button>
               )}
             </li>
           ))}
         </ul>
       )}
 
-      {photos.length < PHOTOS_MAX && (
+      {!lectureSeule && photos.length < PHOTOS_MAX && (
         <div className="mt-5 rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50/60 p-4 sm:p-5">
           <label htmlFor="ajout-photos" className="mb-1 block text-base font-bold text-nuit-950">Ajouter des photos à votre galerie</label>
           <p className="mb-3 text-sm leading-5 text-slate-700 sm:text-base">Sélectionnez plusieurs images à la fois. Choisissez d’abord la catégorie ci-dessus pour classer automatiquement les nouvelles photos.</p>
