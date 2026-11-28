@@ -157,7 +157,9 @@ class AnnonceTest extends AbstractApiTest {
     @Test
     void lAFicheMasqueLAdresseAuVisiteur_etNExposeNiLEmailNiLeTelephoneDuProprietaire() throws Exception {
         String jeton = utilisateurConnecte(Role.PROPRIETAIRE);
-        String id = publierEtValider(jeton, utilisateurConnecte(Role.ADMIN), annonce("Visible", quartierUnique()));
+        Map<String, Object> a = annonce("Visible", quartierUnique());
+        a.put("adresse", "Rue 12, Dakar");
+        String id = publierEtValider(jeton, utilisateurConnecte(Role.ADMIN), a);
 
         lire(id, null)
             .andExpect(status().isOk())
@@ -166,7 +168,7 @@ class AnnonceTest extends AbstractApiTest {
         lire(id, utilisateurConnecte(Role.CLIENT))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.titre").value("Visible"))
-            .andExpect(jsonPath("$.adresse").exists())
+            .andExpect(jsonPath("$.adresse").value("Rue 12, Dakar"))
             .andExpect(jsonPath("$.proprietaire.nomComplet").exists())
             .andExpect(content().string(not(containsString("@example.test"))))
             .andExpect(content().string(not(containsString("telephone"))));
