@@ -462,7 +462,7 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"loyerMensuel\":200000,\"depotGarantie\":200000,\"dateDebut\":\"2026-12-01\"}")
                 .header(HttpHeaders.AUTHORIZATION, jwtGest))
-            .andExpect(status().isOk());
+            .andExpect(status().isCreated());
 
         var dossiers = dossiersAgence.findAllByAgenceIdOrderByCreeLeDesc(interne.getId());
         assertThat(dossiers).anyMatch(d -> d.getCategorie() == sn.immosenegal.agence.DossierAgence.CategorieDossier.CONTRAT);
