@@ -103,7 +103,7 @@ class DroitsMediasEtAvertissementTest extends AbstractApiTest {
         bien.setTypeTransaction(TypeTransaction.LOCATION);
         bien.setPrix(500_000L);
         bien.setSuperficie(new BigDecimal("200"));
-        bien.setQuartier("Almadies");
+        bien.setQuartier("Sacré-Cœur");
         bien.setVille("Dakar");
         bien.setAgence(interne);
         bien.setPublieeParAgence(true);
