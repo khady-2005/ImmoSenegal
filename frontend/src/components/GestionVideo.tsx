@@ -58,21 +58,21 @@ export default function GestionVideo({ annonceId }: Props) {
   }
 
   return (
-    <section className="mt-6 rounded-2xl bg-white p-5 shadow" aria-labelledby="titre-video-annonce">
-      <h2 id="titre-video-annonce" className="text-lg font-semibold">Vidéo de présentation (facultative)</h2>
-      <p className="mt-1 text-sm text-slate-600">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 11150 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
+    <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow" aria-labelledby="titre-video-annonce">
+      <h2 id="titre-video-annonce" className="text-lg font-semibold text-nuit-950">Vidéo de présentation (facultative)</h2>
+      <p className="mt-1 text-sm text-slate-700">Ajoutez une courte visite vidéo pour montrer les pièces, la circulation et les extérieurs. Formats MP4 ou WebM, 11150 Mo maximum. Une seule vidéo par annonce ; un nouvel envoi remplace l'ancienne.</p>
       {disponible && (
         <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
           <span>Une vidéo est enregistrée pour cette annonce.</span>
           <button type="button" onClick={() => void supprimer()} disabled={enCours} className="font-semibold underline disabled:opacity-50">Supprimer</button>
         </div>
       )}
-      <label htmlFor={`video-annonce-${annonceId}`} className="mt-4 mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor={`video-annonce-${annonceId}`} className="mt-4 mb-1 block text-sm font-semibold text-nuit-950">
         {disponible ? 'Remplacer la vidéo' : 'Choisir une vidéo'}
       </label>
       <input ref={champ} id={`video-annonce-${annonceId}`} type="file" accept="video/mp4,video/webm,.mp4,.webm"
-        disabled={enCours} onChange={e => void envoyer(e.target.files?.[0])} className="block w-full text-sm" />
-      {enCours && <p role="status" className="mt-2 text-sm text-slate-500">Envoi en cours…</p>}
+        disabled={enCours} onChange={e => void envoyer(e.target.files?.[0])} className="block w-full cursor-pointer rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-nuit-900 file:px-4 file:py-2 file:font-bold file:text-white hover:file:bg-nuit-800" />
+      {enCours && <p role="status" className="mt-2 text-sm font-medium text-nuit-900">Envoi en cours…</p>}
       {erreur && <p role="alert" className="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800">{erreur}</p>}
     </section>
   )

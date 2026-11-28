@@ -132,67 +132,69 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
   }
 
   return (
-    <section aria-labelledby="titre-photos" className="mt-7 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
-      <div className="bg-gradient-to-r from-[#101d35] via-[#172b4d] to-[#243b60] px-5 py-6 text-white sm:px-7">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+    <section aria-labelledby="titre-photos" className="mt-7 overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-[0_18px_55px_rgba(15,23,42,0.08)]">
+      <div className="bg-nuit-950 bg-gradient-to-r from-nuit-950 via-nuit-900 to-nuit-800 px-4 py-5 text-white sm:px-7 sm:py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-base font-bold uppercase tracking-[0.2em] text-[#e8c56f]">Présentation du logement</p>
-            <h2 id="titre-photos" className="mt-1 text-2xl font-bold">Galerie photos</h2>
-            <p className="mt-1 text-base text-slate-200">Mettez en valeur chaque espace de votre bien.</p>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-dore-300 sm:text-base">Présentation du logement</p>
+            <h2 id="titre-photos" className="mt-1 text-xl font-bold text-white sm:text-2xl">Galerie photos</h2>
+            <p className="mt-1 text-sm text-slate-100 sm:text-base">Mettez en valeur chaque espace de votre bien.</p>
           </div>
-          <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-center backdrop-blur">
-            <p className="text-2xl font-extrabold text-[#f2d27f]">{photos.length}<span className="text-base font-medium text-white">/{PHOTOS_MAX}</span></p>
-            <p className="text-sm font-semibold uppercase tracking-wider text-slate-200">Photos ajoutées</p>
+          <div className="w-full rounded-2xl border border-dore-300/40 bg-nuit-950/90 px-4 py-3 text-center sm:w-auto sm:min-w-36">
+            <p className="text-2xl font-extrabold text-dore-300">{photos.length}<span className="text-base font-semibold text-white">/{PHOTOS_MAX}</span></p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-100 sm:text-sm">Photos ajoutées</p>
           </div>
         </div>
-        <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/15">
-          <div className="h-full rounded-full bg-gradient-to-r from-[#d5ad4f] to-[#f5df9c] transition-all" style={{ width: `${Math.min(100, photos.length / PHOTOS_MAX * 100)}%` }} />
+        <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/20">
+          <div className="h-full rounded-full bg-gradient-to-r from-dore-500 to-dore-300 transition-all" style={{ width: `${Math.min(100, photos.length / PHOTOS_MAX * 100)}%` }} />
         </div>
       </div>
-      <div className="p-5 sm:p-7">
-      <div className="rounded-2xl border border-[#ead9aa] bg-[#fbf7eb] p-4 text-base leading-relaxed text-nuit-900">
-        <p className="font-semibold">Classez les photos par pièce du logement (15 maximum).</p>
-        <p className="mt-1">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi. Jusqu’à 15 photos peuvent être ajoutées pour une annonce.</p>
-        <label htmlFor="categorie-nouvelles-photos" className="mt-3 block font-semibold">Catégorie des prochaines photos</label>
-        <select id="categorie-nouvelles-photos" value={piece} onChange={(e) => setPiece(e.target.value)} className="mt-1 w-full rounded-lg border border-dore-300 bg-white px-3 py-2 text-base text-slate-900">
+      <div className="p-4 sm:p-7">
+      <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-nuit-950 sm:text-base">
+        <p className="font-semibold text-nuit-950">Classez les photos par pièce du logement (15 maximum).</p>
+        <p className="mt-1 text-slate-800">Dans la fenêtre de fichiers, maintenez <strong>Ctrl</strong> (ou <strong>Cmd</strong> sur Mac) pour sélectionner plusieurs images, puis validez. Vous pouvez modifier la catégorie de chaque photo après son envoi. Jusqu’à 15 photos peuvent être ajoutées pour une annonce.</p>
+        <label htmlFor="categorie-nouvelles-photos" className="mt-3 block font-semibold text-nuit-950">Catégorie des prochaines photos</label>
+        <select id="categorie-nouvelles-photos" value={piece} onChange={(e) => setPiece(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base font-medium text-slate-900">
           <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
         </select>
       </div>
 
       {photos.length > 0 && (
-        <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <ul className="mt-5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {photos.map((photo, i) => (
-            <li key={photo} className="group min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-[#d6b65e] hover:shadow-lg">
+            <li key={photo} className="group min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-900 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-amber-400 hover:shadow-lg">
               <div className="relative overflow-hidden rounded-xl bg-slate-100">
                 <img src={urlPhoto(annonceId, photo)} alt={`Photo ${i + 1}`} className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
-                <span className="absolute left-2 top-2 rounded-full border border-white/30 bg-[#101d35]/90 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[#f2d27f] backdrop-blur">Photo {i + 1}</span>
-                {i === 0 && <span className="absolute bottom-2 left-2 rounded-full bg-[#e8c56f] px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[#18243a]">Couverture</span>}
+                <span className="absolute left-2 top-2 rounded-full border border-white/30 bg-nuit-950 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-dore-300">Photo {i + 1}</span>
+                {i === 0 && <span className="absolute bottom-2 left-2 rounded-full bg-dore-300 px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider text-nuit-950">Couverture</span>}
               </div>
-              <label className="mt-3 block text-base font-semibold leading-5 text-slate-800">Pièce associée
-                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base font-semibold text-slate-900 outline-none transition focus:border-[#c9a64f] focus:bg-white focus:ring-2 focus:ring-[#e8c56f]/30">
+              <label className="mt-3 block text-sm font-semibold leading-5 text-nuit-950 sm:text-base">Pièce associée
+                <select aria-label={`Pièce de la photo ${i + 1}`} value={categories[photo] ?? "AUTRE"} onChange={(e) => void classer(photo, e.target.value)} className="mt-1.5 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-amber-600 focus:bg-white focus:ring-2 focus:ring-amber-300/40 sm:text-base">
                   <option value="FACADE">Façade</option><option value="SALON">Salon / séjour</option><option value="CHAMBRE">Chambre</option><option value="CUISINE">Cuisine</option><option value="SALLE_DE_BAIN">Salle de bain</option><option value="TOILETTES">Toilettes</option><option value="BALCON_TERRASSE">Balcon / terrasse</option><option value="JARDIN_COUR">Jardin / cour</option><option value="PISCINE">Piscine</option><option value="AUTRE">Autre</option>
                 </select>
               </label>
-              <div className="mt-2 grid grid-cols-[1fr_1fr_1.35fr] gap-1.5">
-                <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
-                  aria-label={`Déplacer la photo ${i + 1} vers le début`}
-                  className="min-h-11 rounded-xl border border-slate-300 bg-white px-2 py-2 text-base font-bold text-slate-800 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-40">↑</button>
-                <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
-                  aria-label={`Déplacer la photo ${i + 1} vers la fin`}
-                  className="min-h-10 rounded-xl border border-slate-200 bg-white px-2 py-2 text-base font-bold text-slate-700 transition hover:border-[#c9a64f] hover:bg-[#fbf7eb] disabled:cursor-not-allowed disabled:opacity-35">↓</button>
+              <div className="mt-2 space-y-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button type="button" disabled={enCours || i === 0} onClick={() => void deplacer(i, -1)}
+                    aria-label={`Déplacer la photo ${i + 1} vers le début`}
+                    className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↑</button>
+                  <button type="button" disabled={enCours || i === photos.length - 1} onClick={() => void deplacer(i, 1)}
+                    aria-label={`Déplacer la photo ${i + 1} vers la fin`}
+                    className="min-h-11 rounded-xl border border-slate-300 bg-slate-50 px-2 py-2 text-base font-bold text-nuit-950 transition hover:border-amber-500 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40">↓</button>
+                </div>
                 <button
-                type="button"
-                disabled={enCours}
-                onClick={() => supprimer(photo)}
-                aria-label={`Supprimer la photo ${i + 1}`}
-                className="min-h-11 w-full rounded-xl border border-rose-300 bg-rose-50 px-2 py-2 text-base font-bold text-rose-800 transition hover:border-rose-400 hover:bg-rose-100"
-              >
-                Supprimer
-              </button>
+                  type="button"
+                  disabled={enCours}
+                  onClick={() => supprimer(photo)}
+                  aria-label={`Supprimer la photo ${i + 1}`}
+                  className="min-h-11 w-full rounded-xl border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-900 transition hover:border-rose-400 hover:bg-rose-100 disabled:opacity-50"
+                >
+                  Supprimer
+                </button>
               </div>
               {i > 0 && (
                 <button type="button" disabled={enCours} onClick={() => void definirPrincipale(i)}
-                  className="mt-1.5 w-full rounded-xl border border-[#d6b65e] bg-[#fbf7eb] px-2 py-1.5 text-xs font-bold text-[#18243a] hover:bg-[#f2e5bd] disabled:opacity-50">
+                  className="mt-1.5 min-h-10 w-full rounded-xl border border-amber-400 bg-amber-50 px-2 py-1.5 text-xs font-bold text-nuit-950 hover:bg-amber-100 disabled:opacity-50">
                   Définir comme photo principale
                 </button>
               )}
@@ -202,9 +204,9 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
       )}
 
       {photos.length < PHOTOS_MAX && (
-        <div className="mt-5 rounded-2xl border-2 border-dashed border-[#d8c58f] bg-[#fcfaf4] p-5">
-          <label htmlFor="ajout-photos" className="mb-1 block text-base font-bold text-nuit-900">Ajouter des photos à votre galerie</label>
-          <p className="mb-3 text-base leading-5 text-slate-600">Sélectionnez plusieurs images à la fois. Choisissez d’abord la catégorie ci-dessus pour classer automatiquement les nouvelles photos.</p>
+        <div className="mt-5 rounded-2xl border-2 border-dashed border-amber-400 bg-amber-50/60 p-4 sm:p-5">
+          <label htmlFor="ajout-photos" className="mb-1 block text-base font-bold text-nuit-950">Ajouter des photos à votre galerie</label>
+          <p className="mb-3 text-sm leading-5 text-slate-700 sm:text-base">Sélectionnez plusieurs images à la fois. Choisissez d’abord la catégorie ci-dessus pour classer automatiquement les nouvelles photos.</p>
           <input
             ref={champ}
             id="ajout-photos"
@@ -213,7 +215,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
             multiple
             disabled={enCours}
             onChange={(e) => void ajouter(e.target.files)}
-            className="block w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-2 text-base text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-[#172b4d] file:px-4 file:py-2 file:text-base file:font-bold file:text-white hover:file:bg-[#243b60]"
+            className="block w-full cursor-pointer rounded-xl border border-slate-300 bg-white p-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-nuit-900 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-nuit-800 sm:text-base"
           />
           {apercusEnCours.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -222,7 +224,7 @@ export default function GestionPhotos({ annonceId, photos, onChange }: Props) {
               ))}
             </div>
           )}
-          {enCours && <p role="status" className="mt-2 text-base text-slate-500">Envoi en cours…</p>}
+          {enCours && <p role="status" className="mt-2 text-sm font-semibold text-nuit-900 sm:text-base">Envoi en cours…</p>}
         </div>
       )}
 

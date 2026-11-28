@@ -310,10 +310,10 @@ export default function FormulaireAnnonce() {
         <GestionPhotos annonceId={annonceCreeeId} photos={photos} onChange={setPhotos} />
         <GestionVideo annonceId={annonceCreeeId} />
         <div className="mt-5 flex flex-wrap gap-3">
-          <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-nuit-900 px-5 py-2.5 font-semibold text-white">
+          <button type="button" onClick={() => navigate('/mes-annonces')} className="rounded-lg bg-nuit-900 px-5 py-2.5 font-semibold text-white hover:bg-nuit-800">
             Terminer et voir mes annonces
           </button>
-          <button type="button" onClick={() => navigate(`/annonces/${annonceCreeeId}/modifier`)} className="rounded-lg border border-slate-300 px-5 py-2.5 font-medium text-slate-700">
+          <button type="button" onClick={() => navigate(`/annonces/${annonceCreeeId}/modifier`)} className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold text-nuit-950 hover:bg-slate-50">
             Modifier les informations
           </button>
         </div>
@@ -402,7 +402,7 @@ export default function FormulaireAnnonce() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-dore-200 bg-dore-50/60 p-4 sm:p-5" aria-labelledby="titre-position-bien">
+        <section className="rounded-2xl border border-amber-300 bg-amber-50/90 p-4 sm:p-5" aria-labelledby="titre-position-bien">
           <div className="mb-4 flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-nuit-900 text-sm font-bold text-dore-300">3</span>
             <div><h2 id="titre-position-bien" className="font-semibold text-nuit-900">Position sur la carte</h2><p className="text-xs text-slate-600">Aidez les visiteurs à repérer le bien.</p></div>
@@ -471,7 +471,7 @@ export default function FormulaireAnnonce() {
           <button type="submit" disabled={envoi} className="rounded-lg bg-nuit-900 px-4 py-2.5 font-semibold text-white hover:bg-nuit-800 disabled:opacity-60">
             {envoi ? 'Envoi…' : edition ? 'Enregistrer' : 'Enregistrer et ajouter les photos'}
           </button>
-          <Link to="/mes-annonces" className="rounded-lg border border-slate-300 px-4 py-2.5 font-medium">
+          <Link to="/mes-annonces" className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-semibold text-nuit-950 hover:bg-slate-50">
             Annuler
           </Link>
         </div>
